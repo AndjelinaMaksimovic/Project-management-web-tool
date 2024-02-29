@@ -1,12 +1,10 @@
-# WebAPI primer
-
----
-
 # Uvod u .NET
+**.NET** je platforma za razvoj softvera koja je razvijena od strane Microsoft-a,  temeljena na Common Language Runtime (CLR), što je virtualno okruženje za izvođenje programa (poput JVM-a) napisanih u različitim jezicima koji podržavaju .NET, poput C#, Visual Basic i F#.
+Postoji vise verzija .NET-a:
+- **.NET Framework** Omogućuje programerima izgradnju Windows i server aplikacija.
+- **.NET Core** je otvorena implementacija .NET platforme koja podržava Windows, Mac i Linux uređaje.
 
-.NET je open-source platforma koja služi za kreiranje aplikacija raznih namena poput konzolnih, web i desktop aplikacija. Moze pokrenuti programe napisane u raznim programskim jezicima - C# je najzastupljeniji. 
-
-.NET platforma omogućava produktivnost, performanse, sigurnost i pouzdanost.
+    **ASP.NET Core** je okvir (framework) za izgradnju web aplikacija koji je deo .NET platforme koji ćemo koristiti.
 
 # Preduslovi
 
@@ -15,11 +13,14 @@
 1. Skinuti .NET SDK sa [zvaničnog sajta](https://dotnet.microsoft.com/en-us/download)
 2. Pokrenuti instalaciju i ispratiti korake sa prethodnog linka
 
-### Visual Studio
+### Visual Studio (Windows)
 
-1. Instalirati [Visual Studio 2022 Preview](https://visualstudio.microsoft.com/vs/preview/#download-preview) sa ASP\.NET and web development
+Instalirati [Visual Studio 2022 Preview](https://visualstudio.microsoft.com/vs/preview/#download-preview) sa ASP\.NET and web development paketom
 
-# Kreairanje WebAPI projekta
+### Rider (Linux)
+Instalirati [Rider Early access program](https://www.jetbrains.com/rider/nextversion/). Rider je plaćeni JetBrains softver sa besplatnom early access verzijom
+
+# Kreairanje WebAPI projekta uz Visual Studio
 
 - Iz **File** menija, izabrati **New** > **Project**
 - Uneti **Web API** u search box
@@ -85,7 +86,7 @@ Model klasa predstavlja reprezentaciju nekog podatka koji se koristi u okviru pr
 
 # Dodavanje database context-a
 
-Database context je glavna klasa koja upravlja Entity Framework funkcionlanostima za data model. Ova klasa nasledjuje klasu Microsoft.EntityFrameworkCore.DbContext.
+Database context je glavna klasa koja upravlja Entity Framework funkcionlanostima za data model tj. bazom podataka i omogućava C# LINQ upite. Ova klasa nasledjuje klasu Microsoft.EntityFrameworkCore.DbContext.
 
 - Pritisnuti desni klik na folder `Models` i izabrati **Add** > **Class**. Nazvati klasu `TodoContext` i pritisnuti **Add**.
 - Uneti sledeći kod:
@@ -162,6 +163,12 @@ public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
     return todoItem;
 }
 ```
+
+# CLI komande
+
+- `dotnet run` - kompajlira i pokreće aplikaciju (za pokretanje bez kompajliranja mora se dodati opcija `--no-build`)
+- `dotnet build` - kompajlira aplikaciju
+- `dotnet publish` - kreira izvrsni fajl koji je spreman za otpremljivanje na server
 
 # Resursi:
 
