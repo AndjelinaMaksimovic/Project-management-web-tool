@@ -1,0 +1,16 @@
+<div *ngIf="Product">
+    <h2>{{Product.name}}</h2>
+
+<div>Ime:
+    <input [(ngModel)]= "Product.name" placeholder="ime" />
+</div>
+
+<div>Cena:
+    <input [(ngModel)]= "Product.price" placeholder="cena" />
+</div>
+<button (click)="updateProduct(Product)" *ngIf="Product.id">sacuvaj</button>
+<button (click)="deleteProduct(Product)" *ngIf="Product.id">izbrisi</button>
+<button (click)="createProduct(Product)" *ngIf="!Product.id">kreiraj</button>
+</div>
+   
+   
