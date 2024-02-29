@@ -1,4 +1,4 @@
-﻿![](slike/angularNaslov.jpg)
+![](slike/angularNaslov.jpg)
 
 <br><br>
 
