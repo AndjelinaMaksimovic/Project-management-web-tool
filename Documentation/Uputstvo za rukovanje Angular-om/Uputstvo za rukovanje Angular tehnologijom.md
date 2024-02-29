@@ -4,48 +4,42 @@
 
 # Sadržaj
 
-[UVOD U ANGULAR	2](#_toc159885896)
+1. [Uvod u Angular](#_toc159885896)
+    1. [TypeScript](#_toc159885897)
+    2. [Struktura](#_toc159885898)
 
-[TypeScript	2](#_toc159885897)
+2. [Karakteristike angulara](#_toc159885899)
 
-[Struktura	2](#_toc159885898)
+3. [Instalacija alata](#_toc159885900)
 
-[Karakteristike angulara	3](#_toc159885899)
+4. [NodeJS](#_toc159885901)
 
-[INSTALACIJA ANGULAR ALATA	4](#_toc159885900)
+5. [Angular](#_toc159885902)
 
-[NodeJS	4](#_toc159885901)
-
-[Angular	4](#_toc159885902)
-
-[RESURSI I KORISNI LINKOVI	7](#_toc159885903)
+6. [Resursi i korisni linkovi](#_toc159885903)
 
 
 
-<br>
-<a name="_toc159885896"></a>UVOD U ANGULAR
-<br><br>
-
+<a name="_toc159885896"></a>
+<h3>Uvod u Angular </h3>
 ***Angular*** je open-source *JavaScript framework* koji je razvila kompanija *Google* i koristi se za kreiranje dinamičnih veb aplikacija. Široko se koristi za izradu jednostraničnih aplikacija (*SPAs*) i kompleksnih veb aplikacija. Angular koristi deklarativne *templates*, ubacivanje zavisnosti (dependency injections), alate za kreiranje *end-to-end* testiranja i integrisane najbolje prakse kako bi pojednostavio process razvoja i testiranja web aplikacija.
 
-<br>
-<a name="_toc159885897"></a>TypeScript
-<br><br>
-
+<!---------------------------------------------------------------------------------->
+<a name="_toc159885897"></a>
+<h3>TypeScript</h3>
 ***TypeScript*** je sintaktični nadskup *JavaScript*-a koji dodaje statičko tipiziranje. To znači da *TypeScript* dodaje sintaksu iznad *JavaScript*-a, omogućavajući programerima da dodaju tipove.  U *JavaScript*-u, parametri funkcija i promenljive nemaju informacije. Zato programeri moraju da pogledaju dokumentaciju ili da nagađaju na osnovu implementacije. *TypeScript* omogućava specificiranje tipova podataka koji se koriste u kodu i ima sposobnost da prijavi greške kada tipovi ne odgovaraju.
 
 Na primer, *TypeScript* će prijaviti grešku kada se proslešuje string funkciji koja očekuje broj. *JavaScript* to neće uraditi.
 
-<br><br>
-<a name="_toc159885898"></a>Struktura
-<br><br>
+<!---------------------------------------------------------------------------------->
+<a name="_toc159885898"></a>
+<h3>Struktura</h3>
 
 Struktura *Angular*-a obuhvata nekoliko ključnih elemenata koji omogućavaju organizaciju, razvoj i funkcionalnost veb aplikacija, uključujući module, komponente, servise, direktive i rute:
 
 - **Moduli (*Modules*)**: *Angular* aplikacija je organizovana u module. Moduli grupišu komponente, direktive, servise i druge *Angular* funkcije koje imaju srodnu funkcionalnost. Glavni modul se naziva *AppModule*. Glavni modul, početna tačka aplikacije, se naziva *AppModule*. Kreiranje modula omogućava organizaciju aplikacije na način koji olakšava razvoj, testiranje i održavanje. Pored *AppModule*-a, *Angular* omogućava kreiranje i korišćenje dodatnih modula za organizaciju aplikacije na logičan način, kao što su funkcionalni moduli ili *SharedModule* za deljenje komponenti i servisa među različitim delovima aplikacije. Ovo omogućava modularnost aplikacije i ponovno korišćenje koda. 
 
 - **Komponente (*Components*)**: *Komponente* predstavljaju osnovne gradivne blokove *Angular* aplikacije. Svaka komponenta sastoji se od HTML predloška (*template*-a) koji definiše korisnički interfejs, *TypeScript* klase koja definiše logiku komponente, i *CSS* stila koji definiše izgled komponente. Komponente se sastoje od *HTML* predložaka koji definišu izgled komponente, TypeScript koda koji definiše logiku i ponašanje komponente, kao i CSS stilova koji definišu izgled. Kreiranje komponenti je jednostavno, jer *Angular* pruža *CLI* alat koji automatski generiše osnovnu strukturu komponente sa svim potrebnim fajlovima. Ovo olakšava organizaciju i održavanje aplikacije, jer omogućava jasno razdvajanje funkcionalnosti po komponentama. Konkretno u aplikaciji, unutar *app* direktorijuma se komponenta kreira tako sto se u terminalu ukuca komanda **ng generate component naziv-komponente**. Ova komanda automatski generiše osnovnu strukturu komponente, uključujući TypeScript klasu, HTML predložak, CSS fajl, kao i dodatne konfiguracione fajlove.
-
 
 - **Servisi (*Services*):** *Servisi* su singleton objekti koji obavljaju specifične zadatke i mogu biti deljeni između različitih delova aplikacije. Oni se obično koriste za upravljanje podacima, poslovnim logikom, ili integracijom sa serverom. 
 
@@ -55,9 +49,9 @@ Struktura *Angular*-a obuhvata nekoliko ključnih elemenata koji omogućavaju or
 
 - **Rute (*Routes*):** *Angular* pruža rute za navigaciju unutar aplikacije. Rute definišu *URL* putanje i povezuju ih sa odgovarajućim komponentama. Ovo omogućava da se aplikacija ponaša kao jednostranična (*SPA*), gde se sadržaj menja dinamički bez potrebe za ponovnim učitavanjem cele stranice.
 
-<br>
-<a name="_toc159885899"></a>Karakteristike angulara
-<br><br>
+<!---------------------------------------------------------------------------------->
+<a name="_toc159885899"></a>
+<h3>Karakteristike angulara</h3>
 
 *Angular* je moćan framework za razvoj web aplikacija koji se ističe po svojoj modularnosti, reaktivnom pristupu i bogatom ekosistemu alata i funkcionalnosti.
 
@@ -76,31 +70,28 @@ Struktura *Angular*-a obuhvata nekoliko ključnih elemenata koji omogućavaju or
 - **Observable pattern**: *Angular* koristi *RxJS* biblioteku za upravljanje asinhronim događajima koristeći Observable pattern, što omogućava lakše upravljanje asinhronim operacijama kao što su HTTP zahtevi ili korisnički interfejsni događaji. Kroz upotrebu Observables, Angular omogućava efikasno upravljanje podacima unutar aplikacije. Na primer, kada se vrši komunikacija sa serverom putem *HTTP* zahteva, rezultati tih zahteva često se mogu obraditi kroz Observable objekte, što omogućava manipulaciju podacima tokom vremena, kao i obradu grešaka i promena stanja. Ovo omogućava razvijačima da elegantno integrišu asinhronu logiku u svoje aplikacije i da efikasno upravljaju podacima u *Angular* okruženju.
 
 - **Testiranje**: *Angular* ima ugrađenu podršku za testiranje, uključujući unit testove, integraciono testiranje i *E2E* (*end-to-end*) testiranje, što olakšava održavanje visokog kvaliteta koda.
+  
+<!---------------------------------------------------------------------------------->
 
-
-<br><br>
-<a name="_toc159885900"></a>INSTALACIJA ANGULAR ALATA
-<br><br>
-
+<a name="_toc159885900"></a>
+<h3>Instalacija Angular alata</h3>
 *Angular* se može razvijati koristeći različite *IDE*-ove poput *Visual Studio Code*-a, *WebStorm*-a i *Sublime* *Text*-a. U ovom slučaju, koristiće se *Visual Studio Code*, besplatni i open-source editor koda koji je razvila kompanija *Microsoft*.
 
-<br>
-<a name="_toc159885901"></a>NodeJS
-<br><br>
-
+<!---------------------------------------------------------------------------------->
+<a name="_toc159885901"></a>
+<h3>NodeJS</h3>
 Da biste započeli sa *Angularom*, potrebno je instalirati *Node.js* i *npm*, koji je upravljač paketima za *Node.js*. *Node.js* se može preuzeti sa zvanične veb stranice <https://nodejs.org/en/> i instalirati računar. Preporučuje se korišćenje *LTS* (*Long-Term Support*) verzije *Node.js*-a. 
 
-<br>
-<a name="_toc159885902"></a>Angular
-<br><br>
-
-Kada je *Node*.js instaliran, otvoriti ***command prompt*** ili terminal i pokrenuti komandu ***npm install -g @angular/cli*** kako bi se instalirao *Angular* *CLI* globalno:
+<!---------------------------------------------------------------------------------->
+<a name="_toc159885902"></a>
+<h3>Angular</h3>
+Kada je Node.js instaliran, otvoriti ***command prompt*** ili terminal i pokrenuti komandu ***npm install -g @angular/cli*** kako bi se instalirao *Angular* *CLI* globalno:
 
 ![A black background with white text](slike/instalacijaAngulara.png)
 
 
 <p style="text-align: center;">
-  1 *komanda za instalaciju angular-a*
+  <h4>1) komanda za instalaciju angular-a </h4>
 </p>
 
 Poruka “*added 232 packages*” znači da su svi potrebni paketi instalirani i *Angular CLI* je spreman za korišćenje.
@@ -118,7 +109,7 @@ Dodavanjem ovih putanja u **sistemsku putanju** (*PATH*) se omogućava pristup i
 
 
 <p style="text-align: center;">
-  2 *uspešna instalacija Angulara*
+  <h4> 1) uspešna instalacija Angulara </h4>
 </p>
 
 
@@ -127,7 +118,7 @@ Nakon što je instalacija završena, može se kreirati novi *Angular* projekat p
 ![A black screen with white text](slike/primerKreiranjaAplikacije.png)
 
 <p style="text-align: center;">
-  3 *komanda za kreiranje Angular aplikacije*
+  <h4>3) komanda za kreiranje Angular aplikacije</h4>
 </p>
 
 `	`*SSR* i *SSG* su tehnike koje se koriste za generisanje *HTML*-a na serverskoj strani, što može biti korisno za poboljšanje performansi i *SEO* (*Search Engine Optimization*) veb aplikacije. U jednostavnom primeru kao što je ovaj, ove tehnike nisu neophodne. Nakon kreiranja aplikacije okruženje izgleda ovako:
@@ -136,7 +127,7 @@ Nakon što je instalacija završena, može se kreirati novi *Angular* projekat p
 ![](slike/uspesnoKreiranaAplikacija.png)
 
 <p style="text-align: center;"> 
-  4 *novokreirana aplikacija*
+  <h4>4) novokreirana aplikacija</h4>
 </p>
 
 Pokretanje aplikacije se izvršava tako što je potrebno nalaziti se unutar foldera aplikacije, kojoj se može pristupiti komandom ***cd helloWorldApp***. Ona se pokreće uz komandu ***ng serve –open***, koja će pokrenuti Angular razvojni server i otvoriti aplikaciju u podrazumevanom web pregledaču.
@@ -144,18 +135,16 @@ Pokretanje aplikacije se izvršava tako što je potrebno nalaziti se unutar fold
 ![](slike/pokretanjeAplikacije.png)
 
 <p style="text-align: center;">
-  5 *pokretanje aplikacije*
+  <h4>5) pokretanje aplikacije</h4>
 </p>
 
 ![](slike/rezultatPokretanjaAplikacije.png)
 
-<p style="text-align: center;">
-  6 *pokrenuta helloWorldApp*
-</p>
 
-<br><br>
-<a name="_toc159885903"></a>RESURSI I KORISNI LINKOVI
-<br>
+
+<!---------------------------------------------------------------------------------->
+<a name="_toc159885903"></a>
+<h3> Resursi i korisni linkovi</h3>
 
 - [*https://www.youtube.com/watch?v=JWhRMyyF7nc&t=456s&ab_channel=EnvatoTuts%2B*](https://www.youtube.com/watch?v=JWhRMyyF7nc&t=456s&ab_channel=EnvatoTuts%2B)
 - [*https://angular.io/guide/architecture*](https://angular.io/guide/architecture)
