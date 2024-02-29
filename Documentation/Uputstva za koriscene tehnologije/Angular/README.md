@@ -22,12 +22,12 @@
 
 <a name="_toc159885896"></a>
 <h3>Uvod u Angular </h3>
-**Angular** je open-source *JavaScript framework* koji je razvila kompanija *Google* i koristi se za kreiranje dinamičnih veb aplikacija. Široko se koristi za izradu jednostraničnih aplikacija (*SPAs*) i kompleksnih veb aplikacija. Angular koristi deklarativne *templates*, ubacivanje zavisnosti (dependency injections), alate za kreiranje *end-to-end* testiranja i integrisane najbolje prakse kako bi pojednostavio process razvoja i testiranja web aplikacija.
+Angular je open-source *JavaScript framework* koji je razvila kompanija *Google* i koristi se za kreiranje dinamičnih veb aplikacija. Široko se koristi za izradu jednostraničnih aplikacija (*SPAs*) i kompleksnih veb aplikacija. Angular koristi deklarativne *templates*, ubacivanje zavisnosti (dependency injections), alate za kreiranje *end-to-end* testiranja i integrisane najbolje prakse kako bi pojednostavio process razvoja i testiranja web aplikacija.
 
 <!---------------------------------------------------------------------------------->
 <a name="_toc159885897"></a>
 <h3>TypeScript</h3>
-**TypeScript** je sintaktični nadskup *JavaScript*-a koji dodaje statičko tipiziranje. To znači da *TypeScript* dodaje sintaksu iznad *JavaScript*-a, omogućavajući programerima da dodaju tipove.  U *JavaScript*-u, parametri funkcija i promenljive nemaju informacije. Zato programeri moraju da pogledaju dokumentaciju ili da nagađaju na osnovu implementacije. *TypeScript* omogućava specificiranje tipova podataka koji se koriste u kodu i ima sposobnost da prijavi greške kada tipovi ne odgovaraju.
+TypeScript je sintaktični nadskup *JavaScript*-a koji dodaje statičko tipiziranje. To znači da *TypeScript* dodaje sintaksu iznad *JavaScript*-a, omogućavajući programerima da dodaju tipove.  U *JavaScript*-u, parametri funkcija i promenljive nemaju informacije. Zato programeri moraju da pogledaju dokumentaciju ili da nagađaju na osnovu implementacije. *TypeScript* omogućava specificiranje tipova podataka koji se koriste u kodu i ima sposobnost da prijavi greške kada tipovi ne odgovaraju.
 
 Na primer, *TypeScript* će prijaviti grešku kada se proslešuje string funkciji koja očekuje broj. *JavaScript* to neće uraditi.
 
