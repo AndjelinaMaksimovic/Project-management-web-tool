@@ -1,0 +1,6 @@
+<main>
+<p>details works!</p>
+<p>post text: {{postData?.text}}</p>
+<button (click)="deletePost()">delete post</button>
+<app-update-post (submit)="updatePost($event)"></app-update-post>
+</main>

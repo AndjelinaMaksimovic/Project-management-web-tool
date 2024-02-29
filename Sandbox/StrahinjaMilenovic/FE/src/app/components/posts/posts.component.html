@@ -1,0 +1,8 @@
+<!-- <p>{{title}}</p> -->
+<ul>
+    <li *ngFor="let post of posts">
+        {{post.text}}
+        <a [routerLink]="['/post', post.id]">open</a>
+    </li>
+</ul>
+<app-create-post (submit)="createPost($event)"></app-create-post>
