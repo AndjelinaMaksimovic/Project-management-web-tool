@@ -1,0 +1,6 @@
+@MarkoNenadovicAPI_HostAddress = http://localhost:5027
+
+GET {{MarkoNenadovicAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
