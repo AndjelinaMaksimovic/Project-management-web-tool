@@ -1,4 +1,4 @@
-![](slike/angularNaslov.jpg)
+![](images/angularNaslov.jpg)
 
 <br><br>
 
@@ -86,7 +86,7 @@ Da biste započeli sa *Angularom*, potrebno je instalirati *Node.js* i *npm*, ko
 <h3>Angular</h3>
 Kada je Node.js instaliran, otvoriti ***command prompt*** ili terminal i pokrenuti komandu ***npm install -g @angular/cli*** kako bi se instalirao *Angular* *CLI* globalno:
 
-![A black background with white text](slike/instalacijaAngulara.png)
+![A black background with white text](images/instalacijaAngulara.png)
 
 
 <p style="text-align: center;">
@@ -104,7 +104,7 @@ Poruka “*added 232 packages*” znači da su svi potrebni paketi instalirani i
 Dodavanjem ovih putanja u **sistemsku putanju** (*PATH*) se omogućava pristup instaliranim alatima (kao što su *Node.js* i *npm*) iz bilo kog direktorijuma u kom se nalazite u komandnoj liniji ili terminalu, bez potrebe za navođenjem punih putanja do izvršnih datoteka. Pokretanjem komande ng version može se proveriti da li je sve uspešno instalirano.
 
 
-![A screenshot of a computer](slike/ispravanAngular.png)
+![A screenshot of a computer](images/ispravanAngular.png)
 
 
 <p style="text-align: center;">
@@ -114,7 +114,7 @@ Dodavanjem ovih putanja u **sistemsku putanju** (*PATH*) se omogućava pristup i
 
 Nakon što je instalacija završena, može se kreirati novi *Angular* projekat pokretanjem komande ***ng new naziv\_aplikacije*** u terminalu foldera gde želite čuvati aplikaciju:
 
-![A black screen with white text](slike/primerKreiranjaAplikacije.png)
+![A black screen with white text](images/primerKreiranjaAplikacije.png)
 
 <p style="text-align: center;">
   <h4>3) komanda za kreiranje Angular aplikacije</h4>
@@ -123,7 +123,7 @@ Nakon što je instalacija završena, može se kreirati novi *Angular* projekat p
 `	`*SSR* i *SSG* su tehnike koje se koriste za generisanje *HTML*-a na serverskoj strani, što može biti korisno za poboljšanje performansi i *SEO* (*Search Engine Optimization*) veb aplikacije. U jednostavnom primeru kao što je ovaj, ove tehnike nisu neophodne. Nakon kreiranja aplikacije okruženje izgleda ovako:
 
 
-![](slike/uspesnoKreiranaAplikacija.png)
+![](images/uspesnoKreiranaAplikacija.png)
 
 <p style="text-align: center;"> 
   <h4>4) novokreirana aplikacija</h4>
@@ -131,13 +131,13 @@ Nakon što je instalacija završena, može se kreirati novi *Angular* projekat p
 
 Pokretanje aplikacije se izvršava tako što je potrebno nalaziti se unutar foldera aplikacije, kojoj se može pristupiti komandom ***cd helloWorldApp***. Ona se pokreće uz komandu ***ng serve –open***, koja će pokrenuti Angular razvojni server i otvoriti aplikaciju u podrazumevanom web pregledaču.
 
-![](slike/pokretanjeAplikacije.png)
+![](images/pokretanjeAplikacije.png)
 
 <p style="text-align: center;">
   <h4>5) pokretanje aplikacije</h4>
 </p>
 
-![](slike/rezultatPokretanjaAplikacije.png)
+![](images/rezultatPokretanjaAplikacije.png)
 
 
 
