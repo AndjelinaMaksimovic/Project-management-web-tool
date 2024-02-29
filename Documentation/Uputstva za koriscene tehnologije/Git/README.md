@@ -1,5 +1,5 @@
 # GIT 
-<h2>Instalacija Git-a:</h3>
+<h2>Instalacija Git-a:</h2>
 Prvo što trebate učiniti je instalirati Git na vaš računar. Git je dostupan za sve glavne operativne sisteme (Windows, macOS, Linux). Možete preuzeti instalacione datoteke sa zvanične Git veb stranice (https://git-scm.com/), a zatim pratiti uputstva za instalaciju za vaš operativni sistem.
 
 <h2>Konfiguracija Git-a:</h2>
