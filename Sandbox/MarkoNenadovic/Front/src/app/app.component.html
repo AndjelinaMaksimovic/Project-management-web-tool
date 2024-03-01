@@ -1,0 +1,18 @@
+<button (click)="initNew()">kreiraj novi</button>
+
+
+<table>
+  <thead>
+    <th>Ime</th>
+    <th>cena</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let Product of products">
+      <td>{{ Product.name}}</td>
+      <td>{{ Product.price}}</td>
+      <td><button (click)="editProduct(Product)">izmeni</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<app-edit [Product]="toEdit" (Updated1)="updateList($event)"></app-edit>

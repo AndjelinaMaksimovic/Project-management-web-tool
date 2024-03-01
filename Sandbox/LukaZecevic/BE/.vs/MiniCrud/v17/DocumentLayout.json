@@ -1,0 +1,117 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Luka\\Desktop\\BE\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|c:\\users\\luka\\desktop\\be\\minicrud\\controllers\\itemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|solutionrelative:minicrud\\controllers\\itemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|c:\\users\\luka\\desktop\\be\\minicrud\\models\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|solutionrelative:minicrud\\models\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|c:\\users\\luka\\desktop\\be\\minicrud\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|solutionrelative:minicrud\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|c:\\users\\luka\\desktop\\be\\minicrud\\migrations\\20240229130455_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|solutionrelative:minicrud\\migrations\\20240229130455_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|c:\\users\\luka\\desktop\\be\\minicrud\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A562118F-818A-4587-A410-7E055A15B1CB}|MiniCrud\\MiniCrud.csproj|solutionrelative:minicrud\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{74946827-37a0-11d2-a273-00c04f8ef4ff}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "20240229130455_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Migrations\\20240229130455_InitialCreate.cs",
+              "RelativeDocumentMoniker": "MiniCrud\\Migrations\\20240229130455_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Migrations\\20240229130455_InitialCreate.cs",
+              "RelativeToolTip": "MiniCrud\\Migrations\\20240229130455_InitialCreate.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-29T13:04:56.988Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "WeatherForecastController.cs",
+              "DocumentMoniker": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Controllers\\WeatherForecastController.cs",
+              "RelativeDocumentMoniker": "MiniCrud\\Controllers\\WeatherForecastController.cs",
+              "ToolTip": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Controllers\\WeatherForecastController.cs",
+              "RelativeToolTip": "MiniCrud\\Controllers\\WeatherForecastController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-29T11:50:43.143Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ItemController.cs",
+              "DocumentMoniker": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Controllers\\ItemController.cs",
+              "RelativeDocumentMoniker": "MiniCrud\\Controllers\\ItemController.cs",
+              "ToolTip": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Controllers\\ItemController.cs",
+              "RelativeToolTip": "MiniCrud\\Controllers\\ItemController.cs",
+              "ViewState": "AQIAABgAAAAAAAAAAAAAADgAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-29T11:49:16.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Program.cs",
+              "RelativeDocumentMoniker": "MiniCrud\\Program.cs",
+              "ToolTip": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Program.cs",
+              "RelativeToolTip": "MiniCrud\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-29T11:47:06.611Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Item.cs",
+              "DocumentMoniker": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Models\\Item.cs",
+              "RelativeDocumentMoniker": "MiniCrud\\Models\\Item.cs",
+              "ToolTip": "C:\\Users\\Luka\\Desktop\\BE\\MiniCrud\\Models\\Item.cs",
+              "RelativeToolTip": "MiniCrud\\Models\\Item.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-29T11:30:04.354Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
