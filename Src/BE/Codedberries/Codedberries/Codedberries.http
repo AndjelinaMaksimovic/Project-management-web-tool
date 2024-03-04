@@ -1,0 +1,6 @@
+@Codedberries_HostAddress = http://localhost:5285
+
+GET {{Codedberries_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
