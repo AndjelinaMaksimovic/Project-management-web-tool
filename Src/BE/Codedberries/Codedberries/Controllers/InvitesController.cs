@@ -34,7 +34,7 @@ namespace Codedberries.Controllers
                 _databaseContext.Invites.Add(invite);
                 _databaseContext.SaveChanges();
 
-                MailService mailService = new MailService("smtp.gmail.com", 587, "EMAIL_HERE", "PASSWORD_HERE"); // CHANGE THIS
+                MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
                 mailService.SendMessage(email, "Invite", ""); // TODO - Add invite link
 
                 return Ok("Success");

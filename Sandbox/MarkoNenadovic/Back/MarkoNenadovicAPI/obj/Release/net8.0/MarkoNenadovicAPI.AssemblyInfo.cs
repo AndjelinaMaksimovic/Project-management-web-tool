@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MarkoNenadovicAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4718b91a917d5f17a1935c2ecf9068383fb3c8b9")]
 [assembly: System.Reflection.AssemblyProductAttribute("MarkoNenadovicAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MarkoNenadovicAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
