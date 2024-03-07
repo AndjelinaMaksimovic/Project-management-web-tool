@@ -33,6 +33,7 @@ Ideja je da alat sadrži uloge koje će biti ispod navedene. Svaka od uloga ima�
 
 
  <h3> Super user </h3>
+ 
  - Održava alata
  - Ima sve navedene permisije
  - Po zahtevu project ownera može proširivati funkcionalnosti (npr. potrebno je dodati novu ulogu, ili novu vrstu permisija)
