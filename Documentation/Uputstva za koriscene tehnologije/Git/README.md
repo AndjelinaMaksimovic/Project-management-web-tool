@@ -81,7 +81,46 @@ Brisanje je moguce izvrsiti i bez automatskog push-a, sa izmenom da umesto `git 
 
 
 # Rešavanje konflikata:
-Ponekad, kada pokušate da spojite dve grane, Git može otkriti konflikte, što znači da ista linija u istoj datoteci ima različite promene u obe grane. Da biste rešili konflikt, morate ručno izmeniti datoteku u tekst editor-u kako biste odabrali ispravnu verziju. Nakon što ručno rešite konflikte, mozete nastaviti proces spajanja.
+Ponekad, kada pokušate da spojite dve grane, Git može otkriti konflikte, što znači da ista linija u istoj datoteci ima različite promene u obe grane. Da biste rešili konflikt, morate ručno izmeniti datoteku u tekst editor-u kako biste odabrali ispravnu verziju. Nakon što ručno rešite konflikte, mozete nastaviti proces spajanja.  
+
+# GIT *rebase*
+
+Komanda git *rebase* vam omogućava da promenite seriju komitova, menjajući istoriju vašeg repozitorijuma. Možete promeniti redosled, urediti ili spojiti komitove zajedno.
+
+Obično biste koristili git *rebase* da:  
+* uredite prethodne poruke komita,
+* spojite više komitova u jedan,
+* izbrišete ili poništite komitove koji vam više nisu potrebni,
+* izvršite *rebasing* komitova naspram grane.
+  
+
+Da biste rebasirali sve komitove između druge grane i trenutnog stanja grane, možete uneti sledeću komandu u svoj *shell* (ili komandni prompt za *Windows*, ili terminal za *Mac* i *Linux*):
+
+`git rebase --interactive ime_druge_grane`
+  
+<h2><em>Rebasing</em> komitova naspram tačke u vremenu</h2>
+
+Da biste rebasirali poslednjih nekoliko komitova u trenutnoj grani, možete uneti sledeću komandu u svoj shell:
+`git rebase --interactive HEAD~7`
+
+"HEAD" se odnosi na trenutni komit, tačku u istoriji na kojoj se nalazi vaša glava (HEAD).  
+"~7" znači "7 koraka unazad". To znači da se vraćamo 7 koraka unazad u istoriji komita.  
+
+<h2>Komande dostupne tokom <em>rebasing</em>-a</h2>
+
+Postoji šest komandi dostupnih tokom *rebasing*-a:
+* *`pick`*  
+`pick` jednostavno znači da je komit uključen. Promenom redosleda `pick` komandi menjate redosled komitova tokom *rebasing*-a. Ako odlučite da ne uključite komit, trebalo bi da obrišete čitavu liniju.
+* *`reword`*  
+Komanda `reword` je slična `pick`, ali nakon što je koristite, proces *rebasing*-a će se zaustaviti i dati vam priliku da promenite poruku komita. Bilo kakve promene napravljene od strane komita nisu pogođene.
+* *`edit`*  
+Ako izaberete da uredite komit, dobićete priliku da izmenite komit, što znači da možete dodati ili promeniti komit u potpunosti. Takođe možete napraviti više komitova pre nego što nastavite *rebasing*. To vam omogućava da podelite veliki komit na manje, ili uklonite pogrešne promene napravljene u komitu.
+* *`squash`*  
+Ova komanda vam omogućava da spojite dva ili više komitova u jedan komit. Komit se spaja u komit iznad njega. Git vam daje priliku da napišete novu poruku komita koja opisuje obe promene.
+* *`fixup`*  
+Ovo je slično `squash`, ali se poruka komita koja će biti spojena odbacuje. Komit se jednostavno spaja u komit iznad njega, a poruka prethodnog komita se koristi da opiše obe promene.
+* *`exec`*  
+Ovo vam omogućava da pokrenete proizvoljne *shell* komande protiv komita.  
 
 # Korisni linkovi:
 
