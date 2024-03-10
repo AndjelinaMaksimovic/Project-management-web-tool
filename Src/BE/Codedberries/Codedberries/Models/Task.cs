@@ -13,5 +13,13 @@ namespace Codedberries.Models
         public required string Description { get; set; }
 
         public DateTime DueDate { get; set; }
+
+        [ForeignKey("UserId")]
+        public int UserId { get; set; }
+
+        [Required]
+        public bool Status { get; set; }
+
+        public ICollection<Task> Dependencies { get; } = new List<Task>();
     }
 }

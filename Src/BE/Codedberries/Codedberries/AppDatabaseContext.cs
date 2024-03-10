@@ -1,7 +1,5 @@
 ﻿using Codedberries.Models;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Codedberries.Models;
 
 namespace Codedberries
 {
@@ -31,6 +29,11 @@ namespace Codedberries
                 .HasMany(e => e.Permissions)
                 .WithMany(e => e.Roles)
                 .UsingEntity<RolePermission>();
+
+            modelBuilder.Entity<Models.Task>()
+                .HasMany(e => e.Dependencies)
+                .WithMany(e => e.Dependencies)
+                .UsingEntity<TaskDependency>();
         }
     }
 }
