@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Codedberries.Models
 {
+    [Table("Permissions")]
     public class Permission
     {
         [Key]
@@ -12,5 +13,10 @@ namespace Codedberries.Models
         public string? Description { get; set; }
 
         public ICollection<Role> Roles { get; } = new List<Role>();
+
+        public Permission(string? description)
+        {
+            Description = description;
+        }
     }
 }

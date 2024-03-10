@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Codedberries.Models
 {
+    [Table("Tasks")]
     public class Task
     {
         [Key]
@@ -21,5 +22,14 @@ namespace Codedberries.Models
         public bool Status { get; set; }
 
         public ICollection<Task> Dependencies { get; } = new List<Task>();
+        public ICollection<Task> DependentTasks { get; } = new List<Task>();
+
+        public Task(string description, DateTime dueDate, int userId, bool status)
+        {
+            Description = description;
+            DueDate = dueDate;
+            UserId = userId;
+            Status = status;
+        }
     }
 }

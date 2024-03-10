@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Codedberries.Models
 {
+    [Table("Projects")]
     public class Project
     {
         [Key]
@@ -17,5 +18,11 @@ namespace Codedberries.Models
 
         [ForeignKey("ProjectId")]
         public int? ParentProjectId { get; set; }
+
+        public Project(string name, int? parentProjectId)
+        {
+            Name = name;
+            ParentProjectId = parentProjectId;
+        }
     }
 }

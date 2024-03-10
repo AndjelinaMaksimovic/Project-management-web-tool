@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Codedberries.Models
 {
+    [Table("Users")]
     public class User
     {
         [Key]
@@ -11,20 +12,29 @@ namespace Codedberries.Models
 
         [EmailAddress]
         [Required]
-        public required string Email { get; set; }
+        public string Email { get; set; }
 
         [Required]
-        public required string Password { get; set; }
+        public string Password { get; set; }
 
         [Required]
-        public required string Firstname { get; set; }
+        public string Firstname { get; set; }
 
         [Required]
-        public required string Lastname { get; set; }
+        public string Lastname { get; set; }
 
         [ForeignKey("RoleId")]
-        public int RoleId { get; set; }
+        public int? RoleId { get; set; }
 
         public ICollection<Project> Projects { get; } = new List<Project>();
+
+        public User(string email, string password, string firstname, string lastname, int? roleId)
+        {
+            Email = email;
+            Password = password;
+            Firstname = firstname;
+            Lastname = lastname;
+            RoleId = roleId;
+        }
     }
 }
