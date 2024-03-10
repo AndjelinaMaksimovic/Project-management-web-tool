@@ -16,6 +16,12 @@ namespace Codedberries
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<RolePermission>()
+                .HasKey(e => new { e.RoleId, e.PermissionId });
+
+            modelBuilder.Entity<UserProject>()
+                .HasKey(e => new { e.UserId, e.ProjectId });
+
             modelBuilder.Entity<User>()
                 .HasMany(e => e.Projects)
                 .WithMany(e => e.Users)
