@@ -11,5 +11,7 @@ namespace Codedberries.Models
 
         [Required]
         public required string Name { get; set; }
+
+        public ICollection<Permission> Permissions { get; } = new List<Permission>();
     }
 }

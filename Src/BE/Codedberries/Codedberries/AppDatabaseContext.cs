@@ -20,6 +20,11 @@ namespace Codedberries
                 .HasMany(e => e.Projects)
                 .WithMany(e => e.Users)
                 .UsingEntity<UserProject>();
+
+            modelBuilder.Entity<Role>()
+                .HasMany(e => e.Permissions)
+                .WithMany(e => e.Roles)
+                .UsingEntity<RolePermission>();
         }
     }
 }
