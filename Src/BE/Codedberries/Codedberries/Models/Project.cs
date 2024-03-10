@@ -14,5 +14,8 @@ namespace Codedberries.Models
         public required string Name { get; set; }
 
         public ICollection<User> Users { get; } = new List<User>();
+
+        [ForeignKey("ProjectId")]
+        public int? ParentProjectId { get; set; }
     }
 }
