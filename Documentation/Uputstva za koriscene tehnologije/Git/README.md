@@ -152,4 +152,6 @@ Omogućava vraćanje datoteka u radno stablo iz indeksa bez prekida zbog neobjed
 # Korisni linkovi:
 
 https://www.youtube.com/watch?v=CvUiKWv2-C0<br>
-https://www.youtube.com/watch?v=8JJ101D3knE
+https://www.youtube.com/watch?v=8JJ101D3knE<br>
+https://git-scm.com/docs/git-rebase<br>
+https://git-scm.com/docs/git-restore<br>
