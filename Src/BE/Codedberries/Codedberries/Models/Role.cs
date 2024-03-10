@@ -11,7 +11,7 @@ namespace Codedberries.Models
         public int Id { get; set; }
 
         [Required]
-        public required string Name { get; set; }
+        public string Name { get; set; }
 
         public ICollection<Permission> Permissions { get; } = new List<Permission>();
 

@@ -12,7 +12,7 @@ namespace Codedberries.Models
         public int Id { get; set; }
 
         [Required]
-        public required string Name { get; set; }
+        public string Name { get; set; }
 
         public ICollection<User> Users { get; } = new List<User>();
 
