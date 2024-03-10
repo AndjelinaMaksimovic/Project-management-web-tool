@@ -24,5 +24,7 @@ namespace Codedberries.Models
 
         [ForeignKey("RoleId")]
         public int RoleId { get; set; }
+
+        public ICollection<Project> Projects { get; } = new List<Project>();
     }
 }

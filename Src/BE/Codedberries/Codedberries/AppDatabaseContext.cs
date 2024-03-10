@@ -13,5 +13,13 @@ namespace Codedberries
         {
             optionsBuilder.UseSqlite("Data Source=database.db");
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasMany(e => e.Projects)
+                .WithMany(e => e.Users)
+                .UsingEntity<UserProject>();
+        }
     }
 }
