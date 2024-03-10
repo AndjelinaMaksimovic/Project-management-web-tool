@@ -122,6 +122,33 @@ Ovo je slično `squash`, ali se poruka komita koja će biti spojena odbacuje. Ko
 * *`exec`*  
 Ovo vam omogućava da pokrenete proizvoljne *shell* komande protiv komita.  
 
+# Git restore
+  
+Komanda *`restore`* omogućava developerima da vrate datoteke u određeno stanje. Ova funkcionalnost omogućava vraćanje izmena datoteka kako u radnom direktorijumu tako i u području za *stage*-ovanje. Ova komanda je posebno korisna kada se vraćaju izmene, bez obzira da li su *stage*-ovane za komit ili ne.
+
+<h2>Sintaksa</h2>  
+  
+Sintaksa git restore komande je sledeća: `git restore <opcije> -- <datoteka>`.    
+Devet dodatnih opcija je dostupno za git restore:  
+* `-s <tree>` ili `--source=<tree>`  
+Omogućava vraćanje datoteka u radnom stablu sa sadržajem iz navedenog stabla.
+* `-p` ili `--patch`  
+Omogućava interaktivni izbor delova u razlici između izvora vraćanja i lokacije vraćanja.
+* `-W` ili `--worktree`, `-S` ili `--staged`  
+Navodi lokaciju vraćanja. Ako nijedna opcija nije navedena, podrazumevano se vraća radno stablo.
+* `-q` ili `--quiet`  
+Potiskuje povratne poruke i implicira `--no-progress`.
+* `--progress` i `--no-progress`  
+Kontroliše prijavljivanje statusa napretka.
+* `--ours` i `--theirs`  
+Koristi se prilikom vraćanja datoteka u radno stablo iz indeksa, da koristi stepen #2 (*ours*) ili #3 (*theirs*) za neobjedinjene putanje.
+* `-m` ili `--merge`  
+Ponovo kreira konfliktni *merge* u neobjedinjenim putanjama prilikom vraćanja datoteka u radno stablo iz indeksa.
+* `--conflict=<style>`  
+Modifikuje prikaz konfliktnih delova, zamenjujući konfiguracionu promenljivu *merge.conflictStyle*.
+* `--ignore-unmerged`  
+Omogućava vraćanje datoteka u radno stablo iz indeksa bez prekida zbog neobjedinjenih unosa.
+
 # Korisni linkovi:
 
 https://www.youtube.com/watch?v=CvUiKWv2-C0<br>
