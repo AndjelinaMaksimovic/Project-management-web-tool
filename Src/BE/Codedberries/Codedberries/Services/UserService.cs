@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Codedberries.Models;
+using System.Security.Cryptography;
 
 namespace Codedberries.Services
 {
@@ -51,6 +52,24 @@ namespace Codedberries.Services
                 return true;
             }
             return false; // session not found or expired
+        }
+
+        private string GenerateSessionToken()
+        {
+            // unique session token
+            return Guid.NewGuid().ToString();
+        }
+
+        public void CreateSessionCookie(HttpContext httpContext, Session session)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = session.ExpirationTime
+            };
+
+            httpContext.Response.Cookies.Append("sessionId", session.Token, cookieOptions);
         }
     }
 }
