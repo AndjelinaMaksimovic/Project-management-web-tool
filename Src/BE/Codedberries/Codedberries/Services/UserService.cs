@@ -17,6 +17,35 @@ namespace Codedberries.Services
             _databaseContext = databaseContext;
         }
 
+        public Session LoginUser(string email, string password)
+        {
+            /*
+            User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
+
+            if (user != null && VerifyPassword(password, user.Password, user.PasswordSalt))
+            {
+            */
+            User user = new User();     // hard-code
+            user.UserId = 5;            // hard-code
+            user.Email = email;         // hard-code
+            user.Password = password;   // hard-code
+
+            if (email == "admin@gmail.com" && password == "admin")
+            { // hard-code (only "if" line)
+                // create new session
+                var sessionToken = GenerateSessionToken();
+                var expirationTime = DateTime.UtcNow.AddHours(SessionDurationHours);
+                var session = new Session { UserId = user.UserId, Token = sessionToken, ExpirationTime = expirationTime };
+
+                _databaseContext.Sessions.Add(session);
+                _databaseContext.SaveChanges();
+
+                return session;
+            }
+
+            return null; // user not found or password incorrect
+        }
+
         private bool VerifyPassword(string password, string hashedPassword, byte[] salt)
         {
             byte[] hashBytes = Convert.FromBase64String(hashedPassword);
