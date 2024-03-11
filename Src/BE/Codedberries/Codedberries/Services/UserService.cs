@@ -46,6 +46,20 @@ namespace Codedberries.Services
             return null; // user not found or password incorrect
         }
 
+        public bool LogoutUser(string sessionToken)
+        {
+            var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
+
+            if (session != null)
+            {
+                _databaseContext.Sessions.Remove(session);
+                _databaseContext.SaveChanges();
+
+                return true; // session is removed
+            }
+            return false;
+        }
+
         private bool VerifyPassword(string password, string hashedPassword, byte[] salt)
         {
             byte[] hashBytes = Convert.FromBase64String(hashedPassword);
