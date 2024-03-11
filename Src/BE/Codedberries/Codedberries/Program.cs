@@ -44,6 +44,13 @@ namespace Codedberries
 
             //app.UseMvc();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
+                dbContext.ApplyMigrations();
+            }
+
+
             app.Run();
 
         }

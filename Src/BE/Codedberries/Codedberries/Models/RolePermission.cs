@@ -1,16 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Codedberries.Models
 {
-    public class UserProject
+    public class RolePermission
     {
         [Key]
         [Column(Order = 1)]
-        public int UserId { get; set; }
+        public int RoleId { get; set; }
 
         [Key]
         [Column(Order = 2)]
-        public int ProjectId { get; set; }
+        public int PermissionId { get; set; }
     }
 }

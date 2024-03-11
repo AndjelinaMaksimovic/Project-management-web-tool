@@ -1,7 +1,28 @@
-﻿using System;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-public class Project
+namespace Codedberries.Models
 {
-    private int ProjectId { get; set; }
-    public string? Name { get; set; }
+    [Table("Projects")]
+    public class Project
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        public ICollection<User> Users { get; } = new List<User>();
+
+        [ForeignKey("ProjectId")]
+        public int? ParentProjectId { get; set; }
+
+        public Project(string name, int? parentProjectId)
+        {
+            Name = name;
+            ParentProjectId = parentProjectId;
+        }
+    }
 }
