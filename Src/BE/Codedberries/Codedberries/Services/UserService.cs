@@ -37,5 +37,20 @@ namespace Codedberries.Services
 
             return true;
         }
+
+        public bool ValidateSession(string sessionToken)
+        {
+            var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
+
+            if (session != null && session.ExpirationTime > DateTime.UtcNow)
+            {
+                // update session
+                session.ExpirationTime = DateTime.UtcNow.AddHours(SessionDurationHours);
+                _databaseContext.SaveChanges();
+
+                return true;
+            }
+            return false; // session not found or expired
+        }
     }
 }
