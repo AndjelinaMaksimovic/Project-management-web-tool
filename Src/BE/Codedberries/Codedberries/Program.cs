@@ -14,6 +14,11 @@ namespace Codedberries
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost:6379"; // port for sessions
+            });
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAnyOrigin", builder =>
@@ -23,6 +28,8 @@ namespace Codedberries
                            .AllowAnyHeader();
                 });
             });
+
+            builder.Services.AddSession();
 
             var app = builder.Build();
 
@@ -37,6 +44,7 @@ namespace Codedberries
 
             app.UseAuthorization();
 
+            app.UseSession();
 
             app.MapControllers();
 
