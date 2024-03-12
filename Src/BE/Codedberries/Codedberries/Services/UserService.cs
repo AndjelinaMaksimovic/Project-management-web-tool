@@ -19,7 +19,7 @@ namespace Codedberries.Services
 
         public Session LoginUser(string email, string password)
         {
-            User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
+            User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
 
             if (user != null) // && VerifyPassword(password, user.Password, user.PasswordSalt)) /* TO-DO */
             {

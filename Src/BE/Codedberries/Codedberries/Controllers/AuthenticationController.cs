@@ -23,6 +23,7 @@ namespace Codedberries.Controllers
 
             if (currentSession != null)
             {
+                _userService.CreateSessionCookie(HttpContext, currentSession);
                 return Ok(new { sessionId = currentSession.Token });
             }
 
