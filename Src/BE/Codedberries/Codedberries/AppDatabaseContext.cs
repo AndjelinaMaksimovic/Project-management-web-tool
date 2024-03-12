@@ -22,6 +22,10 @@ namespace Codedberries
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>()
+                .HasIndex(e => e.Email)
+                .IsUnique();
+
             modelBuilder.Entity<RolePermission>()
                 .HasKey(e => new { e.RoleId, e.PermissionId });
 
