@@ -32,7 +32,7 @@ namespace Codedberries.Controllers
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
 
-                string activationLink = "https://localhost:7167/Registration/Activate/" + user.ActivationToken + "/" + email;
+                string activationLink = "https://localhost:7167/Registration/Activate/" + user.ActivationToken + "/" + email; // CHANGE WITH FRONTEND URL
 
                 MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
                 mailService.SendMessage(email, "Account activation", EmailTemplates.ActivationEmail(firstname, lastname, activationLink));
@@ -45,19 +45,22 @@ namespace Codedberries.Controllers
             return Ok("Success");
         }
 
-        [HttpGet("Activate/{token}/{email}")]
-        public IActionResult ActivateAccount(string token, string email)
+        [HttpPost("Activate/{token}/{email}/{password}")]
+        public IActionResult ActivateAccount(string token, string email, string password)
         {
+            if(!TokenService.ValidateToken(token)) return BadRequest("Invalid token");
+
             User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == token && x.Email == email);
             if (user != null)
             {
+                user.Password = password;
                 user.Activated = true;
                 user.ActivationToken = null;
                 _databaseContext.SaveChanges();
 
                 return Ok("Success");
             }
-            return BadRequest("Invalid token");
+            return BadRequest("User not found");
         }
     }
 }
