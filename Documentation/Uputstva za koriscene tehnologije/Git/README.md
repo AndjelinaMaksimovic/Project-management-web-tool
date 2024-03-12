@@ -81,9 +81,77 @@ Brisanje je moguce izvrsiti i bez automatskog push-a, sa izmenom da umesto `git 
 
 
 # Rešavanje konflikata:
-Ponekad, kada pokušate da spojite dve grane, Git može otkriti konflikte, što znači da ista linija u istoj datoteci ima različite promene u obe grane. Da biste rešili konflikt, morate ručno izmeniti datoteku u tekst editor-u kako biste odabrali ispravnu verziju. Nakon što ručno rešite konflikte, mozete nastaviti proces spajanja.
+Ponekad, kada pokušate da spojite dve grane, Git može otkriti konflikte, što znači da ista linija u istoj datoteci ima različite promene u obe grane. Da biste rešili konflikt, morate ručno izmeniti datoteku u tekst editor-u kako biste odabrali ispravnu verziju. Nakon što ručno rešite konflikte, mozete nastaviti proces spajanja.  
+
+# GIT *rebase*
+
+Komanda git *rebase* vam omogućava da promenite seriju komitova, menjajući istoriju vašeg repozitorijuma. Možete promeniti redosled, urediti ili spojiti komitove zajedno.
+
+Obično biste koristili git *rebase* da:  
+* uredite prethodne poruke komita,
+* spojite više komitova u jedan,
+* izbrišete ili poništite komitove koji vam više nisu potrebni,
+* izvršite *rebasing* komitova naspram grane.
+  
+
+Da biste rebasirali sve komitove između druge grane i trenutnog stanja grane, možete uneti sledeću komandu u svoj *shell* (ili komandni prompt za *Windows*, ili terminal za *Mac* i *Linux*):
+
+`git rebase --interactive ime_druge_grane`
+  
+<h2><em>Rebasing</em> komitova naspram tačke u vremenu</h2>
+
+Da biste rebasirali poslednjih nekoliko komitova u trenutnoj grani, možete uneti sledeću komandu u svoj shell:
+`git rebase --interactive HEAD~7`
+
+"HEAD" se odnosi na trenutni komit, tačku u istoriji na kojoj se nalazi vaša glava (HEAD).  
+"~7" znači "7 koraka unazad". To znači da se vraćamo 7 koraka unazad u istoriji komita.  
+
+<h2>Komande dostupne tokom <em>rebasing</em>-a</h2>
+
+Postoji šest komandi dostupnih tokom *rebasing*-a:
+* *`pick`*  
+`pick` jednostavno znači da je komit uključen. Promenom redosleda `pick` komandi menjate redosled komitova tokom *rebasing*-a. Ako odlučite da ne uključite komit, trebalo bi da obrišete čitavu liniju.
+* *`reword`*  
+Komanda `reword` je slična `pick`, ali nakon što je koristite, proces *rebasing*-a će se zaustaviti i dati vam priliku da promenite poruku komita. Bilo kakve promene napravljene od strane komita nisu pogođene.
+* *`edit`*  
+Ako izaberete da uredite komit, dobićete priliku da izmenite komit, što znači da možete dodati ili promeniti komit u potpunosti. Takođe možete napraviti više komitova pre nego što nastavite *rebasing*. To vam omogućava da podelite veliki komit na manje, ili uklonite pogrešne promene napravljene u komitu.
+* *`squash`*  
+Ova komanda vam omogućava da spojite dva ili više komitova u jedan komit. Komit se spaja u komit iznad njega. Git vam daje priliku da napišete novu poruku komita koja opisuje obe promene.
+* *`fixup`*  
+Ovo je slično `squash`, ali se poruka komita koja će biti spojena odbacuje. Komit se jednostavno spaja u komit iznad njega, a poruka prethodnog komita se koristi da opiše obe promene.
+* *`exec`*  
+Ovo vam omogućava da pokrenete proizvoljne *shell* komande protiv komita.  
+
+# Git restore
+  
+Komanda *`restore`* omogućava developerima da vrate datoteke u određeno stanje. Ova funkcionalnost omogućava vraćanje izmena datoteka kako u radnom direktorijumu tako i u području za *stage*-ovanje. Ova komanda je posebno korisna kada se vraćaju izmene, bez obzira da li su *stage*-ovane za komit ili ne.
+
+<h2>Sintaksa</h2>  
+  
+Sintaksa git restore komande je sledeća: `git restore <opcije> -- <datoteka>`.    
+Devet dodatnih opcija je dostupno za git restore:  
+* `-s <tree>` ili `--source=<tree>`  
+Omogućava vraćanje datoteka u radnom stablu sa sadržajem iz navedenog stabla.
+* `-p` ili `--patch`  
+Omogućava interaktivni izbor delova u razlici između izvora vraćanja i lokacije vraćanja.
+* `-W` ili `--worktree`, `-S` ili `--staged`  
+Navodi lokaciju vraćanja. Ako nijedna opcija nije navedena, podrazumevano se vraća radno stablo.
+* `-q` ili `--quiet`  
+Potiskuje povratne poruke i implicira `--no-progress`.
+* `--progress` i `--no-progress`  
+Kontroliše prijavljivanje statusa napretka.
+* `--ours` i `--theirs`  
+Koristi se prilikom vraćanja datoteka u radno stablo iz indeksa, da koristi stepen #2 (*ours*) ili #3 (*theirs*) za neobjedinjene putanje.
+* `-m` ili `--merge`  
+Ponovo kreira konfliktni *merge* u neobjedinjenim putanjama prilikom vraćanja datoteka u radno stablo iz indeksa.
+* `--conflict=<style>`  
+Modifikuje prikaz konfliktnih delova, zamenjujući konfiguracionu promenljivu *merge.conflictStyle*.
+* `--ignore-unmerged`  
+Omogućava vraćanje datoteka u radno stablo iz indeksa bez prekida zbog neobjedinjenih unosa.
 
 # Korisni linkovi:
 
 https://www.youtube.com/watch?v=CvUiKWv2-C0<br>
-https://www.youtube.com/watch?v=8JJ101D3knE
+https://www.youtube.com/watch?v=8JJ101D3knE<br>
+https://git-scm.com/docs/git-rebase<br>
+https://git-scm.com/docs/git-restore<br>
