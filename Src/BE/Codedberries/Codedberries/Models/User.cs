@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Codedberries.Models
 {
@@ -22,6 +23,12 @@ namespace Codedberries.Models
 
         [Required]
         public string Lastname { get; set; }
+        
+        [Required]
+        public bool Activated { get; set; }
+        
+        [AllowNull]
+        public string? ActivationToken { get; set; }
 
         [ForeignKey("RoleId")]
         public int? RoleId { get; set; }
@@ -35,6 +42,8 @@ namespace Codedberries.Models
             Firstname = firstname;
             Lastname = lastname;
             RoleId = roleId;
+            Activated = false;
+            ActivationToken = null;
         }
     }
 }
