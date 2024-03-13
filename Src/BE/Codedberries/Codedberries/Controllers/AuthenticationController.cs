@@ -31,10 +31,10 @@ namespace Codedberries.Controllers
             return Unauthorized(new { message = "Login fail!" });
         }
 
-        [HttpPost("logout/{token}")]
-        public IActionResult Logout(string token)
+        [HttpPost("logout")]
+        public IActionResult Logout([FromBody] LogoutDTO body)
         {
-            if (_userService.LogoutUser(token))
+            if (_userService.LogoutUser(body.Token))
             {
                 return Ok(new { message = "Logout successful!" });
             }
