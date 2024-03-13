@@ -26,6 +26,13 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  private saveUserData(user: User) {
+    // save user data to localStorage
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    // Update the currentUserSubject
+    this.currentUserSubject.next(user);
+  }
+
   login(email: string, password: string) {
     // Dummy credentials
     const dummyCredentials = { email: 'user', password: 'pass' };
@@ -35,11 +42,8 @@ export class AuthService {
       email === dummyCredentials.email &&
       password === dummyCredentials.password
     ) {
-      // If successful, simulate storing user data in localStorage
       const user = { email: 'user', role: 'admin' };
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      // Update the currentUserSubject
-      this.currentUserSubject.next(user);
+      this.saveUserData(user);
       return true;
     } else {
       // If login fails, return false
@@ -47,6 +51,8 @@ export class AuthService {
     }
   }
   async register(token: string, email: string, password: string) {
+    const user = { email: 'registered user', role: 'admin' };
+    this.saveUserData(user);
     return true;
     // TODO connect with the backend
 
