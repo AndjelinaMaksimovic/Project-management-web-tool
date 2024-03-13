@@ -20,5 +20,13 @@ export class RegisterComponent {
   async register() {
     console.log('register');
     const res = await this.authService.register('test', 'test', '1234');
+    // if registration fails return
+    if (!res) {
+      console.log('registration failed');
+      this.errorMessage = 'registration failed';
+      return;
+    }
+    // on successful registration, redirect to home?
+    this.router.navigate(['/home']);
   }
 }

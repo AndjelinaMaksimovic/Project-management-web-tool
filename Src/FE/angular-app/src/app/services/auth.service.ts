@@ -47,15 +47,18 @@ export class AuthService {
     }
   }
   async register(token: string, email: string, password: string) {
-    const registrationUrl = `${BASE_URL}/Registration/CreateUser/${token}/${email}/${password}`;
-    const requestOptions = {
-      method: 'POST', // Specify the method
-      headers: {
-        'Content-Type': 'application/json', // Indicate the content type
-      },
-    };
-    const res = await fetch(registrationUrl, requestOptions);
-    return res;
+    return true;
+    // TODO connect with the backend
+
+    // const registrationUrl = `${BASE_URL}/Registration/CreateUser/${token}/${email}/${password}`;
+    // const requestOptions = {
+    //   method: 'POST', // Specify the method
+    //   headers: {
+    //     'Content-Type': 'application/json', // Indicate the content type
+    //   },
+    // };
+    // const res = await fetch(registrationUrl, requestOptions);
+    // return res;
   }
 
   logout() {
