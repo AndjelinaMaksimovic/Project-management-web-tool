@@ -14,6 +14,7 @@ namespace Codedberries
         public DbSet<Permission> Permissions { get; set; }
 
         public DbSet<Invite> Invites { get; set; }
+        public DbSet<Session> Sessions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

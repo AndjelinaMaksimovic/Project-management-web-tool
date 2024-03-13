@@ -1,3 +1,5 @@
+using Codedberries.Services;
+
 namespace Codedberries
 {
     public class Program
@@ -10,6 +12,8 @@ namespace Codedberries
 
             builder.Services.AddControllers();
             builder.Services.AddDbContext<AppDatabaseContext>();
+            builder.Services.AddScoped<UserService>();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -36,7 +40,6 @@ namespace Codedberries
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

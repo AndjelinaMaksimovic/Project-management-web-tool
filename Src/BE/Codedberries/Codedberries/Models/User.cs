@@ -26,6 +26,9 @@ namespace Codedberries.Models
         
         [Required]
         public bool Activated { get; set; }
+
+        [Required]
+        public byte[] PasswordSalt {get; set;}
         
         [AllowNull]
         public string? ActivationToken { get; set; }
