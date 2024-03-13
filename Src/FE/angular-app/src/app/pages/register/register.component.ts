@@ -29,11 +29,9 @@ export class RegisterComponent {
     this.route.queryParams.subscribe((params) => {
       this.token = params['token'];
       this.email = params['email'];
-      console.log(params); // Logs the query parameters
     });
   }
   async register() {
-    console.log('register');
     // check token
     if (this.token === undefined) {
       this.errorMessage = 'no token';
@@ -56,7 +54,6 @@ export class RegisterComponent {
     );
     // if registration fails return
     if (!res) {
-      console.log('registration failed');
       this.errorMessage = 'registration failed';
       return;
     }
