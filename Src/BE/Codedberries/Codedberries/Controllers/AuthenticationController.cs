@@ -1,4 +1,5 @@
 ﻿using Codedberries.Models;
+using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,10 @@ namespace Codedberries.Controllers
             _userService = userService;
         }
 
-        [HttpPost("login/{email}/{password}")]
-        public IActionResult Login(string email, string password)
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginDTO body)
         {
-            Session currentSession = _userService.LoginUser(email, password);
+            Session currentSession = _userService.LoginUser(body.Email, body.Password);
 
             if (currentSession != null)
             {
