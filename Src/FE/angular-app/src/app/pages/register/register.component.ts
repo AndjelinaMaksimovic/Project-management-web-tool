@@ -19,6 +19,11 @@ export class RegisterComponent {
   constructor(private authService: AuthService, private router: Router) {}
   async register() {
     console.log('register');
+    // check if password confirm matches
+    if (this.password !== this.passwordConfirm) {
+      this.errorMessage = 'passwords do not match!';
+      return;
+    }
     const res = await this.authService.register('test', 'test', '1234');
     // if registration fails return
     if (!res) {
