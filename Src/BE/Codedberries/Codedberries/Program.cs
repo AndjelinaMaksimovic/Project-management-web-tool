@@ -1,3 +1,5 @@
+using Codedberries.Helpers;
+
 namespace Codedberries
 {
     public class Program
@@ -48,6 +50,7 @@ namespace Codedberries
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
                 dbContext.ApplyMigrations();
+               // dbData.addData1(dbContext);
             }
 
 
