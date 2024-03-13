@@ -17,7 +17,8 @@ export class RegisterComponent {
   passwordConfirm: string = '';
   errorMessage: string | null = null;
   constructor(private authService: AuthService, private router: Router) {}
-  register() {
+  async register() {
     console.log('register');
+    const res = await this.authService.register('test', 'test', '1234');
   }
 }

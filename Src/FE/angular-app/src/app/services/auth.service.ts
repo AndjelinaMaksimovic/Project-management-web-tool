@@ -5,6 +5,9 @@ type User = {
   email: string;
   role: string;
 };
+/** auth server url */
+const BASE_URL = 'https://localhost:7167';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -42,6 +45,17 @@ export class AuthService {
       // If login fails, return false
       return false;
     }
+  }
+  async register(token: string, email: string, password: string) {
+    const registrationUrl = `${BASE_URL}/Registration/CreateUser/${token}/${email}/${password}`;
+    const requestOptions = {
+      method: 'POST', // Specify the method
+      headers: {
+        'Content-Type': 'application/json', // Indicate the content type
+      },
+    };
+    const res = await fetch(registrationUrl, requestOptions);
+    return res;
   }
 
   logout() {
