@@ -34,12 +34,12 @@ namespace Codedberries.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            //if (_userService.LogoutUser(body.Token))
-            //{
+            if (_userService.LogoutUser(HttpContext))
+            {
                 _userService.DeleteSessionCookie(HttpContext);
                 return Ok(new { message = "Logout successful!" });
-            //}
-            //return BadRequest(new { message = "Logout fail!" });
+            }
+            return BadRequest(new { message = "Logout fail!" });
         }
     }
 }
