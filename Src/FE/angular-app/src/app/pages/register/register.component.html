@@ -1,0 +1,21 @@
+<div class="centered-content">
+    <div class="stack-container">
+        <h1>Register</h1>
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="text" [(ngModel)]="email">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input matInput type="text" [(ngModel)]="firstName">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input matInput type="text" [(ngModel)]="lastName">
+        </mat-form-field>
+        <button (click)="register()" color="primary" mat-raised-button>Continue</button>
+        <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+        </div>
+    </div>
+</div>

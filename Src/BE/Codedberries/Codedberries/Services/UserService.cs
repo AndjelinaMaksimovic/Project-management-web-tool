@@ -37,8 +37,10 @@ namespace Codedberries.Services
             return null; // user not found or password incorrect
         }
 
-        public bool LogoutUser(string sessionToken)
+        public bool LogoutUser(HttpContext httpContext)
         {
+            string? sessionToken = "";
+            httpContext.Request.Cookies.TryGetValue("sessionId", out sessionToken);
             var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
 
             if (session != null)
@@ -98,12 +100,17 @@ namespace Codedberries.Services
         {
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = false,
                 SameSite = SameSiteMode.Strict,
                 Expires = session.ExpirationTime
             };
 
             httpContext.Response.Cookies.Append("sessionId", session.Token, cookieOptions);
+        }
+
+        public void DeleteSessionCookie(HttpContext httpContext)
+        {
+            httpContext.Response.Cookies.Delete("sessionId");
         }
     }
 }
