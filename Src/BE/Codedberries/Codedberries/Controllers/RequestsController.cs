@@ -41,5 +41,18 @@ namespace Codedberries.Controllers
 
             return Ok(allRolesNames);
         }
+
+        [HttpPost("userRole")]
+        public IActionResult GetUserRole(UserIdDTO body)
+        {
+            UserRoleDTO userRole = _requestsService.GetUserRole(body.UserId);
+            
+            if (userRole == null)
+            {
+                return NotFound(new { message = "User role not found!" }); // TO-DO ErrorDTO
+            }
+
+            return Ok(userRole);
+        }
     }
 }
