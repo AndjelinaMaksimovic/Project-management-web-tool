@@ -1,3 +1,8 @@
 <mat-toolbar color="primary">
     <span>My Application</span>
+    <span><a *ngIf="loggedIn(); else elseBlock" (click)="logout()" href="javascript:void(0)">Log out</a></span>
+    <ng-template #elseBlock>
+        <span><a routerLink="/login" routerLinkActive="active">Log in</a></span>
+        <span><a routerLink="/register" routerLinkActive="active">Register</a></span>
+    </ng-template>
 </mat-toolbar>

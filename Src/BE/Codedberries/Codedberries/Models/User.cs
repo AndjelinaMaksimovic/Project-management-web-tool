@@ -46,6 +46,7 @@ namespace Codedberries.Models
             Lastname = lastname;
             RoleId = roleId;
             Activated = false;
+            PasswordSalt = new byte[1];
             ActivationToken = null;
         }
     }

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 
 type User = {
   email: string;
   role: string;
 };
-/** auth server url */
-const BASE_URL = 'https://localhost:7167';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +15,14 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
 
-  constructor() {
+  private httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    withCredentials: true,
+    observe: 'response' as 'response'
+  };
+  private res: number = 0
+
+  constructor(private http: HttpClient) {
     this.currentUserSubject = new BehaviorSubject<User | null>(
       JSON.parse(localStorage.getItem('currentUser') || 'null')
     );
@@ -33,27 +40,35 @@ export class AuthService {
     this.currentUserSubject.next(user);
   }
 
-  login(email: string, password: string) {
+  async login(email: string, password: string) {
     // Dummy credentials
-    const dummyCredentials = { email: 'user', password: 'pass' };
+    // const dummyCredentials = { email: 'user', password: 'pass' };
 
     // Check if the provided credentials match the dummy credentials
-    if (
-      email === dummyCredentials.email &&
-      password === dummyCredentials.password
-    ) {
-      const user = { email: 'user', role: 'admin' };
-      this.saveUserData(user);
-      return true;
-    } else {
-      // If login fails, return false
-      return false;
+    // if (
+    //   email === dummyCredentials.email &&
+    //   password === dummyCredentials.password
+    // ) {
+    //   const user = { email: 'user', role: 'admin' };
+    //   this.saveUserData(user);
+    //   return true;
+    // } else {
+    //   // If login fails, return false
+    //   return false;
+    // }
+    // const v = console.log(firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/login', {email: email, password: password}, this.httpOptions)))
+    var r = false
+    try {
+      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/login', {email: email, password: password}, this.httpOptions))).ok
+    } catch (e) {
+      console.log(e)
     }
+    return r
   }
-  async register(token: string, email: string, password: string) {
-    const user = { email: 'registered user', role: 'admin' };
-    this.saveUserData(user);
-    return true;
+  async register(email: string, firstName: string, lastName: string) {
+    // const user = { email: 'registered user', role: 'admin' };
+    // this.saveUserData(user);
+    // return true;
     // TODO connect with the backend
 
     // const registrationUrl = `${BASE_URL}/Registration/CreateUser/${token}/${email}/${password}`;
@@ -65,12 +80,27 @@ export class AuthService {
     // };
     // const res = await fetch(registrationUrl, requestOptions);
     // return res;
+    var r = false
+    try {
+      r = ((await firstValueFrom(this.http.post<any>(environment.apiUrl + `/Registration/CreateUser/${email}/${firstName}/${lastName}`, {}, this.httpOptions))).status == 200)
+    } catch (e) {
+      console.log(e)
+    }
+    return r
   }
 
-  logout() {
-    // Remove user data from localStorage
-    localStorage.removeItem('currentUser');
+  async logout() {
+
+    var r = false
+    try {
+      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/logout', {}, this.httpOptions))).ok
+    } catch (e) {
+      console.log(e)
+    }
+
     // Update the currentUserSubject
-    this.currentUserSubject.next(null);
+    // this.currentUserSubject.next(null);
+
+    return r
   }
 }

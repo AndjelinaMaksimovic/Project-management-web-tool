@@ -12,45 +12,46 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {
-  password: string = '';
-  passwordConfirm: string = '';
+  email: string = '';
+  firstName: string = '';
+  lastName: string = '';
   errorMessage: string | null = null;
 
   // query params
-  token: string | undefined;
-  email: string | undefined;
+  // token: string | undefined;
+  // email: string | undefined;
   constructor(
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
   // listen to query parameters
-  ngOnInit() {
-    this.route.queryParams.subscribe((params) => {
-      this.token = params['token'];
-      this.email = params['email'];
-    });
-  }
+  // ngOnInit() {
+  //   this.route.queryParams.subscribe((params) => {
+  //     this.token = params['token'];
+  //     this.email = params['email'];
+  //   });
+  // }
   async register() {
     // check token
-    if (this.token === undefined) {
-      this.errorMessage = 'no token';
-      return;
-    }
+    // if (this.token === undefined) {
+    //   this.errorMessage = 'no token';
+    //   return;
+    // }
     // check email
     if (this.email === undefined) {
       this.errorMessage = 'no email passed';
       return;
     }
     // check if password confirm matches
-    if (this.password !== this.passwordConfirm) {
-      this.errorMessage = 'passwords do not match!';
-      return;
-    }
+    // if (this.password !== this.passwordConfirm) {
+    //   this.errorMessage = 'passwords do not match!';
+    //   return;
+    // }
     const res = await this.authService.register(
-      this.token,
       this.email,
-      this.password
+      this.firstName,
+      this.lastName
     );
     // if registration fails return
     if (!res) {
@@ -58,6 +59,6 @@ export class RegisterComponent {
       return;
     }
     // on successful registration, redirect to home?
-    this.router.navigate(['/home']);
+    this.router.navigate(['/login']);
   }
 }

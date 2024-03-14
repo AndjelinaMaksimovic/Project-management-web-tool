@@ -17,13 +17,13 @@ export class LoginComponent {
   password: string = '';
   errorMessage: string | null = null;
   constructor(private authService: AuthService, private router: Router) {}
-  login() {
-    const success = this.authService.login(this.email, this.password);
+  async login() {
+    const success = await this.authService.login(this.email, this.password);
     if (!success) this.errorMessage = 'login failed';
     else {
-      this.router.navigate(['/home']);
+      this.router.navigate(['']);
       this.errorMessage = null;
     }
-    console.log(this.authService.currentUserValue);
+    // console.log(this.authService.currentUserValue);
   }
 }

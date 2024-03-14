@@ -7,7 +7,7 @@ using Microsoft.Data.Sqlite;
 namespace Codedberries.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class RegistrationController : ControllerBase
     {
         private readonly AppDatabaseContext _databaseContext;
@@ -39,10 +39,10 @@ namespace Codedberries.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Error: " + ex.Message);
+                return BadRequest(new { resp = "Error: " + ex.Message});
             }
 
-            return Ok("Success");
+            return Ok(new { resp = "Success" });
         }
 
         [HttpPost("Activate/{token}/{email}/{password}")]
@@ -58,9 +58,9 @@ namespace Codedberries.Controllers
                 user.ActivationToken = null;
                 _databaseContext.SaveChanges();
 
-                return Ok("Success");
+                return Ok(new { resp = "Success" });
             }
-            return BadRequest("User not found");
+            return BadRequest(new { resp = "User not found" });
         }
     }
 }

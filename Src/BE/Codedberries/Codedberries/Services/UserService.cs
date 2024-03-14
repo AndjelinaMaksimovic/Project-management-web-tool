@@ -99,12 +99,17 @@ namespace Codedberries.Services
         {
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = false,
                 SameSite = SameSiteMode.Strict,
                 Expires = session.ExpirationTime
             };
 
             httpContext.Response.Cookies.Append("sessionId", session.Token, cookieOptions);
+        }
+
+        public void DeleteSessionCookie(HttpContext httpContext)
+        {
+            httpContext.Response.Cookies.Delete("sessionId");
         }
     }
 }
