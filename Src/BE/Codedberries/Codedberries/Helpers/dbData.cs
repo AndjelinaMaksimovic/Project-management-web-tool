@@ -21,7 +21,8 @@ namespace Codedberries.Helpers
                 new Project ( "Project1",null) ,
                 new Project  ( "Project2" ,null),
                 new Project ( "Project3",null ),
-                new Project ( "Project4",1 )
+                new Project ( "Project4",1 ),
+                new Project("Project5", 2)
             );
 
             context.Permissions.AddRange(
@@ -36,13 +37,33 @@ namespace Codedberries.Helpers
             );
 
 
+            context.Users.AddRange(
+
+             new Models.User("user1@example.com", "password1", "John", "Doe", null),
+             new Models.User("user2@example.com", "password2", "Jane", "Doe", null),
+             new Models.User("user3@example.com", "password3", "Mark", "Smith", 1),
+             new Models.User("user4@example.com", "password3", "Jack", "Smith", 3),
+             new Models.User("user5@example.com", "password3", "Sarah", "Smith", 2),
+             new Models.User("user5@example.com", "password3", "Marry", "Smith", 4)
+             );
+
+            context.Tasks.AddRange(
+                new Models.Task("Task 1 Description", DateTime.Today.AddDays(1), 1, false),
+                new Models.Task("Task 2 Description", DateTime.Today.AddDays(2), 2, true),
+                new Models.Task("Task 3 Description", DateTime.Today.AddDays(6), 3, false),
+                new Models.Task("Task 4 Description", DateTime.Today.AddDays(5), 2, false),
+                new Models.Task("Task 5 Description", DateTime.Today.AddDays(4), 4, false),
+                new Models.Task("Task 6 Description", DateTime.Today.AddDays(1), 1, true)
+                );
 
 
 
 
 
 
-            context.SaveChanges();
+
+
+             context.SaveChanges();
 
             Console.WriteLine("Sample data added successfully.");
         }
