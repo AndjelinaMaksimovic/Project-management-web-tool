@@ -28,5 +28,12 @@ namespace Codedberries.Services
                 LastName = user.Lastname
             };
         }
+
+        public AllRolesNamesDTO GetRoleNames()
+        {
+            List<string> roleNames = _databaseContext.Roles.Select(r => r.Name).ToList();
+            
+            return new AllRolesNamesDTO { RoleNames = roleNames };
+        }
     }
 }
