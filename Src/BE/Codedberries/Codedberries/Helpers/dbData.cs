@@ -17,7 +17,28 @@ namespace Codedberries.Helpers
                 new Role("Viewer")
             );
 
-            
+            context.Projects.AddRange(
+                new Project ( "Project1",null) ,
+                new Project  ( "Project2" ,null),
+                new Project ( "Project3",null ),
+                new Project ( "Project4",1 )
+            );
+
+            context.Permissions.AddRange(
+                new Permission ( "Kreiranje projekta" ),
+                new Permission ( "Brisanje projekta" ),
+                new Permission (  " Kreiranje zadatka" ),
+                new Permission ("Brisanje zadatka" ),
+                new Permission ("Pregledanje projekta" ),
+                new Permission ("Brisanje projekta" ),
+                new Permission ( "Dodavanje uloga korisnicima" ),
+                new Permission ("Dodavanje zadataka korisnicima" )
+            );
+
+
+
+
+
 
 
 
