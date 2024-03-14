@@ -89,6 +89,28 @@ export class AuthService {
     return r
   }
 
+  async activate(
+    token: string,
+    email: string,
+    password: string
+  ): Promise<boolean> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Registration/Activate/${token}/${email}/${password}`,
+          {},
+          this.httpOptions
+        )
+      );
+      if (!res.ok) return false;
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+  
   async logout() {
 
     var r = false

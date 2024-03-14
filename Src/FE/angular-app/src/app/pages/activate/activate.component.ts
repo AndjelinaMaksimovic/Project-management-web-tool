@@ -48,17 +48,17 @@ export class ActivateComponent {
       this.errorMessage = 'passwords do not match!';
       return;
     }
-    const res = await this.authService.register(
+    const res = await this.authService.activate(
       this.token,
       this.email,
       this.password
     );
     // if registration fails return
     if (!res) {
-      this.errorMessage = 'registration failed';
+      this.errorMessage = 'activation failed';
       return;
     }
     // on successful registration, redirect to home?
-    this.router.navigate(['/home']);
+    this.router.navigate(['']);
   }
 }
