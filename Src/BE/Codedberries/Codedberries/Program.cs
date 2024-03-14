@@ -50,7 +50,9 @@ namespace Codedberries
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
                 dbContext.ApplyMigrations();
-               // dbData.addData1(dbContext);
+                // dbData.addData1(dbContext);
+                dbData.addData2(dbContext);
+                
             }
 
 
