@@ -28,5 +28,18 @@ namespace Codedberries.Controllers
 
             return Ok(userFullName);
         }
+
+        [HttpGet("allRolesNames")]
+        public IActionResult GetAllRolesNames()
+        {
+            AllRolesNamesDTO allRolesNames = _requestsService.GetRoleNames();
+            
+            if (allRolesNames == null)
+            {
+                return NotFound(new { message = "No roles found!" }); // TO-DO ErrorDTO
+            }
+
+            return Ok(allRolesNames);
+        }
     }
 }
