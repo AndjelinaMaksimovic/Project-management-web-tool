@@ -32,7 +32,7 @@ namespace Codedberries.Controllers
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
 
-                string activationLink = "https://localhost:7167/Registration/Activate/" + user.ActivationToken + "/" + email; // CHANGE WITH FRONTEND URL
+                string activationLink = "http://localhost:4200/activate?token="+ user.ActivationToken + "&email=" + email; // CHANGE WITH FRONTEND URL
 
                 MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
                 mailService.SendMessage(email, "Account activation", EmailTemplates.ActivationEmail(firstname, lastname, activationLink));
