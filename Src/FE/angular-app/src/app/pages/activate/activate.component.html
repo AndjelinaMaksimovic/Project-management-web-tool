@@ -1,1 +1,17 @@
-<p>activate works!</p>
+<div class="centered-content">
+    <div class="stack-container">
+        <h1>set your password</h1>
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" [(ngModel)]="password">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Confirm password</mat-label>
+            <input matInput type="password" [(ngModel)]="passwordConfirm">
+        </mat-form-field>
+        <button (click)="register()" color="primary" mat-raised-button>Continue</button>
+        <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+        </div>
+    </div>
+</div>
