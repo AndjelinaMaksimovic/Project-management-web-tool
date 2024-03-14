@@ -104,13 +104,15 @@ export class AuthService {
         )
       );
       if (!res.ok) return false;
+      const success = await this.login(email, password);
+      if(!success) return false;
       return true;
     } catch (e) {
       console.log(e);
     }
     return false;
   }
-  
+
   async logout() {
 
     var r = false
