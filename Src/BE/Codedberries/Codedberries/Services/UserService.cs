@@ -129,5 +129,28 @@ namespace Codedberries.Services
                 LastName = user.Lastname
             };
         }
+
+        public UserRoleDTO GetUserRole(int userId)
+        {
+            User user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            Role userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                return null;
+            }
+
+            return new UserRoleDTO
+            {
+                RoleId = userRole.Id,
+                RoleName = userRole.Name
+            };
+        }
     }
 }
