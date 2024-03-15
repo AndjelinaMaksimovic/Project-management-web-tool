@@ -108,7 +108,69 @@ namespace Codedberries
                 var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = Permissions.FirstOrDefault(p => p.Description == "Uklanjanje korisnika sa projekta.");
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Uklanjanje korisnika sa projekta");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+
+        public bool canCreateProject(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Kreiranje projekta");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+        public bool canDeleteProject(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Brisanje projekta");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+
+        public bool canEditProject(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Ažuriranje projekta");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+        public bool canViewProject(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Pregledanje projekta");
                     return permission != null && userRole.Permissions.Contains<Permission>(permission);
                 }
             }
@@ -120,19 +182,9 @@ namespace Codedberries
 
 
 
-        public void AddPermissionsToRole(int roleId, List<int> permissionIds)
-        {
-            var role = Roles.FirstOrDefault(r => r.Id == roleId);
-            if (role != null)
-            {
-                var permissionsToAdd = Permissions.Where(p => permissionIds.Contains(p.Id)).ToList();
-                foreach (var permission in permissionsToAdd)
-                {
-                    role.Permissions.Add(permission);
-                }
-                SaveChanges();
-            }
-        }
+
+
+
 
 
         public void ApplyMigrations()
