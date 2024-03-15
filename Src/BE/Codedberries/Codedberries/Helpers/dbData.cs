@@ -26,12 +26,16 @@ namespace Codedberries.Helpers
             );
 
             context.Permissions.AddRange(
+                new Permission ("Dodavanje novog korisnika"),
+                new Permission ("Dodavanje korisnika na projekat"),
+                new Permission ("Uklanjanje korisnika sa projekta"),
                 new Permission ( "Kreiranje projekta" ),
                 new Permission ( "Brisanje projekta" ),
-                new Permission (  " Kreiranje zadatka" ),
+                new Permission("Azuriranje projekta"), 
+                new Permission("Pregledanje projekta"), 
+                new Permission (  "Kreiranje zadatka" ),
                 new Permission ("Brisanje zadatka" ),
-                new Permission ("Pregledanje projekta" ),
-                new Permission ("Brisanje projekta" ),
+                new Permission("Azuriranje zadatka"), 
                 new Permission ( "Dodavanje uloga korisnicima" ),
                 new Permission ("Dodavanje zadataka korisnicima" )
             );
@@ -89,12 +93,16 @@ namespace Codedberries.Helpers
             );
 
             context.Permissions.AddRange(
+                new Permission("Dodavanje novog korisnika"),
+                new Permission("Dodavanje korisnika na projekat"),
+                new Permission("Uklanjanje korisnika sa projekta"),
                 new Permission("Kreiranje projekta"),
                 new Permission("Brisanje projekta"),
-                new Permission(" Kreiranje zadatka"),
-                new Permission("Brisanje zadatka"),
+                new Permission("Azuriranje projekta"),
                 new Permission("Pregledanje projekta"),
-                new Permission("Brisanje projekta"),
+                new Permission("Kreiranje zadatka"),
+                new Permission("Brisanje zadatka"),
+                new Permission("Azuriranje zadatka"),
                 new Permission("Dodavanje uloga korisnicima"),
                 new Permission("Dodavanje zadataka korisnicima")
             );
