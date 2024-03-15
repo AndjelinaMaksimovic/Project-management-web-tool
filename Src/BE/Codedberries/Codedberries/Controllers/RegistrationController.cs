@@ -33,7 +33,7 @@ namespace Codedberries.Controllers
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
 
-                string activationLink = "http://localhost:4200/activate?token="+ user.ActivationToken + "&email=" + email; // CHANGE WITH FRONTEND URL
+                string activationLink = "http://localhost:4200/activate?token="+ user.ActivationToken + "&email=" + body.Email; // CHANGE WITH FRONTEND URL
 
                 MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
                 mailService.SendMessage(body.Email, "Account activation", EmailTemplates.ActivationEmail(body.FirstName, body.LastName, activationLink));
@@ -46,22 +46,22 @@ namespace Codedberries.Controllers
             return Ok(new { resp = "Success" });
         }
 
-        [HttpPost("Activate/{token}/{email}/{password}")]
-        public IActionResult ActivateAccount(string token, string email, string password)
+        [HttpPost("Activate")]
+        public IActionResult ActivateAccount([FromBody] ActivateAccountDTO body)
         {
-            if(!TokenService.ValidateToken(token)) return BadRequest("Invalid token");
+            if(!TokenService.ValidateToken(body.Token)) return BadRequest("Invalid token"); /* TO-DO ErrorMessageDTO */
 
-            User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == token && x.Email == email);
+            User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == body.Token && x.Email == body.Email);
             if (user != null)
             {
-                user.Password = password;
+                user.Password = body.Password;
                 user.Activated = true;
                 user.ActivationToken = null;
                 _databaseContext.SaveChanges();
 
                 return Ok(new { resp = "Success" });
             }
-            return BadRequest(new { resp = "User not found" });
+            return BadRequest(new { resp = "User not found" }); /* TO-DO ErrorMessageDTO */
         }
     }
 }
