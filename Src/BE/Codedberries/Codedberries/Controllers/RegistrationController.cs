@@ -1,5 +1,6 @@
 ﻿using Codedberries.Helpers;
 using Codedberries.Models;
+using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -17,17 +18,17 @@ namespace Codedberries.Controllers
             _databaseContext = context;
         }
 
-        [HttpPost("CreateUser/{email}/{firstname}/{lastname}")]
-        public IActionResult CreateUser(string email, string firstname, string lastname)
+        [HttpPost("CreateUser")]
+        public IActionResult CreateUser([FromBody] CreateUserDTO body)
         {
             // TODO - Check if the logged user is a Super Admin
-            if (!Helper.IsEmailValid(email)) return BadRequest("Invalid email");
-            if(_databaseContext.Users.FirstOrDefault(u => u.Email == email) != null) return BadRequest("User with the same email already exists");
+            if (!Helper.IsEmailValid(body.Email)) return BadRequest("Invalid email"); /* TO-DO ErrorMessageDTO */
+            if(_databaseContext.Users.FirstOrDefault(u => u.Email == body.Email) != null) return BadRequest("User with the same email already exists");
 
             try
             {
-                User user = new User(email, "123", firstname, lastname, null);
-                user.ActivationToken = TokenService.GenerateToken(email);
+                User user = new User(body.Email, "123", body.FirstName, body.LastName, null);
+                user.ActivationToken = TokenService.GenerateToken(body.Email);
 
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
@@ -35,11 +36,11 @@ namespace Codedberries.Controllers
                 string activationLink = "http://localhost:4200/activate?token="+ user.ActivationToken + "&email=" + email; // CHANGE WITH FRONTEND URL
 
                 MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
-                mailService.SendMessage(email, "Account activation", EmailTemplates.ActivationEmail(firstname, lastname, activationLink));
+                mailService.SendMessage(body.Email, "Account activation", EmailTemplates.ActivationEmail(body.FirstName, body.LastName, activationLink));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { resp = "Error: " + ex.Message});
+                return BadRequest(new { resp = "Error: " + ex.Message}); /* TO-DO ErrorMessageDTO */
             }
 
             return Ok(new { resp = "Success" });
