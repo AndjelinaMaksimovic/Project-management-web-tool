@@ -15,6 +15,7 @@ namespace Codedberries
             builder.Services.AddControllers();
             builder.Services.AddDbContext<AppDatabaseContext>();
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<TokenService>();
             builder.Services.Configure<Config>(builder.Configuration.GetSection(nameof(Config)));
             builder.Services.AddSingleton<Config>();
 

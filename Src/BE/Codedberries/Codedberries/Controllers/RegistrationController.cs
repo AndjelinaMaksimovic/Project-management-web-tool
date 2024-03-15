@@ -14,11 +14,13 @@ namespace Codedberries.Controllers
     {
         private readonly Config _config;
         private readonly AppDatabaseContext _databaseContext;
+        private readonly TokenService _tokenService;
 
-        public RegistrationController(IOptions<Config> config, AppDatabaseContext context)
+        public RegistrationController(IOptions<Config> config, AppDatabaseContext context, TokenService tokenService)
         {
             _config = config.Value;
             _databaseContext = context;
+            _tokenService = tokenService;
         }
 
         [HttpPost("CreateUser/{email}/{firstname}/{lastname}")]
@@ -31,7 +33,7 @@ namespace Codedberries.Controllers
             try
             {
                 User user = new User(email, "123", firstname, lastname, null);
-                user.ActivationToken = TokenService.GenerateToken(email);
+                user.ActivationToken = _tokenService.GenerateToken(email);
 
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
@@ -52,7 +54,7 @@ namespace Codedberries.Controllers
         [HttpPost("Activate/{token}/{email}/{password}")]
         public IActionResult ActivateAccount(string token, string email, string password)
         {
-            if(!TokenService.ValidateToken(token)) return BadRequest("Invalid token");
+            if(!_tokenService.ValidateToken(token)) return BadRequest("Invalid token");
 
             User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == token && x.Email == email);
             if (user != null)

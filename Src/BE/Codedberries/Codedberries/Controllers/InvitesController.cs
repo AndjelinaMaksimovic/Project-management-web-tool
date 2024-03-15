@@ -17,11 +17,13 @@ namespace Codedberries.Controllers
     {
         private readonly Config _config;
         private readonly AppDatabaseContext _databaseContext;
+        private readonly TokenService _tokenService;
 
-        public InvitesController(IOptions<Config> config, AppDatabaseContext context)
+        public InvitesController(IOptions<Config> config, AppDatabaseContext context, TokenService tokenService)
         {
             _config = config.Value;
             _databaseContext = context;
+            _tokenService = tokenService;
         }
 
         [HttpPost("SendInvite/{email}/{roleId}")]
@@ -31,7 +33,7 @@ namespace Codedberries.Controllers
             {
                 Invite invite = new Invite();
                 invite.Email = email;
-                invite.Token = TokenService.GenerateToken(email);
+                invite.Token = _tokenService.GenerateToken(email);
                 invite.RoleId = roleId;
 
                 _databaseContext.Invites.Add(invite);
