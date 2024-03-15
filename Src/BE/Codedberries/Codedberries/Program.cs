@@ -14,7 +14,7 @@ namespace Codedberries
             builder.Services.AddControllers();
             builder.Services.AddDbContext<AppDatabaseContext>();
             builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<RequestsService>();
+            builder.Services.AddScoped<RoleService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
