@@ -52,6 +52,89 @@ namespace Codedberries
                 .HasKey(e => new { e.TaskId, e.DependentTaskId });
         }
 
+        public bool CanPerformActionBasedOnRole(int userId, string action)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == action);
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+
+        public bool canAddNewUser(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "dodavanje novih korisnika alata");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+
+        public bool canAddUserToProject(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Dodavanje korisnika na projekat");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+
+        public bool canRemoveUserFromProject(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Uklanjanje korisnika sa projekta.");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+
+
+
+
+
+        public void AddPermissionsToRole(int roleId, List<int> permissionIds)
+        {
+            var role = Roles.FirstOrDefault(r => r.Id == roleId);
+            if (role != null)
+            {
+                var permissionsToAdd = Permissions.Where(p => permissionIds.Contains(p.Id)).ToList();
+                foreach (var permission in permissionsToAdd)
+                {
+                    role.Permissions.Add(permission);
+                }
+                SaveChanges();
+            }
+        }
+
+
         public void ApplyMigrations()
         {
             Database.Migrate();
