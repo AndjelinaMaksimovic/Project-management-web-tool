@@ -1,4 +1,5 @@
 using Codedberries.Helpers;
+using Codedberries.Services;
 
 namespace Codedberries
 {
@@ -48,6 +49,8 @@ namespace Codedberries
             app.UseCors("AllowAnyOrigin");
 
             //app.UseMvc();
+
+            
 
             using (var scope = app.Services.CreateScope())
             {
