@@ -27,7 +27,7 @@ namespace Codedberries.Controllers
 
             try
             {
-                User user = new User(body.Email, "123", body.FirstName, body.LastName, null);
+                User user = new User(body.Email, "123", body.FirstName, body.LastName, body.RoleId);
                 user.ActivationToken = TokenService.GenerateToken(body.Email);
 
                 _databaseContext.Users.Add(user);
