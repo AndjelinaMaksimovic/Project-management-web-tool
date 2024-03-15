@@ -22,8 +22,8 @@ namespace Codedberries.Controllers
         public IActionResult CreateUser([FromBody] CreateUserDTO body)
         {
             // TODO - Check if the logged user is a Super Admin
-            if (!Helper.IsEmailValid(body.Email)) return BadRequest("Invalid email"); /* TO-DO ErrorMessageDTO */
-            if(_databaseContext.Users.FirstOrDefault(u => u.Email == body.Email) != null) return BadRequest("User with the same email already exists");
+            if (!Helper.IsEmailValid(body.Email)) return BadRequest(new ErrorMsg("Invalid email"));
+            if(_databaseContext.Users.FirstOrDefault(u => u.Email == body.Email) != null) return BadRequest(new ErrorMsg("User with the same email already exists"));
 
             try
             {
@@ -40,7 +40,7 @@ namespace Codedberries.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { resp = "Error: " + ex.Message}); /* TO-DO ErrorMessageDTO */
+                return BadRequest(new ErrorMsg("Error: " + ex.Message));
             }
 
             return Ok(new { resp = "Success" });
@@ -49,7 +49,7 @@ namespace Codedberries.Controllers
         [HttpPost("Activate")]
         public IActionResult ActivateAccount([FromBody] ActivateAccountDTO body)
         {
-            if(!TokenService.ValidateToken(body.Token)) return BadRequest("Invalid token"); /* TO-DO ErrorMessageDTO */
+            if(!TokenService.ValidateToken(body.Token)) return BadRequest(new ErrorMsg("Invalid token"));
 
             User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == body.Token && x.Email == body.Email);
             if (user != null)
@@ -61,7 +61,7 @@ namespace Codedberries.Controllers
 
                 return Ok(new { resp = "Success" });
             }
-            return BadRequest(new { resp = "User not found" }); /* TO-DO ErrorMessageDTO */
+            return BadRequest(new ErrorMsg("User not found"));
         }
     }
 }

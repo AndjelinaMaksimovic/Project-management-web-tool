@@ -42,7 +42,7 @@ namespace Codedberries.Controllers
             }
             else
             {
-                return BadRequest("Invalid email"); /* TO-DO ErrorMessageDTO */
+                return BadRequest(new ErrorMsg("Invalid email"));
             }
         }
 
@@ -58,7 +58,7 @@ namespace Codedberries.Controllers
 
                 return Ok(new { resp = "Success" });
             }
-            return BadRequest("Invalid token"); /* TO-DO ErrorMessageDTO */
+            return BadRequest(new ErrorMsg("Invalid token"));
         }
     }
 }

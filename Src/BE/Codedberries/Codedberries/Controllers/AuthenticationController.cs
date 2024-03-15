@@ -1,4 +1,5 @@
-﻿using Codedberries.Models;
+﻿using Codedberries.Helpers;
+using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ namespace Codedberries.Controllers
                 return Ok(new { sessionId = currentSession.Token });
             }
 
-            return Unauthorized(new { message = "Login fail!" });
+            return Unauthorized(new ErrorMsg("Login fail!"));
         }
 
         [HttpPost("logout")]
@@ -39,7 +40,7 @@ namespace Codedberries.Controllers
                 _userService.DeleteSessionCookie(HttpContext);
                 return Ok(new { message = "Logout successful!" });
             }
-            return BadRequest(new { message = "Logout fail!" });
+            return BadRequest(new ErrorMsg("Logout fail!"));
         }
     }
 }
