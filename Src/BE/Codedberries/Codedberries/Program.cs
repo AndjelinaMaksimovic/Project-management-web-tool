@@ -1,3 +1,4 @@
+using Codedberries.Environment;
 using Codedberries.Services;
 
 namespace Codedberries
@@ -13,6 +14,7 @@ namespace Codedberries
             builder.Services.AddControllers();
             builder.Services.AddDbContext<AppDatabaseContext>();
             builder.Services.AddScoped<UserService>();
+            builder.Services.Configure<Config>(builder.Configuration.GetSection(nameof(Config)));
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -54,9 +56,7 @@ namespace Codedberries
                 dbContext.ApplyMigrations();
             }
 
-
             app.Run();
-
         }
     }
 }
