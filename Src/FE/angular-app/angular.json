@@ -56,6 +56,17 @@
                   "with": "src/environments/environment.development.ts"
                 }
               ]
+            },
+            "custom": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.custom.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -68,6 +79,9 @@
             },
             "development": {
               "buildTarget": "hello-world:build:development"
+            },
+            "custom": {
+              "buildTarget": "hello-world:build:custom"
             }
           },
           "defaultConfiguration": "development"
