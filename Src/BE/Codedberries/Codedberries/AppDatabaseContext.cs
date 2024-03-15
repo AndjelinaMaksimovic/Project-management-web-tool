@@ -177,6 +177,83 @@ namespace Codedberries
             return false;
         }
 
+        public bool canAddRoleAndPermissionToUser(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Dodavanje uloga i permisija drugim korisnicima");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+        public bool canAddTaskToUser(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Dodavanje zadataka korisnicima");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+        public bool canCreateTask(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Kreiranje zadatka");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+        public bool canRemoveTask(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Brisanje zadatka");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+        public bool canEditTask(int userId)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var permission = Permissions.FirstOrDefault(p => p.Description == "Ažuriranje zadatka");
+                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                }
+            }
+            return false;
+        }
+
+
+
 
 
 
