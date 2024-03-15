@@ -23,8 +23,8 @@ namespace Codedberries.Services
             MailMessage message = new MailMessage(username, to);
             message.Subject = subject;
             message.Body = body;
+            message.IsBodyHtml = true;
 
-            
             SmtpClient smtpClient = new SmtpClient()
             {
                 Host = host,
@@ -36,7 +36,6 @@ namespace Codedberries.Services
             };
 
             smtpClient.Send(message);
-           
         }
     }
 }
