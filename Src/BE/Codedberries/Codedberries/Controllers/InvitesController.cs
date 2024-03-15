@@ -46,19 +46,19 @@ namespace Codedberries.Controllers
             }
         }
 
-        [HttpPost("AcceptInvite/{token}/{email}")]
-        public IActionResult AcceptInvite(string token, string email)
+        [HttpPost("AcceptInvite")]
+        public IActionResult AcceptInvite([FromBody] AcceptInviteDTO body)
         {
-            Invite? invite = _databaseContext.Invites.FirstOrDefault(x => x.Token == token && x.Email == email);
+            Invite? invite = _databaseContext.Invites.FirstOrDefault(x => x.Token == body.Token && x.Email == body.Email);
             if (invite != null)
             {
                 // TO DO - USER REGISTRATION
                 _databaseContext.Invites.Remove(invite);
                 _databaseContext.SaveChanges();
 
-                return Ok("Success");
+                return Ok(new { resp = "Success" });
             }
-            return BadRequest("Invalid token");
+            return BadRequest("Invalid token"); /* TO-DO ErrorMessageDTO */
         }
     }
 }
