@@ -1,5 +1,6 @@
 using Codedberries.Environment;
 using Codedberries.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Codedberries
 {
@@ -15,6 +16,7 @@ namespace Codedberries
             builder.Services.AddDbContext<AppDatabaseContext>();
             builder.Services.AddScoped<UserService>();
             builder.Services.Configure<Config>(builder.Configuration.GetSection(nameof(Config)));
+            builder.Services.AddSingleton<Config>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -22,9 +24,9 @@ namespace Codedberries
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAnyOrigin", builder =>
+                options.AddPolicy("AllowAnyOrigin", builder2 =>
                 {
-                    builder.WithOrigins("http://localhost:4200")
+                    builder2.WithOrigins(builder.Configuration.GetValue<string>("Config:FrontendURL"))
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials();

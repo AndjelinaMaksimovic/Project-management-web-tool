@@ -6,6 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Codedberries.Services;
 using System.Net.Mail;
 using System.Net;
+using Codedberries.Environment;
+using Microsoft.Extensions.Options;
 
 namespace Codedberries.Controllers
 {
@@ -13,11 +15,12 @@ namespace Codedberries.Controllers
     [Route("api/[controller]")]
     public class InvitesController : ControllerBase
     {
-
+        private readonly Config _config;
         private readonly AppDatabaseContext _databaseContext;
 
-        public InvitesController(AppDatabaseContext context)
+        public InvitesController(IOptions<Config> config, AppDatabaseContext context)
         {
+            _config = config.Value;
             _databaseContext = context;
         }
 
@@ -34,7 +37,7 @@ namespace Codedberries.Controllers
                 _databaseContext.Invites.Add(invite);
                 _databaseContext.SaveChanges();
 
-                MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
+                MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
                 mailService.SendMessage(email, "Invite", ""); // TODO - Add invite link
 
                 return Ok("Success");

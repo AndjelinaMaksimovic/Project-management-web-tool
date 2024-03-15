@@ -1,8 +1,10 @@
-﻿using Codedberries.Helpers;
+﻿using Codedberries.Environment;
+using Codedberries.Helpers;
 using Codedberries.Models;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Options;
 
 namespace Codedberries.Controllers
 {
@@ -10,10 +12,12 @@ namespace Codedberries.Controllers
     [Route("api/[controller]")]
     public class RegistrationController : ControllerBase
     {
+        private readonly Config _config;
         private readonly AppDatabaseContext _databaseContext;
 
-        public RegistrationController(AppDatabaseContext context)
+        public RegistrationController(IOptions<Config> config, AppDatabaseContext context)
         {
+            _config = config.Value;
             _databaseContext = context;
         }
 
@@ -32,9 +36,9 @@ namespace Codedberries.Controllers
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
 
-                string activationLink = "http://localhost:4200/activate?token="+ user.ActivationToken + "&email=" + email; // CHANGE WITH FRONTEND URL
+                string activationLink = _config.FrontendURL + "/activate?token=" + user.ActivationToken + "&email=" + email; // CHANGE WITH FRONTEND URL
 
-                MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
+                MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
                 mailService.SendMessage(email, "Account activation", EmailTemplates.ActivationEmail(firstname, lastname, activationLink));
             }
             catch (Exception ex)
