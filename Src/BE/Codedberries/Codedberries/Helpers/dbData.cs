@@ -44,7 +44,7 @@ namespace Codedberries.Helpers
              new Models.User("user3@example.com", "password3", "Mark", "Smith", 1),
              new Models.User("user4@example.com", "password3", "Jack", "Smith", 3),
              new Models.User("user5@example.com", "password3", "Sarah", "Smith", 2),
-             new Models.User("user5@example.com", "password3", "Marry", "Smith", 4)
+             new Models.User("user6@example.com", "password3", "Marry", "Smith", 4)
              );
 
             context.Tasks.AddRange(
@@ -107,7 +107,7 @@ namespace Codedberries.Helpers
              new Models.User("user3@example.com", "password3", "Mark", "Smith", null),
              new Models.User("user4@example.com", "password3", "Jack", "Smith", 3),
              new Models.User("user5@example.com", "password3", "Sarah", "Smith", null),
-             new Models.User("user5@example.com", "password3", "Marry", "Smith", 5)
+             new Models.User("user6@example.com", "password3", "Marry", "Smith", 5)
              );
 
             context.Tasks.AddRange(
