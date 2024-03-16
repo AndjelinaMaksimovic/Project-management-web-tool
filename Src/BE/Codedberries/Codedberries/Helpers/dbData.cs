@@ -52,12 +52,12 @@ namespace Codedberries.Helpers
              );
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1 Description", DateTime.Today.AddDays(1), 1, false),
-                new Models.Task("Task 2 Description", DateTime.Today.AddDays(2), 2, true),
-                new Models.Task("Task 3 Description", DateTime.Today.AddDays(6), 3, false),
-                new Models.Task("Task 4 Description", DateTime.Today.AddDays(5), 2, false),
-                new Models.Task("Task 5 Description", DateTime.Today.AddDays(4), 4, false),
-                new Models.Task("Task 6 Description", DateTime.Today.AddDays(1), 1, true)
+                new Models.Task("Task 1 Description", DateTime.Today.AddDays(1), 1, "Open", "Low", 1, 1),
+                new Models.Task("Task 2 Description", DateTime.Today.AddDays(2), 2, "Open", "Low", 1, 1),
+                new Models.Task("Task 3 Description", DateTime.Today.AddDays(6), 3, "Open", "Low", 1, 1),
+                new Models.Task("Task 4 Description", DateTime.Today.AddDays(5), 2, "Open", "Low", 1, 1),
+                new Models.Task("Task 5 Description", DateTime.Today.AddDays(4), 4, "Open", "Low", 1, 1),
+                new Models.Task("Task 6 Description", DateTime.Today.AddDays(1), 1, "Open", "Low", 1, 1)
                 );
 
 
@@ -119,12 +119,12 @@ namespace Codedberries.Helpers
              );
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1 Description", DateTime.Today.AddDays(1), 3, false),
-                new Models.Task("Task 2 Description", DateTime.Today.AddDays(2), 2, true),
-                new Models.Task("Task 3 Description", DateTime.Today.AddDays(6), 5, false),
-                new Models.Task("Task 4 Description", DateTime.Today.AddDays(5), 6, false),
-                new Models.Task("Task 5 Description", DateTime.Today.AddDays(4), 1, false),
-                new Models.Task("Task 6 Description", DateTime.Today.AddDays(2), 1, false)
+                new Models.Task("Task 1 Description", DateTime.Today.AddDays(1), 3, "Open", "Low", 1, 1),
+                new Models.Task("Task 2 Description", DateTime.Today.AddDays(2), 2, "Open", "Low", 1, 1),
+                new Models.Task("Task 3 Description", DateTime.Today.AddDays(6), 5, "Open", "Low", 1, 1),
+                new Models.Task("Task 4 Description", DateTime.Today.AddDays(5), 6, "Open", "Low", 1, 1),
+                new Models.Task("Task 5 Description", DateTime.Today.AddDays(4), 1, "Open", "Low", 1, 1),
+                new Models.Task("Task 6 Description", DateTime.Today.AddDays(2), 1, "Open", "Low", 1, 1)
                 );
 
 
