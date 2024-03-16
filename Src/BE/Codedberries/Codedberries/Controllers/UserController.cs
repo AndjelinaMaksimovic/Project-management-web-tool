@@ -1,4 +1,5 @@
-﻿using Codedberries.Models.DTOs;
+﻿using Codedberries.Helpers;
+using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace Codedberries.Controllers
 
             if (userFullName == null)
             {
-                return NotFound(new { message = "User not found!" }); // TO-DO ErrorDTO
+                return NotFound(new ErrorMsg("User not found!"));
             }
 
             return Ok(userFullName);
@@ -37,7 +38,7 @@ namespace Codedberries.Controllers
 
             if (userRole == null)
             {
-                return NotFound(new { message = "User role not found!" }); // TO-DO ErrorDTO
+                return NotFound(new ErrorMsg("User role not found!"));
             }
 
             return Ok(userRole);

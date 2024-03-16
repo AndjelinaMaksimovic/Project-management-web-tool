@@ -1,4 +1,5 @@
-﻿using Codedberries.Models.DTOs;
+﻿using Codedberries.Helpers;
+using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace Codedberries.Controllers
 
             if (allRolesNames == null)
             {
-                return NotFound(new { message = "No roles found!" }); // TO-DO ErrorDTO
+                return NotFound(new ErrorMsg("No roles found!"));
             }
 
             return Ok(allRolesNames);

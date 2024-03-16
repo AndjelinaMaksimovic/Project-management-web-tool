@@ -6,7 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Codedberries.Services;
 using System.Net.Mail;
 using System.Net;
-using Codedberries.Models.DTOs;
+using Codedberries.Environment;
+using Microsoft.Extensions.Options;
 
 namespace Codedberries.Controllers
 {
@@ -14,12 +15,15 @@ namespace Codedberries.Controllers
     [Route("api/[controller]")]
     public class InvitesController : ControllerBase
     {
-
+        private readonly Config _config;
         private readonly AppDatabaseContext _databaseContext;
+        private readonly TokenService _tokenService;
 
-        public InvitesController(AppDatabaseContext context)
+        public InvitesController(IOptions<Config> config, AppDatabaseContext context, TokenService tokenService)
         {
+            _config = config.Value;
             _databaseContext = context;
+            _tokenService = tokenService;
         }
 
         [HttpPost("SendInvite")]
@@ -28,21 +32,21 @@ namespace Codedberries.Controllers
             if (Helper.IsEmailValid(body.Email))
             {
                 Invite invite = new Invite();
-                invite.Email = body.Email;
-                invite.Token = TokenService.GenerateToken(body.Email);
-                invite.RoleId = body.RoleId;
+                invite.Email = email;
+                invite.Token = _tokenService.GenerateToken(email);
+                invite.RoleId = roleId;
 
                 _databaseContext.Invites.Add(invite);
                 _databaseContext.SaveChanges();
 
-                MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
-                mailService.SendMessage(body.Email, "Invite", ""); // TODO - Add invite link
+                MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
+                mailService.SendMessage(email, "Invite", ""); // TODO - Add invite link
 
                 return Ok(new { resp = "Success" });
             }
             else
             {
-                return BadRequest("Invalid email"); /* TO-DO ErrorMessageDTO */
+                return BadRequest(new ErrorMsg("Invalid email"));
             }
         }
 
@@ -58,7 +62,7 @@ namespace Codedberries.Controllers
 
                 return Ok(new { resp = "Success" });
             }
-            return BadRequest("Invalid token"); /* TO-DO ErrorMessageDTO */
+            return BadRequest(new ErrorMsg("Invalid token"));
         }
     }
 }
