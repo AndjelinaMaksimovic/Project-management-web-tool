@@ -1,6 +1,11 @@
+
 using Codedberries.Environment;
 using Codedberries.Services;
 using Microsoft.Extensions.Configuration;
+
+using Codedberries.Helpers;
+using Codedberries.Services;
+
 
 namespace Codedberries
 {
@@ -60,8 +65,12 @@ namespace Codedberries
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
                 dbContext.ApplyMigrations();
                 // dbData.addData1(dbContext);
-                dbData.addData2(dbContext);
+                //dbData.addData2(dbContext);
+
+
                 
+
+
             }
 
             app.Run();
