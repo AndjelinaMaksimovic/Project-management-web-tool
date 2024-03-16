@@ -55,7 +55,7 @@ namespace Codedberries.Controllers
         [HttpPost("Activate/{token}/{email}/{password}")]
         public IActionResult ActivateAccount(string token, string email, string password)
         {
-            if(!_tokenService.ValidateToken(token)) return BadRequest("Invalid token");
+            if(!_tokenService.ValidateToken(token)) return BadRequest(new ErrorMsg("User not found"));
 
             User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == body.Token && x.Email == body.Email);
             if (user != null)
