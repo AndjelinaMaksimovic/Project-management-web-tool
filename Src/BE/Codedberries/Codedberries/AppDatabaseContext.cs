@@ -55,6 +55,11 @@ namespace Codedberries
             modelBuilder.Entity<Category>()
                 .HasIndex(c => c.Name)
                 .IsUnique();
+
+            modelBuilder.Entity<Models.Task>()
+               .HasOne(t => t.Category)
+               .WithMany()
+               .HasForeignKey(t => t.CategoryId);
         }
 
         public void ApplyMigrations()
