@@ -1,9 +1,11 @@
-﻿using Codedberries.Helpers;
+﻿using Codedberries.Environment;
+using Codedberries.Helpers;
 using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Options;
 
 namespace Codedberries.Controllers
 {
@@ -11,11 +13,15 @@ namespace Codedberries.Controllers
     [Route("api/[controller]")]
     public class RegistrationController : ControllerBase
     {
+        private readonly Config _config;
         private readonly AppDatabaseContext _databaseContext;
+        private readonly TokenService _tokenService;
 
-        public RegistrationController(AppDatabaseContext context)
+        public RegistrationController(IOptions<Config> config, AppDatabaseContext context, TokenService tokenService)
         {
+            _config = config.Value;
             _databaseContext = context;
+            _tokenService = tokenService;
         }
 
         [HttpPost("CreateUser")]
@@ -27,16 +33,16 @@ namespace Codedberries.Controllers
 
             try
             {
-                User user = new User(body.Email, "123", body.FirstName, body.LastName, null);
-                user.ActivationToken = TokenService.GenerateToken(body.Email);
+                User user = new User(email, "123", firstname, lastname, null);
+                user.ActivationToken = _tokenService.GenerateToken(email);
 
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
 
-                string activationLink = "http://localhost:4200/activate?token="+ user.ActivationToken + "&email=" + body.Email; // CHANGE WITH FRONTEND URL
+                string activationLink = _config.FrontendURL + "/activate?token=" + user.ActivationToken + "&email=" + email; // CHANGE WITH FRONTEND URL
 
-                MailService mailService = new MailService("smtp.gmail.com", 587, "codedberries.pm@gmail.com", "vmzlvzehywdyjfal"); // CHANGE THIS
-                mailService.SendMessage(body.Email, "Account activation", EmailTemplates.ActivationEmail(body.FirstName, body.LastName, activationLink));
+                MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
+                mailService.SendMessage(email, "Account activation", EmailTemplates.ActivationEmail(firstname, lastname, activationLink));
             }
             catch (Exception ex)
             {
@@ -46,10 +52,10 @@ namespace Codedberries.Controllers
             return Ok(new { resp = "Success" });
         }
 
-        [HttpPost("Activate")]
-        public IActionResult ActivateAccount([FromBody] ActivateAccountDTO body)
+        [HttpPost("Activate/{token}/{email}/{password}")]
+        public IActionResult ActivateAccount(string token, string email, string password)
         {
-            if(!TokenService.ValidateToken(body.Token)) return BadRequest("Invalid token"); /* TO-DO ErrorMessageDTO */
+            if(!_tokenService.ValidateToken(token)) return BadRequest("Invalid token");
 
             User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == body.Token && x.Email == body.Email);
             if (user != null)

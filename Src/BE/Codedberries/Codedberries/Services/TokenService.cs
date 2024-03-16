@@ -1,16 +1,29 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Codedberries.Environment;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Codedberries.Services
 {
-    public static class TokenService
+    public class TokenService
     {
-        private const string SecretKey = "secret-keysecret-keysecret-keysecret-keysecret-keysecret-keysecret-keysecret-keysecret-keysecret-key";
-        private static readonly SymmetricSecurityKey SecurityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(SecretKey));
-        private static readonly SigningCredentials Credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
+        private readonly Config _config;
 
-        public static string GenerateToken(string email)
+        private readonly string SecretKey;
+        private readonly SymmetricSecurityKey SecurityKey;
+        private readonly SigningCredentials Credentials;
+
+        public TokenService(IOptions<Config> config)
+        {
+            _config = config.Value;
+
+            SecretKey = _config.SecretKey;
+            SecurityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(SecretKey));
+            Credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
+        }
+
+        public string GenerateToken(string email)
         {
             var claims = new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, email)
@@ -26,7 +39,7 @@ namespace Codedberries.Services
             return handler.WriteToken(token);
         }
 
-        public static bool ValidateToken(string token)
+        public bool ValidateToken(string token)
         {
             try
             {
