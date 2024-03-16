@@ -50,10 +50,7 @@ namespace Codedberries
 
             modelBuilder.Entity<TaskDependency>()
                 .HasKey(e => new { e.TaskId, e.DependentTaskId });
-        }       
-
-
-
+        }
 
         public void ApplyMigrations()
         {

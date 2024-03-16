@@ -8,6 +8,7 @@ using System.Net.Mail;
 using System.Net;
 using Codedberries.Environment;
 using Microsoft.Extensions.Options;
+using Codedberries.Models.DTOs;
 
 namespace Codedberries.Controllers
 {
@@ -32,15 +33,15 @@ namespace Codedberries.Controllers
             if (Helper.IsEmailValid(body.Email))
             {
                 Invite invite = new Invite();
-                invite.Email = email;
-                invite.Token = _tokenService.GenerateToken(email);
-                invite.RoleId = roleId;
+                invite.Email = body.Email;
+                invite.Token = _tokenService.GenerateToken(body.Email);
+                invite.RoleId = body.RoleId;
 
                 _databaseContext.Invites.Add(invite);
                 _databaseContext.SaveChanges();
 
                 MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
-                mailService.SendMessage(email, "Invite", ""); // TODO - Add invite link
+                mailService.SendMessage(body.Email, "Invite", ""); // TODO - Add invite link
 
                 return Ok(new { resp = "Success" });
             }
