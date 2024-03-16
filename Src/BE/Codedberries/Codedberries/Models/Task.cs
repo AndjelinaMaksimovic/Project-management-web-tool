@@ -19,17 +19,49 @@ namespace Codedberries.Models
         public int UserId { get; set; }
 
         [Required]
-        public bool Status { get; set; }
+        [EnumDataType(typeof(StatusEnum))]
+        public string Status { get; set; }
+
+        [Required]
+        [EnumDataType(typeof(PriorityEnum))]
+        public string Priority { get; set; }
+
+        [Required]
+        public string DifficultyLevel { get; set; }
+
+        [Required]
+        public int CategoryId { get; set; }
+
+        [Required]
+        [ForeignKey("CategoryId")]
+        public Category Category { get; set; }
 
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
-        public Task(string description, DateTime dueDate, int userId, bool status)
+        public Task(string description, DateTime dueDate, string status, string priority, string difficultyLevel, int categoryId)
         {
             Description = description;
             DueDate = dueDate;
-            UserId = userId;
             Status = status;
+            Priority = priority;
+            DifficultyLevel = difficultyLevel;
+            CategoryId = categoryId;
         }
+    }
+
+    public enum StatusEnum
+    {
+        Open,
+        InProgress,
+        Pending,
+        Completed
+    }
+
+    public enum PriorityEnum
+    {
+        Low,
+        Medium,
+        High
     }
 }
