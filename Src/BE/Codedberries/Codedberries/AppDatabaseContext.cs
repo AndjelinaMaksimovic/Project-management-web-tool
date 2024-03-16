@@ -15,6 +15,7 @@ namespace Codedberries
 
         public DbSet<Invite> Invites { get; set; }
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -50,6 +51,10 @@ namespace Codedberries
 
             modelBuilder.Entity<TaskDependency>()
                 .HasKey(e => new { e.TaskId, e.DependentTaskId });
+
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
         }
 
         public void ApplyMigrations()
