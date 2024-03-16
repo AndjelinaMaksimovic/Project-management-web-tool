@@ -33,16 +33,16 @@ namespace Codedberries.Controllers
 
             try
             {
-                User user = new User(email, "123", firstname, lastname, null);
-                user.ActivationToken = _tokenService.GenerateToken(email);
+                User user = new User(body.Email, "123", body.FirstName, body.LastName, body.RoleId);
+                user.ActivationToken = _tokenService.GenerateToken(body.Email);
 
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
 
-                string activationLink = _config.FrontendURL + "/activate?token=" + user.ActivationToken + "&email=" + email; // CHANGE WITH FRONTEND URL
+                string activationLink = _config.FrontendURL + "/activate?token=" + user.ActivationToken + "&email=" + body.Email; // CHANGE WITH FRONTEND URL
 
                 MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
-                mailService.SendMessage(email, "Account activation", EmailTemplates.ActivationEmail(firstname, lastname, activationLink));
+                mailService.SendMessage(body.Email, "Account activation", EmailTemplates.ActivationEmail(body.FirstName, body.LastName, activationLink));
             }
             catch (Exception ex)
             {
@@ -52,10 +52,10 @@ namespace Codedberries.Controllers
             return Ok(new { resp = "Success" });
         }
 
-        [HttpPost("Activate/{token}/{email}/{password}")]
-        public IActionResult ActivateAccount(string token, string email, string password)
+        [HttpPost("Activate")]
+        public IActionResult ActivateAccount([FromBody] ActivateAccountDTO body)
         {
-            if(!_tokenService.ValidateToken(token)) return BadRequest(new ErrorMsg("User not found"));
+            if(!_tokenService.ValidateToken(body.Token)) return BadRequest(new ErrorMsg("User not found"));
 
             User? user = _databaseContext.Users.FirstOrDefault(x => x.Activated == false && x.ActivationToken == body.Token && x.Email == body.Email);
             if (user != null)
