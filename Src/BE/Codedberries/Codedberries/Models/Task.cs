@@ -27,7 +27,7 @@ namespace Codedberries.Models
         public string Priority { get; set; }
 
         [Required]
-        public string DifficultyLevel { get; set; }
+        public int DifficultyLevel { get; set; }
 
         [Required]
         public int CategoryId { get; set; }
@@ -39,14 +39,14 @@ namespace Codedberries.Models
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
-        public Task(string description, DateTime dueDate, string status, string priority, string difficultyLevel, int categoryId)
+        public Task(string description, DateTime dueDate, string status, string priority, int categoryId, int difficultyLevel = 1)
         {
             Description = description;
             DueDate = dueDate;
             Status = status;
             Priority = priority;
-            DifficultyLevel = difficultyLevel;
             CategoryId = categoryId;
+            DifficultyLevel = difficultyLevel;
         }
     }
 
