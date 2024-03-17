@@ -152,5 +152,17 @@ namespace Codedberries.Services
                 RoleName = userRole.Name
             };
         }
+
+        public bool SetProfilePicture(int userId, string? profilePicture)
+        {
+            User? user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null) return false;
+
+            user.ProfilePicture = profilePicture;
+            _databaseContext.SaveChanges();
+
+            return true;
+        }
     }
 }
