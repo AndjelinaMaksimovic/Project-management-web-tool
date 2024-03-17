@@ -61,13 +61,17 @@ namespace Codedberries.Helpers
                 );
 
 
+            context.Categories.AddRange(
+                new Category("Category 1"),
+                new Category("Category 2"),
+                new Category("Category 3")
+            );
 
 
 
 
 
-
-             context.SaveChanges();
+            context.SaveChanges();
 
             Console.WriteLine("Sample data added successfully.");
         }
@@ -128,7 +132,11 @@ namespace Codedberries.Helpers
                 );
 
 
-
+            context.Categories.AddRange(
+                new Category("Category 1"),
+                new Category("Category 2"),
+                new Category("Category 3")
+            );
 
 
 
