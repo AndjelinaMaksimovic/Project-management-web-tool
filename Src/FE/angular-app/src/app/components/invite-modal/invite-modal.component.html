@@ -1,0 +1,18 @@
+<div style="padding: 40px;">
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close style="position: absolute; right: 5px; top: 5px;">
+        <mat-icon>close</mat-icon>
+    </button>
+    <div class="centered-content">
+        <div class="stack-container">
+            <h3 style="font-weight: normal; text-align: center;">Invite new member</h3>
+            <app-email-field label="Email" (valueChange)="email=$event"></app-email-field>
+            <app-clearable-input type="text" label="First name" (valueChange)="firstName=$event"></app-clearable-input>
+            <app-clearable-input type="text" label="Last name" (valueChange)="lastName=$event"></app-clearable-input>
+            <app-select [options]="roles" label="Role" (valueChange)="role=$event"></app-select>
+            <button (click)="register()" class="button-rounded" color="primary" mat-flat-button>Send Invite</button>
+            <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+            </div>
+        </div>
+    </div>
+</div>

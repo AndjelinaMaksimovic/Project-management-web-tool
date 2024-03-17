@@ -1,11 +1,11 @@
-
 body {
     height: 100%;
     margin: 0;
 }
 .d {
     display: flex;
-    height: calc(100% - 64px);
+    /* height: calc(100% - 64px); */
+    height: 100%;
 }
 .d > div {
     flex: 1;

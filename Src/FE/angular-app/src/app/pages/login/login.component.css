@@ -1,0 +1,20 @@
+.half-width{
+    width: 50%;
+}
+.branding{
+    float: left;
+    background-color: #5096A4;
+}
+.branding h1{
+    color: white;
+    font-size: 4vw;
+    font-weight: normal;
+}
+h2{
+    font-weight: normal;
+}
+@media (max-width: 600px) {
+    .branding {
+       display: none;
+    }
+}
