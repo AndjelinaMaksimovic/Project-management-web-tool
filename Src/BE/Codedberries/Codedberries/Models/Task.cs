@@ -43,6 +43,7 @@ namespace Codedberries.Models
         {
             Description = description;
             DueDate = dueDate;
+            UserId = userId;
             Status = status;
             Priority = priority;
             DifficultyLevel = difficultyLevel;
