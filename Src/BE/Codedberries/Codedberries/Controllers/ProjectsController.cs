@@ -23,7 +23,7 @@ namespace Codedberries.Controllers
         {
             try
             {
-                Project project = await _projectService.CreateProject(body);
+                Project project = await _projectService.CreateProject(HttpContext, body);
 
                 ProjectInfoDTO newProjectInfoDTO = new ProjectInfoDTO();
                 newProjectInfoDTO.Id = project.Id;
