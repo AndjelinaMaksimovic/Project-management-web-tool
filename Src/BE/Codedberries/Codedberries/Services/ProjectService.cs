@@ -17,7 +17,10 @@ namespace Codedberries.Services
 
         public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
-            if (!_authorizationService.canCreateProject(request.UserId))
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+            var permission = userId.HasValue ? _authorizationService.canCreateProject(userId.Value) : false;
+
+            if (!permission)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create a project!");
             }
@@ -26,9 +29,9 @@ namespace Codedberries.Services
 
             if (request.UserIds != null && request.UserIds.Any())
             {
-                foreach (int userId in request.UserIds)
+                foreach (int user_id in request.UserIds)
                 {
-                    User user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+                    var user = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
 
                     if (user != null)
                     {
