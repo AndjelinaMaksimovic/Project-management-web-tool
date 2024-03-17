@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Codedberries.Common;
 
 namespace Codedberries.Models
 {
@@ -49,20 +50,5 @@ namespace Codedberries.Models
             DifficultyLevel = difficultyLevel;
             CategoryId = categoryId;
         }
-    }
-
-    public enum StatusEnum
-    {
-        Open,
-        InProgress,
-        Pending,
-        Completed
-    }
-
-    public enum PriorityEnum
-    {
-        Low,
-        Medium,
-        High
     }
 }
