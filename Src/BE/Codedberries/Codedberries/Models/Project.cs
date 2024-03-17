@@ -14,15 +14,19 @@ namespace Codedberries.Models
         [Required]
         public string Name { get; set; }
 
+        [Required]
+        public string Description { get; set; }
+
         public ICollection<User> Users { get; } = new List<User>();
 
         [ForeignKey("ProjectId")]
         public int? ParentProjectId { get; set; }
 
-        public Project(string name, int? parentProjectId)
+        public Project(string name, int? parentProjectId, string description)
         {
             Name = name;
             ParentProjectId = parentProjectId;
+            Description = description;
         }
     }
 }
