@@ -8,30 +8,15 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
-        private readonly UserService _userService;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, UserService userService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
-            _userService = userService;
         }
 
         public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
-            string? sessionToken = "";
-            if (httpContext.Request.Cookies.TryGetValue("sessionId", out sessionToken))
-            {
-                if (_userService.ValidateSession(sessionToken) == false)
-                {
-                    throw new UnauthorizedAccessException("Session is invalid or expired!");
-                }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Session cookie not found!");
-            }
-
             if (!_authorizationService.canCreateProject(request.UserId))
             {
                 throw new UnauthorizedAccessException("User does not have permission to create a project!");
