@@ -7,8 +7,10 @@ namespace Codedberries.Services
 
         private readonly AppDatabaseContext _databaseContext;
 
-       
-
+        public AuthorizationService(AppDatabaseContext databaseContext)
+        {
+            _databaseContext = databaseContext;
+        }
 
         public bool canAddNewUser(int userId)
         {

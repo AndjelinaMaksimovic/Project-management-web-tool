@@ -16,7 +16,7 @@ namespace Codedberries.Services
 
         public async Task<Project> CreateProject(ProjectCreationRequestDTO request)
         {
-            if (!_authorizationService.canCreateTask(request.UserId))
+            if (!_authorizationService.canCreateProject(request.UserId))
             {
                 throw new UnauthorizedAccessException("User does not have permission to create a project!");
             }
