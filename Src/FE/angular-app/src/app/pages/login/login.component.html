@@ -1,17 +1,15 @@
-<div class="centered-content">
-    <div class="stack-container">
-        <h1>login</h1>
-        <mat-form-field appearance="outline">
-            <mat-label type="email">Email</mat-label>
-            <input matInput placeholder="example@email.com" [(ngModel)]="email">
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Password</mat-label>
-            <input matInput type="password" [(ngModel)]="password">
-        </mat-form-field>
-        <button (click)="login()" color="primary" mat-raised-button>Login</button>
-        <div *ngIf="errorMessage" class="alert alert-danger">
-            {{ errorMessage }}
-        </div>
+<div class="centered-content stack-container half-width branding"><h1>Noname</h1></div>
+<div class="centered-content stack-container" style="background-color: white;">
+    <h2>Sign in</h2>
+    <div style="display: flex; flex-direction: column; width: 70%;">
+        <app-email-field label="Email" (valueChange)="email = $event"></app-email-field>
+        <app-password-field label="Password" (eventFromChild)="password=$event"></app-password-field>
+        <mat-checkbox [(ngModel)]="remember" color="primary">Remember me</mat-checkbox>
+        <a (click)="popup()" href="javascript:void()" style="padding: 5px; color: #5096a4;">Forgot password?</a>
+        <!-- <button (click)="login()" color="primary" mat-raised-button>Login</button> -->
+    </div>
+    <button (click)="login()" class="button-rounded" style="min-width: 200px; width: 20vw;" mat-flat-button color="primary">Login</button>
+    <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
     </div>
 </div>

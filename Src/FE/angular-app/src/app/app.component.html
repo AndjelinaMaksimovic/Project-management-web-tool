@@ -1,2 +1,2 @@
-<app-navbar></app-navbar>
+<app-navbar *ngIf="navbarVisibilityService.shouldShowNavbar()"></app-navbar>
 <router-outlet />
