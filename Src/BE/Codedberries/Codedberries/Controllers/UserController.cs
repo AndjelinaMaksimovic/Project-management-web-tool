@@ -43,5 +43,18 @@ namespace Codedberries.Controllers
 
             return Ok(userRole);
         }
+
+        [HttpPost("setProfilePicture")]
+        public IActionResult SetProfilePicture(ProfilePictureDTO body)
+        {
+            bool isSet = _userService.SetProfilePicture(body.UserId, body.ProfilePicture);
+
+            if (isSet == false)
+            {
+                return NotFound(new ErrorMsg("User not found!"));
+            }
+
+            return Ok(new { resp = "Success" });
+        }
     }
 }

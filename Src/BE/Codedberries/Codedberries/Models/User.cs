@@ -27,6 +27,8 @@ namespace Codedberries.Models
         [Required]
         public bool Activated { get; set; }
 
+        public string? ProfilePicture { get; set; }
+
         [Required]
         public byte[] PasswordSalt {get; set;}
         
