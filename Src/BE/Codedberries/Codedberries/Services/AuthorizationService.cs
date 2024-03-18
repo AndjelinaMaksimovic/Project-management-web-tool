@@ -6,7 +6,7 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
 
-        public bool canAddNewUser(int userId)
+        public bool CanAddNewUser(int userId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -20,7 +20,7 @@ namespace Codedberries.Services
             return false;
         }
 
-        public bool canAddUserToProject(int userId, int projectId)
+        public bool CanAddUserToProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -38,7 +38,7 @@ namespace Codedberries.Services
             return false;
         }
 
-        public bool canRemoveUserFromProject(int userId, int projectId)
+        public bool CanRemoveUserFromProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -56,7 +56,7 @@ namespace Codedberries.Services
             return false;
         }
 
-        public bool canCreateProject(int userId)
+        public bool CanCreateProject(int userId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -70,7 +70,7 @@ namespace Codedberries.Services
             return false;
         }
         
-        public bool canDeleteProject(int userId, int projectId)
+        public bool CanDeleteProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -88,7 +88,7 @@ namespace Codedberries.Services
             return false;
         }
 
-        public bool canEditProject(int userId, int projectId)
+        public bool CanEditProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -106,7 +106,7 @@ namespace Codedberries.Services
             return false;
         }
 
-        public bool canViewProject(int userId, int projectId)
+        public bool CanViewProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -124,7 +124,7 @@ namespace Codedberries.Services
             return false;
         }
 
-        public bool canAddTaskToUser(int userId, int projectId)
+        public bool CanAddTaskToUser(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -141,7 +141,7 @@ namespace Codedberries.Services
             }
             return false;
         }
-        public bool canCreateTask(int userId, int projectId)
+        public bool CanCreateTask(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -159,7 +159,7 @@ namespace Codedberries.Services
             return false;
         }
         
-        public bool canRemoveTask(int userId, int projectId)
+        public bool CanRemoveTask(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -177,7 +177,7 @@ namespace Codedberries.Services
             return false;
         }
 
-        public bool canEditTask(int userId, int projectId)
+        public bool CanEditTask(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
