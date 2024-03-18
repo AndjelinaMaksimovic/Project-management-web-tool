@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Codedberries.Models
 {
+    [Table("UserProjects")]
     public class UserProject
     {
         [Key]
@@ -12,5 +13,8 @@ namespace Codedberries.Models
         [Key]
         [Column(Order = 2)]
         public int ProjectId { get; set; }
+
+        [ForeignKey("RoleId")]
+        public int RoleId { get; set; }
     }
 }

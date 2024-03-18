@@ -25,22 +25,6 @@ namespace Codedberries.Helpers
                 new Project("Project5", 2, "description 5")
             );
 
-            context.Permissions.AddRange(
-                new Permission ("Dodavanje novog korisnika"),
-                new Permission ("Dodavanje korisnika na projekat"),
-                new Permission ("Uklanjanje korisnika sa projekta"),
-                new Permission ( "Kreiranje projekta" ),
-                new Permission ( "Brisanje projekta" ),
-                new Permission("Azuriranje projekta"), 
-                new Permission("Pregledanje projekta"), 
-                new Permission (  "Kreiranje zadatka" ),
-                new Permission ("Brisanje zadatka" ),
-                new Permission("Azuriranje zadatka"), 
-                new Permission ( "Dodavanje uloga korisnicima" ),
-                new Permission ("Dodavanje zadataka korisnicima" )
-            );
-
-
             context.Users.AddRange(
 
              new Models.User("user1@example.com", "password1", "John", "Doe", null),
@@ -95,22 +79,6 @@ namespace Codedberries.Helpers
                 new Project("Project4", 3, "description 4"),
                 new Project("Project5", 4, "description 5")
             );
-
-            context.Permissions.AddRange(
-                new Permission("Dodavanje novog korisnika"),
-                new Permission("Dodavanje korisnika na projekat"),
-                new Permission("Uklanjanje korisnika sa projekta"),
-                new Permission("Kreiranje projekta"),
-                new Permission("Brisanje projekta"),
-                new Permission("Azuriranje projekta"),
-                new Permission("Pregledanje projekta"),
-                new Permission("Kreiranje zadatka"),
-                new Permission("Brisanje zadatka"),
-                new Permission("Azuriranje zadatka"),
-                new Permission("Dodavanje uloga korisnicima"),
-                new Permission("Dodavanje zadataka korisnicima")
-            );
-
 
             context.Users.AddRange(
 

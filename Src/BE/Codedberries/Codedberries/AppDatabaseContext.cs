@@ -1,7 +1,6 @@
 ﻿using Codedberries.Models;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Codedberries.Models;
 
 namespace Codedberries
 {
@@ -11,11 +10,11 @@ namespace Codedberries
         public DbSet<Project> Projects { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Models.Task> Tasks { get; set; }
-        public DbSet<Permission> Permissions { get; set; }
 
         public DbSet<Invite> Invites { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<UserProject> UserProjects { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -28,9 +27,6 @@ namespace Codedberries
                 .HasIndex(e => e.Email)
                 .IsUnique();
 
-            modelBuilder.Entity<RolePermission>()
-                .HasKey(e => new { e.RoleId, e.PermissionId });
-
             modelBuilder.Entity<UserProject>()
                 .HasKey(e => new { e.UserId, e.ProjectId });
 
@@ -38,11 +34,6 @@ namespace Codedberries
                 .HasMany(e => e.Projects)
                 .WithMany(e => e.Users)
                 .UsingEntity<UserProject>();
-
-            modelBuilder.Entity<Role>()
-                .HasMany(e => e.Permissions)
-                .WithMany(e => e.Roles)
-                .UsingEntity<RolePermission>();
 
             modelBuilder.Entity<Models.Task>()
                 .HasMany(e => e.Dependencies)

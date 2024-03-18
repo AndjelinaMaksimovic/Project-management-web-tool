@@ -18,7 +18,7 @@ namespace Codedberries.Services
         public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
-            var permission = userId.HasValue ? _authorizationService.canCreateProject(userId.Value) : false;
+            var permission = userId.HasValue ? _authorizationService.CanCreateProject(userId.Value) : false;
 
             if (!permission)
             {

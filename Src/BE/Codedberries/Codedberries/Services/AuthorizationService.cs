@@ -6,7 +6,6 @@ namespace Codedberries.Services
 {
     public class AuthorizationService
     {
-
         private readonly AppDatabaseContext _databaseContext;
         private readonly UserService _userService;
 
@@ -44,7 +43,7 @@ namespace Codedberries.Services
             }
         }
 
-        public bool canAddNewUser(int userId)
+        public bool CanAddNewUser(int userId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -52,15 +51,13 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id == 1);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    return userRole.CanAddNewUser;
                 }
             }
             return false;
         }
 
-
-        public bool canAddUserToProject(int userId)
+        public bool CanAddUserToProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -68,15 +65,17 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id ==2 );
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if(userProject != null)
+                    {
+                        return userRole.CanAddUserToProject;
+                    }
                 }
             }
             return false;
         }
 
-
-        public bool canRemoveUserFromProject(int userId)
+        public bool CanRemoveUserFromProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -84,15 +83,17 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==3);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanRemoveUserFromProject;
+                    }
                 }
             }
             return false;
         }
 
-
-        public bool canCreateProject(int userId)
+        public bool CanCreateProject(int userId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -100,14 +101,31 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==4);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    return userRole.CanCreateProject;
+                }
+            }
+            return false;
+        }
+        
+        public bool CanDeleteProject(int userId, int projectId)
+        {
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanDeleteProject;
+                    }
                 }
             }
             return false;
         }
 
-        public bool canDeleteProject(int userId)
+        public bool CanEditProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -115,15 +133,17 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==5);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanEditProject;
+                    }
                 }
             }
             return false;
         }
 
-
-        public bool canEditProject(int userId)
+        public bool CanViewProject(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -131,14 +151,17 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==6);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanViewProject;
+                    }
                 }
             }
             return false;
         }
 
-        public bool canViewProject(int userId)
+        public bool CanAddTaskToUser(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -146,14 +169,52 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==7);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanAddTaskToUser;
+                    }
+                }
+            }
+            return false;
+        }
+        public bool CanCreateTask(int userId, int projectId)
+        {
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanCreateTask;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        public bool CanRemoveTask(int userId, int projectId)
+        {
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanRemoveTask;
+                    }
                 }
             }
             return false;
         }
 
-        public bool canAddRoleAndPermissionToUser(int userId)
+        public bool CanEditTask(int userId, int projectId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
@@ -161,68 +222,11 @@ namespace Codedberries.Services
                 var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
                 if (userRole != null)
                 {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==11);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
-                }
-            }
-            return false;
-        }
-
-        public bool canAddTaskToUser(int userId)
-        {
-            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
-            if (user != null && user.RoleId.HasValue)
-            {
-                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-                if (userRole != null)
-                {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id == 12);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
-                }
-            }
-            return false;
-        }
-
-        public bool canCreateTask(int userId)
-        {
-            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
-            if (user != null && user.RoleId.HasValue)
-            {
-                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-                if (userRole != null)
-                {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==8);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
-                }
-            }
-            return false;
-        }
-
-        public bool canRemoveTask(int userId)
-        {
-            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
-            if (user != null && user.RoleId.HasValue)
-            {
-                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-                if (userRole != null)
-                {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id==9);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
-                }
-            }
-            return false;
-        }
-
-        public bool canEditTask(int userId)
-        {
-            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
-            if (user != null && user.RoleId.HasValue)
-            {
-                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-                if (userRole != null)
-                {
-                    var permission = _databaseContext.Permissions.FirstOrDefault(p => p.Id == 10);
-                    return permission != null && userRole.Permissions.Contains<Permission>(permission);
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanEditTask;
+                    }
                 }
             }
             return false;
