@@ -3,6 +3,7 @@ using System;
 using Codedberries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Codedberries.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    partial class AppDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240317105307_UpdateProjects")]
+    partial class UpdateProjects
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
@@ -55,6 +58,20 @@ namespace Codedberries.Migrations
                     b.ToTable("Invites");
                 });
 
+            modelBuilder.Entity("Codedberries.Models.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("Codedberries.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -83,39 +100,6 @@ namespace Codedberries.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("CanAddNewUser")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanAddTaskToUser")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanAddUserToProject")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanCreateProject")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanCreateTask")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanDeleteProject")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanEditProject")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanEditTask")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanRemoveTask")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanRemoveUserFromProject")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("CanViewProject")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -123,6 +107,23 @@ namespace Codedberries.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(1);
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermission");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Session", b =>
@@ -253,14 +254,26 @@ namespace Codedberries.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(2);
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("UserId", "ProjectId");
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("UserProjects");
+                    b.ToTable("UserProject");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.RolePermission", b =>
+                {
+                    b.HasOne("Codedberries.Models.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Codedberries.Models.Task", b =>

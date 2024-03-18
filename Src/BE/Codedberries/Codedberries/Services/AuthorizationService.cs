@@ -1,12 +1,49 @@
 ﻿using Codedberries.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace Codedberries.Services
 {
     public class AuthorizationService
     {
         private readonly AppDatabaseContext _databaseContext;
+        private readonly UserService _userService;
 
-        public bool CanAddNewUser(int userId)
+        public AuthorizationService(AppDatabaseContext databaseContext, UserService userService)
+        {
+            _databaseContext = databaseContext;
+            _userService = userService;
+        }
+
+        public int? GetUserIdFromSession(HttpContext httpContext)
+        {
+            string? sessionToken = "";
+
+            if (httpContext.Request.Cookies.TryGetValue("sessionId", out sessionToken))
+            {
+                if (_userService.ValidateSession(sessionToken) == false)
+                {
+                    throw new UnauthorizedAccessException("Session is invalid or expired!");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Session cookie not found!");
+            }
+
+            var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
+
+            if (session != null && session.ExpirationTime > DateTime.UtcNow)
+            {
+                return session.UserId;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public bool canAddNewUser(int userId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)

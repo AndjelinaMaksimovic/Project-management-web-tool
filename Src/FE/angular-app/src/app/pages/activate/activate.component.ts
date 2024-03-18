@@ -4,11 +4,12 @@ import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PasswordFieldComponent } from '../../components/password-field/password-field.component';
 
 @Component({
   selector: 'app-activate',
   standalone: true,
-  imports: [MaterialModule, FormsModule, CommonModule],
+  imports: [MaterialModule, FormsModule, CommonModule, PasswordFieldComponent],
   templateUrl: './activate.component.html',
   styleUrl: './activate.component.css',
 })
@@ -17,6 +18,12 @@ export class ActivateComponent {
   passwordConfirm: string = '';
   errorMessage: string | null = null;
 
+  handlePasswordChange(password: string){
+    this.password = password;
+  }
+  handlePasswordConfirmChange(passwordConfirm: string){
+    this.passwordConfirm = passwordConfirm;
+  }
   // query params
   token: string | undefined;
   email: string | undefined;
