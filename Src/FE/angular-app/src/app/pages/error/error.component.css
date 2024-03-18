@@ -5,7 +5,7 @@ body {
 }
 .d {
     display: flex;
-    height: calc(100% - 64px);
+    height: 100%;
 }
 .d > div {
     flex: 1;

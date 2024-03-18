@@ -13,3 +13,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     flex-direction: column; /* Stack vertically */
     gap: 8px; /* Adjust spacing between items */
 }
+
+/* Material overrides */
+
+.mat-drawer-inner-container{
+    overflow: hidden !important;
+}

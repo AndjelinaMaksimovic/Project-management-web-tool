@@ -1,5 +1,31 @@
-a{
+/* a{
     text-decoration: none;
     color: white;
     margin-left: 20px;
+} */
+p, h2{
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.sidenav-content{
+    background-color: white !important;
+}
+.small-text{
+    font-size: 8px;
+    line-height: 2px;
+    color: white;
+}
+
+.active{
+    background-color: white;
+    border-radius: 15px;
+    /* margin: 10px; */
+}
+.active span{
+    color:rgb(93, 156, 177);
+}
+
+a{
+    color: black;
+    text-decoration: none;
 }
