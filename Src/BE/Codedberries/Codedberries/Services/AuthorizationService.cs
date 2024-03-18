@@ -43,7 +43,7 @@ namespace Codedberries.Services
             }
         }
 
-        public bool canAddNewUser(int userId)
+        public bool CanAddNewUser(int userId)
         {
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             if (user != null && user.RoleId.HasValue)
