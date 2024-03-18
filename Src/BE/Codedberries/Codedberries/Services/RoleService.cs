@@ -70,7 +70,22 @@ namespace Codedberries.Services
             _databaseContext.Roles.Add(newRole);
             await _databaseContext.SaveChangesAsync();
 
+            await AddToUserProject(userId.Value, newRole.Id, request.ProjectId);
 
+            return true;
+        }
+
+        public async Task<bool> AddToUserProject(int userId, int customRoleId, int projectId)
+        {
+            var userProject = new UserProject
+            {
+                UserId = userId,
+                RoleId = customRoleId,
+                ProjectId = projectId
+            };
+
+            _databaseContext.UserProjects.Add(userProject);
+            await _databaseContext.SaveChangesAsync();
 
             return true;
         }
