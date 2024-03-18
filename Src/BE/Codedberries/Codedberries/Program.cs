@@ -23,6 +23,9 @@ namespace Codedberries
             builder.Services.AddScoped<TokenService>();
             builder.Services.Configure<Config>(builder.Configuration.GetSection(nameof(Config)));
             builder.Services.AddSingleton<Config>();
+            builder.Services.AddScoped<AuthorizationService>();
+            builder.Services.AddScoped<ProjectService>();
+            builder.Services.AddScoped<RoleService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
