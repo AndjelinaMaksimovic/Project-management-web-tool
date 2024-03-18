@@ -13,8 +13,6 @@ namespace Codedberries.Models
         [Required]
         public string Name { get; set; }
 
-        public ICollection<Permission> Permissions { get; } = new List<Permission>();
-
         [Required]
         public bool CanAddNewUser { get; set; }
 

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Codedberries.Models
 {
+    [Table("UserProjects")]
     public class UserProject
     {
         [Key]
