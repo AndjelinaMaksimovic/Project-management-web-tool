@@ -60,10 +60,6 @@ namespace Codedberries.Services
                 {
                     property.SetValue(newRole, true);
                 }
-                else
-                {
-                    property.SetValue(newRole, false);
-                }
             }
 
   
