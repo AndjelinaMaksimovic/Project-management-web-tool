@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Codedberries.Models
 {
@@ -40,16 +42,32 @@ namespace Codedberries.Models
 
         public ICollection<Project> Projects { get; } = new List<Project>();
 
+
+
+
+        public string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Password = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            }
+        }
+
+
         public User(string email, string password, string firstname, string lastname, int? roleId)
         {
             Email = email;
-            Password = password;
+            Password=HashPassword(password);
+            //Password = password;
             Firstname = firstname;
             Lastname = lastname;
             RoleId = roleId;
             Activated = false;
             PasswordSalt = new byte[1];
             ActivationToken = null;
+
+            
         }
     }
 }
