@@ -45,12 +45,12 @@ namespace Codedberries.Models
 
 
 
-        public void SetPassword(string password)
+        public string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
             {
                 var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                Password = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+                return Password = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
         }
 
@@ -58,7 +58,7 @@ namespace Codedberries.Models
         public User(string email, string password, string firstname, string lastname, int? roleId)
         {
             Email = email;
-            SetPassword(password);
+            Password=HashPassword(password);
             //Password = password;
             Firstname = firstname;
             Lastname = lastname;
