@@ -5,7 +5,7 @@
             <div style="height: 100%; padding-right: 5px; position: relative;" class="color-primary">
                 <svg height="80%" style="padding: 10% 0;" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10,20h4a2,2,0,0,1-4,0Zm8-4V10a6,6,0,0,0-5-5.91V3a1,1,0,0,0-2,0V4.09A6,6,0,0,0,6,10v6L4,18H20Z"/></svg>
                 <span class="badge">
-                    2
+                    20
                 </span>
             </div>
             <!-- <mat-icon matBadge="1500" matBadgeSize="medium" matBadgeHidden="false" matBadgeColor="warn">notifications</mat-icon> -->
@@ -39,9 +39,9 @@
         <button style="margin: 20px 0; border-radius: 20px;" color="primary" mat-raised-button>+ Add new account</button>
 
         <div class="card">
-            <div style="display: flex; padding-bottom: 10px;">
-                <h1 style="flex-grow: 1;">{{projects.length}} Active projects</h1>
-                <button style="float: right; border-radius: 20px;" color="primary" mat-raised-button>+ Create new project</button>
+            <div style="display: flex; align-items: center; padding-bottom: 10px;">
+                <h1 style="flex-grow: 1; font-size: 1.5em; font-weight: 400;">{{projects.length}} Active projects</h1>
+                <button style="float: right; border-radius: 20px;" color="primary" mat-raised-button routerLink="/new-project">+ Create new project</button>
             </div>
 
             @for (project of projects; track project) {

@@ -7,11 +7,12 @@ import { MatBadgeModule } from '@angular/material/badge'
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { NgStyle } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ NavbarComponent, MatSidenavModule, MatIconModule, MatBadgeModule, DatePipe, MatButtonModule, NgStyle ],
+  imports: [ NavbarComponent, MatSidenavModule, MatIconModule, MatBadgeModule, DatePipe, MatButtonModule, NgStyle, RouterModule ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
