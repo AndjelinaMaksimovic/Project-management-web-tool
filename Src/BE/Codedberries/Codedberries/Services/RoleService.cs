@@ -43,8 +43,14 @@ namespace Codedberries.Services
             
             if (role == null)
             {
-                throw new InvalidOperationException("Role not found.");
+                throw new InvalidOperationException("Role not found!");
             }
+
+            if (role.CanAddUserToProject == false)
+            {
+                throw new InvalidOperationException("User does not have permission to add user to project!");
+            }
+
 
             var defaultTruePermissions = role.GetType().GetProperties()
                         .Where(p => p.PropertyType == typeof(bool) && (bool)p.GetValue(role) == true)
