@@ -339,3 +339,7 @@ ASALocalRun/
 
 # Test results
 TestResults/
+
+database.db
+database.db-shm
+database.db-wal
