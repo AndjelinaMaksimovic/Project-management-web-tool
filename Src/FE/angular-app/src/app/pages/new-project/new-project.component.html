@@ -41,7 +41,7 @@
                 <div style="flex-grow: 1;">
                     <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                         <mat-label>Project name</mat-label>
-                        <input matInput [(ngModel)]="projectName">
+                        <input matInput [(ngModel)]="projectName" required>
                     </mat-form-field>
                     <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                         <mat-label>Parent project</mat-label>
@@ -75,7 +75,7 @@
                         <!-- </mat-list-item> -->
                     <!-- </mat-list> -->
                 </div>
-                <button mat-raised-button style="border-radius: 20px; background-color: #E8DEF8; height: 45px;">Invite member</button>
+                <button mat-raised-button style="border-radius: 20px; background-color: #E8DEF8; height: 45px;" (click)="invite()">Invite member</button>
             </div>
         </div>
     </div>

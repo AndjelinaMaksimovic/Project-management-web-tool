@@ -1,0 +1,59 @@
+<div style="padding: 40px;">
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close style="position: absolute; right: 5px; top: 5px;">
+        <mat-icon>close</mat-icon>
+    </button>
+    <div class="stack-container centered-content">
+        <h2 style="font-weight: normal; text-align: center;">Invite new member</h2>
+        <div>
+            <div style="display: flex; justify-content: space-evenly;">
+                <mat-form-field appearance="outline" style="width: 40%;" class="dense-2">
+                <mat-label>Member</mat-label>
+                <!-- <input matInput [(ngModel)]="projectName"> -->
+                <mat-select [(value)]="member" required>
+                    <mat-option>None</mat-option>
+                    @for(member of members; track member){
+                        <mat-option [value]="member">{{member}}</mat-option>
+                    }
+                </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" style="width: 40%;" class="dense-2">
+                    <mat-label>Role</mat-label>
+                    <!-- <input matInput [(ngModel)]="projectName"> -->
+                    <mat-select [(value)]="role">
+                        <!-- <mat-option>Custom</mat-option> -->
+                        @for(role of roles; track role){
+                            <mat-option [value]="role">{{role.name}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+
+            <!-- <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly;">
+                <p style="color: gray; display: inline-block; width: 80%;">Permissions</p>
+                @for(permission of permissions; track permission){
+                    <div style="display: inline-block; width: 40%; overflow: hidden;">
+                        <mat-checkbox  color="primary" [checked]="role?.permissions?.includes(permission)">{{permission}}</mat-checkbox>
+                    </div>
+                }
+                @if(permissions.length % 2 == 1){
+                    <div style="display: inline-block; width: 40%;"></div>
+                }
+            </div> -->
+
+            <mat-selection-list style="display: flex; flex-wrap: wrap; justify-content: space-evenly;">
+                <p style="color: gray; display: inline-block; width: 85%;">Permissions</p>
+                @for(permission of permissions; track permission){
+                    <div style="display: inline-block; width: 40%; overflow: hidden;">
+                    <mat-list-option  color="primary" [selected]="role?.permissions?.includes(permission)">{{permission}}</mat-list-option>
+                    </div>
+                }
+                @if(permissions.length % 2 == 1){
+                    <div style="display: inline-block; width: 40%;"></div>
+                }
+            </mat-selection-list>
+        </div>
+
+    <button (click)="invite()" class="button-rounded" color="primary" style="width: 100px;" mat-flat-button>Invite</button>
+    </div>
+</div>

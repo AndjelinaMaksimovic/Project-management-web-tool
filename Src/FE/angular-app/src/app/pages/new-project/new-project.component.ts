@@ -3,6 +3,8 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { MaterialModule } from '../../material/material.module';
 import { FormsModule } from '@angular/forms';
 import { MatListModule } from '@angular/material/list';
+import { MatDialog } from '@angular/material/dialog';
+import { InvitePopupComponent } from '../../components/invite-popup/invite-popup.component';
 
 @Component({
   selector: 'app-new-project',
@@ -12,6 +14,8 @@ import { MatListModule } from '@angular/material/list';
   styleUrl: './new-project.component.css'
 })
 export class NewProjectComponent {
+  constructor(private dialogue: MatDialog){}
+
   user = {
     name: "Petar",
     surname: "Petrovic"
@@ -34,4 +38,8 @@ export class NewProjectComponent {
     }
   ]
   parentProject?: string
+
+  invite(){
+    this.dialogue.open(InvitePopupComponent, { autoFocus: false })
+  }
 }
