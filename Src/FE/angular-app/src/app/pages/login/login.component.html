@@ -6,7 +6,6 @@
         <app-password-field label="Password" (eventFromChild)="password=$event"></app-password-field>
         <mat-checkbox [(ngModel)]="remember" color="primary">Remember me</mat-checkbox>
         <a (click)="popup()" href="javascript:void()" style="padding: 5px; color: #5096a4;">Forgot password?</a>
-        <!-- <button (click)="login()" color="primary" mat-raised-button>Login</button> -->
     </div>
     <button (click)="login()" class="button-rounded" style="min-width: 200px; width: 20vw;" mat-flat-button color="primary">Login</button>
     <div *ngIf="errorMessage" class="alert alert-danger">

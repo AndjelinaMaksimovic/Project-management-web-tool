@@ -13,7 +13,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
   standalone: true,
   imports: [MaterialModule, NgIf, RouterLink, RouterLinkActive, MatSidenavModule, MatIconModule, MatListModule],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css',
+  styleUrl: './navbar.component.scss',
   animations: [
     trigger('openClose', [
       state('opened', style({
