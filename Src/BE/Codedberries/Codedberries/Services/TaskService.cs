@@ -24,9 +24,8 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create a task!");
             }
 
-            //Project project = new Project(request.Name, request.ParentProjectId, request.Description);
-            Models.Task task=new Models.Task(request.Description,request.DueDate,userId.Value,request.Status,request.Priority,request.DifficultyLevel,request.CategoryId);
-
+            
+            Models.Task task = new Models.Task(request.Description, request.DueDate, userId.Value, request.Status, request.Priority, request.DifficultyLevel, request.CategoryId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
