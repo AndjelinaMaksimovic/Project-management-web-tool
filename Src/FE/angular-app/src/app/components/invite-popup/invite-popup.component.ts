@@ -21,8 +21,16 @@ export class InvitePopupComponent {
   ]
   roles = [
     {
-      name: 'Developer',
-      permissions: ['Update project', 'Update task']
+      name: 'Project owner',
+      permissions: [
+        'Add new user',
+        'Invite user to project',
+        'Remove user from project',
+        'Create new project',
+        'Update project',
+        'Update task',
+        'Delete project'
+      ]
     },
     {
       name: 'Project manager',
@@ -34,7 +42,14 @@ export class InvitePopupComponent {
       ]
     },
     {
-      name: 'Spectator',
+      name: 'Developer',
+      permissions: [
+        'Update project',
+        'Update task'
+      ]
+    },
+    {
+      name: 'Viewer',
       permissions: []
     },
   ]

@@ -45,6 +45,7 @@
                 <p style="color: gray; display: inline-block; width: 85%;">Permissions</p>
                 @for(permission of permissions; track permission){
                     <div style="display: inline-block; width: 40%; overflow: hidden;">
+                        <!-- TODO: Bug - checking an option and chaging role doesn't change option if it's not checked by role -->
                     <mat-list-option  color="primary" [selected]="role?.permissions?.includes(permission)">{{permission}}</mat-list-option>
                     </div>
                 }
