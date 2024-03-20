@@ -6,7 +6,6 @@ namespace Codedberries.Models.DTOs
     {
         public string Description { get; set; }
         public DateTime DueDate { get; set; }
-        public int UserId { get; set; }
         public string Status { get; set; }
         public string Priority { get; set; }
         public int DifficultyLevel { get; set; }
