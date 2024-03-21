@@ -3,16 +3,35 @@ import { MaterialModule } from '../../material/material.module';
 import { NgIf } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatIconModule } from '@angular/material/icon'
+import { MatListModule } from '@angular/material/list'
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [MaterialModule, NgIf, RouterLink, RouterLinkActive],
+  imports: [MaterialModule, NgIf, RouterLink, RouterLinkActive, MatSidenavModule, MatIconModule, MatListModule],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css',
+  styleUrl: './navbar.component.scss',
+  animations: [
+    trigger('openClose', [
+      state('opened', style({
+        // width: '100px'
+      })),
+      state('closed', style({
+        width: '60px'
+      })),
+      transition('opened <=> closed', [animate('0.2s'), ]),
+    ])
+  ]
 })
 export class NavbarComponent {
+
   constructor(private router: Router, private auth: AuthService){}
+  
+  isExpanded = false
+  
   loggedIn(){
     return document.cookie.includes("sessionId")
   }

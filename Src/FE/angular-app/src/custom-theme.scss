@@ -72,3 +72,14 @@ $hello-world-theme: mat.define-light-theme((
 .mdc-button.button-rounded {
   border-radius: 25px;
 }
+
+
+$primary: #5096a4;
+$pink-accent: #E8DEF8;
+
+.background-color-primary{
+  background-color: $primary;
+}
+.color-primary{
+  color: $primary;
+}

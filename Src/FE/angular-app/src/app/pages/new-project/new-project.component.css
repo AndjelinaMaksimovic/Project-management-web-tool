@@ -1,0 +1,26 @@
+.badge{
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    padding: 2px;
+    /* height: 0; */
+    /* padding-bottom: 100%; */
+    color: white;
+    background-color: lightcoral;
+    border-radius: 50%;
+}
+p{
+    margin: 0px;
+}
+.card{
+    position: relative;
+    padding: 40px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.16);
+    border-radius: 20px;
+    background-color: white;
+}
+
+mat-action-list{
+    margin: 0;
+    padding: 0;
+}
