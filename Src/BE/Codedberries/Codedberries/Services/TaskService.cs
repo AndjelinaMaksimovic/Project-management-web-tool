@@ -17,6 +17,13 @@ namespace Codedberries.Services
         public async Task<Models.Task> CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+
             var permission = userId.HasValue ? _authorizationService.CanCreateTask(userId.Value,request.ProjectId) : false;
 
             if (!permission)
