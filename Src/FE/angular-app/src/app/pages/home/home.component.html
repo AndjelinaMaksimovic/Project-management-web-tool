@@ -36,7 +36,7 @@
         <h1 style="margin-bottom: 5px; font-weight: bold; font-size: 2em;">Welcome {{ user.name }} {{ user.surname }}!</h1>
         <p style="color: grey;">{{date | date: 'EEEE, MMMM d.'}}</p>
 
-        <button style="margin: 20px 0; border-radius: 20px;" color="primary" mat-raised-button>+ Add new account</button>
+        <button style="margin: 20px 0; border-radius: 20px;" color="primary" mat-raised-button (click)="addAccount()">+ Add new account</button>
 
         <div class="card">
             <div style="display: flex; align-items: center; padding-bottom: 10px;">

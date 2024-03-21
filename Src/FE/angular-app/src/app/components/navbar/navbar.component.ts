@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { NgIf } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -26,9 +26,15 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
     ])
   ]
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit{
 
   constructor(private router: Router, private auth: AuthService){}
+  
+  ngOnInit(): void {
+    if(!document.cookie.includes("sessionId")){
+      this.router.navigate(['login'])
+    }
+  }
   
   isExpanded = false
   
