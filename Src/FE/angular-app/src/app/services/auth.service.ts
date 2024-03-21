@@ -41,22 +41,6 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
-    // Dummy credentials
-    // const dummyCredentials = { email: 'user', password: 'pass' };
-
-    // Check if the provided credentials match the dummy credentials
-    // if (
-    //   email === dummyCredentials.email &&
-    //   password === dummyCredentials.password
-    // ) {
-    //   const user = { email: 'user', role: 'admin' };
-    //   this.saveUserData(user);
-    //   return true;
-    // } else {
-    //   // If login fails, return false
-    //   return false;
-    // }
-    // const v = console.log(firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/login', {email: email, password: password}, this.httpOptions)))
     var r = false
     try {
       r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/login', {email: email, password: password}, this.httpOptions))).ok
@@ -66,20 +50,6 @@ export class AuthService {
     return r
   }
   async register(email: string, firstName: string, lastName: string) {
-    // const user = { email: 'registered user', role: 'admin' };
-    // this.saveUserData(user);
-    // return true;
-    // TODO connect with the backend
-
-    // const registrationUrl = `${BASE_URL}/Registration/CreateUser/${token}/${email}/${password}`;
-    // const requestOptions = {
-    //   method: 'POST', // Specify the method
-    //   headers: {
-    //     'Content-Type': 'application/json', // Indicate the content type
-    //   },
-    // };
-    // const res = await fetch(registrationUrl, requestOptions);
-    // return res;
     var r = false
     try {
       r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Registration/CreateUser', {email: email, firstName: firstName, lastName: lastName, roleId: 0}, this.httpOptions))).ok
