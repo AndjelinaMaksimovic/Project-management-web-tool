@@ -49,10 +49,10 @@ export class AuthService {
     }
     return r
   }
-  async register(email: string, firstName: string, lastName: string) {
+  async register(email: string, firstName: string, lastName: string, roleId: string) {
     var r = false
     try {
-      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Registration/CreateUser', {email: email, firstName: firstName, lastName: lastName, roleId: 0}, this.httpOptions))).ok
+      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Registration/CreateUser', {email: email, firstName: firstName, lastName: lastName, roleId: roleId}, this.httpOptions))).ok
     } catch (e) {
       console.log(e)
     }

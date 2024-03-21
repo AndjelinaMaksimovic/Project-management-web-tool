@@ -19,9 +19,9 @@ export class InviteModalComponent {
    * placeholder for API values
    */
   roles = [
-    {value: "projectOwner", viewValue: "Project Owner"},
-    {value: "developer", viewValue: "Developer"},
-    {value: "manager", viewValue: "Manager"},
+    {value: "0", viewValue: "Project Owner"},
+    {value: "1", viewValue: "Developer"},
+    {value: "2", viewValue: "Manager"},
   ];
   email: string = '';
   firstName: string = '';
@@ -55,6 +55,10 @@ export class InviteModalComponent {
       this.errorMessage = 'no email passed';
       return;
     }
+    if (this.role === null) {
+      this.errorMessage = 'please select a role';
+      return;
+    }
     // check if password confirm matches
     // if (this.password !== this.passwordConfirm) {
     //   this.errorMessage = 'passwords do not match!';
@@ -63,7 +67,8 @@ export class InviteModalComponent {
     const res = await this.authService.register(
       this.email,
       this.firstName,
-      this.lastName
+      this.lastName,
+      this.role,
     );
     // if registration fails return
     if (!res) {
