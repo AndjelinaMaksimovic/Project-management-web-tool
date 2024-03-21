@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -7,7 +7,9 @@ import { MatBadgeModule } from '@angular/material/badge'
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { NgStyle } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { InviteModalComponent } from '../../components/invite-modal/invite-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -16,9 +18,9 @@ import { RouterModule } from '@angular/router';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent {
+export class HomeComponent{
   username: string = '';
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private dialog: MatDialog) {
     this.username = authService.currentUserValue?.email || '';
   }
 
@@ -41,4 +43,8 @@ export class HomeComponent {
       progress: 48
     }
   ]
+
+  addAccount(){
+    this.dialog.open(InviteModalComponent, { autoFocus: false })
+  }
 }
