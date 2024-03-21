@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ClearableInputComponent } from '../../components/clearable-input/clearable-input.component';
 import { EmailFieldComponent } from '../../components/email-field/email-field.component';
 import { SelectComponent } from '../../components/select/select.component';
+import { RolesService } from '../../services/roles.service';
 @Component({
   selector: 'app-invite-modal',
   standalone: true,
@@ -18,52 +19,39 @@ export class InviteModalComponent {
   /**
    * placeholder for API values
    */
-  roles = [
-    {value: "projectOwner", viewValue: "Project Owner"},
-    {value: "developer", viewValue: "Developer"},
-    {value: "manager", viewValue: "Manager"},
-  ];
+  roles: {value: string, viewValue: string}[] = [];
   email: string = '';
   firstName: string = '';
   lastName: string = '';
   role: string | null = null;
   errorMessage: string | null = null;
 
-  // query params
-  // token: string | undefined;
-  // email: string | undefined;
   constructor(
     private authService: AuthService,
+    private rolesService: RolesService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
-  // listen to query parameters
-  // ngOnInit() {
-  //   this.route.queryParams.subscribe((params) => {
-  //     this.token = params['token'];
-  //     this.email = params['email'];
-  //   });
-  // }
+  async ngOnInit(){
+    const roles = await this.rolesService.getAllRoles();
+    if(!roles) return;
+    this.roles = roles.map(role => ({value: role.id.toString(), viewValue: role.roleName}))
+  }
   async register() {
-    // check token
-    // if (this.token === undefined) {
-    //   this.errorMessage = 'no token';
-    //   return;
-    // }
     // check email
     if (this.email === undefined) {
       this.errorMessage = 'no email passed';
       return;
     }
-    // check if password confirm matches
-    // if (this.password !== this.passwordConfirm) {
-    //   this.errorMessage = 'passwords do not match!';
-    //   return;
-    // }
+    if (this.role === null) {
+      this.errorMessage = 'please select a role';
+      return;
+    }
     const res = await this.authService.register(
       this.email,
       this.firstName,
-      this.lastName
+      this.lastName,
+      this.role,
     );
     // if registration fails return
     if (!res) {
