@@ -339,3 +339,9 @@ ASALocalRun/
 
 # Test results
 TestResults/
+
+# Database
+/Codedberries/Codedberries/
+*.db
+*.db-shm
+*.db-wal
