@@ -82,7 +82,7 @@ export class AuthService {
     // return res;
     var r = false
     try {
-      r = ((await firstValueFrom(this.http.post<any>(environment.apiUrl + `/Registration/CreateUser/${email}/${firstName}/${lastName}`, {}, this.httpOptions))).status == 200)
+      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Registration/CreateUser', {email: email, firstName: firstName, lastName: lastName, roleId: 0}, this.httpOptions))).ok
     } catch (e) {
       console.log(e)
     }
