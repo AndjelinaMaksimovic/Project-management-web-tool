@@ -19,9 +19,11 @@ export class InviteModalComponent {
    * placeholder for API values
    */
   roles = [
-    {value: "0", viewValue: "Project Owner"},
-    {value: "1", viewValue: "Developer"},
-    {value: "2", viewValue: "Manager"},
+    {value: "1", viewValue: "Super User"},
+    {value: "2", viewValue: "Project Owner"},
+    {value: "3", viewValue: "Project Manager"},
+    {value: "4", viewValue: "Employee"},
+    {value: "5", viewValue: "Viewer"},
   ];
   email: string = '';
   firstName: string = '';
@@ -29,27 +31,12 @@ export class InviteModalComponent {
   role: string | null = null;
   errorMessage: string | null = null;
 
-  // query params
-  // token: string | undefined;
-  // email: string | undefined;
   constructor(
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
-  // listen to query parameters
-  // ngOnInit() {
-  //   this.route.queryParams.subscribe((params) => {
-  //     this.token = params['token'];
-  //     this.email = params['email'];
-  //   });
-  // }
   async register() {
-    // check token
-    // if (this.token === undefined) {
-    //   this.errorMessage = 'no token';
-    //   return;
-    // }
     // check email
     if (this.email === undefined) {
       this.errorMessage = 'no email passed';
@@ -59,11 +46,6 @@ export class InviteModalComponent {
       this.errorMessage = 'please select a role';
       return;
     }
-    // check if password confirm matches
-    // if (this.password !== this.passwordConfirm) {
-    //   this.errorMessage = 'passwords do not match!';
-    //   return;
-    // }
     const res = await this.authService.register(
       this.email,
       this.firstName,
