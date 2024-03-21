@@ -16,11 +16,12 @@ namespace Codedberries.Services
             _authorizationService = authorizationService;
         }
 
-        public AllRolesNamesDTO GetRoleNames()
+        public AllRolesDTO GetRoles()
         {
             List<string> roleNames = _databaseContext.Roles.Select(r => r.Name).ToList();
+            List<int> rolesIds = _databaseContext.Roles.Select(r => r.Id).ToList();
 
-            return new AllRolesNamesDTO { RoleNames = roleNames };
+            return new AllRolesDTO { RoleNames = roleNames, RolesIds = rolesIds };
         }
 
         public async Task<bool> AddNewCustomRole(HttpContext httpContext, CustomRoleDTO request)

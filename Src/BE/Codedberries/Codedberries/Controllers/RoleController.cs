@@ -17,10 +17,10 @@ namespace Codedberries.Controllers
             _roleService = roleService;
         }
 
-        [HttpGet("allRolesNames")]
-        public IActionResult GetAllRolesNames()
+        [HttpGet("allRoles")]
+        public IActionResult GetAllRoles()
         {
-            AllRolesNamesDTO allRolesNames = _roleService.GetRoleNames();
+            AllRolesDTO allRolesNames = _roleService.GetRoles();
 
             if (allRolesNames == null)
             {
