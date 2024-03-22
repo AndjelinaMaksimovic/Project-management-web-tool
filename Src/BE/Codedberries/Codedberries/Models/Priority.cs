@@ -14,5 +14,11 @@ namespace Codedberries.Models
 
         [Required]
         public int Value { get; set; }
+
+        public Priority(string name,int value) 
+        {
+            Name = name;
+            Value = value;
+        }
     }
 }
