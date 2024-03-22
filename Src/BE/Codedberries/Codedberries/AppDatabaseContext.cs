@@ -16,6 +16,8 @@ namespace Codedberries
         public DbSet<Category> Categories { get; set; }
         public DbSet<UserProject> UserProjects { get; set; }
 
+        public DbSet<Status> Statuses { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=database.db");
@@ -51,6 +53,12 @@ namespace Codedberries
                .HasOne(t => t.Category)
                .WithMany()
                .HasForeignKey(t => t.CategoryId);
+
+            modelBuilder.Entity<Status>()
+                .HasIndex(s => s.Name)
+                .IsUnique();
+                
+                
         }
 
         public void ApplyMigrations()
