@@ -3,11 +3,6 @@ import GSTC, { Config, GSTCResult, Items, Rows } from 'gantt-schedule-timeline-c
 import { Plugin as TimelinePointer } from 'gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js';
 import { Plugin as Selection } from 'gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js';
 
-declare global {
-  var state: any;
-  var gstc: any;
-}
-
 @Component({
   selector: 'app-gantt-test',
   standalone: true,
@@ -92,12 +87,10 @@ export class GanttTestComponent implements OnInit {
 
   ngOnInit(): void {
     const state = GSTC.api.stateFromConfig(this.generateConfig());
-    globalThis.state = state;
     this.gstc = GSTC({
       element: this.gstcElement?.nativeElement,
       state,
     });
-    globalThis.gstc = this.gstc;
   }
 
   updateFirstItem(): void {

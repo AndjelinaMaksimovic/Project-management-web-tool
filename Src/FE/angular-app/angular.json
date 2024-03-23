@@ -26,7 +26,8 @@
             ],
             "styles": [
               "src/custom-theme.scss",
-              "src/styles.css"
+              "src/styles.css",
+              "./node_modules/gantt-schedule-timeline-calendar/dist/style.css"
             ],
             "scripts": []
           },
