@@ -97,4 +97,7 @@ export class AuthService {
 
     return r
   }
+  loggedIn(){
+    return !document.cookie.includes("sessionId")
+  }
 }

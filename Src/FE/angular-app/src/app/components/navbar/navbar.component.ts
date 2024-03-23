@@ -31,16 +31,13 @@ export class NavbarComponent implements OnInit{
   constructor(private router: Router, private auth: AuthService){}
   
   ngOnInit(): void {
-    if(!document.cookie.includes("sessionId")){
+    if(this.auth.loggedIn()){
       this.router.navigate(['login'])
     }
   }
   
   isExpanded = false
-  
-  loggedIn(){
-    return document.cookie.includes("sessionId")
-  }
+
   async logout(){
     await this.auth.logout()
     this.router.navigate(['login'])
