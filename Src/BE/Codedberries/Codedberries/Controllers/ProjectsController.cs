@@ -37,5 +37,18 @@ namespace Codedberries.Controllers
                 return StatusCode(403, new ErrorMsg(ex.Message)); // does not have permission
             }
         }
+
+        [HttpGet("allProjects")]
+        public IActionResult GetAllProjects()
+        {
+            AllProjectsDTO allProjectsDTO = _projectService.GetProjects();
+
+            if (allProjectsDTO == null)
+            {
+                return NotFound(new ErrorMsg("No projects found!"));
+            }
+
+            return Ok(allProjectsDTO);
+        }
     }
 }
