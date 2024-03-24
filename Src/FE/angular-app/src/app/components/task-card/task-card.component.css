@@ -3,19 +3,16 @@
     height: fit-content;
     /* background-color: red; */
     /* color: black; */
-    padding: 5px;
+    /* padding: 2px; */
 }
 .chip-warn{
-    background-color: red;
-    color: black;
+    color: red;
 }
 .chip-mid{
-    background-color: yellow;
-    color: black;
+    color: yellow;
 }
 .chip-good{
-    background-color: green;
-    color: black;
+    color: green;
 }
 .chip-neutral{
     color: blue;
