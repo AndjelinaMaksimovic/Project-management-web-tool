@@ -15,6 +15,7 @@ namespace Codedberries
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<UserProject> UserProjects { get; set; }
+        public DbSet<Priority> Priorities { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -51,6 +52,10 @@ namespace Codedberries
                .HasOne(t => t.Category)
                .WithMany()
                .HasForeignKey(t => t.CategoryId);
+
+            modelBuilder.Entity<Priority>()
+                .HasIndex(c=>c.Name) 
+                .IsUnique();
         }
 
         public void ApplyMigrations()
