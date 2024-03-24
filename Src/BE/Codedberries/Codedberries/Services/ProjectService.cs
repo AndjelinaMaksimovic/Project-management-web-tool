@@ -45,5 +45,13 @@ namespace Codedberries.Services
 
             return project;
         }
+
+        public AllProjectsDTO GetProjects()
+        {
+            List<string> projectsNames = _databaseContext.Projects.Select(r => r.Name).ToList();
+            List<int> projectsIds = _databaseContext.Projects.Select(r => r.Id).ToList();
+
+            return new AllProjectsDTO { ProjectsNames = projectsNames, ProjectsIds = projectsIds };
+        }
     }
 }
