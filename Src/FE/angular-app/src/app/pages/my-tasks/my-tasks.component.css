@@ -11,12 +11,11 @@
 
 .mat-button-toggle:hover {
     background-color: transparent;
-    color: #AAA !important;
 }
 
 .mat-button-toggle-checked {
     background-color: transparent;
-    color: #00F !important;
+    color: var(--color-primary) !important;
 }
 
 mat-button-toggle-group {
