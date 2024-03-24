@@ -3,6 +3,7 @@ using System;
 using Codedberries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Codedberries.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    partial class AppDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240322203048_AddStatus")]
+    partial class AddStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
@@ -54,31 +57,6 @@ namespace Codedberries.Migrations
 
                     b.ToTable("Invites");
                 });
-
-
-
-            modelBuilder.Entity("Codedberries.Models.Priority", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Priorities");
-                });
-
-
 
             modelBuilder.Entity("Codedberries.Models.Project", b =>
                 {
@@ -170,9 +148,7 @@ namespace Codedberries.Migrations
                     b.ToTable("Sessions");
                 });
 
-
             modelBuilder.Entity("Codedberries.Models.Status", b =>
-
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -189,7 +165,6 @@ namespace Codedberries.Migrations
 
                     b.ToTable("Statuses");
                 });
-
 
             modelBuilder.Entity("Codedberries.Models.Task", b =>
                 {
