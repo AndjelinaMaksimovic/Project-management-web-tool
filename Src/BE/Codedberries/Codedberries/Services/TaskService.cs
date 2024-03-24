@@ -32,7 +32,7 @@ namespace Codedberries.Services
             }
 
             
-            Models.Task task = new Models.Task(request.Description, request.DueDate, userId.Value, request.Status, request.Priority, request.DifficultyLevel, request.CategoryId);
+            Models.Task task = new Models.Task(request.Description, request.DueDate, userId.Value, request.Status, request.Priority, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
