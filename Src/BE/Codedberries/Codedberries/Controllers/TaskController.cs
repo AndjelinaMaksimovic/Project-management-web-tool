@@ -37,5 +37,24 @@ namespace Codedberries.Controllers
                 return StatusCode(403, new ErrorMsg(ex.Message)); // does not have permission
             }
         }
+
+        [HttpGet("projectTasks")]
+        public IActionResult GetProjectTasksWithFilters([FromQuery] TaskFilterParamsDTO filterParams)
+        {
+            try
+            {
+                var tasks = _taskService.GetTasksByFilters(filterParams);
+
+                return Ok(tasks);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
     }
 }
