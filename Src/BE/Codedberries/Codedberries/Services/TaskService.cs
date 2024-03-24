@@ -51,5 +51,85 @@ namespace Codedberries.Services
 
             return task;
         }
+
+        public List<ProjectTasksInfoDTO> GetTasksByFilters(TaskFilterParamsDTO filterParams)
+        {
+            System.Linq.IQueryable<Codedberries.Models.Task> query = _databaseContext.Tasks;
+
+            if (filterParams == null || filterParams.IsEmpty())
+            {
+                throw new ArgumentException("No filters were chosen!");
+            }
+            else // applying filters if there any
+            {
+                if (filterParams.ProjectId != 0)
+                {
+                    query = query.Where(t => t.ProjectId == filterParams.ProjectId);
+                }
+                if (filterParams.AssignedTo.HasValue)
+                {
+                    query = query.Where(t => t.UserId == filterParams.AssignedTo);
+                }
+                if (!string.IsNullOrEmpty(filterParams.Status))
+                {
+                    query = query.Where(t => t.Status == filterParams.Status);
+                }
+                if (!string.IsNullOrEmpty(filterParams.Priority))
+                {
+                    query = query.Where(t => t.Priority == filterParams.Priority);
+                }
+                if (filterParams.DifficultyLevelGreaterThan.HasValue)
+                {
+                    query = query.Where(t => t.DifficultyLevel > filterParams.DifficultyLevelGreaterThan.Value);
+                }
+
+                if (filterParams.DifficultyLevelLesserThan.HasValue)
+                {
+                    query = query.Where(t => t.DifficultyLevel < filterParams.DifficultyLevelLesserThan.Value);
+                }
+
+                if (filterParams.DifficultyLevelEquals.HasValue)
+                {
+                    query = query.Where(t => t.DifficultyLevel == filterParams.DifficultyLevelEquals.Value);
+                }
+                if (filterParams.DueDateAfter.HasValue)
+                {
+                    query = query.Where(t => t.DueDate >= filterParams.DueDateAfter);
+                }
+                if (filterParams.DueDateBefore.HasValue)
+                {
+                    query = query.Where(t => t.DueDate <= filterParams.DueDateBefore);
+                }
+                if (filterParams.CategoryId.HasValue)
+                {
+                    query = query.Where(t => t.CategoryId == filterParams.CategoryId);
+                }
+            }
+
+
+            List<Codedberries.Models.Task> tasks = query.ToList();
+
+            List<ProjectTasksInfoDTO> tasksDTO = tasks.Select(t => new ProjectTasksInfoDTO
+            {
+                Name = t.Name,
+                Description = t.Description,
+                Category = t.Category.Name,
+                Priority = t.Priority,
+                Status = t.Status,
+                DueDate = t.DueDate,
+                AssignedTo = _databaseContext.Users
+                    .Where(u => u.Id == t.UserId)
+                    .Select(u => new TaskUserInfoDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    })
+                    .ToList()
+            }).ToList();
+
+            return tasksDTO;
+        }
     }
 }
