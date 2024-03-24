@@ -19,6 +19,8 @@ namespace Codedberries
 
         public DbSet<Status> Statuses { get; set; }
 
+        
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=database.db");
@@ -55,17 +57,16 @@ namespace Codedberries
                .WithMany()
                .HasForeignKey(t => t.CategoryId);
 
-<<<<<<< HEAD
-            modelBuilder.Entity<Priority>()
+      modelBuilder.Entity<Priority>()
                 .HasIndex(c=>c.Name) 
                 .IsUnique();
-=======
+
             modelBuilder.Entity<Status>()
                 .HasIndex(s => s.Name)
                 .IsUnique();
                 
                 
->>>>>>> 0617cf3 (#71 Azuriran appDatabaseContext)
+
         }
 
         public void ApplyMigrations()

@@ -56,6 +56,7 @@ namespace Codedberries.Migrations
                 });
 
 
+
             modelBuilder.Entity("Codedberries.Models.Priority", b =>
                 {
                     b.Property<int>("Id")
@@ -76,6 +77,7 @@ namespace Codedberries.Migrations
 
                     b.ToTable("Priorities");
                 });
+
 
 
             modelBuilder.Entity("Codedberries.Models.Project", b =>
@@ -168,7 +170,9 @@ namespace Codedberries.Migrations
                     b.ToTable("Sessions");
                 });
 
-                modelBuilder.Entity("Codedberries.Models.Status", b =>
+
+            modelBuilder.Entity("Codedberries.Models.Status", b =>
+
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
