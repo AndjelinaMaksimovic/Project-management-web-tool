@@ -7,8 +7,11 @@ import { ClearableInputComponent } from '../../components/clearable-input/cleara
   standalone: true,
   imports: [MaterialModule, ClearableInputComponent],
   templateUrl: './my-tasks.component.html',
-  styleUrl: './my-tasks.component.css'
+  styleUrl: './my-tasks.component.css',
 })
 export class MyTasksComponent {
-
+  tasks = [
+    { name: 'task1', category: 'finance', priority: 'low', status: 'active' },
+    { name: 'task2', category: 'finance', priority: 'low', status: 'active' },
+  ];
 }
