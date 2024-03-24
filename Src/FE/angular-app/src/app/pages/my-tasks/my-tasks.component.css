@@ -1,0 +1,23 @@
+/* .mat-button-toggle.test{
+    background-color: none;
+    border: none;
+} */
+
+.mat-button-toggle{
+    background-color: transparent;
+    color: black;
+}
+
+.mat-button-toggle:hover {
+    background-color: transparent;
+    color: #AAA !important;   
+}
+
+.mat-button-toggle-checked {
+    background-color: transparent;
+    color: #00F !important;
+}
+
+mat-button-toggle-group {
+    border: none;
+}

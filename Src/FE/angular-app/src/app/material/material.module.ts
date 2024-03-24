@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 const MaterialComponents = [
   MatButtonModule,
@@ -17,6 +18,7 @@ const MaterialComponents = [
   MatIconModule,
   MatSelectModule,
   MatDialogModule,
+  MatButtonToggleModule,
 ];
 @NgModule({
   imports: [MaterialComponents],
