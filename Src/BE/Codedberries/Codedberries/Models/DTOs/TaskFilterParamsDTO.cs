@@ -4,7 +4,7 @@
     {
         public int ProjectId { get; set; } // required
         public int? AssignedTo { get; set; } 
-        public string Status { get; set; } 
+        public string? Status { get; set; } 
         public string? Priority { get; set; }
         public int? DifficultyLevelGreaterThan { get; set; }
         public int? DifficultyLevelLesserThan { get; set; }
