@@ -37,6 +37,13 @@ namespace Codedberries.Models
         [ForeignKey("CategoryId")]
         public Category Category { get; set; }
 
+        [Required]
+        public int ProjectId { get; set; }
+
+        [Required]
+        [ForeignKey("ProjectId")]
+        public Project Project { get; set; }
+
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
