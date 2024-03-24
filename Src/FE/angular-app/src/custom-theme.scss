@@ -65,10 +65,21 @@ $hello-world-theme: mat.define-light-theme((
 // that you are using.
 @include mat.all-component-themes($hello-world-theme);
 
+.dense-1 {
+  @include mat.all-component-densities(-2);
+}
+
 .dense-2 {
   @include mat.all-component-densities(-2);
 }
 
+.dense-3 {
+  @include mat.all-component-densities(-3);
+}
+
+.dense-4 {
+  @include mat.all-component-densities(-4);
+}
 .mdc-button.button-rounded {
   border-radius: 25px;
 }
@@ -82,4 +93,8 @@ $pink-accent: #E8DEF8;
 }
 .color-primary{
   color: $primary;
+}
+
+:root {
+  --color-primary: #{$primary};
 }
