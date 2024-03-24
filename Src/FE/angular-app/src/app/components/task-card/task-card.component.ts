@@ -10,8 +10,25 @@ import { MaterialModule } from '../../material/material.module';
 })
 export class TaskCardComponent {
   @Input() name: string = "name";
-  @Input() priority: string = "priority";
+  @Input() priority: ("High" | "Medium" | "Low") = "Medium";
   @Input() category: string = "category";
-  @Input() status: string = "status";
+  @Input() status: ("Finished" | "Active" | "Past Due") = "Finished";
   @Input() date: string = "date";
+
+  get priorityColor(){
+    const priorityColorMap = {
+      "High": "warn",
+      "Medium": "mid",
+      "Low": "neutral",
+    } as const;
+    return priorityColorMap[this.priority];
+  }
+  get statuspriorityColor(){
+    const priorityColorMap = {
+      "Finished": "good",
+      "Active": "mid",
+      "Past Due": "warn",
+    } as const;
+    return priorityColorMap[this.status];
+  }
 }
