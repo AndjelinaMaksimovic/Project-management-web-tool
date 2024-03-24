@@ -113,7 +113,7 @@ namespace Codedberries.Services
             {
                 Name = t.Name,
                 Description = t.Description,
-                Category = t.Category.Name,
+                Category = t.Category != null ? t.Category.Name : null,
                 Priority = t.Priority,
                 Status = t.Status,
                 DueDate = t.DueDate,
