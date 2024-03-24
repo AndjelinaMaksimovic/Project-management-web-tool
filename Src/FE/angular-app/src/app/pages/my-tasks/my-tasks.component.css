@@ -1,16 +1,17 @@
-/* .mat-button-toggle.test{
-    background-color: none;
-    border: none;
-} */
-
-.mat-button-toggle{
+.mat-button-toggle {
     background-color: transparent;
     color: black;
 }
 
+.mat-button-toggle .toggle-button-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .mat-button-toggle:hover {
     background-color: transparent;
-    color: #AAA !important;   
+    color: #AAA !important;
 }
 
 .mat-button-toggle-checked {
