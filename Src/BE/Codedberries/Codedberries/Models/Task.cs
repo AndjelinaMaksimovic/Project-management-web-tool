@@ -47,7 +47,7 @@ namespace Codedberries.Models
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
-        public Task(string description, DateTime dueDate, int userId, string status, string priority, int difficultyLevel, int categoryId)
+        public Task(string description, DateTime dueDate, int userId, string status, string priority, int difficultyLevel, int categoryId, int projectId)
         {
             Description = description;
             DueDate = dueDate;
@@ -56,6 +56,7 @@ namespace Codedberries.Models
             Priority = priority;
             DifficultyLevel = difficultyLevel;
             CategoryId = categoryId;
+            ProjectId = projectId;
         }
     }
 }
