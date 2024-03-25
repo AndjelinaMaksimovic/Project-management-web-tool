@@ -1,19 +1,20 @@
 .chip{
     border-radius: 10px;
     height: fit-content;
+    font-weight: bold;
     /* background-color: red; */
     /* color: black; */
     /* padding: 2px; */
 }
 .chip-warn{
-    color: red;
+    color: rgb(199, 49, 17);
 }
 .chip-mid{
-    color: yellow;
+    color: rgb(255, 182, 45);
 }
 .chip-good{
     color: green;
 }
 .chip-neutral{
-    color: blue;
+    color: rgb(71, 118, 228);
 }

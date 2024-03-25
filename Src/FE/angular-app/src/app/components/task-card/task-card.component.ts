@@ -23,7 +23,7 @@ export class TaskCardComponent {
     } as const;
     return priorityColorMap[this.priority];
   }
-  get statuspriorityColor(){
+  get statusColor(){
     const priorityColorMap = {
       "Finished": "good",
       "Active": "mid",
