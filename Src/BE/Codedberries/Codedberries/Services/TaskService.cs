@@ -150,6 +150,14 @@ namespace Codedberries.Services
                 throw new InvalidOperationException($"Task with ID {taskId} cannot be deleted because it has dependent tasks!");
             }
 
+            // this task depends on others, if so - delete that relation
+            var tasksDependentOnThis = _databaseContext.Set<TaskDependency>().Where(td => td.DependentTaskId == taskId).ToList();
+            
+            foreach (var dependentTask in tasksDependentOnThis)
+            {
+                _databaseContext.Set<TaskDependency>().Remove(dependentTask);
+            }
+
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
         }
