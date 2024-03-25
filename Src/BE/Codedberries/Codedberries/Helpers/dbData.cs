@@ -18,11 +18,11 @@ namespace Codedberries.Helpers
             );
 
             context.Projects.AddRange(
-                new Project ( "Project1",null, "description 1") ,
-                new Project  ( "Project2" ,null, "description 2"),
-                new Project ( "Project3",null, "description 3"),
-                new Project ( "Project4",1, "description 4"),
-                new Project("Project5", 2, "description 5")
+                new Project ("Project1", "description 1", DateTime.Today.AddDays(3)),
+                new Project ("Project2", "description 2", DateTime.Today.AddDays(5)),
+                new Project ("Project3", "description 3", DateTime.Today.AddDays(4)),
+                new Project ("Project4", "description 4", DateTime.Today.AddDays(2)),
+                new Project ("Project5", "description 5", DateTime.Today.AddDays(4))
             );
 
             context.Users.AddRange(
@@ -73,11 +73,11 @@ namespace Codedberries.Helpers
             );
 
             context.Projects.AddRange(
-                new Project("Project1", null, "description 1"),
-                new Project("Project2", null, "description 2"),
-                new Project("Project3", 1, "description 3"),
-                new Project("Project4", 3, "description 4"),
-                new Project("Project5", 4, "description 5")
+                new Project("Project1", "description 1", DateTime.Today.AddDays(5)),
+                new Project("Project2", "description 2", DateTime.Today.AddDays(6)),
+                new Project("Project3", "description 3", DateTime.Today.AddDays(4)),
+                new Project("Project4", "description 4", DateTime.Today.AddDays(3)),
+                new Project("Project5", "description 5", DateTime.Today.AddDays(4))
             );
 
             context.Users.AddRange(
