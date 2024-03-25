@@ -6,7 +6,7 @@ namespace Codedberries.Models.DTOs
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public int? ParentProjectId { get; set; }
+        public DateTime DueDate { get; set; }
         public List<int> UserIds { get; set; }
     }
 }
