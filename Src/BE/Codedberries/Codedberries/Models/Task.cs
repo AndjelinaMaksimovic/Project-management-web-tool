@@ -12,6 +12,9 @@ namespace Codedberries.Models
         public int Id { get; set; }
 
         [Required]
+        public string Name { get; set; }
+
+        [Required]
         public string Description { get; set; }
 
         public DateTime DueDate { get; set; }
@@ -37,11 +40,19 @@ namespace Codedberries.Models
         [ForeignKey("CategoryId")]
         public Category Category { get; set; }
 
+        [Required]
+        public int ProjectId { get; set; }
+
+        [Required]
+        [ForeignKey("ProjectId")]
+        public Project Project { get; set; }
+
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
-        public Task(string description, DateTime dueDate, int userId, string status, string priority, int difficultyLevel, int categoryId)
+        public Task(string name, string description, DateTime dueDate, int userId, string status, string priority, int difficultyLevel, int categoryId, int projectId)
         {
+            Name = name;
             Description = description;
             DueDate = dueDate;
             UserId = userId;
@@ -49,6 +60,7 @@ namespace Codedberries.Models
             Priority = priority;
             DifficultyLevel = difficultyLevel;
             CategoryId = categoryId;
+            ProjectId = projectId;
         }
     }
 }
