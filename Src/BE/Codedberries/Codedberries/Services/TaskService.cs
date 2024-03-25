@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -130,6 +131,19 @@ namespace Codedberries.Services
             }).ToList();
 
             return tasksDTO;
+        }
+
+        public void DeleteTask(int taskId)
+        {
+            var task = _databaseContext.Tasks.Find(taskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {taskId} does not exist.");
+            }
+
+            _databaseContext.Tasks.Remove(task);
+            _databaseContext.SaveChanges();
         }
     }
 }
