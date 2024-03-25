@@ -142,6 +142,14 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Task with ID {taskId} does not exist.");
             }
 
+            // other tasks depend on this one
+            var dependentTasks = _databaseContext.Set<TaskDependency>().Where(td => td.TaskId == taskId).ToList();
+            
+            if (dependentTasks.Any())
+            {
+                throw new InvalidOperationException($"Task with ID {taskId} cannot be deleted because it has dependent tasks!");
+            }
+
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
         }
