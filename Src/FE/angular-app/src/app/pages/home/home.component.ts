@@ -10,11 +10,12 @@ import { NgStyle } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { InviteModalComponent } from '../../components/invite-modal/invite-modal.component';
+import { TopnavComponent } from '../../components/topnav/topnav.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ NavbarComponent, MatSidenavModule, MatIconModule, MatBadgeModule, DatePipe, MatButtonModule, NgStyle, RouterModule ],
+  imports: [ NavbarComponent, MatSidenavModule, MatIconModule, MatBadgeModule, DatePipe, MatButtonModule, NgStyle, RouterModule, TopnavComponent ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

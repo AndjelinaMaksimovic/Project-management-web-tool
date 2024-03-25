@@ -1,5 +1,10 @@
+* {
+    letter-spacing: normal !important;
+    -webkit-font-smoothing: antialiased;
+}
+
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: #deebee; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: #fff; }
 .centered-content {
     display: flex;
     justify-content: center;
@@ -26,4 +31,59 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-
 
 .mat-drawer-inner-container {
     overflow: hidden !important;
+}
+
+@font-face {
+    font-family: 'LucideIcons';
+    src: url(https://unpkg.com/lucide-static@latest/font/Lucide.ttf) format('truetype');
+}
+
+.ml-10 {
+    margin-left: 10px !important;
+}
+
+.ml-20 {
+    margin-left: 20px !important;
+}
+
+
+.mr-10 {
+    margin-right: 10px !important;
+}
+
+.margin-15 {
+    margin: 15px !important;
+}
+
+.pl-15 {
+    padding-left: 15px !important;
+}
+
+.pr-15 {
+    padding-right: 15px !important;
+}
+
+.p-0 {
+    padding: 0 !important;
+}
+
+.m-0 {
+    margin: 0 !important;
+}
+
+.white {
+    color: white !important;
+}
+
+.lightgray {
+    color: #C1C1C1 !important;
+}
+
+.center {
+    text-align: center;
+    vertical-align: middle;
+    letter-spacing: normal;
+    margin-top: auto;
+    margin-bottom: auto;
+    text-align: center;
 }
