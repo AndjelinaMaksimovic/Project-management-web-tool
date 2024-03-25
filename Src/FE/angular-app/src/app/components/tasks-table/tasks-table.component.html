@@ -1,1 +1,8 @@
-<p>tasks-table works!</p>
+<!-- header -->
+<!-- tasks -->
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+    @for (task of tasks; track task) {
+    <app-task-card [name]="task.name" [category]="task.category" [status]="task.status"
+        [priority]="task.priority"></app-task-card>
+    }
+</div>
