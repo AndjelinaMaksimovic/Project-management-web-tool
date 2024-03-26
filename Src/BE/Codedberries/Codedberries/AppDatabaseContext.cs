@@ -57,15 +57,25 @@ namespace Codedberries
                .WithMany()
                .HasForeignKey(t => t.CategoryId);
 
-      modelBuilder.Entity<Priority>()
+            modelBuilder.Entity<Priority>()
                 .HasIndex(c=>c.Name) 
                 .IsUnique();
 
             modelBuilder.Entity<Status>()
                 .HasIndex(s => s.Name)
                 .IsUnique();
-                
-                
+
+            modelBuilder.Entity<Models.Task>()
+              .HasOne(t => t.Status)
+              .WithMany()
+              .HasForeignKey(t => t.StatusId);
+
+            modelBuilder.Entity<Models.Task>()
+              .HasOne(t => t.Priority)
+              .WithMany()
+              .HasForeignKey(t => t.PriorityId);
+
+
 
         }
 
