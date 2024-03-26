@@ -28,7 +28,23 @@ span {
     color: rgb(71, 118, 228);
 }
 
+.card {
+    width: 100%;
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(240, 240, 240);
+}
+
+.card:hover .small-icon-button {
+    opacity: 1;
+}
+
 .small-icon-button {
+    opacity: 0;
     width: 32px !important;
     height: 32px !important;
     padding: 0px !important;
