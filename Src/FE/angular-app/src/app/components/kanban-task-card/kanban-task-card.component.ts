@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmTaskDeleteModalComponent } from '../confirm-task-delete-modal/confirm-task-delete-modal.component';
 
 @Component({
   selector: 'app-kanban-task-card',
@@ -17,6 +19,15 @@ export class KanbanTaskCardComponent {
     date: Date;
     id: number;
   }>;
+
+  constructor(private dialog: MatDialog) {}
+
+  deleteTask() {
+    this.dialog.open(ConfirmTaskDeleteModalComponent, {
+      autoFocus: false,
+      data: { taskId: this.task.id },
+    });
+  }
 
   get priorityColor() {
     const priorityColorMap = {
