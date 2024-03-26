@@ -16,7 +16,7 @@ export class TaskCardComponent {
     priority: 'High' | 'Medium' | 'Low';
     category: string;
     status: 'Finished' | 'Active' | 'Past Due';
-    date: string;
+    date: Date;
     id: number;
   };
 
