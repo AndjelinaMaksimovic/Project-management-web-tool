@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -130,6 +131,35 @@ namespace Codedberries.Services
             }).ToList();
 
             return tasksDTO;
+        }
+
+        public void DeleteTask(int taskId)
+        {
+            var task = _databaseContext.Tasks.Find(taskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {taskId} does not exist.");
+            }
+
+            // other tasks depend on this one
+            var dependentTasks = _databaseContext.Set<TaskDependency>().Where(td => td.TaskId == taskId).ToList();
+            
+            if (dependentTasks.Any())
+            {
+                throw new InvalidOperationException($"Task with ID {taskId} cannot be deleted because it has dependent tasks!");
+            }
+
+            // this task depends on others, if so - delete that relation
+            var tasksDependentOnThis = _databaseContext.Set<TaskDependency>().Where(td => td.DependentTaskId == taskId).ToList();
+            
+            foreach (var dependentTask in tasksDependentOnThis)
+            {
+                _databaseContext.Set<TaskDependency>().Remove(dependentTask);
+            }
+
+            _databaseContext.Tasks.Remove(task);
+            _databaseContext.SaveChanges();
         }
     }
 }

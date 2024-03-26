@@ -56,5 +56,24 @@ namespace Codedberries.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
+
+        [HttpDelete("tasksDeletion")]
+        public IActionResult DeleteTask([FromBody] TaskDeletionDTO deletionDTO)
+        {
+            try
+            {
+                _taskService.DeleteTask(deletionDTO.TaskId);
+
+                return Ok("Task successfully deleted.");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the task: {ex.Message}");
+            }
+        }
     }
 }
