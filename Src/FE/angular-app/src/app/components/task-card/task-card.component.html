@@ -1,7 +1,7 @@
 <div class="card">
     <span class="column-1"><strong>{{task.title}}</strong></span>
     <span class="column-1"><div class="chip chip-neutral">{{task.category}}</div></span>
-    <span class="column-1"><div [classList]="['chip chip-' + priorityColor]">{{task.priority}}</div></span>
+    <span class="column-1"><div [classList]="['chip chip-' + priorityColor]">{{task.priority === "High" ? "🎯︎ " + task.priority : task.priority}}</div></span>
     <span class="column-1"><div [classList]="['chip chip-' + statusColor]">{{task.status}}</div></span>
     <div style="width: 100%; display: flex; justify-content: center; display: flex; flex-direction: row; align-items: center; gap: 4px;">
         <!-- delete/edit -->
