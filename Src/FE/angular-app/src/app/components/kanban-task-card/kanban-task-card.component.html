@@ -18,10 +18,10 @@
         <!-- task info -->
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <div class="chip chip-neutral">{{task.category}}</div>
-            <div [classList]="['chip chip-' + priorityColor]">{{task.priority}}</div>
+            <div [classList]="['chip chip-' + priorityColor]">{{task.priority === "High" ? "🎯︎ " + task.priority : task.priority}}</div>
             <div style="font-size: smaller;">📅 {{task.date.toDateString()}}</div>
         </div>
         <!-- avatar -->
-        <div style="width: 32px; height: 32px; border-radius: 100%; background-color: gray;"></div>
+        <!-- <div style="width: 32px; height: 32px; border-radius: 100%; background-color: gray;"></div> -->
     </div>
 </div>
