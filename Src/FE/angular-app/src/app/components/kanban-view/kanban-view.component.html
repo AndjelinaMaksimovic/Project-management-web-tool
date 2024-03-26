@@ -4,6 +4,9 @@
         <h2>
             {{status}}
         </h2>
+        @for (task of tasks; track task) {
+            <app-kanban-task-card [task]="task"></app-kanban-task-card>
+        }
     </div>
     }
 </div>

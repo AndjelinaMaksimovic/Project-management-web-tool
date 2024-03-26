@@ -1,0 +1,83 @@
+div,
+span {
+    text-align: center;
+}
+
+.column-1{
+    width: 100%; display: flex; justify-content: center;
+}
+
+.chip {
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 4px;
+}
+
+.chip-warn {
+    color: rgb(199, 49, 17);
+    background-color: rgb(199, 49, 17, 0.15);
+}
+
+.chip-mid {
+    color: rgb(255, 182, 45);
+    background-color: rgb(255, 182, 45, 0.15);
+}
+
+.chip-good {
+    color: green;
+    background-color: rgba(0, 128, 0, 0.15);
+}
+
+.chip-neutral {
+    color: rgb(71, 118, 228);
+    background-color: rgb(71, 118, 228, 0.15);
+}
+
+.card {
+    width: auto;
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(240, 240, 240);
+    border-left-color: var(--color-primary);
+    border-left-width: 10px;
+    border-left-style: solid;
+}
+
+.card:hover{
+    background-color: rgb(230, 230, 230);
+
+}
+
+.card:hover .small-icon-button {
+    opacity: 1;
+}
+
+.small-icon-button {
+    opacity: 0;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    &>*[role=img] {
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    .mat-mdc-button-touch-target {
+        width: 32px !important;
+        height: 32px !important;
+    }
+}

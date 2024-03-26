@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-kanban-task-card',
@@ -8,5 +8,12 @@ import { Component } from '@angular/core';
   styleUrl: './kanban-task-card.component.css'
 })
 export class KanbanTaskCardComponent {
-
+  @Input() task!: Readonly<{
+    title: string;
+    priority: 'High' | 'Medium' | 'Low';
+    category: string;
+    status: 'Finished' | 'Active' | 'Past Due';
+    date: Date;
+    id: number;
+  }>
 }
