@@ -57,8 +57,34 @@ namespace Codedberries.Services
             return new AllProjectsDTO { ProjectsNames = projectsNames, ProjectsIds = projectsIds };
         }
 
-        public void DeleteProject(int projectId)
+        public void DeleteProject(HttpContext httpContext, int projectId)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && userRole.CanDeleteProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to delete project!");
+            }
+
             var project = _databaseContext.Projects.Find(projectId);
 
             if (project == null)
@@ -66,6 +92,7 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {projectId} does not exist.");
             }
 
+            /*
             // all tasks connected with project
             var tasksOnProject = _databaseContext.Tasks.Where(t => t.ProjectId == projectId).ToList();
 
@@ -73,6 +100,7 @@ namespace Codedberries.Services
             {
                 _taskService.DeleteTask(task.Id);
             }
+            */
 
             _databaseContext.Projects.Remove(project);
             _databaseContext.SaveChanges();
