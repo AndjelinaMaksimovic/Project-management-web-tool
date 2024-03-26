@@ -1,39 +1,68 @@
 @use '../../../custom-theme.scss' as theme;
-
-/* a{
-    text-decoration: none;
-    color: white;
-    margin-left: 20px;
-} */
-p, h2{
-    margin: 0 !important;
-    padding: 0 !important;
-}
-.sidenav-content{
-    background-color: white !important;
-}
-.small-text{
-    font-size: 8px;
-    line-height: 2px;
-    color: white;
+.sidenav {
+    background-color: #EFF0F0 !important;
+    border: 0;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-items: flex-end;
+    background-color: blue;
+    overflow: hidden;
 }
 
-.active{
-    background-color: white;
-    // border-radius: 15px;
-    /* margin: 10px; */
-}
-.active span, .active svg{
-    color:theme.$primary;
+.container {
+    height: calc(100% - 2.5rem);
+    position: fixed;
+    width: 100%;
 }
 
-a{
-    color: black;
+.title {
+    font-weight: 500;
+}
+
+.menu-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: medium !important;
     text-decoration: none;
 }
 
-mat-nav-list{
-    span, svg{
-        color: white;
-    }
+.menu-item:hover {
+    background-color: rgba(0, 0, 0, 0.025);
+}
+
+.menu-item:active {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+mat-nav-list {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1 !important;
+}
+
+.active {
+    color: #5096A4 !important;
+}
+
+.icon {
+    width: 20px;
+}
+
+.last-item {
+    left: 0;
+    right: 0;
+    position: absolute;
+    bottom: 0;
+    cursor: pointer;
+}
+
+.mat-drawer.menu-open {
+    width: 13rem;
+}
+
+.mat-drawer.menu-close {
+    transform: translate3d(0, 0, 0) !important;
+    visibility: visible !important;
+    width: 50px !important;
+    overflow: hidden;
 }
