@@ -15,7 +15,7 @@ export class KanbanTaskCardComponent {
     title: string;
     priority: 'High' | 'Medium' | 'Low';
     category: string;
-    status: 'Finished' | 'Active' | 'Past Due';
+    status: string;
     date: Date;
     id: number;
   }>;
@@ -36,13 +36,5 @@ export class KanbanTaskCardComponent {
       Low: 'neutral',
     } as const;
     return priorityColorMap[this.task.priority];
-  }
-  get statusColor() {
-    const priorityColorMap = {
-      Finished: 'good',
-      Active: 'mid',
-      'Past Due': 'warn',
-    } as const;
-    return priorityColorMap[this.task.status];
   }
 }

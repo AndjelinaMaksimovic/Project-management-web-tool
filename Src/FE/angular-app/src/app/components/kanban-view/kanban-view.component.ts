@@ -6,22 +6,46 @@ import { KanbanTaskCardComponent } from '../kanban-task-card/kanban-task-card.co
   standalone: true,
   imports: [KanbanTaskCardComponent],
   templateUrl: './kanban-view.component.html',
-  styleUrl: './kanban-view.component.css'
+  styleUrl: './kanban-view.component.css',
 })
 export class KanbanViewComponent {
-  @Input() tasks!: Readonly<{
-    title: string;
-    priority: 'High' | 'Medium' | 'Low';
-    category: string;
-    status: 'Finished' | 'Active' | 'Past Due';
-    date: Date;
-    id: number;
-  }[]>;
+  _tasks: Readonly<
+    {
+      title: string;
+      priority: 'High' | 'Medium' | 'Low';
+      category: string;
+      status: string;
+      date: Date;
+      id: number;
+    }[]
+  > = [];
+  @Input()
+  public set tasks(
+    val: Readonly<
+      {
+        title: string;
+        priority: 'High' | 'Medium' | 'Low';
+        category: string;
+        status: string;
+        date: Date;
+        id: number;
+      }[]
+    >
+  ) {
+    this._tasks = val;
+    this.statuses = Array.from(
+      val.reduce((acc, task) => {
+        acc.add(task.status);
+        return acc;
+      }, new Set<string>())
+    );
+  }
+  get tasks() {
+    return this._tasks;
+  }
+  statuses: string[] = [];
 
-  statuses = ['Finished', 'Active', 'Past Due'] as const;
-  // statuses = ["Active", "In Progress", "Pending", "Completed"] as const;
-
-  getTasksOfStatus(status: (typeof this.tasks)[number]["status"]){
+  getTasksOfStatus(status: (typeof this.tasks)[number]['status']) {
     return this.tasks.filter((t) => t.status === status);
   }
 }
