@@ -23,12 +23,18 @@ namespace Codedberries.Models
         public int UserId { get; set; }
 
         [Required]
-        [EnumDataType(typeof(StatusEnum))]
-        public string Status { get; set; }
+        public int StatusId { get; set; }
 
         [Required]
-        [EnumDataType(typeof(PriorityEnum))]
-        public string Priority { get; set; }
+        [ForeignKey("StatusId")]
+        public Status Status { get; set; }
+
+        [Required]
+        public int PriorityId { get; set; }
+
+        [Required]
+        [ForeignKey("PriorityId")]
+        public Priority Priority { get; set; }
 
         [Required]
         public int DifficultyLevel { get; set; }
@@ -50,14 +56,14 @@ namespace Codedberries.Models
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
-        public Task(string name, string description, DateTime dueDate, int userId, string status, string priority, int difficultyLevel, int categoryId, int projectId)
+        public Task(string name, string description, DateTime dueDate, int userId, int statusId, int priorityId, int difficultyLevel, int categoryId, int projectId)
         {
             Name = name;
             Description = description;
             DueDate = dueDate;
             UserId = userId;
-            Status = status;
-            Priority = priority;
+            StatusId = statusId;
+            PriorityId = priorityId;
             DifficultyLevel = difficultyLevel;
             CategoryId = categoryId;
             ProjectId = projectId;
