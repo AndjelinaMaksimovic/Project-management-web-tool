@@ -50,5 +50,20 @@ namespace Codedberries.Controllers
 
             return Ok(allProjectsDTO);
         }
+
+        [HttpDelete("projectDeletion")]
+        public IActionResult DeleteProject([FromBody] ProjectDeletionDTO body)
+        {
+            try
+            {
+                _projectService.DeleteProject(body.ProjectId);
+
+                return Ok("Project and associated tasks successfully deleted.");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+        }
     }
 }
