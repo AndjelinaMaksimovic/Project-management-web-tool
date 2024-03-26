@@ -1,6 +1,7 @@
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -52,6 +53,29 @@ namespace Codedberries.Services
             List<int> projectsIds = _databaseContext.Projects.Select(r => r.Id).ToList();
 
             return new AllProjectsDTO { ProjectsNames = projectsNames, ProjectsIds = projectsIds };
+        }
+
+        public void DeleteProject(int projectId)
+        {
+            var project = _databaseContext.Projects.Find(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {projectId} does not exist.");
+            }
+
+            // all tasks connected with project
+            var tasksOnProject = _databaseContext.Tasks.Where(t => t.ProjectId == projectId).ToList();
+
+            
+            foreach (var task in tasksOnProject)
+            {
+                _taskService.DeleteTask(task.Id);
+            }
+
+            // Nakon brisanja povezanih zadataka, briše i sam projekat iz baze podataka
+            _databaseContext.Projects.Remove(project);
+            _databaseContext.SaveChanges();
         }
     }
 }
