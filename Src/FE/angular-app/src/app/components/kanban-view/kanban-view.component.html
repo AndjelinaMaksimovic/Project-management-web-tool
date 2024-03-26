@@ -1,1 +1,9 @@
-<p>kanban-view works!</p>
+<div style="display: flex; width: 100%;">
+    @for (status of statuses; track status) {
+    <div class="kanban-column">
+        <h2>
+            {{status}}
+        </h2>
+    </div>
+    }
+</div>

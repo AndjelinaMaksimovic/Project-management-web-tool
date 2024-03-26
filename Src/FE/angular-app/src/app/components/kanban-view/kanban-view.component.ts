@@ -16,4 +16,6 @@ export class KanbanViewComponent {
     date: Date;
     id: number;
   }[]>;
+
+  statuses = ["Active", "In Progress", "Pending", "Completed"];
 }
