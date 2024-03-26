@@ -69,13 +69,10 @@ namespace Codedberries.Services
             // all tasks connected with project
             var tasksOnProject = _databaseContext.Tasks.Where(t => t.ProjectId == projectId).ToList();
 
-            // TO-DO after rebase
-            /*
             foreach (var task in tasksOnProject)
             {
                 _taskService.DeleteTask(task.Id);
             }
-            */
 
             _databaseContext.Projects.Remove(project);
             _databaseContext.SaveChanges();
