@@ -16,7 +16,7 @@
     <!-- content -->
     <div style="display: flex; flex-direction: row; align-items: end; justify-content: space-between;">
         <!-- task info -->
-        <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
             <div class="chip chip-neutral">{{task.category}}</div>
             <div [classList]="['chip chip-' + priorityColor]">{{task.priority}}</div>
             <div style="font-size: smaller;">📅 {{task.date.toDateString()}}</div>
