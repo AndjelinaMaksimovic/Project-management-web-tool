@@ -31,7 +31,6 @@ namespace Codedberries.Models
             Description = description;
             DueDate = dueDate;
             StartDate = DateTime.Today; 
-            Starred = false; 
         }
     }
 }
