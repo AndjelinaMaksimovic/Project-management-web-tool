@@ -56,13 +56,17 @@ namespace Codedberries.Controllers
         {
             try
             {
-                _projectService.DeleteProject(body.ProjectId);
+                _projectService.DeleteProject(HttpContext, body.ProjectId);
 
-                return Ok("Project and associated tasks successfully deleted.");
+                return Ok("Project successfully deleted.");
             }
             catch (ArgumentException ex)
             {
                 return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
