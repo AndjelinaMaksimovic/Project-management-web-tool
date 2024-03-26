@@ -9,26 +9,29 @@ import { MaterialModule } from '../../material/material.module';
   styleUrl: './task-card.component.css',
 })
 export class TaskCardComponent {
-  @Input() name: string = "name";
-  @Input() priority: ("High" | "Medium" | "Low") = "Medium";
-  @Input() category: string = "category";
-  @Input() status: ("Finished" | "Active" | "Past Due") = "Finished";
-  @Input() date: string = "date";
+  @Input() task!: {
+    title: string;
+    priority: 'High' | 'Medium' | 'Low';
+    category: string;
+    status: 'Finished' | 'Active' | 'Past Due';
+    date: string;
+    id: number;
+  };
 
-  get priorityColor(){
+  get priorityColor() {
     const priorityColorMap = {
-      "High": "warn",
-      "Medium": "mid",
-      "Low": "neutral",
+      High: 'warn',
+      Medium: 'mid',
+      Low: 'neutral',
     } as const;
-    return priorityColorMap[this.priority];
+    return priorityColorMap[this.task.priority];
   }
-  get statusColor(){
+  get statusColor() {
     const priorityColorMap = {
-      "Finished": "good",
-      "Active": "mid",
-      "Past Due": "warn",
+      Finished: 'good',
+      Active: 'mid',
+      'Past Due': 'warn',
     } as const;
-    return priorityColorMap[this.status];
+    return priorityColorMap[this.task.status];
   }
 }

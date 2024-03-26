@@ -10,8 +10,8 @@ import { TaskCardComponent } from '../task-card/task-card.component';
 })
 export class TasksTableComponent {
   tasks = [
-    { name: 'Task1', category: 'finance', priority: 'Low', status: 'Finished' },
-    { name: 'Task2', category: 'finance', priority: 'High', status: 'Active' },
-    { name: 'Task 3', category: 'finance', priority: 'High', status: 'Finished' },
+    { title: 'Task1', category: 'finance', priority: 'Low', status: 'Finished', date: "teste", id: 1 },
+    { title: 'Task2', category: 'finance', priority: 'High', status: 'Active', date: "teste", id: 2 },
+    { title: 'Task 3', category: 'finance', priority: 'High', status: 'Finished', date: "teste", id: 3 },
   ] as const;
 }

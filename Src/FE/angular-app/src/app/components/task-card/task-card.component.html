@@ -1,9 +1,9 @@
 <div
     style="width: 100%; border-radius: 10px; padding: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; background-color: rgb(240, 240, 240);">
-    <span style="width: 100%;"><strong>{{name}}</strong></span>
-    <span style="width: 100%;" class="chip">{{category}}</span>
-    <span style="width: 100%;" [classList]="['chip chip-' + priorityColor]">{{priority}}</span>
-    <span style="width: 100%;" [classList]="['chip chip-' + statusColor]">{{status}}</span>
+    <span style="width: 100%;"><strong>{{task.title}}</strong></span>
+    <span style="width: 100%;" class="chip">{{task.category}}</span>
+    <span style="width: 100%;" [classList]="['chip chip-' + priorityColor]">{{task.priority}}</span>
+    <span style="width: 100%;" [classList]="['chip chip-' + statusColor]">{{task.status}}</span>
     <div style="width: 100%; display: flex; flex-direction: row; align-items: center; gap: 4px;">
         <!-- delete/edit -->
         <div style="display: flex;">
@@ -13,7 +13,7 @@
         <!-- date -->
         <div style="width: 100%; display: flex; flex-direction: row; align-items: center; gap: 4px;">
             <mat-icon>date_range</mat-icon>
-            <div>{{date}}</div>
+            <div>{{task.date}}</div>
         </div>
     </div>
 </div>
