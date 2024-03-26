@@ -9,11 +9,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly TaskService _taskService;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
+            _taskService = taskService;
         }
 
         public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
