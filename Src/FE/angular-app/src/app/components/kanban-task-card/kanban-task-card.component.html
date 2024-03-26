@@ -1,8 +1,14 @@
 <div class="card">
     <h4 style="margin-top: 0">{{task.title}}</h4>
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-        <div class="chip chip-neutral">{{task.category}}</div>
-        <div [classList]="['chip chip-' + priorityColor]">{{task.priority}}</div>
-        <div>📅 {{task.date.toDateString()}}</div>
+    <!-- content -->
+    <div style="display: flex; flex-direction: row; align-items: end; justify-content: space-between;">
+        <!-- task info -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="chip chip-neutral">{{task.category}}</div>
+            <div [classList]="['chip chip-' + priorityColor]">{{task.priority}}</div>
+            <div>📅 {{task.date.toDateString()}}</div>
+        </div>
+        <!-- avatar -->
+        <div style="width: 32px; height: 32px; border-radius: 100%; background-color: gray;"></div>
     </div>
 </div>
