@@ -5,7 +5,7 @@
             {{status}}
         </h2>
         <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
-        @for (task of tasks; track task) {
+        @for (task of getTasksOfStatus(status); track task) {
             <app-kanban-task-card [task]="task"></app-kanban-task-card>
         }
         </div>
