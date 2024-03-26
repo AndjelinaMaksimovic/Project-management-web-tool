@@ -3,29 +3,34 @@ span {
     text-align: center;
 }
 
+.column-1{
+    width: 100%; display: flex; justify-content: center;
+}
+
 .chip {
-    border-radius: 10px;
-    height: fit-content;
+    border-radius: 5px;
     font-weight: bold;
-    /* background-color: red; */
-    /* color: black; */
-    /* padding: 2px; */
+    padding: 4px;
 }
 
 .chip-warn {
     color: rgb(199, 49, 17);
+    /* background-color: rgb(199, 49, 17, 0.2); */
 }
 
 .chip-mid {
     color: rgb(255, 182, 45);
+    /* background-color: rgb(255, 182, 45, 0.2); */
 }
 
 .chip-good {
     color: green;
+    /* background-color: rgba(0, 128, 0, 0.2); */
 }
 
 .chip-neutral {
     color: rgb(71, 118, 228);
+    /* background-color: rgb(71, 118, 228, 0.2); */
 }
 
 .card {
