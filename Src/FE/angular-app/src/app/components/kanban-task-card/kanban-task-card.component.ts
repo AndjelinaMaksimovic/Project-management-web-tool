@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
+import { MaterialModule } from '../../material/material.module';
 
 @Component({
   selector: 'app-kanban-task-card',
   standalone: true,
-  imports: [],
+  imports: [MaterialModule],
   templateUrl: './kanban-task-card.component.html',
   styleUrl: './kanban-task-card.component.css',
 })

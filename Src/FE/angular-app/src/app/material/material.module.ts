@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatMenuModule } from '@angular/material/menu';
 
 const MaterialComponents = [
   MatButtonModule,
@@ -19,6 +20,7 @@ const MaterialComponents = [
   MatSelectModule,
   MatDialogModule,
   MatButtonToggleModule,
+  MatMenuModule,
 ];
 @NgModule({
   imports: [MaterialComponents],
