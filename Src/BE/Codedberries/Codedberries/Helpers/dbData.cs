@@ -36,12 +36,12 @@ namespace Codedberries.Helpers
              );
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), 1, "Open", "Low", 1, 1, 1),
-                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), 2, "Open", "Low", 1, 1, 2),
-                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), 3, "Open", "Low", 1, 1, 1),
-                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), 2, "Open", "Low", 1, 1, 2),
-                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), 4, "Open", "Low", 1, 1, 1),
-                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(1), 1, "Open", "Low", 1, 1, 2)
+                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), 1, 1, 2, 1, 1, 1),
+                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), 2, 2, 2, 1, 1, 2),
+                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), 3, 3, 1, 1, 1, 1),
+                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), 2, 1, 3, 1, 1, 2),
+                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), 4, 2, 3, 1, 1, 1),
+                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(1), 1, 3, 2, 1, 1, 2)
                 );
 
 
@@ -49,6 +49,18 @@ namespace Codedberries.Helpers
                 new Category("Category 1"),
                 new Category("Category 2"),
                 new Category("Category 3")
+            );
+
+            context.Statuses.AddRange(
+                new Status("Status 1"),
+                new Status("Status 2"),
+                new Status("Status 3")
+            );
+
+            context.Priorities.AddRange(
+                new Priority("Priority 1",3),
+                new Priority("Priority 2", 5),
+                new Priority("Priority 3", 6)
             );
 
 
@@ -91,12 +103,12 @@ namespace Codedberries.Helpers
              );
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), 3, "Open", "Low", 1, 1, 2),
-                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), 2, "Open", "Low", 1, 1, 1),
-                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), 5, "Open", "Low", 1, 1, 2),
-                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), 6, "Open", "Low", 1, 1, 1),
-                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), 1, "Open", "Low", 1, 1, 2),
-                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(2), 1, "Open", "Low", 1, 1, 1)
+                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), 3, 2, 1, 1, 1, 2),
+                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), 2, 3, 1, 1, 1, 1),
+                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), 5, 2, 3, 1, 1, 2),
+                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), 6, 3, 2, 1, 1, 1),
+                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), 1, 1, 1, 1, 1, 2),
+                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(2), 1, 1, 3, 1, 1, 1)
                 );
 
 
@@ -104,6 +116,18 @@ namespace Codedberries.Helpers
                 new Category("Category 1"),
                 new Category("Category 2"),
                 new Category("Category 3")
+            );
+
+             context.Statuses.AddRange(
+                new Status("Status 1"),
+                new Status("Status 2"),
+                new Status("Status 3")
+            );
+
+             context.Priorities.AddRange(
+                new Priority("Priority 1", 3),
+                new Priority("Priority 2", 5),
+                new Priority("Priority 3", 6)
             );
 
 
