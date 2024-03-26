@@ -64,6 +64,10 @@ namespace Codedberries.Controllers
             {
                 return NotFound(new ErrorMsg(ex.Message));
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting the project: {ex.Message}");
+            }
         }
     }
 }
