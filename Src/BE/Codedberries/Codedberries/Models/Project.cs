@@ -19,14 +19,18 @@ namespace Codedberries.Models
 
         public ICollection<User> Users { get; } = new List<User>();
 
-        [ForeignKey("ProjectId")]
-        public int? ParentProjectId { get; set; }
+        public DateTime DueDate { get; set; }
 
-        public Project(string name, int? parentProjectId, string description)
+        public DateTime StartDate { get; set; }
+
+        public Boolean Starred { get; set; }
+
+        public Project(string name, string description, DateTime dueDate)
         {
             Name = name;
-            ParentProjectId = parentProjectId;
             Description = description;
+            DueDate = dueDate;
+            StartDate = DateTime.Today; 
         }
     }
 }

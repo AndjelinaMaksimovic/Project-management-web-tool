@@ -25,7 +25,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create a project!");
             }
 
-            Project project = new Project(request.Name, request.ParentProjectId, request.Description);
+            Project project = new Project(request.Name, request.Description, request.DueDate);
 
             if (request.UserIds != null && request.UserIds.Any())
             {
