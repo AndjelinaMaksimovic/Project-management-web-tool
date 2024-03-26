@@ -69,13 +69,14 @@ namespace Codedberries.Services
             // all tasks connected with project
             var tasksOnProject = _databaseContext.Tasks.Where(t => t.ProjectId == projectId).ToList();
 
-            
+            // TO-DO after rebase
+            /*
             foreach (var task in tasksOnProject)
             {
                 _taskService.DeleteTask(task.Id);
             }
+            */
 
-            // Nakon brisanja povezanih zadataka, briše i sam projekat iz baze podataka
             _databaseContext.Projects.Remove(project);
             _databaseContext.SaveChanges();
         }
