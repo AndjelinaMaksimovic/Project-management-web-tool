@@ -3,14 +3,14 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-type task = {
+type task = Readonly<{
   title: string;
   category: string;
   priority: 'Low' | 'Medium' | 'High';
   status: string;
   date: Date;
   id: number;
-};
+}>;
 /**
  * this function maps task data from the backend to the frontend task format
  * @param apiTask task from the backend response
