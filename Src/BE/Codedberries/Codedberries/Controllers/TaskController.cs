@@ -43,9 +43,13 @@ namespace Codedberries.Controllers
         {
             try
             {
-                var tasks = _taskService.GetTasksByFilters(filterParams);
+                var tasks = _taskService.GetTasksByFilters(HttpContext, filterParams);
 
                 return Ok(tasks);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
             }
             catch (ArgumentException ex)
             {
@@ -53,7 +57,7 @@ namespace Codedberries.Controllers
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg("An error occurred while processing your request."));
             }
         }
 
@@ -68,11 +72,11 @@ namespace Codedberries.Controllers
             }
             catch (ArgumentException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while deleting the task: {ex.Message}");
+                return StatusCode(500, new ErrorMsg($"An error occurred while deleting the task: {ex.Message}"));
             }
         }
     }

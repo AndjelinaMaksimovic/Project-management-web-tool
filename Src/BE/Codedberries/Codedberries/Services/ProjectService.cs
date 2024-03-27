@@ -2,6 +2,7 @@
 using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
 
 namespace Codedberries.Services
 {
@@ -104,6 +105,57 @@ namespace Codedberries.Services
 
             _databaseContext.Projects.Remove(project);
             _databaseContext.SaveChanges();
+        }
+
+        public List<ProjectDTO> GetFilteredProjects(HttpContext httpContext, ProjectFilterDTO filter)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+            
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            IQueryable<Project> query = _databaseContext.Projects;
+
+            if (filter != null)
+            {
+                if (filter.ProjectId.HasValue)
+                    query = query.Where(p => p.Id == filter.ProjectId);
+
+                if (filter.AssignedTo.HasValue)
+                    query = query.Where(p => p.Users.Any(u => u.Id == filter.AssignedTo));
+
+                if (filter.DueDateAfter.HasValue)
+                    query = query.Where(p => p.DueDate > filter.DueDateAfter);
+
+                if (filter.DueDateBefore.HasValue)
+                    query = query.Where(p => p.DueDate < filter.DueDateBefore);
+            }
+            else
+            {
+                throw new ArgumentException("No filters provided for project search!");
+            }
+
+  
+            var projects = query.Select(p => new ProjectDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Users = p.Users.Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                    FirstName = u.Firstname,
+                    LastName = u.Lastname,
+                    ProfilePicture = u.ProfilePicture
+                }).ToList(),
+                DueDate = p.DueDate,
+                StartDate = p.StartDate,
+                Starred = p.Starred
+            }).ToList();
+
+            return projects;
         }
     }
 }
