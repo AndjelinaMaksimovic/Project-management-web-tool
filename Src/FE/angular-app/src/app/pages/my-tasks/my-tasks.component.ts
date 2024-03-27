@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material/material.module';
 import { ClearableInputComponent } from '../../components/clearable-input/clearable-input.component';
@@ -9,7 +10,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 @Component({
   selector: 'app-my-tasks',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ClearableInputComponent, KanbanViewComponent, TasksTableComponent, NavbarComponent],
+  imports: [FormsModule, CommonModule, MaterialModule, ClearableInputComponent, KanbanViewComponent, TasksTableComponent, NavbarComponent],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',
 })
