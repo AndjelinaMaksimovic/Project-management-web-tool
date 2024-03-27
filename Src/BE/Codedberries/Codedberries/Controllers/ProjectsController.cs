@@ -70,7 +70,7 @@ namespace Codedberries.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while deleting the project: {ex.Message}");
+                return StatusCode(500, new ErrorMsg($"An error occurred while deleting the project: {ex.Message}"));
             }
         }
 
