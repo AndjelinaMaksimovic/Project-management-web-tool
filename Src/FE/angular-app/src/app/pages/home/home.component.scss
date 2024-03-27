@@ -1,27 +1,95 @@
-.badge{
-    position: absolute;
-    top: 0px;
-    right: 5px;
-    padding: 2px;
-    /* height: 0; */
-    /* padding-bottom: 100%; */
-    color: white;
-    background-color: lightcoral;
-    border-radius: 50%;
+.container {
+    display: flex;
+    justify-content: center;
 }
 
-p{
-    margin: 0px;
+.column {
+    flex-direction: column;
 }
 
-mat-list-item{
-    margin: 20px;
+.row {
+    flex-direction: row;
 }
 
-.card{
+.input-wrapper {
     position: relative;
-    padding: 20px;
-    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.16);
-    border-radius: 20px;
-    background-color: white;
+    border-radius: 5rem;
+    border: 2px solid black;
+}
+
+.input-icon{
+    position: absolute;
+    left: 1rem;
+    top: calc(50% - 0.5em); /* Keep icon in center of input, regardless of the input height */
+}
+
+.input {
+    height: 3rem;
+    border: 0;
+    border-radius: 5rem;
+    width: 20rem;
+    padding-left: 3rem;
+    padding-right: 1rem;
+}
+
+.input:focus {
+    outline: none !important;
+}
+
+.button {
+    height: 3rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    border-radius: 5rem;
+    color: white;
+    background-color: #5096A4;
+    border: 2px solid black;
+    font-size: medium !important;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+
+    cursor: pointer;
+}
+
+.button:hover {
+    filter: brightness(95%);
+}
+
+.button:active {
+    filter: brightness(90%);
+}
+
+.align-left {
+    text-align: left;
+    justify-content: left;
+}
+
+.small-button {
+    font-size: meidum;
+    cursor: pointer;
+}
+
+.accordion {
+    width: 100%;
+}
+
+.accordion-item {
+    margin-bottom: 10px !important;
+}
+
+.accordion-header {
+    font-size: x-large;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.active {
+    color: #5096A4;
 }

@@ -1,51 +1,29 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatIconModule } from '@angular/material/icon'
-import { MatBadgeModule } from '@angular/material/badge'
-import { DatePipe } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { NgStyle } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { InviteModalComponent } from '../../components/invite-modal/invite-modal.component';
+import { Component, Input } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
+import { ProjectItemComponent } from '../../components/project-item/project-item.component';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ NavbarComponent, MatSidenavModule, MatIconModule, MatBadgeModule, DatePipe, MatButtonModule, NgStyle, RouterModule, TopnavComponent ],
+  imports: [ TopnavComponent, ProjectItemComponent, NgIf ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  styleUrl: './home.component.scss'
 })
-export class HomeComponent{
-  username: string = '';
-  constructor(private authService: AuthService, private dialog: MatDialog) {
-    this.username = authService.currentUserValue?.email || '';
+export class HomeComponent {
+  @Input() mostRecentAccordionVisible: boolean = true;
+  @Input() starredProjectsAccordionVisible: boolean = true;
+  @Input() allProjectsAccordionVisible: boolean = true;
+
+  toggleMostRecentAccordion() {
+    this.mostRecentAccordionVisible = !this.mostRecentAccordionVisible;
   }
 
-  
-  user = {
-    name: "Petar",
-    surname: "Petrovic"
+  toggleStarredProjectsAccordion() {
+    this.starredProjectsAccordionVisible = !this.starredProjectsAccordionVisible;
   }
-  date = new Date()
 
-  projects = [
-    {
-      title: 'Project 1',
-      desc: 'Lorem ipsum dolor sit',
-      progress: 48
-    },
-    {
-      title: 'Project 1',
-      desc: 'Lorem ipsum dolor sit',
-      progress: 48
-    }
-  ]
-
-  addAccount(){
-    this.dialog.open(InviteModalComponent, { autoFocus: false })
+  toggleAllProjectsAccordion() {
+    this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
   }
 }
