@@ -13,7 +13,7 @@ export class TasksTableComponent {
     title: string;
     priority: 'High' | 'Medium' | 'Low';
     category: string;
-    status: 'Finished' | 'Active' | 'Past Due';
+    status: string;
     date: Date;
     id: number;
   }[]>;

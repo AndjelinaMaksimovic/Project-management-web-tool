@@ -15,7 +15,7 @@ export class TaskCardComponent {
     title: string;
     priority: 'High' | 'Medium' | 'Low';
     category: string;
-    status: 'Finished' | 'Active' | 'Past Due';
+    status: string;
     date: Date;
     id: number;
   };
@@ -35,11 +35,11 @@ export class TaskCardComponent {
     return priorityColorMap[this.task.priority];
   }
   get statusColor() {
-    const priorityColorMap = {
+    const priorityColorMap: Partial<Record<string, string>> = {
       Finished: 'good',
       Active: 'mid',
       'Past Due': 'warn',
     } as const;
-    return priorityColorMap[this.task.status];
+    return priorityColorMap[this.task.status] || "neutral";
   }
 }
