@@ -1,0 +1,14 @@
+<!-- header -->
+<!-- tasks -->
+<div style="display: flex; justify-content: space-between;">
+    <h3 style="text-align: center; width: 100%; padding: 0;">Task name</h3>
+    <h3 style="text-align: center; width: 100%; padding: 0;">Category</h3>
+    <h3 style="text-align: center; width: 100%; padding: 0;">Priority</h3>
+    <h3 style="text-align: center; width: 100%; padding: 0;">Status</h3>
+    <h3 style="text-align: center; width: 100%; padding: 0;">Date</h3>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+    @for (task of tasks; track task) {
+    <app-task-card [task]="task"></app-task-card>
+    }
+</div>

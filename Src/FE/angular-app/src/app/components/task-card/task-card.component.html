@@ -1,11 +1,18 @@
-<div
-    style="border-radius: 10px; padding: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; background-color: #EEE;">
-    <span><strong>{{name}}</strong></span>
-    <span class="chip">{{category}}</span>
-    <span class="chip chip-warn">{{priority}}</span>
-    <span class="chip chip-good">{{status}}</span>
-    <div class="chip" style="display: flex; flex-direction: row; align-items: center; gap: 4px;">
-        <mat-icon>date_range</mat-icon>
-        <div>{{date}}</div>
+<div class="card">
+    <span class="column-1"><strong>{{task.title}}</strong></span>
+    <span class="column-1"><div class="chip chip-neutral">{{task.category}}</div></span>
+    <span class="column-1"><div [classList]="['chip chip-' + priorityColor]">{{task.priority === "High" ? "🎯︎ " + task.priority : task.priority}}</div></span>
+    <span class="column-1"><div [classList]="['chip chip-' + statusColor]">{{task.status}}</div></span>
+    <div style="width: 100%; display: flex; justify-content: center; display: flex; flex-direction: row; align-items: center; gap: 4px;">
+        <!-- delete/edit -->
+        <div style="display: flex;">
+            <button mat-icon-button class="small-icon-button" (click)="deleteTask(task.id)"><mat-icon>delete_outline</mat-icon></button>
+            <button mat-icon-button class="small-icon-button"><mat-icon>edit</mat-icon></button>
+        </div>
+        <!-- date -->
+        <div style="width: 100%; display: flex; flex-direction: row; align-items: center; gap: 4px;">
+            <mat-icon>date_range</mat-icon>
+            <div>{{task.date.toDateString()}}</div>
+        </div>
     </div>
 </div>
