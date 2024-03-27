@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-type task = Readonly<{
+export type Task = Readonly<{
   title: string;
   category: string;
   priority: 'Low' | 'Medium' | 'High';
@@ -17,7 +17,7 @@ type task = Readonly<{
  * @returns task in the app format
  * @remarks TODO apiTask format is any and this is not safe. Maybe use Zod for response validation
  */
-function mapTask(apiTask: any): task {
+function mapTask(apiTask: any): Task {
   return {
     title: apiTask.name,
     priority: apiTask.priority,
@@ -32,7 +32,7 @@ function mapTask(apiTask: any): task {
   providedIn: 'root',
 })
 export class TaskService {
-  private tasks: task[] = [];
+  private tasks: Task[] = [];
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     withCredentials: true,
