@@ -89,7 +89,7 @@ namespace Codedberries.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while fetching projects: {ex.Message}");
+                return StatusCode(500, new ErrorMsg($"An error occurred while fetching projects: {ex.Message}"));
             }
         }
     }
