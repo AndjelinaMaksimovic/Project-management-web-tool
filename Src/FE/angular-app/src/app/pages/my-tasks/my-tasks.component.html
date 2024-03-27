@@ -1,20 +1,22 @@
-<div style="height: 100%; width: auto; background-color: white; padding: 20px;">
-    <!-- seearch and create button -->
-    <div style="display: flex; gap: 20px; width: 100%; align-items: center; justify-content: center;">
-        <app-clearable-input label="search tasks" style="margin-bottom: -1.25em;"></app-clearable-input>
-        <button class="button-rounded" mat-flat-button color="primary"><mat-icon>add</mat-icon>Create new task</button>
+<app-navbar>
+    <div style="height: 100%; width: auto; background-color: white; padding: 20px;">
+        <!-- seearch and create button -->
+        <div style="display: flex; gap: 20px; width: 100%; align-items: center; justify-content: center;">
+            <app-clearable-input label="search tasks" style="margin-bottom: -1.25em;"></app-clearable-input>
+            <button class="button-rounded" mat-flat-button color="primary"><mat-icon>add</mat-icon>Create new task</button>
+        </div>
+        <!-- filter/view bar -->
+        <div style="display: flex; justify-content: space-between; background-color: #EEE; border-radius: 4px; width: 100%; padding: 8px; margin-top: 40px;">
+            <button mat-button>
+                <mat-icon>filter_list</mat-icon>
+                Filters
+            </button>
+            <mat-button-toggle-group name="fontStyle" class="dense-3">
+                <mat-button-toggle value="bold" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
+                <mat-button-toggle value="italic" class="test"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>
+                <mat-button-toggle value="underline" class="test"><div class="toggle-button-content"><mat-icon>view_stream</mat-icon>Gantogram</div></mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+        <app-kanban-view [tasks]="tasks"></app-kanban-view>
     </div>
-    <!-- filter/view bar -->
-    <div style="display: flex; justify-content: space-between; background-color: #EEE; border-radius: 4px; width: 100%; padding: 8px; margin-top: 40px;">
-        <button mat-button>
-            <mat-icon>filter_list</mat-icon>
-            Filters
-        </button>
-        <mat-button-toggle-group name="fontStyle" class="dense-3">
-            <mat-button-toggle value="bold" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
-            <mat-button-toggle value="italic" class="test"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>
-            <mat-button-toggle value="underline" class="test"><div class="toggle-button-content"><mat-icon>view_stream</mat-icon>Gantogram</div></mat-button-toggle>
-        </mat-button-toggle-group>
-    </div>
-    <app-kanban-view [tasks]="tasks"></app-kanban-view>
-</div>
+</app-navbar>

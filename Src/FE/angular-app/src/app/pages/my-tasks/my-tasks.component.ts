@@ -3,11 +3,12 @@ import { MaterialModule } from '../../material/material.module';
 import { ClearableInputComponent } from '../../components/clearable-input/clearable-input.component';
 import { KanbanViewComponent } from '../../components/kanban-view/kanban-view.component';
 import { TasksTableComponent } from '../../components/tasks-table/tasks-table.component';
+import { NavbarComponent } from '../../components/navbar/navbar.component';
 
 @Component({
   selector: 'app-my-tasks',
   standalone: true,
-  imports: [MaterialModule, ClearableInputComponent, KanbanViewComponent, TasksTableComponent],
+  imports: [MaterialModule, ClearableInputComponent, KanbanViewComponent, TasksTableComponent, NavbarComponent],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',
 })
