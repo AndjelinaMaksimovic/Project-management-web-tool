@@ -112,6 +112,7 @@ namespace Codedberries.Services
 
             List<ProjectTasksInfoDTO> tasksDTO = tasks.Select(t => new ProjectTasksInfoDTO
             {
+                TaskId = t.Id,
                 Name = t.Name,
                 Description = t.Description,
                 Category = t.Category != null ? t.Category.Name : null,
