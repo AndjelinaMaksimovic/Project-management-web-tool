@@ -93,4 +93,31 @@ export class TaskService {
       console.log(e);
     }
   }
+
+  async createTask(task: Omit<Task, "id">, projectId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Task/createNewTask`, 
+        {
+          "name": task.title,
+          "description": "string",
+          "dueDate": task.date.toISOString(),
+          "status": task.status,
+          "priority": task.priority,
+          "difficultyLevel": 0,
+          "categoryId": 0,
+          "dependencyIds": [
+            0
+          ],
+          "projectId": projectId
+        },
+        {
+          ...this.httpOptions,
+        })
+      );
+      await this.fetchTasks();
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
