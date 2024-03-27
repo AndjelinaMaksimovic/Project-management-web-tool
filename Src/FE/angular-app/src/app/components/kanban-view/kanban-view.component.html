@@ -1,0 +1,14 @@
+<div style="display: flex; width: 100%;">
+    @for (status of statuses; track status) {
+    <div class="kanban-column">
+        <h3 style="text-align: center; margin-top: 0;">
+            {{status}}
+        </h3>
+        <div style="padding: 8px; display: flex; flex-direction: column; gap: 10px; height: 80vh; overflow-y: auto;">
+        @for (task of getTasksOfStatus(status); track task) {
+            <app-kanban-task-card [task]="task"></app-kanban-task-card>
+        }
+        </div>
+    </div>
+    }
+</div>
