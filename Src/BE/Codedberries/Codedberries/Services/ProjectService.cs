@@ -132,6 +132,10 @@ namespace Codedberries.Services
                 if (filter.DueDateBefore.HasValue)
                     query = query.Where(p => p.DueDate < filter.DueDateBefore);
             }
+            else
+            {
+                throw new ArgumentException("No filters provided for project search!");
+            }
 
   
             var projects = query.Select(p => new ProjectDTO
