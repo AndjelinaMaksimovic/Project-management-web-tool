@@ -25,7 +25,9 @@ import { TaskService } from '../../services/task.service';
 })
 export class MyTasksComponent {
   constructor(private taskService: TaskService) {}
-  tasks = this.taskService.getTasks();
+  get tasks() {
+    return this.taskService.getTasks();
+  }
   /** this determines what task view we render */
   view: 'table' | 'kanban' | 'gantt' = 'kanban';
 }
