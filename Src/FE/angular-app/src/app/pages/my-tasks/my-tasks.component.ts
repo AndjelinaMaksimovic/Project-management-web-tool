@@ -25,7 +25,10 @@ import { TaskService } from '../../services/task.service';
 })
 export class MyTasksComponent {
   constructor(private taskService: TaskService) {}
-  get tasks() {
+  ngOnInit(){
+    this.taskService.fetchTasks();
+  }
+  get tasks(){
     return this.taskService.getTasks();
   }
   /** this determines what task view we render */

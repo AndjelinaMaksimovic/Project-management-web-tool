@@ -1,4 +1,7 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 type task = {
   title: string;
@@ -8,66 +11,68 @@ type task = {
   date: Date;
   id: number;
 };
+/**
+ * this function maps task data from the backend to the frontend task format
+ * @param apiTask task from the backend response
+ * @returns task in the app format
+ * @remarks TODO apiTask format is any and this is not safe. Maybe use Zod for response validation
+ */
+function mapTask(apiTask: any): task {
+  return {
+    title: apiTask.name,
+    priority: apiTask.priority,
+    status: apiTask.status,
+    category: apiTask.category,
+    id: apiTask.id,
+    date: new Date(Date.parse(apiTask.dueDate)),
+  };
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-  /** TODO connect with backend; this is only for testing */
-  private _tasks: task[] = [
-    {
-      title: 'Task name 1',
-      category: 'Finance',
-      priority: 'Low',
-      status: 'Active',
-      id: 1,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task 2',
-      category: 'Finance',
-      priority: 'Low',
-      status: 'Active',
-      id: 2,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task 3',
-      category: 'Marketing',
-      priority: 'High',
-      status: 'Past Due',
-      id: 3,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task 4',
-      category: 'Finance',
-      priority: 'High',
-      status: 'Closed',
-      id: 4,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task name 4',
-      category: 'Finance',
-      priority: 'Medium',
-      status: 'Review',
-      id: 5,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task name 5',
-      category: 'Finance',
-      priority: 'Medium',
-      status: 'Review',
-      id: 6,
-      date: new Date('2024'),
-    },
-  ];
+  private tasks: task[] = [];
+  private httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    withCredentials: true,
+    observe: 'response' as 'response',
+  };
 
-  getTasks() {
-    return this._tasks;
+  constructor(private http: HttpClient) {}
+
+  public async fetchTasks() {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Task/projectTasks?projectId=1',
+          this.httpOptions
+        )
+      );
+      this.tasks = res.body.map((task: any) => {
+        return mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
   }
 
-  constructor() {}
+  getTasks() {
+    return this.tasks;
+  }
+
+  async deleteTask(taskId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(environment.apiUrl + `/Task/tasksDeletion`, {
+          ...this.httpOptions,
+          body: { taskId: taskId },
+        })
+      );
+      await this.fetchTasks();
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }

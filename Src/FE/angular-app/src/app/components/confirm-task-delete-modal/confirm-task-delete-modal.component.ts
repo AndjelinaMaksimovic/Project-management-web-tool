@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { TaskService } from '../../services/task.service';
 
 type Data = {
   taskId: number
@@ -15,11 +16,13 @@ type Data = {
 })
 export class ConfirmTaskDeleteModalComponent {
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: Data
+    private taskService: TaskService,
+    public dialogRef: MatDialogRef<ConfirmTaskDeleteModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Data,
  ) {}
 
  async deleteTask(){
-  // TODO implement task service; connect with backend
-  console.log(this.data.taskId);
+  await this.taskService.deleteTask(this.data.taskId);
+  this.dialogRef.close();
  }
 }
