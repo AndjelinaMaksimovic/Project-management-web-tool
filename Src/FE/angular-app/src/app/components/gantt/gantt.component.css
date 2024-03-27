@@ -1,0 +1,20 @@
+*{
+    margin: 0;
+    padding: 0;
+    /* border: 1px solid grey; */
+}
+
+.info{
+    /* width: 50%; */
+}
+.chart{
+    /* width: 50%; */
+    overflow: auto;
+    flex-grow: 1;
+}
+
+.column{
+    display: inline-block;
+    width: 50px;
+    overflow: hidden;
+}
