@@ -4,26 +4,29 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmTaskDeleteModalComponent } from '../confirm-task-delete-modal/confirm-task-delete-modal.component';
 
 @Component({
-  selector: 'app-task-card',
+  selector: 'app-kanban-task-card',
   standalone: true,
   imports: [MaterialModule],
-  templateUrl: './task-card.component.html',
-  styleUrl: './task-card.component.css',
+  templateUrl: './kanban-task-card.component.html',
+  styleUrl: './kanban-task-card.component.css',
 })
-export class TaskCardComponent {
-  @Input() task!: {
+export class KanbanTaskCardComponent {
+  @Input() task!: Readonly<{
     title: string;
     priority: 'High' | 'Medium' | 'Low';
     category: string;
     status: string;
     date: Date;
     id: number;
-  };
+  }>;
 
   constructor(private dialog: MatDialog) {}
 
-  deleteTask(taskId: number){
-    this.dialog.open(ConfirmTaskDeleteModalComponent, { autoFocus: false, data: {taskId: taskId} })
+  deleteTask() {
+    this.dialog.open(ConfirmTaskDeleteModalComponent, {
+      autoFocus: false,
+      data: { taskId: this.task.id },
+    });
   }
 
   get priorityColor() {
@@ -33,13 +36,5 @@ export class TaskCardComponent {
       Low: 'neutral',
     } as const;
     return priorityColorMap[this.task.priority];
-  }
-  get statusColor() {
-    const priorityColorMap: Partial<Record<string, string>> = {
-      Finished: 'good',
-      Active: 'mid',
-      'Past Due': 'warn',
-    } as const;
-    return priorityColorMap[this.task.status] || "neutral";
   }
 }
