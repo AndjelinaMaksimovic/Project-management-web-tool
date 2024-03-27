@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+/**
+ * Task format used within the app
+ */
 export type Task = Readonly<{
   title: string;
   category: string;
@@ -32,6 +35,7 @@ function mapTask(apiTask: any): Task {
   providedIn: 'root',
 })
 export class TaskService {
+  /** in-memory task cache */
   private tasks: Task[] = [];
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -41,6 +45,20 @@ export class TaskService {
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * @returns a list of tasks (current task cache)
+   * @note this doesn't fetch task data from the server, it just returns the current task cache
+   */
+  public getTasks() {
+    return this.tasks;
+  }
+
+  /**
+   * This function is used to update the current tasks cache.
+   * It fetches task data from the backend.
+   * Use it to initialize tasks list or
+   * after deleting/updating/creating tasks
+   */
   public async fetchTasks() {
     try {
       const res = await firstValueFrom(
@@ -58,10 +76,10 @@ export class TaskService {
     return false;
   }
 
-  getTasks() {
-    return this.tasks;
-  }
-
+  /**
+   * this function deletes the given task and automatically re-fetches the task cache
+   * @param taskId id of the task to delete
+   */
   async deleteTask(taskId: number) {
     try {
       const res = await firstValueFrom(
