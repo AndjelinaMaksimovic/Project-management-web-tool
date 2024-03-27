@@ -47,6 +47,10 @@ namespace Codedberries.Controllers
 
                 return Ok(tasks);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
             catch (ArgumentException ex)
             {
                 return BadRequest(new ErrorMsg(ex.Message));
