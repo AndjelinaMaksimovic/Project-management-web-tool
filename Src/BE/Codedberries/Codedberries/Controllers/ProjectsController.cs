@@ -73,5 +73,24 @@ namespace Codedberries.Controllers
                 return StatusCode(500, $"An error occurred while deleting the project: {ex.Message}");
             }
         }
+
+        [HttpGet("filterProjects")]
+        public IActionResult FilterProjects([FromQuery] ProjectFilterDTO filters)
+        {
+            try
+            {
+                var projects = _projectService.GetFilteredProjects(HttpContext, filters);
+
+                return Ok(projects);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg (ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while fetching projects: {ex.Message}");
+            }
+        }
     }
 }
