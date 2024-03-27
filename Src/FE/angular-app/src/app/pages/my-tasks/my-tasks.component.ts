@@ -6,22 +6,26 @@ import { ClearableInputComponent } from '../../components/clearable-input/cleara
 import { KanbanViewComponent } from '../../components/kanban-view/kanban-view.component';
 import { TasksTableComponent } from '../../components/tasks-table/tasks-table.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-my-tasks',
   standalone: true,
-  imports: [FormsModule, CommonModule, MaterialModule, ClearableInputComponent, KanbanViewComponent, TasksTableComponent, NavbarComponent],
+  imports: [
+    FormsModule,
+    CommonModule,
+    MaterialModule,
+    ClearableInputComponent,
+    KanbanViewComponent,
+    TasksTableComponent,
+    NavbarComponent,
+  ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',
 })
 export class MyTasksComponent {
-  tasks = [
-    { title: 'Task name 1', category: 'Finance', priority: 'Low', status: 'Active', id: 1, date: new Date("2024") },
-    { title: 'Task 2', category: 'Finance', priority: 'Low', status: 'Active', id: 1, date: new Date("2024") },
-    { title: 'Task 3', category: 'Marketing', priority: 'High', status: 'Past Due', id: 1, date: new Date("2024") },
-    { title: 'Task 4', category: 'Finance', priority: 'High', status: 'Closed', id: 1, date: new Date("2024") },
-    { title: 'Task name 4', category: 'Finance', priority: 'Medium', status: 'Review', id: 1, date: new Date("2024") },
-    { title: 'Task name 5', category: 'Finance', priority: 'Medium', status: 'Review', id: 1, date: new Date("2024") },
-  ] as const;
-  view: string = "kanban"
+  constructor(private taskService: TaskService) {}
+  tasks = this.taskService.getTasks();
+  /** this determines what task view we render */
+  view: 'table' | 'kanban' | 'gantt' = 'kanban';
 }
