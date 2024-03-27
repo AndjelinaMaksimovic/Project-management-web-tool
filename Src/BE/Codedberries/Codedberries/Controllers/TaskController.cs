@@ -43,7 +43,7 @@ namespace Codedberries.Controllers
         {
             try
             {
-                var tasks = _taskService.GetTasksByFilters(filterParams);
+                var tasks = _taskService.GetTasksByFilters(HttpContext, filterParams);
 
                 return Ok(tasks);
             }
