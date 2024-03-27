@@ -53,8 +53,15 @@ namespace Codedberries.Services
             return task;
         }
 
-        public List<ProjectTasksInfoDTO> GetTasksByFilters(TaskFilterParamsDTO filterParams)
+        public List<ProjectTasksInfoDTO> GetTasksByFilters(HttpContext httpContext, TaskFilterParamsDTO filterParams)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
             System.Linq.IQueryable<Codedberries.Models.Task> query = _databaseContext.Tasks;
 
             if (filterParams == null || filterParams.IsEmpty())
