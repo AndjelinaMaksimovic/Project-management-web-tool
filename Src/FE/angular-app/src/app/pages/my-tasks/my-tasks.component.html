@@ -12,11 +12,15 @@
                 Filters
             </button>
             <mat-button-toggle-group name="fontStyle" class="dense-3">
-                <mat-button-toggle value="bold" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
-                <mat-button-toggle value="italic" class="test"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>
-                <mat-button-toggle value="underline" class="test"><div class="toggle-button-content"><mat-icon>view_stream</mat-icon>Gantogram</div></mat-button-toggle>
+                <mat-button-toggle value="table" class="test" (change)="view='table'"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
+                <mat-button-toggle value="kanban" class="test" (change)="view='kanban'"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>
+                <mat-button-toggle value="gantt" class="test"><div class="toggle-button-content"><mat-icon>view_stream</mat-icon>Gantogram</div></mat-button-toggle>
             </mat-button-toggle-group>
         </div>
-        <app-kanban-view [tasks]="tasks"></app-kanban-view>
+        <div style="margin-top: 20px;"></div>
+        <div [ngSwitch]="view">
+            <app-kanban-view *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
+            <app-tasks-table *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
+        </div>
     </div>
 </app-navbar>
