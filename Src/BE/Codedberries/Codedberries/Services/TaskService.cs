@@ -33,7 +33,7 @@ namespace Codedberries.Services
             }
 
             
-            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, userId.Value, request.Status, request.Priority, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
@@ -71,13 +71,13 @@ namespace Codedberries.Services
                 {
                     query = query.Where(t => t.UserId == filterParams.AssignedTo);
                 }
-                if (!string.IsNullOrEmpty(filterParams.Status))
+                if (filterParams.StatusId.HasValue)
                 {
-                    query = query.Where(t => t.Status == filterParams.Status);
+                    query = query.Where(t => t.StatusId == filterParams.StatusId);
                 }
-                if (!string.IsNullOrEmpty(filterParams.Priority))
+                if (filterParams.PriorityId.HasValue)
                 {
-                    query = query.Where(t => t.Priority == filterParams.Priority);
+                    query = query.Where(t => t.PriorityId == filterParams.PriorityId);
                 }
                 if (filterParams.DifficultyLevelGreaterThan.HasValue)
                 {
@@ -115,8 +115,8 @@ namespace Codedberries.Services
                 Name = t.Name,
                 Description = t.Description,
                 Category = t.Category != null ? t.Category.Name : null,
-                Priority = t.Priority,
-                Status = t.Status,
+                Priority = t.Priority !=null ? t.Priority.Name : null,
+                Status = t.Status !=null ? t.Status.Name : null,
                 DueDate = t.DueDate,
                 AssignedTo = _databaseContext.Users
                     .Where(u => u.Id == t.UserId)
