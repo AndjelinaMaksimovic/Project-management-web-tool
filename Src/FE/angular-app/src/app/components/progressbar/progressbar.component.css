@@ -1,0 +1,24 @@
+.progress-bar {
+    padding: 2px;
+    background-color: #D9D9D9;
+    border-radius: 12px;
+    height: 20px;
+    position: relative;
+    margin-bottom: 10px;
+}
+  
+.progress-fill {
+    background-color: #4caf50;
+    border-radius: 10px;
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+}
+  
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    font-weight: 500;
+}

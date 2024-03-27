@@ -1,0 +1,14 @@
+<div class="container mt-5 mb-5">
+    <div class="container">
+        <div class="color"></div>
+        <a (click)="toggleStarred();" style="cursor: pointer;">
+            <i class="fa-regular fa-star ml-10 lightgray" *ngIf="!starred"></i>
+            <i class="fa-solid fa-star ml-10 lightgray" *ngIf="starred"></i>
+        </a>
+        <p class="project-name ml-10">{{ projectName }}</p>
+    </div>
+    <div class="" style="width: 28rem; margin-top: auto;">
+        <app-progressbar [progress]="progressBarProgress" [color]="progressBarColor"></app-progressbar>
+    </div>
+    <p class="mr-20">{{ dueDate }}</p>
+</div>
