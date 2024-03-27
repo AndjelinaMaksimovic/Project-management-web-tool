@@ -1,11 +1,20 @@
 import { Injectable } from '@angular/core';
 
+type task = {
+  title: string;
+  category: string;
+  priority: 'Low' | 'Medium' | 'High';
+  status: string;
+  date: Date;
+  id: number;
+};
+
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
   /** TODO connect with backend; this is only for testing */
-  private _tasks = [
+  private _tasks: task[] = [
     {
       title: 'Task name 1',
       category: 'Finance',
@@ -54,7 +63,7 @@ export class TaskService {
       id: 6,
       date: new Date('2024'),
     },
-  ] as const;
+  ];
 
   getTasks() {
     return this._tasks;
