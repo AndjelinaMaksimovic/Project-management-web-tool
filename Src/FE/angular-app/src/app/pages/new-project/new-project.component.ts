@@ -2,24 +2,27 @@ import { Component } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatListModule } from '@angular/material/list';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { InvitePopupComponent } from '../../components/invite-popup/invite-popup.component';
 import { TopnavComponent } from "../../components/topnav/topnav.component";
 import { provideNativeDateAdapter } from '@angular/material/core';
-// import { ProjectsService } from '../../services/projects.service';
+import { ProjectService } from '../../services/project.service';
+import { MatIconModule } from '@angular/material/icon';
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'app-new-project',
     standalone: true,
     templateUrl: './new-project.component.html',
     styleUrl: './new-project.component.css',
-    imports: [MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule ],
+    imports: [MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule, MatIconModule, NgIf ],
     providers: [ provideNativeDateAdapter() ]
 })
 export class NewProjectComponent {
-  constructor(private dialogue: MatDialog){}
-  // constructor(private dialogue: MatDialog, private projectService: ProjectsService){}
+  constructor(private dialogue: MatDialog, private projectService: ProjectService, private dialogRef: MatDialogRef<NewProjectComponent>){}
+
+  errorMessage = ""
 
   user = {
     name: "Petar",
@@ -53,31 +56,19 @@ export class NewProjectComponent {
 
   // Add new popup, povezi, na dugme zatvara
   // na home dodaj delete dugme
+  // logout
 
-  createNewProject(){
-    // this.projectService.createNew({name: this.projectName, descripion: this.description, dueDate: this.dueDate.value, userIds: this.usersSelected})
+  async createNewProject(){
+    const res = await this.projectService.createNew({
+      name: this.projectName,
+      description: this.description,
+      dueDate: this.dueDate.value,
+      userIds: this.usersSelected
+    })
+    if(!res){
+      this.errorMessage = 'Error creating project';
+    }else{
+      this.dialogRef.close()
+    }
   }
-  
-  // constructor(private http: HttpClient) { }
-
-  
-  // async createNew(
-  //   obj: any
-  // ): Promise<boolean> {
-  //   try {
-  //     const res = await firstValueFrom(
-  //       this.http.post<any>(
-  //         environment.apiUrl +
-  //           `/createNewProject`,
-  //         obj,
-  //         environment.httpOptions
-  //       )
-  //     );
-  //     if (!res.ok) return false;
-  //     return true;
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  //   return false;
-  // }
 }

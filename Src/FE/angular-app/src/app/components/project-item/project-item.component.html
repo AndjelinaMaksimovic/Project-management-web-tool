@@ -11,4 +11,8 @@
         <app-progressbar [progress]="progressBarProgress" [color]="progressBarColor"></app-progressbar>
     </div>
     <p class="mr-20">{{ dueDate }}</p>
+    
+    <a (click)="deleteProject();" style="cursor: pointer;">
+        <i class="fa-trash fa-star ml-10 lightgray"></i>
+    </a>
 </div>

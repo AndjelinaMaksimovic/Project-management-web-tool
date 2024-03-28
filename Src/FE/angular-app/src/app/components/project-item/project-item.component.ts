@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ProgressbarComponent } from '../progressbar/progressbar.component';
 import { NgIf } from '@angular/common';
+import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'app-project-item',
@@ -10,6 +11,8 @@ import { NgIf } from '@angular/common';
   styleUrl: './project-item.component.css'
 })
 export class ProjectItemComponent {
+  constructor(private projectService: ProjectService){ }
+
   @Input() projectName: string = "";
   @Input() dueDate: string = "";
 
@@ -21,5 +24,9 @@ export class ProjectItemComponent {
 
   toggleStarred() {
     this.starred = !this.starred;
+  }
+
+  deleteProject(){
+    this.projectService.deleteProject(this.id);
   }
 }

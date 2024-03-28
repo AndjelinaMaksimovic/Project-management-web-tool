@@ -3,6 +3,8 @@ import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectItemComponent } from '../../components/project-item/project-item.component';
 import { NgIf } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
+import { MatDialog } from '@angular/material/dialog';
+import { NewProjectComponent } from '../new-project/new-project.component';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +15,7 @@ import { ProjectService } from '../../services/project.service';
 })
 export class HomeComponent {
 
-  constructor(private projectService: ProjectService) {}
+  constructor(private projectService: ProjectService, private dialogue: MatDialog) {}
 
   ngOnInit(){
     this.projectService.fetchProjects();
@@ -36,5 +38,9 @@ export class HomeComponent {
 
   toggleAllProjectsAccordion() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  }
+
+  newProjectPopUp(){
+    this.dialogue.open(NewProjectComponent, { autoFocus: false })
   }
 }
