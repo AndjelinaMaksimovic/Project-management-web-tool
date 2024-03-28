@@ -40,7 +40,7 @@ export class MyTasksComponent {
     return this.taskService.getTasks();
   }
   /** this determines what task view we render */
-  view: 'table' | 'kanban' | 'gantt' = 'kanban';
+  view: 'table' | 'kanban' | 'gantt' = 'table';
 
   createTask(){
     this.dialog.open(TaskCreationModalComponent)
