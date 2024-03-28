@@ -78,6 +78,10 @@ namespace Codedberries.Controllers
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while deleting the task: {ex.Message}"));
