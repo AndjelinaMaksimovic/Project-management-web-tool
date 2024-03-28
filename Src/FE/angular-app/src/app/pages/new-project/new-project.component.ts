@@ -7,7 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { InvitePopupComponent } from '../../components/invite-popup/invite-popup.component';
 import { TopnavComponent } from "../../components/topnav/topnav.component";
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { ProjectsService } from '../../services/projects.service';
+// import { ProjectsService } from '../../services/projects.service';
 
 @Component({
     selector: 'app-new-project',
@@ -18,7 +18,8 @@ import { ProjectsService } from '../../services/projects.service';
     providers: [ provideNativeDateAdapter() ]
 })
 export class NewProjectComponent {
-  constructor(private dialogue: MatDialog, private projectService: ProjectsService){}
+  constructor(private dialogue: MatDialog){}
+  // constructor(private dialogue: MatDialog, private projectService: ProjectsService){}
 
   user = {
     name: "Petar",
@@ -56,4 +57,27 @@ export class NewProjectComponent {
   createNewProject(){
     // this.projectService.createNew({name: this.projectName, descripion: this.description, dueDate: this.dueDate.value, userIds: this.usersSelected})
   }
+  
+  // constructor(private http: HttpClient) { }
+
+  
+  // async createNew(
+  //   obj: any
+  // ): Promise<boolean> {
+  //   try {
+  //     const res = await firstValueFrom(
+  //       this.http.post<any>(
+  //         environment.apiUrl +
+  //           `/createNewProject`,
+  //         obj,
+  //         environment.httpOptions
+  //       )
+  //     );
+  //     if (!res.ok) return false;
+  //     return true;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  //   return false;
+  // }
 }
