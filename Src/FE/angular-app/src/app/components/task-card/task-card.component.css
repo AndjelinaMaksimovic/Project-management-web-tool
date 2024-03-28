@@ -11,6 +11,7 @@ span {
     border-radius: 5px;
     font-weight: bold;
     padding: 4px;
+    font-size: small;
 }
 
 .chip-warn {
@@ -35,8 +36,8 @@ span {
 
 .card {
     width: auto;
-    border-radius: 10px;
-    padding: 8px;
+    border-radius: 5px;
+    padding: 5px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
