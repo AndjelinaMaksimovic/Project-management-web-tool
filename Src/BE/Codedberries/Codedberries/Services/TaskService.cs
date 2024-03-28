@@ -162,6 +162,13 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && !userRole.CanRemoveTask)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to remove task!");
+            }
+
             var task = _databaseContext.Tasks.Find(taskId);
 
             if (task == null)
