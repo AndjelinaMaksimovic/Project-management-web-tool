@@ -27,7 +27,7 @@
             <span>Filter</span>
         </a>
     </div>
-    <div class="container row align-left pl-l pl-r mt-20">
+    <!-- <div class="container row align-left pl-l pl-r mt-20">
         <div class="accordion" #mostRecentAccordion>
             <div class="accordion-item accordion-header" (click)="toggleMostRecentAccordion();">
                 <i class="fa-solid fa-chevron-down mr-10" *ngIf="mostRecentAccordionVisible"></i>
@@ -57,7 +57,7 @@
                 <app-project-item [projectName]="'Project name 1'"[starred]="true" [dueDate]="'April 2024'" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div class="container row align-left pl-l pl-r mt-20">
         <div class="accordion" #allProjectsAccordion>
@@ -67,11 +67,9 @@
                 <span>All projects</span>
             </div>
             <div *ngIf="allProjectsAccordionVisible">
-                <app-project-item [projectName]="'Project name 1'"[starred]="true" [dueDate]="'April 2024'" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
-                <app-project-item [projectName]="'Project name 1'"[starred]="false" [dueDate]="'April 2024'" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
-                <app-project-item [projectName]="'Project name 1'"[starred]="true" [dueDate]="'April 2024'" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
-                <app-project-item [projectName]="'Project name 1'"[starred]="false" [dueDate]="'April 2024'" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
-                <app-project-item [projectName]="'Project name 1'"[starred]="true" [dueDate]="'April 2024'" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                @for (project of projects; track project) {
+                    <app-project-item [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                }
             </div>
         </div>
     </div>
