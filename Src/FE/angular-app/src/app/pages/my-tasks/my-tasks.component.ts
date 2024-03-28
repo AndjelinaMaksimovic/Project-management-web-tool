@@ -32,7 +32,7 @@ export class MyTasksComponent {
 
   ngOnInit(){
     this.route.params.subscribe(params => {
-      this.projectId = params['id'];
+      this.projectId = parseInt(params['id']);
     });
     this.taskService.fetchTasks({projectId: this.projectId});
   }
