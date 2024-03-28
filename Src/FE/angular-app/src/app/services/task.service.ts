@@ -28,9 +28,11 @@ function mapTask(apiTask: any): Task {
     // priority: apiTask.priority,
     // status: apiTask.status,
     // category: apiTask.category,
-    priority: (["Low", "Medium", "High"] as const)[apiTask.taskId % 3],
-    status: (["Active", "Close", "Past Due"] as const)[apiTask.taskId % 3],
-    category: (["Finance", "Marketing", "Development"] as const)[apiTask.taskId % 3],
+    priority: (['Low', 'Medium', 'High'] as const)[apiTask.taskId % 3],
+    status: (['Active', 'Close', 'Past Due'] as const)[apiTask.taskId % 3],
+    category: (['Finance', 'Marketing', 'Development'] as const)[
+      apiTask.taskId % 3
+    ],
     id: apiTask.taskId,
     date: new Date(Date.parse(apiTask.dueDate)),
   };
@@ -42,10 +44,10 @@ function mapTask(apiTask: any): Task {
 export class TaskService {
   /** in-memory task cache */
   private tasks: Task[] = [];
-  
+
   /** for which project/user should we fetch tasks? */
   private context: {
-    projectId?: number
+    projectId?: number;
   } = {};
 
   private httpOptions = {
@@ -65,17 +67,29 @@ export class TaskService {
   }
 
   /**
+   * we use context to determine which tasks we work with.
+   * for what project/user should the tasks be fetched
+   * @param context new context
+   */
+  public setContext(context: { projectId?: number } = {}) {
+    this.context = { ...this.context, ...context };
+    // after changing the context, we need to clear the previous tasks cache
+    this.tasks = [];
+  }
+  /**
    * This function is used to update the current tasks cache.
    * It fetches task data from the backend.
    * Use it to initialize tasks list or
    * after deleting/updating/creating tasks
+   * @param context optional context value
    */
-  public async fetchTasks({projectId}: {projectId?: number} = {}) {
-    if(projectId) this.context.projectId = projectId;
+  public async fetchTasks(context?: { projectId: number }) {
+    if(context) this.setContext(context);
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
-          environment.apiUrl + `/Task/projectTasks?projectId=${this.context.projectId}`,
+          environment.apiUrl +
+            `/Task/projectTasks?projectId=${this.context.projectId}`,
           this.httpOptions
         )
       );
@@ -107,24 +121,26 @@ export class TaskService {
     await this.fetchTasks();
   }
 
-  async createTask(task: Omit<Task, "id">, projectId: number) {
+  async createTask(task: Omit<Task, 'id'>, projectId: number) {
     try {
       const res = await firstValueFrom(
-        this.http.post<any>(environment.apiUrl + `/Task/createNewTask`, 
-        {
-          "name": task.title,
-          "description": task.description,
-          "dueDate": task.date.toISOString(),
-          "statusId": 1,
-          "priorityId": 1,
-          "difficultyLevel": 1,
-          "categoryId": 1,
-          "dependencyIds": [],
-          "projectId": projectId
-        },
-        {
-          ...this.httpOptions,
-        })
+        this.http.post<any>(
+          environment.apiUrl + `/Task/createNewTask`,
+          {
+            name: task.title,
+            description: task.description,
+            dueDate: task.date.toISOString(),
+            statusId: 1,
+            priorityId: 1,
+            difficultyLevel: 1,
+            categoryId: 1,
+            dependencyIds: [],
+            projectId: projectId,
+          },
+          {
+            ...this.httpOptions,
+          }
+        )
       );
       await this.fetchTasks();
     } catch (e) {
