@@ -16,8 +16,8 @@ export class TaskCardComponent {
 
   constructor(private dialog: MatDialog) {}
 
-  deleteTask(taskId: number){
-    this.dialog.open(ConfirmTaskDeleteModalComponent, { autoFocus: false, data: {taskId: taskId} })
+  deleteTask(){
+    this.dialog.open(ConfirmTaskDeleteModalComponent, { autoFocus: false, data: this.task })
   }
 
   get priorityColor() {

@@ -19,7 +19,7 @@ export class KanbanTaskCardComponent {
   deleteTask() {
     this.dialog.open(ConfirmTaskDeleteModalComponent, {
       autoFocus: false,
-      data: { taskId: this.task.id },
+      data: this.task,
     });
   }
 
