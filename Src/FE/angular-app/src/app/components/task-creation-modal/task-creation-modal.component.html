@@ -1,1 +1,16 @@
-<p>task-creation-modal works!</p>
+<div style="padding: 40px;">
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close style="position: absolute; right: 5px; top: 5px;">
+        <mat-icon>close</mat-icon>
+    </button>
+    <div class="centered-content">
+        <div class="stack-container" style="width: max(40vw, 300px);">
+            <h3 style="font-weight: normal; text-align: center;">Create new task</h3>
+            <app-clearable-input type="text" label="Title" (valueChange)="title=$event"></app-clearable-input>
+            <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event"></app-select>
+            <button style="width: 80%; margin: auto" (click)="createTask()" class="button-rounded" color="primary" mat-flat-button>Create Task</button>
+            <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+            </div>
+        </div>
+    </div>
+</div>
