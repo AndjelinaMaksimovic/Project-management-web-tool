@@ -157,6 +157,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User not found!");
             }
 
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
             var task = _databaseContext.Tasks.Find(taskId);
 
             if (task == null)
