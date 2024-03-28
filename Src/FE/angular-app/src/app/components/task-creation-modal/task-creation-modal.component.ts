@@ -9,6 +9,7 @@ import { EmailFieldComponent } from '../../components/email-field/email-field.co
 import { SelectComponent } from '../../components/select/select.component';
 import { RolesService } from '../../services/roles.service';
 import { Task, TaskService } from '../../services/task.service';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-task-creation-modal',
@@ -35,9 +36,12 @@ export class TaskCreationModalComponent {
     { value: 'Low', viewValue: 'Low' },
     { value: 'Medium', viewValue: 'Medium' },
     { value: 'High', viewValue: 'High' },
-  ]
+  ];
 
-  constructor(private taskService: TaskService) {}
+  constructor(
+    private taskService: TaskService,
+    public dialogRef: MatDialogRef<TaskCreationModalComponent>
+  ) {}
 
   async createTask() {
     if (!this.title || !this.date || !this.priority) return;
@@ -46,11 +50,12 @@ export class TaskCreationModalComponent {
         title: this.title,
         date: this.date,
         category: 'Finance',
-        priority: this.priority as ("Low" | "High" | "Medium"),
+        priority: this.priority as 'Low' | 'High' | 'Medium',
         status: 'Active',
       },
       1
     );
+    this.dialogRef.close();
   }
 }
 
