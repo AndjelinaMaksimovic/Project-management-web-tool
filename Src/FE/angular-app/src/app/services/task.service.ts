@@ -103,13 +103,11 @@ export class TaskService {
           "name": task.title,
           "description": "string",
           "dueDate": task.date.toISOString(),
-          "status": task.status,
-          "priority": task.priority,
-          "difficultyLevel": 0,
-          "categoryId": 0,
-          "dependencyIds": [
-            0
-          ],
+          "statusId": 1,
+          "priorityId": 1,
+          "difficultyLevel": 1,
+          "categoryId": 1,
+          "dependencyIds": [],
           "projectId": projectId
         },
         {
