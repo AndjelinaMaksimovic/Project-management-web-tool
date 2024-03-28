@@ -88,10 +88,11 @@ export class TaskService {
           body: { taskId: taskId },
         })
       );
-      await this.fetchTasks();
     } catch (e) {
       console.log(e);
     }
+    // TODO this should go inside try block. Delete endpoint parsing error is causing the problem
+    await this.fetchTasks();
   }
 
   async createTask(task: Omit<Task, "id">, projectId: number) {
