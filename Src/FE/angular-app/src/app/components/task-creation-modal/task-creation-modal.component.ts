@@ -51,6 +51,7 @@ export class TaskCreationModalComponent {
     await this.taskService.createTask(
       {
         title: this.title,
+        description: "description",
         date: new Date(this.date),
         category: 'Finance',
         priority: this.priority as 'Low' | 'High' | 'Medium',

@@ -8,6 +8,7 @@ import { environment } from '../../environments/environment';
  */
 export type Task = Readonly<{
   title: string;
+  description: string;
   category: string;
   priority: 'Low' | 'Medium' | 'High';
   status: string;
@@ -23,6 +24,7 @@ export type Task = Readonly<{
 function mapTask(apiTask: any): Task {
   return {
     title: apiTask.name,
+    description: apiTask.description,
     priority: apiTask.priority,
     status: apiTask.status,
     category: apiTask.category,
@@ -101,7 +103,7 @@ export class TaskService {
         this.http.post<any>(environment.apiUrl + `/Task/createNewTask`, 
         {
           "name": task.title,
-          "description": "string",
+          "description": task.description,
           "dueDate": task.date.toISOString(),
           "statusId": 1,
           "priorityId": 1,
