@@ -17,6 +17,7 @@ export class ProjectItemComponent {
   @Input() progressBarColor: string = "black";
 
   @Input() starred: boolean = false;
+  @Input() id: number = 0;
 
   toggleStarred() {
     this.starred = !this.starred;
