@@ -14,5 +14,6 @@ export const routes: Routes = [
   { path: 'activate', component: ActivateComponent },
   { path: 'new-project', component: NewProjectComponent },
   { path: 'my-tasks', component: MyTasksComponent },
+  { path: 'project/:id/tasks', component: MyTasksComponent },
   { path: '**', component: ErrorComponent },
 ];

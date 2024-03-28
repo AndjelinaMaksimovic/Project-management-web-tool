@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmTaskDeleteModalComponent } from '../confirm-task-delete-modal/confirm-task-delete-modal.component';
+import { Task } from '../../services/task.service';
 
 @Component({
   selector: 'app-task-card',
@@ -11,19 +12,12 @@ import { ConfirmTaskDeleteModalComponent } from '../confirm-task-delete-modal/co
   styleUrl: './task-card.component.css',
 })
 export class TaskCardComponent {
-  @Input() task!: {
-    title: string;
-    priority: 'High' | 'Medium' | 'Low';
-    category: string;
-    status: string;
-    date: Date;
-    id: number;
-  };
+  @Input() task!: Task;
 
   constructor(private dialog: MatDialog) {}
 
-  deleteTask(taskId: number){
-    this.dialog.open(ConfirmTaskDeleteModalComponent, { autoFocus: false, data: {taskId: taskId} })
+  deleteTask(){
+    this.dialog.open(ConfirmTaskDeleteModalComponent, { autoFocus: false, data: this.task })
   }
 
   get priorityColor() {

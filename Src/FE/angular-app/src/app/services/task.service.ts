@@ -1,64 +1,150 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
+
+/**
+ * Task format used within the app
+ */
+export type Task = Readonly<{
+  title: string;
+  description: string;
+  category: string;
+  priority: 'Low' | 'Medium' | 'High';
+  status: string;
+  date: Date;
+  id: number;
+}>;
+/**
+ * this function maps task data from the backend to the frontend task format
+ * @param apiTask task from the backend response
+ * @returns task in the app format
+ * @remarks TODO apiTask format is any and this is not safe. Maybe use Zod for response validation
+ */
+function mapTask(apiTask: any): Task {
+  return {
+    title: apiTask.name,
+    description: apiTask.description,
+    // priority: apiTask.priority,
+    // status: apiTask.status,
+    // category: apiTask.category,
+    priority: (['Low', 'Medium', 'High'] as const)[apiTask.taskId % 3],
+    status: (['Active', 'Close', 'Past Due'] as const)[apiTask.taskId % 3],
+    category: (['Finance', 'Marketing', 'Development'] as const)[
+      apiTask.taskId % 3
+    ],
+    id: apiTask.taskId,
+    date: new Date(Date.parse(apiTask.dueDate)),
+  };
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-  /** TODO connect with backend; this is only for testing */
-  private _tasks = [
-    {
-      title: 'Task name 1',
-      category: 'Finance',
-      priority: 'Low',
-      status: 'Active',
-      id: 1,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task 2',
-      category: 'Finance',
-      priority: 'Low',
-      status: 'Active',
-      id: 2,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task 3',
-      category: 'Marketing',
-      priority: 'High',
-      status: 'Past Due',
-      id: 3,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task 4',
-      category: 'Finance',
-      priority: 'High',
-      status: 'Closed',
-      id: 4,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task name 4',
-      category: 'Finance',
-      priority: 'Medium',
-      status: 'Review',
-      id: 5,
-      date: new Date('2024'),
-    },
-    {
-      title: 'Task name 5',
-      category: 'Finance',
-      priority: 'Medium',
-      status: 'Review',
-      id: 6,
-      date: new Date('2024'),
-    },
-  ] as const;
+  /** in-memory task cache */
+  private tasks: Task[] = [];
 
-  getTasks() {
-    return this._tasks;
+  /** for which project/user should we fetch tasks? */
+  private context: {
+    projectId?: number;
+  } = {};
+
+  private httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    withCredentials: true,
+    observe: 'response' as 'response',
+  };
+
+  constructor(private http: HttpClient) {}
+
+  /**
+   * @returns a list of tasks (current task cache)
+   * @note this doesn't fetch task data from the server, it just returns the current task cache
+   */
+  public getTasks() {
+    return this.tasks;
   }
 
-  constructor() {}
+  /**
+   * we use context to determine which tasks we work with.
+   * for what project/user should the tasks be fetched
+   * @param context new context
+   */
+  public setContext(context: { projectId?: number } = {}) {
+    this.context = { ...this.context, ...context };
+    // after changing the context, we need to clear the previous tasks cache
+    this.tasks = [];
+  }
+  /**
+   * This function is used to update the current tasks cache.
+   * It fetches task data from the backend.
+   * Use it to initialize tasks list or
+   * after deleting/updating/creating tasks
+   * @param context optional context value
+   */
+  public async fetchTasks(context?: { projectId: number }) {
+    if(context) this.setContext(context);
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl +
+            `/Task/projectTasks?projectId=${this.context.projectId}`,
+          this.httpOptions
+        )
+      );
+      this.tasks = res.body.map((task: any) => {
+        return mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  /**
+   * this function deletes the given task and automatically re-fetches the task cache
+   * @param taskId id of the task to delete
+   */
+  async deleteTask(taskId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(environment.apiUrl + `/Task/tasksDeletion`, {
+          ...this.httpOptions,
+          body: { taskId: taskId },
+        })
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    // TODO this should go inside try block. Delete endpoint parsing error is causing the problem
+    await this.fetchTasks();
+  }
+
+  async createTask(task: Omit<Task, 'id'>, projectId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/Task/createNewTask`,
+          {
+            name: task.title,
+            description: task.description,
+            dueDate: task.date.toISOString(),
+            statusId: 1,
+            priorityId: 1,
+            difficultyLevel: 1,
+            categoryId: 1,
+            dependencyIds: [],
+            projectId: this.context.projectId,
+          },
+          {
+            ...this.httpOptions,
+          }
+        )
+      );
+      await this.fetchTasks();
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
