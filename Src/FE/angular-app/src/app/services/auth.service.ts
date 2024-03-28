@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 
 type User = {
   email: string;
@@ -14,15 +15,9 @@ type User = {
 export class AuthService {
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
-
-  private httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-    withCredentials: true,
-    observe: 'response' as 'response'
-  };
   private res: number = 0
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     this.currentUserSubject = new BehaviorSubject<User | null>(
       JSON.parse(localStorage.getItem('currentUser') || 'null')
     );
@@ -43,7 +38,7 @@ export class AuthService {
   async login(email: string, password: string) {
     var r = false
     try {
-      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/login', {email: email, password: password}, this.httpOptions))).ok
+      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/login', {email: email, password: password}, environment.httpOptions))).ok
     } catch (e) {
       console.log(e)
     }
@@ -52,7 +47,7 @@ export class AuthService {
   async register(email: string, firstName: string, lastName: string, roleId: string) {
     var r = false
     try {
-      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Registration/CreateUser', {email: email, firstName: firstName, lastName: lastName, roleId: roleId}, this.httpOptions))).ok
+      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Registration/CreateUser', {email: email, firstName: firstName, lastName: lastName, roleId: roleId}, environment.httpOptions))).ok
     } catch (e) {
       console.log(e)
     }
@@ -70,7 +65,7 @@ export class AuthService {
           environment.apiUrl +
             `/Registration/Activate/${token}/${email}/${password}`,
           {},
-          this.httpOptions
+          environment.httpOptions
         )
       );
       if (!res.ok) return false;
@@ -87,7 +82,7 @@ export class AuthService {
 
     var r = false
     try {
-      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/logout', {}, this.httpOptions))).ok
+      r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/logout', {}, environment.httpOptions))).ok
     } catch (e) {
       console.log(e)
     }
@@ -97,4 +92,15 @@ export class AuthService {
 
     return r
   }
+  loggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+    if(!document.cookie.includes("sessionId")){
+      this.router.navigate(["/login"])
+      return false
+    }
+    return true
+  }
+}
+
+export const LoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+  return inject(AuthService).loggedIn(next, state);
 }

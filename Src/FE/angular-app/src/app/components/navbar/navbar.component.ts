@@ -36,7 +36,7 @@ export class NavbarComponent implements OnInit{
   
   ngOnInit(): void {
     if(!document.cookie.includes("sessionId")){
-      this.router.navigate(['login'])
+      // this.router.navigate(['login'])
     }
   }
   
@@ -51,10 +51,6 @@ export class NavbarComponent implements OnInit{
     else {
       this.navMargin = 3.75;
     }
-  }
-
-  loggedIn(){
-    return document.cookie.includes("sessionId")
   }
   
   async logout(){
