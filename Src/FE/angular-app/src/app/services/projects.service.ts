@@ -18,7 +18,7 @@ export class ProjectsService {
       const res = await firstValueFrom(
         this.http.post<any>(
           environment.apiUrl +
-            `/`,
+            `/createNewProject`,
           obj,
           environment.httpOptions
         )

@@ -49,7 +49,10 @@ export class NewProjectComponent {
     this.dialogue.open(InvitePopupComponent, { autoFocus: false })
   }
 
-  createNewProject(obj: any){
+  // Add new popup, povezi, na dugme zatvara
+  // na home dodaj delete dugme
+
+  createNewProject(){
     // ProjectsService.createNew(obj)
   }
 }
