@@ -135,7 +135,7 @@ export class TaskService {
             difficultyLevel: 1,
             categoryId: 1,
             dependencyIds: [],
-            projectId: projectId,
+            projectId: this.context.projectId,
           },
           {
             ...this.httpOptions,
