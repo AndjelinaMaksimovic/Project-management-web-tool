@@ -29,6 +29,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 export class TaskCreationModalComponent {
   errorMessage: string | null = null;
   title: string | null = null;
+  description: string | null = null;
   date: string | null = null;
   priority: string | null = null;
 
@@ -44,14 +45,14 @@ export class TaskCreationModalComponent {
   ) {}
 
   async createTask() {
-    if (!this.title || !this.date || !this.priority) {
+    if (!this.title || !this.date || !this.priority || !this.description) {
       this.errorMessage = "Please provide all required fields";
       return;
     }
     await this.taskService.createTask(
       {
         title: this.title,
-        description: "description",
+        description: this.description,
         date: new Date(this.date),
         category: 'Finance',
         priority: this.priority as 'Low' | 'High' | 'Medium',
