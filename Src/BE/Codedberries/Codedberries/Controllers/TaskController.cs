@@ -66,13 +66,21 @@ namespace Codedberries.Controllers
         {
             try
             {
-                _taskService.DeleteTask(deletionDTO.TaskId);
+                _taskService.DeleteTask(HttpContext, deletionDTO.TaskId);
 
                 return Ok("Task successfully deleted.");
             }
             catch (ArgumentException ex)
             {
                 return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {

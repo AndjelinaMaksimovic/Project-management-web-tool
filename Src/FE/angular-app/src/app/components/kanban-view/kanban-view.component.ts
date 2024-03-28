@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { KanbanTaskCardComponent } from '../kanban-task-card/kanban-task-card.component';
+import { Task } from '../../services/task.service';
 
 @Component({
   selector: 'app-kanban-view',
@@ -9,28 +10,10 @@ import { KanbanTaskCardComponent } from '../kanban-task-card/kanban-task-card.co
   styleUrl: './kanban-view.component.css',
 })
 export class KanbanViewComponent {
-  _tasks: Readonly<
-    {
-      title: string;
-      priority: 'High' | 'Medium' | 'Low';
-      category: string;
-      status: string;
-      date: Date;
-      id: number;
-    }[]
-  > = [];
+  _tasks: Task[] = [];
   @Input()
   public set tasks(
-    val: Readonly<
-      {
-        title: string;
-        priority: 'High' | 'Medium' | 'Low';
-        category: string;
-        status: string;
-        date: Date;
-        id: number;
-      }[]
-    >
+    val: Task[]
   ) {
     this._tasks = val;
     this.statuses = Array.from(

@@ -7,6 +7,9 @@ import { KanbanViewComponent } from '../../components/kanban-view/kanban-view.co
 import { TasksTableComponent } from '../../components/tasks-table/tasks-table.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { TaskService } from '../../services/task.service';
+import { MatDialog } from '@angular/material/dialog';
+import { TaskCreationModalComponent } from '../../components/task-creation-modal/task-creation-modal.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-my-tasks',
@@ -24,10 +27,22 @@ import { TaskService } from '../../services/task.service';
   styleUrl: './my-tasks.component.css',
 })
 export class MyTasksComponent {
-  constructor(private taskService: TaskService) {}
-  get tasks() {
+  projectId: number = 0;
+  constructor(private taskService: TaskService, private dialog: MatDialog, private route: ActivatedRoute) {}
+
+  ngOnInit(){
+    this.route.params.subscribe(params => {
+      this.projectId = parseInt(params['id']);
+    });
+    this.taskService.fetchTasks({projectId: this.projectId});
+  }
+  get tasks(){
     return this.taskService.getTasks();
   }
   /** this determines what task view we render */
-  view: 'table' | 'kanban' | 'gantt' = 'kanban';
+  view: 'table' | 'kanban' | 'gantt' = 'table';
+
+  createTask(){
+    this.dialog.open(TaskCreationModalComponent)
+  }
 }

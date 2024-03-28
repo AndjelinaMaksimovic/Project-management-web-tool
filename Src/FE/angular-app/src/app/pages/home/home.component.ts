@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectItemComponent } from '../../components/project-item/project-item.component';
 import { NgIf } from '@angular/common';
+import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'app-home',
@@ -11,6 +12,16 @@ import { NgIf } from '@angular/common';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
+
+  constructor(private projectService: ProjectService) {}
+
+  ngOnInit(){
+    this.projectService.fetchProjects();
+  }
+  get projects(){
+    return this.projectService.getProjects();
+  }
+
   @Input() mostRecentAccordionVisible: boolean = true;
   @Input() starredProjectsAccordionVisible: boolean = true;
   @Input() allProjectsAccordionVisible: boolean = true;
