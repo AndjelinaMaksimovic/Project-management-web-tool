@@ -42,6 +42,12 @@ function mapTask(apiTask: any): Task {
 export class TaskService {
   /** in-memory task cache */
   private tasks: Task[] = [];
+  
+  /** for which project/user should we fetch tasks? */
+  private context: {
+    projectId?: number
+  } = {};
+
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     withCredentials: true,
@@ -64,11 +70,12 @@ export class TaskService {
    * Use it to initialize tasks list or
    * after deleting/updating/creating tasks
    */
-  public async fetchTasks() {
+  public async fetchTasks({projectId}: {projectId?: number} = {}) {
+    if(projectId) this.context.projectId = projectId;
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
-          environment.apiUrl + '/Task/projectTasks?projectId=1',
+          environment.apiUrl + `/Task/projectTasks?projectId=${this.context.projectId}`,
           this.httpOptions
         )
       );

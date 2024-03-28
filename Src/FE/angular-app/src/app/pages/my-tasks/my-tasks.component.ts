@@ -9,6 +9,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { TaskCreationModalComponent } from '../../components/task-creation-modal/task-creation-modal.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-my-tasks',
@@ -26,10 +27,14 @@ import { TaskCreationModalComponent } from '../../components/task-creation-modal
   styleUrl: './my-tasks.component.css',
 })
 export class MyTasksComponent {
-  constructor(private taskService: TaskService, private dialog: MatDialog) {}
+  projectId: number = 0;
+  constructor(private taskService: TaskService, private dialog: MatDialog, private route: ActivatedRoute) {}
 
   ngOnInit(){
-    this.taskService.fetchTasks();
+    this.route.params.subscribe(params => {
+      this.projectId = params['id'];
+    });
+    this.taskService.fetchTasks({projectId: this.projectId});
   }
   get tasks(){
     return this.taskService.getTasks();
