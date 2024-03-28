@@ -141,8 +141,15 @@ namespace Codedberries.Services
             return tasksDTO;
         }
 
-        public void DeleteTask(int taskId)
+        public void DeleteTask(HttpContext httpContext, int taskId)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
             var task = _databaseContext.Tasks.Find(taskId);
 
             if (task == null)
