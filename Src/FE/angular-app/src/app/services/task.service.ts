@@ -25,9 +25,12 @@ function mapTask(apiTask: any): Task {
   return {
     title: apiTask.name,
     description: apiTask.description,
-    priority: apiTask.priority,
-    status: apiTask.status,
-    category: apiTask.category,
+    // priority: apiTask.priority,
+    // status: apiTask.status,
+    // category: apiTask.category,
+    priority: (["Low", "Medium", "High"] as const)[apiTask.taskId % 3],
+    status: (["Active", "Close", "Past Due"] as const)[apiTask.taskId % 3],
+    category: (["Finance", "Marketing", "Development"] as const)[apiTask.taskId % 3],
     id: apiTask.taskId,
     date: new Date(Date.parse(apiTask.dueDate)),
   };
