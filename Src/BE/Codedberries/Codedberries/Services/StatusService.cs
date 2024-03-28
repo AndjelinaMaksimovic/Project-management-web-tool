@@ -23,6 +23,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Invalid session!");
             }
 
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
             var newStatus = new Models.Status(statusDTO.Name);
 
             _databaseContext.Statuses.Add(newStatus);
