@@ -26,7 +26,7 @@ function mapTask(apiTask: any): Task {
     priority: apiTask.priority,
     status: apiTask.status,
     category: apiTask.category,
-    id: apiTask.id,
+    id: apiTask.taskId,
     date: new Date(Date.parse(apiTask.dueDate)),
   };
 }
