@@ -8,26 +8,26 @@ import { environment } from '../../environments/environment';
 })
 export class ProjectsService {
 
-  constructor(private http: HttpClient) { }
+  // constructor(private http: HttpClient) { }
 
   
-  async createNew(
-    obj: any
-  ): Promise<boolean> {
-    try {
-      const res = await firstValueFrom(
-        this.http.post<any>(
-          environment.apiUrl +
-            `/createNewProject`,
-          obj,
-          environment.httpOptions
-        )
-      );
-      if (!res.ok) return false;
-      return true;
-    } catch (e) {
-      console.log(e);
-    }
-    return false;
-  }
+  // async createNew(
+  //   obj: any
+  // ): Promise<boolean> {
+  //   try {
+  //     const res = await firstValueFrom(
+  //       this.http.post<any>(
+  //         environment.apiUrl +
+  //           `/createNewProject`,
+  //         obj,
+  //         environment.httpOptions
+  //       )
+  //     );
+  //     if (!res.ok) return false;
+  //     return true;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  //   return false;
+  // }
 }

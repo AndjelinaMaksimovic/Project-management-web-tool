@@ -18,7 +18,7 @@ import { ProjectsService } from '../../services/projects.service';
     providers: [ provideNativeDateAdapter() ]
 })
 export class NewProjectComponent {
-  constructor(private dialogue: MatDialog){}
+  constructor(private dialogue: MatDialog, private projectService: ProjectsService){}
 
   user = {
     name: "Petar",
@@ -27,6 +27,7 @@ export class NewProjectComponent {
 
   projectName = ""
   description = ""
+  usersSelected = []
   dueDate = new FormControl(new Date())
   projects = [
     'pr1',
@@ -53,6 +54,6 @@ export class NewProjectComponent {
   // na home dodaj delete dugme
 
   createNewProject(){
-    // ProjectsService.createNew(obj)
+    // this.projectService.createNew({name: this.projectName, descripion: this.description, dueDate: this.dueDate.value, userIds: this.usersSelected})
   }
 }
