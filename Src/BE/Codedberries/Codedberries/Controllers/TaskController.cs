@@ -66,7 +66,7 @@ namespace Codedberries.Controllers
         {
             try
             {
-                _taskService.DeleteTask(deletionDTO.TaskId);
+                _taskService.DeleteTask(HttpContext, deletionDTO.TaskId);
 
                 return Ok("Task successfully deleted.");
             }
