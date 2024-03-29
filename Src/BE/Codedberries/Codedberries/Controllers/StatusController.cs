@@ -35,5 +35,24 @@ namespace Codedberries.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred while creating the status: {ex.Message}"));
             }
         }
+
+        [HttpGet("allStatuses")]
+        public IActionResult GetAllStatuses()
+        {
+            try
+            {
+                var statuses = _statusService.GetStatuses(HttpContext);
+
+                return Ok(statuses);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while fetching statuses: {ex.Message}"));
+            }
+        }
     }
 }
