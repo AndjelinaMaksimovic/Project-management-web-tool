@@ -84,20 +84,20 @@ export class ProjectService {
   }
 
   async deleteProject(id: number){
-    // try {
-    //   const res = await firstValueFrom(
-    //     this.http.delete<any>(
-    //       environment.apiUrl +
-    //         `/Projects/projectDeletion`,
-    //       {id: id},
-    //       // environment.httpOptions
-    //     )
-    //   );
-    //   if (!res.ok) return false;
-    //   return true;
-    // } catch (e) {
-    //   console.log(e);
-    // }
-    // return false;
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl +
+            `/Projects/projectDeletion`,
+          {
+            ...environment.httpOptions, body: {id: id}
+          }
+        )
+      );
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
   }
 }
