@@ -42,7 +42,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found!");
             }
 
-            if (userRole.CanCreateTask == false)
+            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
