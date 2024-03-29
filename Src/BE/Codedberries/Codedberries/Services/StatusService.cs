@@ -52,5 +52,33 @@ namespace Codedberries.Services
             _databaseContext.Statuses.Add(newStatus);
             await _databaseContext.SaveChangesAsync();
         }
+
+        public List<StatusDTO> GetStatuses(HttpContext httpContext)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            var statuses = _databaseContext.Statuses
+                .Select(s => new StatusDTO
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    ProjectId = s.ProjectId
+                })
+                .ToList();
+
+            return statuses;
+        }
     }
 }
