@@ -52,9 +52,9 @@ namespace Codedberries.Helpers
             );
 
             context.Statuses.AddRange(
-                new Status("Status 1"),
-                new Status("Status 2"),
-                new Status("Status 3")
+                new Status("Status 1", 1),
+                new Status("Status 2", 2),
+                new Status("Status 3", 3)
             );
 
             context.Priorities.AddRange(
@@ -62,10 +62,6 @@ namespace Codedberries.Helpers
                 new Priority("Priority 2", 5),
                 new Priority("Priority 3", 6)
             );
-
-
-
-
 
             context.SaveChanges();
 
@@ -119,9 +115,9 @@ namespace Codedberries.Helpers
             );
 
              context.Statuses.AddRange(
-                new Status("Status 1"),
-                new Status("Status 2"),
-                new Status("Status 3")
+                new Status("Status 1", 1),
+                new Status("Status 2", 2),
+                new Status("Status 3", 3)
             );
 
              context.Priorities.AddRange(
@@ -129,10 +125,6 @@ namespace Codedberries.Helpers
                 new Priority("Priority 2", 5),
                 new Priority("Priority 3", 6)
             );
-
-
-
-
 
             context.SaveChanges();
 
