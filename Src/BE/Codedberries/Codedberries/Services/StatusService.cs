@@ -47,7 +47,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
 
-            var newStatus = new Models.Status(statusDTO.Name);
+            var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
 
             _databaseContext.Statuses.Add(newStatus);
             await _databaseContext.SaveChangesAsync();
