@@ -55,7 +55,7 @@ namespace Codedberries.Services
             {
                 foreach (int user_id in request.UserIds)
                 {
-                    var user = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
+                    var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
 
                     if (user != null)
                     {
