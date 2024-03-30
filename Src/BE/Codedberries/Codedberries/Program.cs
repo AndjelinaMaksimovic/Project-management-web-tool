@@ -27,6 +27,8 @@ namespace Codedberries
             builder.Services.AddScoped<ProjectService>();
             builder.Services.AddScoped<RoleService>();
             builder.Services.AddScoped<TaskService>();
+            builder.Services.AddScoped<StatusService>();
+
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
