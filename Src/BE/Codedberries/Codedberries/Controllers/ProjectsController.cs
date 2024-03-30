@@ -29,6 +29,9 @@ namespace Codedberries.Controllers
                 newProjectInfoDTO.Id = project.Id;
                 newProjectInfoDTO.Name = project.Name;
                 newProjectInfoDTO.Description = project.Description;
+                newProjectInfoDTO.DueDate = project.DueDate;
+                newProjectInfoDTO.Starred = project.Starred;
+                newProjectInfoDTO.StartDate = project.StartDate;
 
                 return Ok(newProjectInfoDTO);
             }
