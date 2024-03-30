@@ -42,11 +42,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var permission = userId.HasValue ? _authorizationService.CanCreateProject(userId.Value) : false;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
 
-            if (!permission)
+            if (userRole != null && userRole.CanCreateProject == false && userRole.CanAddUserToProject)
             {
-                throw new UnauthorizedAccessException("User does not have permission to create a project!");
+                throw new UnauthorizedAccessException("User does not have permission to create project!");
             }
 
             Project project = new Project(request.Name, request.Description, request.DueDate);
