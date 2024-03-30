@@ -10,13 +10,11 @@ namespace Codedberries
         public DbSet<Project> Projects { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Models.Task> Tasks { get; set; }
-
         public DbSet<Invite> Invites { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<UserProject> UserProjects { get; set; }
         public DbSet<Priority> Priorities { get; set; }
-
         public DbSet<Status> Statuses { get; set; }
 
         
@@ -61,10 +59,6 @@ namespace Codedberries
                 .HasIndex(c=>c.Name) 
                 .IsUnique();
 
-            modelBuilder.Entity<Status>()
-                .HasIndex(s => s.Name)
-                .IsUnique();
-
             modelBuilder.Entity<Models.Task>()
               .HasOne(t => t.Status)
               .WithMany()
@@ -74,9 +68,6 @@ namespace Codedberries
               .HasOne(t => t.Priority)
               .WithMany()
               .HasForeignKey(t => t.PriorityId);
-
-
-
         }
 
         public void ApplyMigrations()
