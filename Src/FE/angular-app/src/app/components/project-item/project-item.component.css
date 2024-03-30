@@ -22,3 +22,11 @@
     background-color: #FFCF32;
 }
 
+.samewidth {
+    width: 5rem;
+    text-align: right;
+}
+
+.button {
+    cursor: pointer;
+}

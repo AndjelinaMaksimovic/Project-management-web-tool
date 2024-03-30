@@ -19,7 +19,13 @@ export class ProjectItemComponent {
   @Input() starred: boolean = false;
   @Input() id: number = 0;
 
+  isHovered = false;
+
   toggleStarred() {
     this.starred = !this.starred;
+  }
+
+  toggleHovered() {
+    this.isHovered = !this.isHovered;
   }
 }

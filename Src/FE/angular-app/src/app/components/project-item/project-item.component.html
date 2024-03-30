@@ -1,14 +1,20 @@
-<div class="container mt-5 mb-5">
-    <div class="container">
-        <div class="color"></div>
-        <a (click)="toggleStarred();" style="cursor: pointer;">
-            <i class="fa-regular fa-star ml-10 lightgray" *ngIf="!starred"></i>
-            <i class="fa-solid fa-star ml-10 lightgray" *ngIf="starred"></i>
-        </a>
-        <a [href]="'/project/'+id+'/tasks'" class="project-name ml-10">{{ projectName }}</a>
+<div (mouseenter)="toggleHovered();" (mouseleave)="toggleHovered();">
+    <div class="container mt-5 mb-5">
+        <div class="container">
+            <div class="color"></div>
+            <a (click)="toggleStarred();" style="cursor: pointer;">
+                <i class="fa-regular fa-star ml-10 lightgray" *ngIf="!starred"></i>
+                <i class="fa-solid fa-star ml-10 lightgray" *ngIf="starred"></i>
+            </a>
+            <a [href]="'/project/'+id+'/tasks'" class="project-name ml-10">{{ projectName }}</a>
+        </div>
+        <div class="" style="width: 28rem; margin-top: auto;">
+            <app-progressbar [progress]="progressBarProgress" [color]="progressBarColor"></app-progressbar>
+        </div>
+        <p class="mr-20 samewidth" *ngIf="!isHovered">{{ dueDate }}</p>
+        <div class="mr-20 samewidth" *ngIf="isHovered">
+            <i class="fa-regular fa-trash-can mr-20 button"></i>
+            <i class="fa-solid fa-pen-to-square mr-20 button"></i>
+        </div>
     </div>
-    <div class="" style="width: 28rem; margin-top: auto;">
-        <app-progressbar [progress]="progressBarProgress" [color]="progressBarColor"></app-progressbar>
-    </div>
-    <p class="mr-20">{{ dueDate }}</p>
 </div>
