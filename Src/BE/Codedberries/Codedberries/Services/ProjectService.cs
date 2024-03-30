@@ -24,6 +24,13 @@ namespace Codedberries.Services
         public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
             var permission = userId.HasValue ? _authorizationService.CanCreateProject(userId.Value) : false;
 
             if (!permission)
