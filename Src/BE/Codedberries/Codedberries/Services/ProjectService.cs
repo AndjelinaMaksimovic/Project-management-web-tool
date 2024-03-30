@@ -11,12 +11,14 @@ namespace Codedberries.Services
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
+        private readonly StatusService _statusService;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, StatusService statusService)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _taskService = taskService;
+            _statusService = statusService;
         }
 
         public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
@@ -43,6 +45,10 @@ namespace Codedberries.Services
                     }
                 }
             }
+
+            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
+            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
+            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
 
             _databaseContext.Projects.Add(project);
             await _databaseContext.SaveChangesAsync();
