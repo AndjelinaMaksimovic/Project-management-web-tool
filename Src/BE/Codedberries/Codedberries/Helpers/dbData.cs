@@ -127,9 +127,21 @@ namespace Codedberries.Helpers
             );
 
              context.Statuses.AddRange(
-                new Status("Status 1", 1),
-                new Status("Status 2", 2),
-                new Status("Status 3", 3)
+                new Status("New", 1),
+                new Status("In Progress", 1),
+                new Status("Done", 1),
+                new Status("New", 2),
+                new Status("In Progress", 2),
+                new Status("Done", 2),
+                new Status("New", 3),
+                new Status("In Progress", 3),
+                new Status("Done", 3),
+                new Status("New", 4),
+                new Status("In Progress", 4),
+                new Status("Done", 4),
+                new Status("New", 5),
+                new Status("In Progress", 5),
+                new Status("Done", 5)
             );
 
              context.Priorities.AddRange(
