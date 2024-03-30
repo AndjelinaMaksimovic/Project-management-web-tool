@@ -31,6 +31,17 @@ namespace Codedberries.Services
             }
 
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
             var permission = userId.HasValue ? _authorizationService.CanCreateProject(userId.Value) : false;
 
             if (!permission)
