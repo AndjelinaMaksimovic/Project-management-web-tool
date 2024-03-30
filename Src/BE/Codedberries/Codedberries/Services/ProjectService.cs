@@ -44,7 +44,7 @@ namespace Codedberries.Services
 
             var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
 
-            if (userRole != null && userRole.CanCreateProject == false && userRole.CanAddUserToProject == false)
+            if (userRole != null && userRole.CanCreateProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create project!");
             }
@@ -57,9 +57,13 @@ namespace Codedberries.Services
                 {
                     var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
 
-                    if (user != null)
+                    if (userToAddToProject == null)
                     {
-                        project.Users.Add(user);
+                        throw new ArgumentException($"User with ID {userId} not found.");
+                    }
+                    else
+                    {
+                        project.Users.Add(userToAddToProject);
                     }
                 }
             }
