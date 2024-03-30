@@ -122,9 +122,9 @@ namespace Codedberries.Services
                 TaskId = t.Id,
                 Name = t.Name,
                 Description = t.Description,
-                Category = t.Category != null ? t.Category.Name : null,
-                Priority = t.Priority !=null ? t.Priority.Name : null,
-                Status = t.Status !=null ? t.Status.Name : null,
+                CategoryId = t.CategoryId,
+                PriorityId = t.PriorityId,
+                StatusId = t.StatusId,
                 DueDate = t.DueDate,
                 AssignedTo = _databaseContext.Users
                     .Where(u => u.Id == t.UserId)
