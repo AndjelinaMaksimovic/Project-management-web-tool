@@ -41,7 +41,7 @@ export class TaskService {
       // category: apiTask.category,
       priority: (['Low', 'Medium', 'High'] as const)[apiTask.taskId % 3],
       // status: (['Active', 'Close', 'Past Due'] as const)[apiTask.taskId % 3],
-      status: this.statusService.getStatusMap()[apiTask.statusId] || 'unknown',
+      status: this.statusService.idToName(apiTask.statusId) || 'unknown',
       category: (['Finance', 'Marketing', 'Development'] as const)[
         apiTask.taskId % 3
       ],
@@ -106,6 +106,31 @@ export class TaskService {
     return false;
   }
 
+  /**
+   * this function changes the given task's status to archived and automatically re-fetches the task cache
+   * @param taskId id of the task to delete
+   */
+  async updateTask(task: Partial<Task> & Pick<Task, "id">) {
+    try {
+      const request: Record<string, unknown> = {taskId: task.id};
+      if(task.status) request["statusId"] = this.statusService.nameToId(task.status)
+      if(task.title) request["name"] = task.title;
+      if(task.description) request["description"] = task.description;
+      if(task.date) request["dueDate"] = task.date;
+      const res = await firstValueFrom(
+        this.http.put<any>(
+          environment.apiUrl + `/Task/updateTask`,
+          request,
+          {
+            ...this.httpOptions,
+          }
+        )
+      );
+      await this.fetchTasks();
+    } catch (e) {
+      console.log(e);
+    }
+  }
   /**
    * this function changes the given task's status to archived and automatically re-fetches the task cache
    * @param taskId id of the task to delete
