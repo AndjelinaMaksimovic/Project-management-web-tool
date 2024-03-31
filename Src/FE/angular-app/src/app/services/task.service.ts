@@ -107,24 +107,21 @@ export class TaskService {
   }
 
   /**
-   * this function changes the given task's status to archived and automatically re-fetches the task cache
-   * @param taskId id of the task to delete
+   * this function takes a partial task object and updates the corresponding task accordingly
+   * @param task partial task object. Must have Id
    */
-  async updateTask(task: Partial<Task> & Pick<Task, "id">) {
+  async updateTask(task: Partial<Task> & Pick<Task, 'id'>) {
     try {
-      const request: Record<string, unknown> = {taskId: task.id};
-      if(task.status) request["statusId"] = this.statusService.nameToId(task.status)
-      if(task.title) request["name"] = task.title;
-      if(task.description) request["description"] = task.description;
-      if(task.date) request["dueDate"] = task.date;
+      const request: Record<string, unknown> = { taskId: task.id };
+      if (task.status)
+        request['statusId'] = this.statusService.nameToId(task.status);
+      if (task.title) request['name'] = task.title;
+      if (task.description) request['description'] = task.description;
+      if (task.date) request['dueDate'] = task.date;
       const res = await firstValueFrom(
-        this.http.put<any>(
-          environment.apiUrl + `/Task/updateTask`,
-          request,
-          {
-            ...this.httpOptions,
-          }
-        )
+        this.http.put<any>(environment.apiUrl + `/Task/updateTask`, request, {
+          ...this.httpOptions,
+        })
       );
       await this.fetchTasks();
     } catch (e) {
