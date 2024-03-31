@@ -1,6 +1,7 @@
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -228,6 +229,109 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException("Not enough parameters for task update!");
             }
+
+            var task = await _databaseContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} not found!");
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                task.Name = request.Name;
+            }
+
+            if (!string.IsNullOrEmpty(request.Description))
+            {
+                task.Description = request.Description;
+            }
+
+            if (request.CategoryId.HasValue)
+            {
+                var category = await _databaseContext.Categories.FindAsync(request.CategoryId.Value);
+                if (category == null)
+                {
+                    throw new ArgumentException($"Category with ID {request.CategoryId} not found!");
+                }
+                task.CategoryId = request.CategoryId.Value;
+            }
+
+            if (request.PriorityId.HasValue)
+            {
+                var priority = await _databaseContext.Priorities.FindAsync(request.PriorityId.Value);
+                if (priority == null)
+                {
+                    throw new ArgumentException($"Priority with ID {request.PriorityId} not found!");
+                }
+                task.PriorityId = request.PriorityId.Value;
+            }
+
+            if (request.StatusId.HasValue)
+            {
+                var status = await _databaseContext.Statuses.FindAsync(request.StatusId.Value);
+                if (status == null)
+                {
+                    throw new ArgumentException($"Status with ID {request.StatusId} not found!");
+                }
+                task.StatusId = request.StatusId.Value;
+            }
+
+            if (request.DueDate.HasValue)
+            {
+                task.DueDate = request.DueDate.Value;
+            }
+
+            if (request.UserId.HasValue)
+            {
+                var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
+                
+                if (userToAssign == null)
+                {
+                    throw new ArgumentException($"User with ID {request.UserId} not found!");
+                }
+
+                task.UserId = request.UserId.Value;
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
+            var updatedTaskInfo = new UpdatedTaskInfoDTO
+            {
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                CategoryId = task.CategoryId,
+                PriorityId = task.PriorityId,
+                StatusId = task.StatusId,
+                DueDate = task.DueDate
+            };
+
+            var tasksWithSameNameAndProjectId = await _databaseContext.Tasks
+                .Where(t => t.Name == task.Name && t.ProjectId == task.ProjectId && t.Id != task.Id)
+                .ToListAsync();
+
+            var userIds = tasksWithSameNameAndProjectId
+                .Select(t => t.UserId)
+                .Distinct()
+                .ToList();
+
+            var assignedUsers = await _databaseContext.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToListAsync();
+
+            var userDTOs = assignedUsers.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                FirstName = u.Firstname,
+                LastName = u.Lastname,
+                ProfilePicture = u.ProfilePicture
+            }).ToList();
+
+            updatedTaskInfo.AssignedUsers = userDTOs;
+
+            return updatedTaskInfo;
         }
     }
 }
