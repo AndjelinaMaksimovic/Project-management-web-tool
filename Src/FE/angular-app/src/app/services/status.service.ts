@@ -6,11 +6,13 @@ import { environment } from '../../environments/environment';
 type Status = {
   name: string;
   id: number;
+  projectId: number;
 };
 function mapStatus(apiStatus: any) {
   return {
     name: apiStatus.name,
     id: apiStatus.id,
+    projectId: apiStatus.projectId,
   };
 }
 
