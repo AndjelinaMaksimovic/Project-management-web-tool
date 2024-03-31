@@ -29,7 +29,8 @@ function mapTask(apiTask: any): Task {
     // status: apiTask.status,
     // category: apiTask.category,
     priority: (['Low', 'Medium', 'High'] as const)[apiTask.taskId % 3],
-    status: (['Active', 'Close', 'Past Due'] as const)[apiTask.taskId % 3],
+    // status: (['Active', 'Close', 'Past Due'] as const)[apiTask.taskId % 3],
+    status: apiTask.statusId,
     category: (['Finance', 'Marketing', 'Development'] as const)[
       apiTask.taskId % 3
     ],
@@ -84,7 +85,7 @@ export class TaskService {
    * @param context optional context value
    */
   public async fetchTasks(context?: { projectId: number }) {
-    if(context) this.setContext(context);
+    if (context) this.setContext(context);
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
@@ -103,22 +104,27 @@ export class TaskService {
   }
 
   /**
-   * this function deletes the given task and automatically re-fetches the task cache
+   * this function changes the given task's status to archived and automatically re-fetches the task cache
    * @param taskId id of the task to delete
    */
   async deleteTask(taskId: number) {
     try {
       const res = await firstValueFrom(
-        this.http.delete<any>(environment.apiUrl + `/Task/tasksDeletion`, {
-          ...this.httpOptions,
-          body: { taskId: taskId },
-        })
+        this.http.put<any>(
+          environment.apiUrl + `/Task/updateTask`,
+          {
+            taskId: taskId,
+            statusId: 1,
+          },
+          {
+            ...this.httpOptions,
+          }
+        )
       );
+      await this.fetchTasks();
     } catch (e) {
       console.log(e);
     }
-    // TODO this should go inside try block. Delete endpoint parsing error is causing the problem
-    await this.fetchTasks();
   }
 
   async createTask(task: Omit<Task, 'id'>, projectId: number) {
