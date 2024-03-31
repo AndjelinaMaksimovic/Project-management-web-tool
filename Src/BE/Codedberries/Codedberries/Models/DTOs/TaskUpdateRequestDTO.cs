@@ -11,6 +11,7 @@
         public DateTime? DueDate { get; set; }
         public int? UserId { get; set; }
         public int? DifficultyLevel { get; set; }
+        public int? ProjectId { get; set; }
 
         public bool IsEmpty()
         {
@@ -21,7 +22,8 @@
                    StatusId == null &&
                    DueDate == null &&
                    UserId == null &&
-                   DifficultyLevel == null;
+                   DifficultyLevel == null &&
+                   ProjectId == null;
         }
     }
 }

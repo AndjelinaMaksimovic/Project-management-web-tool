@@ -300,6 +300,18 @@ namespace Codedberries.Services
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
+            if (request.ProjectId.HasValue && request.ProjectId > 0)
+            {
+                var project = await _databaseContext.Projects.FindAsync(request.ProjectId.Value);
+                
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {request.ProjectId} not found!");
+                }
+
+                task.ProjectId = request.ProjectId.Value;
+            }
+
             await _databaseContext.SaveChangesAsync();
 
             var updatedTaskInfo = new UpdatedTaskInfoDTO
@@ -310,7 +322,9 @@ namespace Codedberries.Services
                 CategoryId = task.CategoryId,
                 PriorityId = task.PriorityId,
                 StatusId = task.StatusId,
-                DueDate = task.DueDate
+                DueDate = task.DueDate,
+                DifficultyLevel = task.DifficultyLevel,
+                ProjectId = task.ProjectId 
             };
 
             var tasksWithSameNameAndProjectId = await _databaseContext.Tasks
