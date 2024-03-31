@@ -295,6 +295,11 @@ namespace Codedberries.Services
                 task.UserId = request.UserId.Value;
             }
 
+            if (request.DifficultyLevel.HasValue && request.DifficultyLevel > 0)
+            {
+                task.DifficultyLevel = request.DifficultyLevel.Value;
+            }
+
             await _databaseContext.SaveChangesAsync();
 
             var updatedTaskInfo = new UpdatedTaskInfoDTO
