@@ -18,3 +18,11 @@
     width: 50px;
     overflow: hidden;
 }
+
+.item{
+    background-color: blue;
+    display: inline-block;
+    position: relative;
+    height: 10px;
+    border-radius: 5px;
+}
