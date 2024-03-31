@@ -223,6 +223,11 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have permission to edit task!");
             }
+
+            if (request.TaskId <= 0 || request.IsEmpty())
+            {
+                throw new ArgumentException("Not enough parameters for task update!");
+            }
         }
     }
 }
