@@ -4,15 +4,15 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 type Status = {
-  name: string, id: number,
-}
-function mapStatus(apiStatus: any){
+  name: string;
+  id: number;
+};
+function mapStatus(apiStatus: any) {
   return {
     name: apiStatus.name,
     id: apiStatus.id,
-  }
+  };
 }
-
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +44,12 @@ export class StatusService {
   public getIdMap() {
     return this.IdStatusMap;
   }
+  public idToName(statusId: number) {
+    return this.statusIdMap[statusId];
+  }
+  public nameToId(name: string) {
+    return this.IdStatusMap[name];
+  }
   /**
    * This function is used to update the current tasks cache.
    * It fetches task data from the backend.
@@ -55,20 +61,23 @@ export class StatusService {
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
-          environment.apiUrl +
-            `/Status/allStatuses`,
+          environment.apiUrl + `/Status/allStatuses`,
           this.httpOptions
         )
       );
       this.statuses = res.body.map((task: any) => {
         return mapStatus(task);
       });
-      this.statusIdMap = Object.fromEntries(this.statuses.map((status) => {
-        return [status.id, status.name]
-      }));
-      this.IdStatusMap = Object.fromEntries(this.statuses.map((status) => {
-        return [status.name, status.id]
-      }));
+      this.statusIdMap = Object.fromEntries(
+        this.statuses.map((status) => {
+          return [status.id, status.name];
+        })
+      );
+      this.IdStatusMap = Object.fromEntries(
+        this.statuses.map((status) => {
+          return [status.name, status.id];
+        })
+      );
     } catch (e) {
       console.log(e);
     }
