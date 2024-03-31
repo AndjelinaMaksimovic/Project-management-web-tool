@@ -25,14 +25,14 @@ namespace Codedberries.Services
             }
 
 
-            var permission = userId.HasValue ? _authorizationService.CanCreateTask(userId.Value,request.ProjectId) : false;
+            var permission = userId.HasValue ? _authorizationService.CanCreateTask(userId.Value, request.ProjectId) : false;
 
             if (!permission)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create a task!");
             }
 
-            
+
             Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
@@ -178,7 +178,7 @@ namespace Codedberries.Services
 
             // other tasks depend on this one
             var dependentTasks = _databaseContext.Set<TaskDependency>().Where(td => td.TaskId == taskId).ToList();
-            
+
             if (dependentTasks.Any())
             {
                 throw new InvalidOperationException($"Task with ID {taskId} cannot be deleted because it has dependent tasks!");
@@ -186,7 +186,7 @@ namespace Codedberries.Services
 
             // this task depends on others, if so - delete that relation
             var tasksDependentOnThis = _databaseContext.Set<TaskDependency>().Where(td => td.DependentTaskId == taskId).ToList();
-            
+
             foreach (var dependentTask in tasksDependentOnThis)
             {
                 _databaseContext.Set<TaskDependency>().Remove(dependentTask);
@@ -194,6 +194,35 @@ namespace Codedberries.Services
 
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
+        }
+
+        public async Task<UpdatedTaskInfoDTO> UpdateTask(HttpContext httpContext, TaskUpdateRequestDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit task!");
+            }
         }
     }
 }
