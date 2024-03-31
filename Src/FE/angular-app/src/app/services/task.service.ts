@@ -118,6 +118,9 @@ export class TaskService {
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.date) request['dueDate'] = task.date;
+      // update cache
+      const index = this.tasks.findIndex((t) => t.id === task.id);
+      this.tasks[index] = {...this.tasks[index], ...task};
       const res = await firstValueFrom(
         this.http.put<any>(environment.apiUrl + `/Task/updateTask`, request, {
           ...this.httpOptions,
