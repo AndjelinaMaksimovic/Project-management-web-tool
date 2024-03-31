@@ -8,7 +8,7 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { KanbanTaskCardComponent } from '../kanban-task-card/kanban-task-card.component';
-import { Task } from '../../services/task.service';
+import { Task, TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-kanban-view',
@@ -18,6 +18,7 @@ import { Task } from '../../services/task.service';
   styleUrl: './kanban-view.component.css',
 })
 export class KanbanViewComponent {
+  constructor(private taskService: TaskService){}
   _tasks: Task[] = [];
   @Input()
   public set tasks(
@@ -29,7 +30,7 @@ export class KanbanViewComponent {
         acc.add(task.status);
         return acc;
       }, new Set<string>())
-    );
+    ).sort();
   }
   get tasks() {
     return this._tasks;
@@ -40,16 +41,14 @@ export class KanbanViewComponent {
     return this.tasks.filter((t) => t.status === status);
   }
 
-  drop(event: CdkDragDrop<Task[]>) {
+  async drop(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
-      // transferArrayItem(
-      //   event.previousContainer.data,
-      //   event.container.data,
-      //   event.previousIndex,
-      //   event.currentIndex,
-      // );
+      console.log(event.container.id);
+      console.log("this.getTasksOfStatus(event.previousContainer.id)[event.previousIndex]", this.getTasksOfStatus(event.previousContainer.id)[event.previousIndex])
+      const task = this.getTasksOfStatus(event.previousContainer.id)[event.previousIndex];
+      await this.taskService.updateTask({id: task.id, status: event.container.id});
     }
   }
 }
