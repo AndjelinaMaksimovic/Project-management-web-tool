@@ -314,11 +314,11 @@ namespace Codedberries.Services
             };
 
             var tasksWithSameNameAndProjectId = await _databaseContext.Tasks
-                .Where(t => t.Name == task.Name && t.ProjectId == task.ProjectId && t.Id != task.Id)
+                .Where(t => t.Name == task.Name && t.ProjectId == task.ProjectId)
                 .ToListAsync();
 
             var userIds = tasksWithSameNameAndProjectId
-                .Select(t => t.UserId)
+                .SelectMany(t => new[] { t.UserId })
                 .Distinct()
                 .ToList();
 
