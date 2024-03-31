@@ -18,7 +18,7 @@
         </div>
         @for (item of items; track item) {
             <div>
-                <div style="background-color: blue; display: inline-block; position: relative; height: 10px;" [ngStyle]="{'left': ((item.start - this.chartStartDate) / this.timeScale)*50 + 'px', 'width': ((item.end - item.start) / this.timeScale)*50 + 'px'}"></div>
+                <div class="item" [ngStyle]="{'left': ((item.start - this.chartStartDate) / this.timeScale)*50 + 'px', 'width': ((item.end - item.start) / this.timeScale)*50 + 'px'}"></div>
             </div>
         }
     </div>

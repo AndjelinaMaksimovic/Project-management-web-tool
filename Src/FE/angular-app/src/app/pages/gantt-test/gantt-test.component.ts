@@ -12,7 +12,8 @@ import { Item, GanttColumn, TimeScale } from '../../components/gantt/item';
 export class GanttTestComponent implements OnInit{
   items = [
     new Item("Item 1", Date.now() - TimeScale.day, Date.now()),
-    new Item("Item 2", Date.now(), Date.now() + TimeScale.day)
+    new Item("Item 2", Date.now(), Date.now() + TimeScale.day),
+    new Item("Item 3", Date.now(), Date.now() + TimeScale.day*50)
   ]
   columns = [GanttColumn.title, GanttColumn.users]
 
