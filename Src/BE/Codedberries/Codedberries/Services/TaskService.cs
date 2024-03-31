@@ -248,7 +248,7 @@ namespace Codedberries.Services
                 task.Description = request.Description;
             }
 
-            if (request.CategoryId.HasValue)
+            if (request.CategoryId.HasValue && request.CategoryId > 0)
             {
                 var category = await _databaseContext.Categories.FindAsync(request.CategoryId.Value);
                 if (category == null)
@@ -258,7 +258,7 @@ namespace Codedberries.Services
                 task.CategoryId = request.CategoryId.Value;
             }
 
-            if (request.PriorityId.HasValue)
+            if (request.PriorityId.HasValue && request.PriorityId > 0)
             {
                 var priority = await _databaseContext.Priorities.FindAsync(request.PriorityId.Value);
                 if (priority == null)
@@ -268,7 +268,7 @@ namespace Codedberries.Services
                 task.PriorityId = request.PriorityId.Value;
             }
 
-            if (request.StatusId.HasValue)
+            if (request.StatusId.HasValue && request.StatusId > 0)
             {
                 var status = await _databaseContext.Statuses.FindAsync(request.StatusId.Value);
                 if (status == null)
@@ -283,7 +283,7 @@ namespace Codedberries.Services
                 task.DueDate = request.DueDate.Value;
             }
 
-            if (request.UserId.HasValue)
+            if (request.UserId.HasValue && request.UserId > 0)
             {
                 var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
                 
