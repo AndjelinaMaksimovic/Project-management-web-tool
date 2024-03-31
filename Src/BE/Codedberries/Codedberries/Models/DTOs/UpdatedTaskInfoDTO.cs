@@ -9,6 +9,8 @@
         public int PriorityId { get; set; }
         public int StatusId { get; set; }
         public DateTime DueDate { get; set; }
+        public int DifficultyLevel { get; set; }
+        public int ProjectId { get; set; }
         public List<UserDTO> AssignedUsers { get; set; }
     }
 }
