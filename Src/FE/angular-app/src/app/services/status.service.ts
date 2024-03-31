@@ -38,12 +38,6 @@ export class StatusService {
   public getStatuses() {
     return this.statuses;
   }
-  public getStatusMap() {
-    return this.statusIdMap;
-  }
-  public getIdMap() {
-    return this.IdStatusMap;
-  }
   public idToName(statusId: number) {
     return this.statusIdMap[statusId];
   }
