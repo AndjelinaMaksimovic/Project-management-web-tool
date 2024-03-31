@@ -21,6 +21,7 @@ export class StatusService {
   /** in-memory task cache */
   private statuses: Status[] = [];
   private statusIdMap: Partial<Record<number | string, string>> = {};
+  private IdStatusMap: Partial<Record<string, number>> = {};
 
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -39,6 +40,9 @@ export class StatusService {
   }
   public getStatusMap() {
     return this.statusIdMap;
+  }
+  public getIdMap() {
+    return this.IdStatusMap;
   }
   /**
    * This function is used to update the current tasks cache.
@@ -61,7 +65,10 @@ export class StatusService {
       });
       this.statusIdMap = Object.fromEntries(this.statuses.map((status) => {
         return [status.id, status.name]
-      }))
+      }));
+      this.IdStatusMap = Object.fromEntries(this.statuses.map((status) => {
+        return [status.name, status.id]
+      }));
     } catch (e) {
       console.log(e);
     }
