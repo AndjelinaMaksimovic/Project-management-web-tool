@@ -187,9 +187,6 @@ namespace Codedberries.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Statuses");

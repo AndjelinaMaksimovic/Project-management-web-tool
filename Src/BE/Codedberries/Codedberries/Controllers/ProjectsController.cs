@@ -29,12 +29,23 @@ namespace Codedberries.Controllers
                 newProjectInfoDTO.Id = project.Id;
                 newProjectInfoDTO.Name = project.Name;
                 newProjectInfoDTO.Description = project.Description;
+                newProjectInfoDTO.DueDate = project.DueDate;
+                newProjectInfoDTO.Starred = project.Starred;
+                newProjectInfoDTO.StartDate = project.StartDate;
 
                 return Ok(newProjectInfoDTO);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, new ErrorMsg(ex.Message)); // does not have permission
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message)); // user not found
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while creating the project: {ex.Message}"));
             }
         }
 
