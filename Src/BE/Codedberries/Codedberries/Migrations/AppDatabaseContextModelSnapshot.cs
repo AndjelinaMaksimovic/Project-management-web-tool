@@ -198,7 +198,7 @@ namespace Codedberries.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("Archieved")
+                    b.Property<bool>("Archived")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("CategoryId")

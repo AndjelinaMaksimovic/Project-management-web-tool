@@ -11,7 +11,7 @@ namespace Codedberries.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "Archieved",
+                name: "Archived",
                 table: "Tasks",
                 type: "INTEGER",
                 nullable: false,
@@ -22,7 +22,7 @@ namespace Codedberries.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Archieved",
+                name: "Archived",
                 table: "Tasks");
         }
     }
