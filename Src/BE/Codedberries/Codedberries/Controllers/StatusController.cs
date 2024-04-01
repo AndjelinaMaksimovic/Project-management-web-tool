@@ -36,7 +36,7 @@ namespace Codedberries.Controllers
             }
         }
 
-        [HttpGet("getStatus")]
+        [HttpPost("getStatus")]
         public IActionResult GetStatusByProjectId([FromBody] StatusProjectIdDTO request)
         {
             try
