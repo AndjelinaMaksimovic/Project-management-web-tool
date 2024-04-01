@@ -10,6 +10,7 @@ import {
 import { KanbanTaskCardComponent } from '../kanban-task-card/kanban-task-card.component';
 import { Task, TaskService } from '../../services/task.service';
 import { CommonModule } from '@angular/common';
+import { StatusService } from '../../services/status.service';
 
 @Component({
   selector: 'app-kanban-view',
@@ -19,7 +20,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './kanban-view.component.css',
 })
 export class KanbanViewComponent {
-  constructor(private taskService: TaskService){}
+  constructor(private taskService: TaskService, private statusService: StatusService){}
   mobile: boolean = false;
   ngOnInit() {}
   @HostListener('window:resize', ['$event'])
@@ -36,12 +37,7 @@ export class KanbanViewComponent {
     val: Task[]
   ) {
     this._tasks = val;
-    this.statuses = Array.from(
-      val.reduce((acc, task) => {
-        acc.add(task.status);
-        return acc;
-      }, new Set<string>())
-    ).sort();
+    this.statuses = this.statusService.getStatuses().filter(s => s.projectId === 1).map(s => s.name).sort();
   }
   get tasks() {
     return this._tasks;
