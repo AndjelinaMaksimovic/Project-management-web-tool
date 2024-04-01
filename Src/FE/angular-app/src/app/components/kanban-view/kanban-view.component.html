@@ -1,10 +1,10 @@
-<div style="display: flex; width: 100%;" cdkDropListGroup>
+<div style="display: flex; width: 100%; align-items: stretch" cdkDropListGroup>
     @for (status of statuses; track status) {
     <div class="kanban-column">
         <h3 style="text-align: center; margin-top: 0;">
             {{status}}
         </h3>
-        <div [id]="status" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)" style="display:block; height: 80vh; overflow-y: auto;">
+        <div [id]="status" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)" style="display:block; overflow-y: auto; height: 100%;">
         @for (task of getTasksOfStatus(status); track task) {
             <div cdkDrag style="margin: 8px">
                 <app-kanban-task-card [task]="task"></app-kanban-task-card>

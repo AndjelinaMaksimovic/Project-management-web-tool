@@ -1,5 +1,4 @@
 .kanban-column {
-    /* border: solid; */
     flex-grow: 1;
     border-right: solid;
     border-left: solid;
@@ -7,8 +6,7 @@
     border-color: #dcedff;
     margin-left: -1px;
     margin-right: -1px;
-    height: fit-content;
-    min-height: 200px;
+    width: 100%;
     padding: 0px;
 }
 
