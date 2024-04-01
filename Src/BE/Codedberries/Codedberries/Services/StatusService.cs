@@ -1,6 +1,7 @@
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -120,6 +121,24 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have permission to delete status!");
             }
+
+            var statusToDelete = await _databaseContext.Statuses.FirstOrDefaultAsync(s => s.Id == request.StatusId && s.ProjectId == request.ProjectId);
+
+            if (statusToDelete == null)
+            {
+                throw new ArgumentException($"Status with ID {request.StatusId} and Project ID {request.ProjectId} not found!");
+            }
+
+            var tasksWithStatus = await _databaseContext.Tasks.AnyAsync(t => t.StatusId == request.StatusId && t.ProjectId == request.ProjectId);
+
+            if (tasksWithStatus)
+            {
+                throw new InvalidOperationException($"Tasks with status ID {request.StatusId} exist on project with ID {request.ProjectId}. Cannot delete status!");
+            }
+
+            _databaseContext.Statuses.Remove(statusToDelete);
+
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }
