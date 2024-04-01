@@ -36,8 +36,8 @@ namespace Codedberries.Controllers
             }
         }
 
-        [HttpGet("allStatuses")]
-        public IActionResult GetAllStatuses(StatusProjectIdDTO request)
+        [HttpGet("getStatus")]
+        public IActionResult GetStatusByProjectId(StatusProjectIdDTO request)
         {
             try
             {
