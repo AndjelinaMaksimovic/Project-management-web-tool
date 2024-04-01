@@ -53,6 +53,8 @@ namespace Codedberries.Models
         [ForeignKey("ProjectId")]
         public Project Project { get; set; }
 
+        public Boolean Archived { get; set; }
+
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
