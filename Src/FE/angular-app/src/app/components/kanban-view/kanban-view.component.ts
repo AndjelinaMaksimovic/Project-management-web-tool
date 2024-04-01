@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -21,7 +21,9 @@ import { CommonModule } from '@angular/common';
 export class KanbanViewComponent {
   constructor(private taskService: TaskService){}
   mobile: boolean = false;
-  ngOnInit() {
+  ngOnInit() {}
+  @HostListener('window:resize', ['$event'])
+  onResize(){
     if (window.screen.width < 600) { // 768px portrait
       this.mobile = true;
     } else {
