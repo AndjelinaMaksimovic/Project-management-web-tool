@@ -37,17 +37,21 @@ namespace Codedberries.Controllers
         }
 
         [HttpGet("allStatuses")]
-        public IActionResult GetAllStatuses()
+        public IActionResult GetAllStatuses(StatusProjectIdDTO request)
         {
             try
             {
-                var statuses = _statusService.GetStatuses(HttpContext);
+                var status = _statusService.GetStatusByProjectId(HttpContext, request);
 
-                return Ok(statuses);
+                return Ok(status);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
