@@ -43,7 +43,7 @@ export class KanbanViewComponent {
 
   async drop(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      // if we are in the same column, do nothing
     } else {
       console.log(event.container.id);
       console.log("this.getTasksOfStatus(event.previousContainer.id)[event.previousIndex]", this.getTasksOfStatus(event.previousContainer.id)[event.previousIndex])
