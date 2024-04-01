@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StatusService } from './status.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 /**
  * Task format used within the app
@@ -21,7 +22,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-  constructor(private http: HttpClient, private statusService: StatusService) {}
+  constructor(private http: HttpClient, private statusService: StatusService, private snackBar: MatSnackBar) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -127,6 +128,9 @@ export class TaskService {
         })
       );
       await this.fetchTasks();
+      this.snackBar.open("Task updated successfully", undefined, {
+        duration: 2000,
+      });
     } catch (e) {
       console.log(e);
     }
