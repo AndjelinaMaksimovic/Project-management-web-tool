@@ -6,23 +6,35 @@
 
 .info{
     /* width: 50%; */
+    /* float: left; */
 }
 .chart{
     /* width: 50%; */
     overflow: auto;
     flex-grow: 1;
 }
-
-.column{
+.date-line{
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    background-color: blue;
+}
+.column-width{
     display: inline-block;
+    margin-bottom: -4px; /*fix inline-block whitespace*/
     width: 50px;
     overflow: hidden;
 }
 
-.item{
-    background-color: blue;
+.task{
+    height: 20px;
     display: inline-block;
+    margin-bottom: -4px; /*fix inline-block whitespace*/
     position: relative;
-    height: 10px;
+}
+.task-bar{
+    background-color: blue;
     border-radius: 5px;
+    height: 14px;
+    margin: 3px 0;
 }

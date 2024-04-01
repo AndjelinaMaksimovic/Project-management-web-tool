@@ -1,26 +1,32 @@
 <div style="white-space: nowrap; overflow: auto; display: flex;">
     <div class="info">
         @for (col of columns; track col) {
-            <h4 class="column">{{col}}</h4>
+            <h4 class="column-width">{{col}}</h4>
         }
         @for (item of items; track item) {
             <div>
-                <p class="column">{{item.title}}</p>
+                <p class="column-width task">{{item.title}}</p>
             </div>
         }
     </div>
     <div class="chart">
         <div>
             <!-- @for (_ of [].constructor(100); track _) { -->
-            @for (date of dates; track date) {
-                <span class="column">{{date}}</span>
+            @for (date of dates; track date; let idx = $index) {
+                <!-- <div class="date-line" [ngStyle]="{'left': (idx+columns.length)*50 + 'px'}"></div> -->
+                <span class="column-width">{{date}}</span>
             }
         </div>
         @for (item of items; track item) {
             <div>
-                <div class="item" [ngStyle]="{'left': ((item.start - this.chartStartDate) / this.timeScale)*50 + 'px', 'width': ((item.end - item.start) / this.timeScale)*50 + 'px'}"></div>
+                <!-- 'left': ((item.start - this.chartStartDate) / this.timeScale)*50 + 'px', -->
+                <div class="task" [ngStyle]="{
+                    'left': item.left,
+                    'width': item.width
+                }">
+                    <div class="task-bar"></div>
+                </div>
             </div>
         }
     </div>
 </div>
-<p>end</p>
