@@ -88,13 +88,25 @@ namespace Codedberries.Services
             return statuses;
         }
 
-        public async System.Threading.Tasks.Task DeleteStatusByProjectId(HttpContext httpContext, StatusDeletionDTO request)
+        public async System.Threading.Tasks.Task DeleteStatusesByProjectId(HttpContext httpContext, StatusDeletionDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
             if (userId == null)
             {
                 throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
         }
     }
