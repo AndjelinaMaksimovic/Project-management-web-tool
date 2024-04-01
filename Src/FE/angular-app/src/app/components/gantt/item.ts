@@ -4,7 +4,11 @@ export class Item {
         public start: number,
         public end: number,
         public depends: Items = [],
-        public users: Array<any> = []){}
+        public users: Array<any> = [],
+
+        public left = '',
+        public width = ''
+    ){}
 }
 export type Items = Array<Item>
 export enum GanttColumn {
