@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Codedberries.Services
 {
@@ -85,6 +86,16 @@ namespace Codedberries.Services
             }
 
             return statuses;
+        }
+
+        public async System.Threading.Tasks.Task DeleteStatusByProjectId(HttpContext httpContext, StatusDeletionDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
         }
     }
 }
