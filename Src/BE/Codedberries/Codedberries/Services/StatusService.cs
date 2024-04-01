@@ -53,7 +53,7 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
-        public StatusDTO GetStatusByProjectId(HttpContext httpContext, StatusProjectIdDTO request)
+        public List<StatusDTO> GetStatusByProjectId(HttpContext httpContext, StatusProjectIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -69,19 +69,22 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User not found!");
             }
 
-            var status = _databaseContext.Statuses.FirstOrDefault(s => s.ProjectId == request.ProjectId);
+            var statuses = _databaseContext.Statuses
+                .Where(s => s.ProjectId == request.ProjectId)
+                .Select(s => new StatusDTO
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    ProjectId = s.ProjectId
+                })
+                .ToList();
 
-            if (status == null)
+            if (statuses.Count == 0)
             {
-                throw new ArgumentException($"Status with Project ID {request.ProjectId} not found!");
+                throw new ArgumentException($"No statuses found for Project ID {request.ProjectId}!");
             }
 
-            return new StatusDTO
-            {
-                Id = status.Id,
-                Name = status.Name,
-                ProjectId = status.ProjectId
-            };
+            return statuses;
         }
     }
 }
