@@ -101,6 +101,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             var categories = await _databaseContext.Categories
                 .Where(c => c.ProjectId == request.ProjectId)
                 .Select(c => new CategoryDTO { Id = c.Id, Name = c.Name })
