@@ -1,11 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Codedberries.Models.DTOs
+﻿namespace Codedberries.Models.DTOs
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProjectIdDTO : ControllerBase
+    public class ProjectIdDTO
     {
         public int ProjectId { get; set; }
     }
