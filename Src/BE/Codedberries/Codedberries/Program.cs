@@ -28,6 +28,7 @@ namespace Codedberries
             builder.Services.AddScoped<RoleService>();
             builder.Services.AddScoped<TaskService>();
             builder.Services.AddScoped<StatusService>();
+            builder.Services.AddScoped<CategoryService>();
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
