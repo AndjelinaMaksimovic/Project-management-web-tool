@@ -1,4 +1,5 @@
-﻿using Codedberries.Models.DTOs;
+﻿using Codedberries.Models;
+using Codedberries.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 
 namespace Codedberries.Services
@@ -14,7 +15,7 @@ namespace Codedberries.Services
             _authorizationService = authorizationService;
         }
 
-        public bool CreateNewCategory(HttpContext httpContext, CreateCategoryDTO categoryDTO)
+        public async System.Threading.Tasks.Task CreateNewCategory(HttpContext httpContext, CreateCategoryDTO categoryDTO)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -47,7 +48,17 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create new category!");
             }
 
-            return true;
+            bool categoryExists = _databaseContext.Categories.Any(c => c.Name == categoryDTO.CategoryName && c.ProjectId == categoryDTO.ProjectId);
+
+            if (categoryExists)
+            {
+                throw new InvalidOperationException("Category with the same name already exists in the project!");
+            }
+
+            Category newCategory = new Category(categoryDTO.CategoryName, categoryDTO.ProjectId);
+            
+            _databaseContext.Categories.Add(newCategory);
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }
