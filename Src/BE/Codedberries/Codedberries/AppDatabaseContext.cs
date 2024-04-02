@@ -17,8 +17,6 @@ namespace Codedberries
         public DbSet<Priority> Priorities { get; set; }
         public DbSet<Status> Statuses { get; set; }
 
-        
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=database.db");
@@ -47,7 +45,7 @@ namespace Codedberries
                 .HasKey(e => new { e.TaskId, e.DependentTaskId });
 
             modelBuilder.Entity<Category>()
-                .HasIndex(c => c.Name)
+                .HasIndex(c => new { c.Name, c.ProjectId })
                 .IsUnique();
 
             modelBuilder.Entity<Models.Task>()
