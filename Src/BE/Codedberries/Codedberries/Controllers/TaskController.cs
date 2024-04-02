@@ -87,5 +87,28 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while deleting the task: {ex.Message}"));
             }
         }
+
+        [HttpPut("updateTask")]
+        public async Task<IActionResult> UpdateTask([FromBody] TaskUpdateRequestDTO request)
+        {
+            try
+            {
+                var updatedTaskInfo = await _taskService.UpdateTask(HttpContext, request);
+
+                return Ok(updatedTaskInfo);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new ErrorMsg(ex.Message)); // unauthorized
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating the task: {ex.Message}"));
+            }
+        }
     }
 }
