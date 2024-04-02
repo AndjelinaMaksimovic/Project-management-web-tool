@@ -36,22 +36,53 @@ namespace Codedberries.Controllers
             }
         }
 
-        [HttpGet("allStatuses")]
-        public IActionResult GetAllStatuses()
+        [HttpPost("getStatus")]
+        public IActionResult GetStatusByProjectId([FromBody] StatusProjectIdDTO request)
         {
             try
             {
-                var statuses = _statusService.GetStatuses(HttpContext);
+                var status = _statusService.GetStatusByProjectId(HttpContext, request);
 
-                return Ok(statuses);
+                return Ok(status);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while fetching statuses: {ex.Message}"));
+            }
+        }
+
+        [HttpDelete("deleteStatus")]
+        public async Task<IActionResult> DeleteStatus(StatusDeletionDTO request)
+        {
+            try
+            {
+                await _statusService.DeleteStatusesByProjectId(HttpContext, request);
+
+                return Ok("Status successfully deleted.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while deleting status: {ex.Message}"));
             }
         }
     }
