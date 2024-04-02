@@ -1,40 +1,46 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { GanttColumn, Items, TimeScale } from './item';
-import { formatDate, NgStyle } from '@angular/common';
+import { formatDate, NgIf, NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-gantt',
   standalone: true,
-  imports: [ NgStyle ],
+  imports: [ NgStyle, NgIf ],
   templateUrl: './gantt.component.html',
   styleUrl: './gantt.component.css'
 })
 
 export class GanttComponent implements OnInit{
   @Input() items: Items = []
-  @Input() columns: GanttColumn[] = [GanttColumn.title]
+  @Input() columns: GanttColumn[] = [GanttColumn.tasks]
+  @Input() colWidths: number[] = [100]
   @Input() timeScale: TimeScale = TimeScale.day
-  
+
   dates!: string[]
   chartStartDate!: number
 
-  constructor(){
-  }
+  columnWidth = 40
+  taskHeight = 20
+  barHeight = 14
+
+  GanttColumn = GanttColumn // must be declared to be used in html
 
   ngOnInit(): void {
     this.initTimeHeader()
 
     this.items.forEach(item => {
-      item.left = Math.floor((item.start - this.chartStartDate) / this.timeScale)*50 + 'px'
-      item.width = (Math.floor((item.end - item.start) / this.timeScale)+1)*50 + 'px'
-
-      item.left = Math.floor((item.start - this.chartStartDate) / this.timeScale)*50 + 'px'
-      item.width = (Math.floor((item.end - item.start) / this.timeScale)+1)*50 + 'px'
+      item.left = Math.floor((item.start - this.chartStartDate) / this.timeScale)*this.columnWidth + 'px'
+      item.width = (Math.floor((item.end - item.start) / this.timeScale)+1)*this.columnWidth + 'px'
     });
+  }
+
+  colOffset(idx: number){
+    return this.colWidths.slice(0, idx+1).reduce((a,b)=>a+b,0)
   }
 
   includeDay(day: number, holidays: Date[]){
     const d = new Date(day);
+    d.setHours(0, 0, 0, 0)
     day = d.getDay();
     if (day >= 1 && day <= 5 && !holidays.includes(d))
       return true
@@ -49,11 +55,15 @@ export class GanttComponent implements OnInit{
     this.dates = Array(len)
       .fill(this.chartStartDate)
       .map((v, i) => {
-        return v + i*this.timeScale // dates = range(project_start, project_end, timeScale)
+        return v + i*this.timeScale // dates = range(project_start, project_end, timeScale) // inclusive
+      })
+      .filter((v, i) => {
+        return this.includeDay(v, []) // remove weekend and holiday
       })
       .map((v) => {
+        // const format = this.timeScale == TimeScale.day ? "d EEEEE" : "d:h"
         const format = this.timeScale == TimeScale.day ? "d EEEEE" : "d:h"
-        return formatDate(v, format, "en-US") // bug? day starts at UTC (+1 for serbia), should start at local timezone
+        return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset?
       })
   }
 }
