@@ -1,0 +1,31 @@
+.main-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    display: flex;
+}
+
+.icon {
+    margin: auto;
+    font-size: large;
+    width: 15px;
+}
+
+.title {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-weight: 500;
+    font-size: larger;
+}
+
+.desc {
+    margin: 0;
+    padding-left: 25px;
+}
+
+.bold {
+    font-weight: 500;
+}
