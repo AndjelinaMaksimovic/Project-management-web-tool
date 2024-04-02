@@ -18,6 +18,8 @@ namespace Codedberries.Models
         public string Description { get; set; }
 
         public ICollection<User> Users { get; } = new List<User>();
+        public ICollection<Status> Statuses { get; set; }
+        public ICollection<Category> Categories { get; set; }
 
         public DateTime DueDate { get; set; }
 
