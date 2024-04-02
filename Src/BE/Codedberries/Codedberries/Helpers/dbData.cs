@@ -46,9 +46,12 @@ namespace Codedberries.Helpers
 
 
             context.Categories.AddRange(
-                new Category("Category 1"),
-                new Category("Category 2"),
-                new Category("Category 3")
+                new Category("Category 1", 1),
+                new Category("Category 2", 2),
+                new Category("Category 3", 3),
+                new Category("Category 4", 1),
+                new Category("Category 5", 1),
+                new Category("Category 6", 2)
             );
 
             context.Statuses.AddRange(
@@ -121,12 +124,15 @@ namespace Codedberries.Helpers
 
 
             context.Categories.AddRange(
-                new Category("Category 1"),
-                new Category("Category 2"),
-                new Category("Category 3")
+                new Category("Category 1", 1),
+                new Category("Category 2", 2),
+                new Category("Category 3", 3),
+                new Category("Category 4", 1),
+                new Category("Category 5", 1),
+                new Category("Category 6", 2)
             );
 
-             context.Statuses.AddRange(
+            context.Statuses.AddRange(
                 new Status("New", 1),
                 new Status("In Progress", 1),
                 new Status("Done", 1),
