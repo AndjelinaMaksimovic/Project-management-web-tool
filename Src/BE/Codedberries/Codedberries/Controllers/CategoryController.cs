@@ -1,4 +1,5 @@
-﻿using Codedberries.Models.DTOs;
+﻿using Codedberries.Helpers;
+using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,11 @@ namespace Codedberries.Controllers
         }
 
         [HttpPost("createNewCategory")]
-        public async Task<IActionResult> CreateNewCategory([FromBody] CreateCategoryDTO categoryDTO)
+        public async Task<IActionResult> CreateNewCategory([FromBody] CreateCategoryDTO request)
         {
             try
             {
-                await _categoryService.CreateNewCategory(HttpContext, categoryDTO);
+                await _categoryService.CreateNewCategory(HttpContext, request);
 
                 return Ok("Category created successfully.");
             }
@@ -31,11 +32,34 @@ namespace Codedberries.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("allProjectCategories")]
+        public async Task<IActionResult> GetAllProjectCategories([FromBody] ProjectIdDTO request)
+        {
+            try
+            {
+                var categories = await _categoryService.GetAllProjectCategories(HttpContext, request);
+                
+                return Ok(categories);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
     }
