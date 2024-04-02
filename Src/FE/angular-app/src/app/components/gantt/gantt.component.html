@@ -1,30 +1,44 @@
-<div style="white-space: nowrap; overflow: auto; display: flex;">
+<div style="white-space: nowrap; overflow: auto; display: flex; background-color: white;">
     <div class="info">
-        @for (col of columns; track col) {
-            <h4 class="column-width">{{col}}</h4>
-        }
-        @for (item of items; track item) {
-            <div>
-                <p class="column-width task">{{item.title}}</p>
+        @for (col of columns; track col; let idx = $index) {
+            <div class="header text-align-center" [style.width]="colWidths[idx]+'px'">
+                <div class="date-line" [style.left]="colOffset(idx)"></div>
+                <h4 class="column-display">{{col}}</h4>
+            </div>
+            <div class="float-left column-display"  [style.width]="colWidths[idx]+'px'">
+                @for (item of items; track item) {
+                    <div *ngIf="item.display">
+                        <p class="task" *ngIf="col == GanttColumn.tasks">{{item.title}}</p>
+                        <p class="task" *ngIf="col == GanttColumn.users">{{item.users}}</p>
+                    </div>
+                }
             </div>
         }
     </div>
     <div class="chart">
-        <div>
-            <!-- @for (_ of [].constructor(100); track _) { -->
+        <div class="header">
             @for (date of dates; track date; let idx = $index) {
-                <!-- <div class="date-line" [ngStyle]="{'left': (idx+columns.length)*50 + 'px'}"></div> -->
-                <span class="column-width">{{date}}</span>
+                <div class="date-line" [style.left]="idx*columnWidth + 'px'"></div>
+                <span class="column-display text-align-center" [style.width]="columnWidth+'px'">{{date}}</span>
             }
         </div>
         @for (item of items; track item) {
             <div>
-                <!-- 'left': ((item.start - this.chartStartDate) / this.timeScale)*50 + 'px', -->
-                <div class="task" [ngStyle]="{
+                <div class="task" *ngIf="item.display" [ngStyle]="{
                     'left': item.left,
-                    'width': item.width
+                    'width': item.width,
                 }">
-                    <div class="task-bar"></div>
+                    <div class="task-bar" [ngStyle]="{
+                        'background-color': item.color,
+                        'height': barHeight+'px'
+                    }">
+                        @for (user of item.users; track user; let idx = $index) {
+                            <div style="border-radius: 50%; background-color: blue; float: right; margin: auto 1px;" [ngStyle]="{
+                                'height': (barHeight-2)+'px',
+                                'width': (barHeight-2)+'px'
+                            }"></div>
+                        }
+                    </div>
                 </div>
             </div>
         }
