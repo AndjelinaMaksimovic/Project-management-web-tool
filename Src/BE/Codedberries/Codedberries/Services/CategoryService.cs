@@ -48,6 +48,16 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create new category!");
             }
 
+            if (categoryDTO.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            if (string.IsNullOrWhiteSpace(categoryDTO.CategoryName))
+            {
+                throw new ArgumentException("CategoryName cannot be null or empty!");
+            }
+
             bool categoryExists = _databaseContext.Categories.Any(c => c.Name == categoryDTO.CategoryName && c.ProjectId == categoryDTO.ProjectId);
 
             if (categoryExists)
