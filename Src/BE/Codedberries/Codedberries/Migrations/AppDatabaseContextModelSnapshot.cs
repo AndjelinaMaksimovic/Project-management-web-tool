@@ -27,9 +27,14 @@ namespace Codedberries.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("Name", "ProjectId")
                         .IsUnique();
 
                     b.ToTable("Categories");
@@ -322,6 +327,17 @@ namespace Codedberries.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("UserProjects");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.Category", b =>
+                {
+                    b.HasOne("Codedberries.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Status", b =>
