@@ -1,0 +1,37 @@
+<app-navbar>
+    <div class="main-container">
+        <div class="container w-100 margin-15">
+            <img class="profile-picture center" src="/assets/logo.svg">
+            <div class="ml-20">
+                <p class="title">Project name</p>
+                <p class="desc">This project involves various tasks and activities aimed at achieving its objectives. It encompasses a range of activities from planning to execution and evaluation.</p>
+            </div>
+        </div>
+        <div class="container w-100 margin-15 inherit-height">
+            <div class="justify-container">
+                <app-status-item [title]="'Due date:'" [desc]="'April 2024'" [faicon]="'fa-regular fa-calendar'"></app-status-item>
+                <app-status-item [title]="'Days left:'" [desc]="'27 days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item [title]="'Status:'" [desc]="'Need action'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+            </div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="container w-100 margin-15 flex-col">
+            <div class="d-container">
+                <p class="title">Project completion:</p>
+                <i class="fa-solid fa-sliders center mr-10"></i>
+            </div>
+            <app-progressbar [progress]="80" [color]="'#FFCF32'"></app-progressbar>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="container pt-1 pb-1 w-100 margin-15">
+            <div class="d-container">
+                <app-status-item class="mr-20" [title]="'All tasks:'" [desc]="'45'" [faicon]="'fa-solid fa-list-check'"></app-status-item>
+                <app-status-item class="mr-20" [title]="'Completed tasks:'" [desc]="'45'" [faicon]="'fa-solid fa-check'" [color]="'#5096A4'" [bold]="true"></app-status-item>
+                <app-status-item class="mr-20" [title]="'Overdue takss:'" [desc]="'45'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+            </div>
+            <i class="fa-solid fa-sliders center mr-10"></i>
+        </div>
+    </div>
+</app-navbar>
