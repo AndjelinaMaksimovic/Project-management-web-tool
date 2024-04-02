@@ -332,7 +332,7 @@ namespace Codedberries.Migrations
             modelBuilder.Entity("Codedberries.Models.Category", b =>
                 {
                     b.HasOne("Codedberries.Models.Project", "Project")
-                        .WithMany()
+                        .WithMany("Categories")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -343,7 +343,7 @@ namespace Codedberries.Migrations
             modelBuilder.Entity("Codedberries.Models.Status", b =>
                 {
                     b.HasOne("Codedberries.Models.Project", "Project")
-                        .WithMany()
+                        .WithMany("Statuses")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -408,6 +408,13 @@ namespace Codedberries.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Codedberries.Models.Project", b =>
+                {
+                    b.Navigation("Categories");
+
+                    b.Navigation("Statuses");
                 });
 #pragma warning restore 612, 618
         }
