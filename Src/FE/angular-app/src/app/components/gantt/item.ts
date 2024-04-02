@@ -6,14 +6,16 @@ export class Item {
         public depends: Items = [],
         public users: Array<any> = [],
 
+        public color = '#5096A4',
         public left = '',
-        public width = ''
+        public width = '',
+        public display = true
     ){}
 }
 export type Items = Array<Item>
 export enum GanttColumn {
-    title = "title",
-    users = "users"
+    tasks = "Tasks",
+    users = "Users"
 }
 export enum TimeScale {
     day = 86_400_000,
