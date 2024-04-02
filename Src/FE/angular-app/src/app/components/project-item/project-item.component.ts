@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { ProgressbarComponent } from '../progressbar/progressbar.component';
 import { NgIf } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-project-item',
   standalone: true,
-  imports: [ ProgressbarComponent, NgIf ],
+  imports: [ ProgressbarComponent, NgIf, RouterModule ],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.css'
 })
