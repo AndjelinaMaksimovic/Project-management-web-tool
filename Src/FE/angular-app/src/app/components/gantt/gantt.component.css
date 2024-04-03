@@ -9,9 +9,6 @@
     /* float: left; */
     position: relative;
 }
-.info .header{
-
-}
 .chart{
     /* width: 50%; */
     position: relative; /* contains date-lines because of position: absolute */
@@ -22,7 +19,7 @@
 .header{
     border-bottom: 1px solid #5096A4;
     /* overflow: auto; */
-    display: inline-block;
+    /* display: inline-block; */
 }
 .date-line{
     position: absolute;
@@ -48,10 +45,15 @@
 }
 
 .task{
-    height: 20px;
     display: inline-block;
     margin-bottom: -4px; /*fix inline-block whitespace*/
     position: relative; /*fixes z-index???*/
+}
+.task-height{
+    height: 20px;
+}
+.hover {
+    background-color: #F5F5F5;
 }
 .task-bar{
     background-color: blue;
