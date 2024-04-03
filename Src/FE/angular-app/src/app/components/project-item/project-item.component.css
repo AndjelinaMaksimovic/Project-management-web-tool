@@ -10,6 +10,8 @@
 .project-name {
     font-weight: 500;
     text-align: left;
+    text-decoration: none;
+    color: inherit;
 }
 
 .left {
@@ -22,3 +24,11 @@
     background-color: #FFCF32;
 }
 
+.samewidth {
+    width: 5rem;
+    text-align: right;
+}
+
+.button {
+    cursor: pointer;
+}
