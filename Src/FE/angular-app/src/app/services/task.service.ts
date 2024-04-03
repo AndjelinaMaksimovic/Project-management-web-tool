@@ -78,6 +78,7 @@ export class TaskService {
   public setContext(context: { projectId?: number } = {}) {
     this.context = { ...this.context, ...context };
     // after changing the context, we need to clear the previous tasks cache
+    this.statusService.setContext(context);
     this.tasks = [];
   }
   /**
