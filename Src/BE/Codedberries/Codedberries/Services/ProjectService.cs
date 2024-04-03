@@ -232,7 +232,7 @@ namespace Codedberries.Services
                 
                 foreach (var userDto in request.Users)
                 {
-                    var userToAdd = await _databaseContext.Users.FindAsync(userDto.Id);
+                    var userToAdd = await _databaseContext.Users.FindAsync(userDto);
                     if (userToAdd != null)
                     {
                         project.Users.Add(userToAdd);
