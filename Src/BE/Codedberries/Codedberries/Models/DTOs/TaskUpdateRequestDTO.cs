@@ -9,6 +9,7 @@
         public int? PriorityId { get; set; }
         public int? StatusId { get; set; }
         public DateTime? DueDate { get; set; }
+        public DateTime? StartDate { get; set; }
         public int? UserId { get; set; }
         public int? DifficultyLevel { get; set; }
         public int? ProjectId { get; set; }
@@ -21,6 +22,7 @@
                    PriorityId == null &&
                    StatusId == null &&
                    DueDate == null &&
+                   StartDate == null &&
                    UserId == null &&
                    DifficultyLevel == null &&
                    ProjectId == null;
