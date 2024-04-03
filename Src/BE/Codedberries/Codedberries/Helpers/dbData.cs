@@ -36,12 +36,12 @@ namespace Codedberries.Helpers
              );
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), 1, 1, 2, 1, 1, 1),
-                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), 2, 2, 2, 1, 1, 2),
-                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), 3, 3, 1, 1, 1, 1),
-                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), 2, 1, 3, 1, 1, 2),
-                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), 4, 2, 3, 1, 1, 1),
-                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(1), 1, 3, 2, 1, 1, 2)
+                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), DateTime.Today, 1, 1, 2, 1, 1, 1),
+                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 1, 2),
+                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), DateTime.Today, 3, 3, 1, 1, 1, 1),
+                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), DateTime.Today, 2, 1, 3, 1, 1, 2),
+                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), DateTime.Today, 4, 2, 3, 1, 1, 1),
+                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(1), DateTime.Today, 1, 3, 2, 1, 1, 2)
                 );
 
 
@@ -158,12 +158,12 @@ namespace Codedberries.Helpers
             context.SaveChanges();
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), 3, 4, 1, 1, 2, 2),
-                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), 2, 2, 2, 1, 1, 1),
-                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), 5, 4, 3, 1, 2, 2),
-                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), 6, 2, 2, 1, 1, 1),
-                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), 1, 8, 1, 1, 3, 3),
-                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(2), 1, 2, 2, 1, 1, 1)
+                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 2, 2),
+                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 1, 1),
+                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), DateTime.Today, 5, 4, 3, 1, 2, 2),
+                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
+                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 3, 3),
+                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 1, 1)
             );
 
             context.SaveChanges();
