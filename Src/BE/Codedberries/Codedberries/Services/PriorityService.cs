@@ -1,4 +1,5 @@
 ﻿using Codedberries.Models.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -40,6 +41,17 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User role not found!");
             }
+
+            var priorities = await _databaseContext.Priorities
+                .Select(p => new PriorityInfoDTO { Id = p.Id, Name = p.Name })
+                .ToListAsync();
+
+            if (priorities == null || !priorities.Any())
+            {
+                throw new InvalidOperationException("No priorities found in the database!");
+            }
+
+            return priorities;
         }
     }
 }
