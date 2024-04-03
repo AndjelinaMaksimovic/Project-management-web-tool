@@ -50,6 +50,12 @@
 .hover {
     background-color: #F5F5F5;
 }
+.task-height{
+    height: 20px;
+}
+.hover {
+    background-color: #F5F5F5;
+}
 .task-bar{
     background-color: blue;
     border-radius: 5px;
