@@ -25,16 +25,27 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Invalid session!");
             }
 
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
 
-            var permission = userId.HasValue ? _authorizationService.CanCreateTask(userId.Value, request.ProjectId) : false;
-
-            if (!permission)
+            if (user == null)
             {
-                throw new UnauthorizedAccessException("User does not have permission to create a task!");
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && userRole.CanCreateTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to create Task!");
             }
 
 
-            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
