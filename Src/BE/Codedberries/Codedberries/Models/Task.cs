@@ -18,6 +18,7 @@ namespace Codedberries.Models
         public string Description { get; set; }
 
         public DateTime DueDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         [ForeignKey("UserId")]
         public int UserId { get; set; }
