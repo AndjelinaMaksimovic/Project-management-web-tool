@@ -11,22 +11,42 @@ namespace Codedberries.Services
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
+        private readonly StatusService _statusService;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, StatusService statusService)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _taskService = taskService;
+            _statusService = statusService;
         }
 
         public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
-            var permission = userId.HasValue ? _authorizationService.CanCreateProject(userId.Value) : false;
 
-            if (!permission)
+            if (userId == null)
             {
-                throw new UnauthorizedAccessException("User does not have permission to create a project!");
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && userRole.CanCreateProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to create project!");
             }
 
             Project project = new Project(request.Name, request.Description, request.DueDate);
@@ -35,17 +55,27 @@ namespace Codedberries.Services
             {
                 foreach (int user_id in request.UserIds)
                 {
-                    var user = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
+                    var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
 
-                    if (user != null)
+                    if (userToAddToProject == null)
                     {
-                        project.Users.Add(user);
+                        throw new ArgumentException($"User with ID {userId} not found.");
+                    }
+                    else
+                    {
+                        project.Users.Add(userToAddToProject);
                     }
                 }
             }
 
+            project.Starred = request.IsStarred;
+
             _databaseContext.Projects.Add(project);
             await _databaseContext.SaveChangesAsync();
+
+            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
+            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
+            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
 
             return project;
         }

@@ -13,7 +13,7 @@
         </div>
         <p class="mr-20 samewidth" *ngIf="!isHovered">{{ dueDate }}</p>
         <div class="mr-20 samewidth" *ngIf="isHovered">
-            <i class="fa-regular fa-trash-can mr-20 button"></i>
+            <i class="fa-regular fa-trash-can mr-20 button" (click)="deleteProject();"></i>
             <i class="fa-solid fa-pen-to-square mr-20 button"></i>
         </div>
     </div>

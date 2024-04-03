@@ -1,13 +1,20 @@
 <!-- <app-navbar> -->
-    <app-topnav></app-topnav>
+    <!-- <app-topnav></app-topnav> -->
 
     <!-- height: 100% - padding - topnav.hieght -->
-    <div style="padding: 20px; display: flex; flex-direction: column; height: calc(100% - 20px - 60px); overflow: hidden;">
+    <!-- <div style="padding: 20px; display: flex; flex-direction: column; height: calc(100% - 20px - 60px); overflow: hidden;"> -->
+    <div style="padding: 20px;">
+        <button mat-icon-button aria-label="close dialog" mat-dialog-close style="position: absolute; right: 5px; top: 5px;">
+            <mat-icon>close</mat-icon>
+        </button>
 
-        <h1 style="margin-bottom: 15px; font-weight: bold; font-size: 2em;">Create new project</h1>
+        <h1 style="margin-bottom: 25px; margin-top: 0; font-weight: bold; font-size: 2em;">Create new project</h1>
+        
+        <div *ngIf="errorMessage" class="alert alert-danger" style="margin-bottom: 20px;">
+            {{ errorMessage }}
+        </div>
 
-        <div class="card" style="flex-grow: 1; display: flex; justify-content: space-evenly;">
-
+        <div style="flex-grow: 1; display: flex; justify-content: space-evenly; height: 60vh;">
             <div style="width: 40%; height: 100%; display: flex; flex-direction: column;">
                 <div style="flex-grow: 1;">
                     <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
@@ -69,4 +76,5 @@
             </div>
         </div>
     </div>
+    <!-- </div> -->
 <!-- </app-navbar> -->

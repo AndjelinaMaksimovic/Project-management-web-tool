@@ -15,9 +15,12 @@
         <button mat-button class="dropdown-button ml-20 p-0 white" style="min-width: auto !important;">
             <i class="fa-regular fa-bell fa-lg"></i>
         </button>
-        <button mat-button class="dropdown-button ml-10 white">
+        <button mat-button class="dropdown-button ml-10 white" [matMenuTriggerFor]="profileDropdown">
             <img class="profile-picture center" src="/assets/logo.svg">
             <i class="fa-solid fa-chevron-down fa-sm ml-10 center" style="margin-top: 0.75rem;"></i>
         </button>
+        <mat-menu #profileDropdown="matMenu" xPosition="before">
+            <button mat-menu-item (click)="logOut()">Log out</button>
+        </mat-menu>
     </div>
 </div>

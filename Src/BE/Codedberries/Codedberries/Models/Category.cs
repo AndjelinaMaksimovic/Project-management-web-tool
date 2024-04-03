@@ -12,9 +12,16 @@ namespace Codedberries.Models
         [Required]
         public string Name { get; set; }
 
-        public Category(string name) 
+        [Required]
+        public int ProjectId { get; set; }
+
+        [ForeignKey("ProjectId")]
+        public Project Project { get; set; }
+
+        public Category(string name, int projectId) 
         {
             Name = name;
+            ProjectId = projectId;
         }
     }
 }

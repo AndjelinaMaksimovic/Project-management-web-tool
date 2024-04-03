@@ -1,32 +1,38 @@
 import { Component, Input } from '@angular/core';
 import { ProgressbarComponent } from '../progressbar/progressbar.component';
 import { NgIf } from '@angular/common';
+import { ProjectService } from '../../services/project.service';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-project-item',
-  standalone: true,
-  imports: [ ProgressbarComponent, NgIf, RouterModule ],
-  templateUrl: './project-item.component.html',
-  styleUrl: './project-item.component.css'
+    selector: 'app-project-item',
+    standalone: true,
+    imports: [ProgressbarComponent, NgIf, RouterModule],
+    templateUrl: './project-item.component.html',
+    styleUrl: './project-item.component.css'
 })
 export class ProjectItemComponent {
-  @Input() projectName: string = "";
-  @Input() dueDate: string = "";
+    constructor(private projectService: ProjectService) { }
 
-  @Input() progressBarProgress: Number = 0;
-  @Input() progressBarColor: string = "black";
+    @Input() projectName: string = "";
+    @Input() dueDate: string = "";
 
-  @Input() starred: boolean = false;
-  @Input() id: number = 0;
+    @Input() progressBarProgress: Number = 0;
+    @Input() progressBarColor: string = "black";
 
-  isHovered = false;
+    @Input() starred: boolean = false;
+    @Input() id: number = 0;
 
-  toggleStarred() {
-    this.starred = !this.starred;
-  }
+    isHovered = false;
 
-  toggleHovered() {
-    this.isHovered = !this.isHovered;
-  }
+    toggleStarred() {
+        this.starred = !this.starred;
+    }
+    toggleHovered() {
+        this.isHovered = !this.isHovered;
+    }
+
+    deleteProject() {
+        this.projectService.deleteProject(this.id);
+    }
 }

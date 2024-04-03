@@ -1,6 +1,7 @@
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -25,14 +26,14 @@ namespace Codedberries.Services
             }
 
 
-            var permission = userId.HasValue ? _authorizationService.CanCreateTask(userId.Value,request.ProjectId) : false;
+            var permission = userId.HasValue ? _authorizationService.CanCreateTask(userId.Value, request.ProjectId) : false;
 
             if (!permission)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create a task!");
             }
 
-            
+
             Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
@@ -122,9 +123,9 @@ namespace Codedberries.Services
                 TaskId = t.Id,
                 Name = t.Name,
                 Description = t.Description,
-                Category = t.Category != null ? t.Category.Name : null,
-                Priority = t.Priority !=null ? t.Priority.Name : null,
-                Status = t.Status !=null ? t.Status.Name : null,
+                CategoryId = t.CategoryId,
+                PriorityId = t.PriorityId,
+                StatusId = t.StatusId,
                 DueDate = t.DueDate,
                 AssignedTo = _databaseContext.Users
                     .Where(u => u.Id == t.UserId)
@@ -178,7 +179,7 @@ namespace Codedberries.Services
 
             // other tasks depend on this one
             var dependentTasks = _databaseContext.Set<TaskDependency>().Where(td => td.TaskId == taskId).ToList();
-            
+
             if (dependentTasks.Any())
             {
                 throw new InvalidOperationException($"Task with ID {taskId} cannot be deleted because it has dependent tasks!");
@@ -186,7 +187,7 @@ namespace Codedberries.Services
 
             // this task depends on others, if so - delete that relation
             var tasksDependentOnThis = _databaseContext.Set<TaskDependency>().Where(td => td.DependentTaskId == taskId).ToList();
-            
+
             foreach (var dependentTask in tasksDependentOnThis)
             {
                 _databaseContext.Set<TaskDependency>().Remove(dependentTask);
@@ -194,6 +195,162 @@ namespace Codedberries.Services
 
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
+        }
+
+        public async Task<UpdatedTaskInfoDTO> UpdateTask(HttpContext httpContext, TaskUpdateRequestDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit task!");
+            }
+
+            if (request.TaskId <= 0 || request.IsEmpty())
+            {
+                throw new ArgumentException("Not enough parameters for task update!");
+            }
+
+            var task = await _databaseContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} not found!");
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                task.Name = request.Name;
+            }
+
+            if (!string.IsNullOrEmpty(request.Description))
+            {
+                task.Description = request.Description;
+            }
+
+            if (request.CategoryId.HasValue && request.CategoryId > 0)
+            {
+                var category = await _databaseContext.Categories.FindAsync(request.CategoryId.Value);
+                if (category == null)
+                {
+                    throw new ArgumentException($"Category with ID {request.CategoryId} not found!");
+                }
+                task.CategoryId = request.CategoryId.Value;
+            }
+
+            if (request.PriorityId.HasValue && request.PriorityId > 0)
+            {
+                var priority = await _databaseContext.Priorities.FindAsync(request.PriorityId.Value);
+                if (priority == null)
+                {
+                    throw new ArgumentException($"Priority with ID {request.PriorityId} not found!");
+                }
+                task.PriorityId = request.PriorityId.Value;
+            }
+
+            if (request.StatusId.HasValue && request.StatusId > 0)
+            {
+                var status = await _databaseContext.Statuses.FindAsync(request.StatusId.Value);
+                if (status == null)
+                {
+                    throw new ArgumentException($"Status with ID {request.StatusId} not found!");
+                }
+                task.StatusId = request.StatusId.Value;
+            }
+
+            if (request.DueDate.HasValue)
+            {
+                task.DueDate = request.DueDate.Value;
+            }
+
+            if (request.UserId.HasValue && request.UserId > 0)
+            {
+                var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
+                
+                if (userToAssign == null)
+                {
+                    throw new ArgumentException($"User with ID {request.UserId} not found!");
+                }
+
+                task.UserId = request.UserId.Value;
+            }
+
+            if (request.DifficultyLevel.HasValue && request.DifficultyLevel > 0)
+            {
+                task.DifficultyLevel = request.DifficultyLevel.Value;
+            }
+
+            if (request.ProjectId.HasValue && request.ProjectId > 0)
+            {
+                var project = await _databaseContext.Projects.FindAsync(request.ProjectId.Value);
+                
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {request.ProjectId} not found!");
+                }
+
+                task.ProjectId = request.ProjectId.Value;
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
+            var updatedTaskInfo = new UpdatedTaskInfoDTO
+            {
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                CategoryId = task.CategoryId,
+                PriorityId = task.PriorityId,
+                StatusId = task.StatusId,
+                DueDate = task.DueDate,
+                DifficultyLevel = task.DifficultyLevel,
+                ProjectId = task.ProjectId 
+            };
+
+            var tasksWithSameNameAndProjectId = await _databaseContext.Tasks
+                .Where(t => t.Name == task.Name && t.ProjectId == task.ProjectId)
+                .ToListAsync();
+
+            var userIds = tasksWithSameNameAndProjectId
+                .SelectMany(t => new[] { t.UserId })
+                .Distinct()
+                .ToList();
+
+            var assignedUsers = await _databaseContext.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToListAsync();
+
+            var userDTOs = assignedUsers.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                FirstName = u.Firstname,
+                LastName = u.Lastname,
+                ProfilePicture = u.ProfilePicture
+            }).ToList();
+
+            updatedTaskInfo.AssignedUsers = userDTOs;
+
+            return updatedTaskInfo;
         }
     }
 }

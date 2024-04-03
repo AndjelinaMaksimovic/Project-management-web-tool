@@ -29,11 +29,6 @@ function mapProject(apiProject: any): Project {
 export class ProjectService {
   /** in-memory project cache */
   private projects: Project[] = [];
-  private httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-    withCredentials: true,
-    observe: 'response' as 'response',
-  };
 
   constructor(private http: HttpClient) {}
 
@@ -56,12 +51,50 @@ export class ProjectService {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl + '/Projects/filterProjects',
-          this.httpOptions
+          environment.httpOptions
         )
       );
       this.projects = res.body.map((project: any) => {
         return mapProject(project);
       });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  async createNew(
+    obj: any
+  ): Promise<boolean> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/createNewProject`,
+          obj,
+          environment.httpOptions
+        )
+      );
+      if (!res.ok) return false;
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  async deleteProject(id: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl +
+            `/Projects/projectDeletion`,
+          {
+            ...environment.httpOptions, body: {id: id}
+          }
+        )
+      );
+      return true;
     } catch (e) {
       console.log(e);
     }
