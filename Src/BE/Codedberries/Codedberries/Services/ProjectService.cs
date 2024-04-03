@@ -229,7 +229,9 @@ namespace Codedberries.Services
             if (request.Users != null)
             {
                 project.Users.Clear();
-                
+                var userProjectsToRemove = _databaseContext.UserProjects.Where(up => up.ProjectId == request.ProjectId);
+                _databaseContext.UserProjects.RemoveRange(userProjectsToRemove);
+                _databaseContext.SaveChanges();
                 foreach (var userDto in request.Users)
                 {
                     var userToAdd = await _databaseContext.Users.FindAsync(userDto);
