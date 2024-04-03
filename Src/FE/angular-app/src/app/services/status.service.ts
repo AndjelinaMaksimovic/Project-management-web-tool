@@ -22,6 +22,9 @@ function mapStatus(apiStatus: any) {
 export class StatusService {
   /** in-memory task cache */
   private statuses: Status[] = [];
+  private context: {
+    projectId?: number;
+  } = {};
   private statusIdMap: Partial<Record<number | string, string>> = {};
   private IdStatusMap: Partial<Record<string, number>> = {};
 
@@ -32,7 +35,16 @@ export class StatusService {
   };
 
   constructor(private http: HttpClient) {}
-
+  /**
+   * we use context to determine what project are we working in.
+   * for what project/user should statuses be fetched
+   * @param context new context
+   */
+  public setContext(context: { projectId?: number } = {}) {
+    this.context = { ...this.context, ...context };
+    // after changing the context, we need to clear the previous status cache
+    this.statuses = [];
+  }
   /**
    * @returns a list of tasks (current task cache)
    * @note this doesn't fetch task data from the server, it just returns the current task cache
@@ -56,8 +68,9 @@ export class StatusService {
   public async fetchStatuses() {
     try {
       const res = await firstValueFrom(
-        this.http.get<any>(
-          environment.apiUrl + `/Status/allStatuses`,
+        this.http.post<any>(
+          environment.apiUrl + `/Status/getStatus`,
+          { projectId: this.context.projectId },
           this.httpOptions
         )
       );
