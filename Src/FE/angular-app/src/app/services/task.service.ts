@@ -133,6 +133,10 @@ export class TaskService {
       });
     } catch (e) {
       console.log(e);
+      this.snackBar.open("We couldn't update task", undefined, {
+        duration: 2000,
+      });
+      await this.fetchTasks();
     }
   }
   /**
