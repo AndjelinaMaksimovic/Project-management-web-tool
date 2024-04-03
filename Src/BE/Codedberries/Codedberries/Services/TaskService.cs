@@ -34,7 +34,7 @@ namespace Codedberries.Services
             }
 
 
-            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
@@ -283,6 +283,11 @@ namespace Codedberries.Services
                 task.DueDate = request.DueDate.Value;
             }
 
+            if (request.StartDate.HasValue)
+            {
+                task.StartDate = request.StartDate.Value;
+            }
+
             if (request.UserId.HasValue && request.UserId > 0)
             {
                 var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
@@ -323,6 +328,7 @@ namespace Codedberries.Services
                 PriorityId = task.PriorityId,
                 StatusId = task.StatusId,
                 DueDate = task.DueDate,
+                StartDate = task.StartDate,
                 DifficultyLevel = task.DifficultyLevel,
                 ProjectId = task.ProjectId 
             };

@@ -29,6 +29,7 @@ namespace Codedberries.Controllers
                 newTaskInfoDTO.Id = task.Id;
                 newTaskInfoDTO.Description = task.Description;
                 newTaskInfoDTO.DueDate = task.DueDate;
+                newTaskInfoDTO.StartDate= task.StartDate;
 
                 return Ok(newTaskInfoDTO);
             }
