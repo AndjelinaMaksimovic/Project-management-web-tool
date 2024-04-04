@@ -1,10 +1,19 @@
 export class Item {
     constructor(
-        public title: string,
-        public start: number,
-        public end: number,
-        public depends: Items = [],
-        public users: Array<User> = [],
+        // public title: string,
+        // public start: number,
+        // public end: number,
+        // public depends: Items = [],
+        // public users: Array<User> = [],
+        public name: string,
+        public description: string,
+        public categoryId: number,
+        public priorityId: number,
+        public statusId: number,
+        public startDate: number = Date.now(),
+        public dueDate: number,
+        // public depends: Items = [],
+        public assignedTo: Array<User> = [],
 
         public color = '#5096A4',
         public left = '',
@@ -24,7 +33,9 @@ export enum TimeScale {
 }
 export class User{
     constructor(
-        public name: string = '',
-        public img: any = ''
+        public id: number,
+        public firstName: string = '',
+        public lastName: string = '',
+        public profilePicture: any = ''
     ){}
 }

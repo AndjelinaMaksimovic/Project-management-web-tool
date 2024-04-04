@@ -34,13 +34,13 @@ export class GanttComponent implements OnInit{
     });
 
     this.items.forEach(item => {
-      var t = Math.floor((item.start - this.chartStartDate) / this.timeScale)
-      t = t - this.range(this.chartStartDate, item.start, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
+      var t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
+      t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
       item.left = t*this.columnWidth + 'px'
       // console.log()
-      t = item.start - item.start % this.timeScale  // normalize start
-      t = (Math.ceil((item.end - t) / this.timeScale))
-      t = t - this.range(item.start, item.end, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
+      t = item.startDate - item.startDate % this.timeScale  // normalize start
+      t = (Math.ceil((item.dueDate - t) / this.timeScale))
+      t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
       item.width = t*this.columnWidth + 'px'
     });
   }
@@ -62,8 +62,8 @@ export class GanttComponent implements OnInit{
   }
 
   initTimeHeader(){
-    const max = this.items.reduce((a, b)=>{return a.end > b.end ? a : b}).end
-    const min = this.items.reduce((a, b)=>{return a.start < b.start ? a : b}).start
+    const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
+    const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
     this.chartStartDate = min - min % this.timeScale
     this.dates = this.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
       .filter((v, i) => {
