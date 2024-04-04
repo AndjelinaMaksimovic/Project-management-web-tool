@@ -29,6 +29,12 @@ export class GanttComponent implements OnInit{
   GanttColumn = GanttColumn // must be declared to be used in html
 
   ngOnInit(): void {
+    if(this.tasks.length==0){
+      this.dates = []
+      this.chartStartDate = Date.now()
+      return
+    }
+
     this.items = new Array<Item>(this.tasks.length)
     for (let i = 0; i < this.items.length; i++) {
       this.items[i] = new Item(
