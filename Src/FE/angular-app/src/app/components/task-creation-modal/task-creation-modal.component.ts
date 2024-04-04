@@ -10,6 +10,7 @@ import { SelectComponent } from '../../components/select/select.component';
 import { RolesService } from '../../services/roles.service';
 import { Task, TaskService } from '../../services/task.service';
 import { MatDialogRef } from '@angular/material/dialog';
+import { CategoryService } from '../../services/category.service';
 
 @Component({
   selector: 'app-task-creation-modal',
@@ -31,7 +32,7 @@ export class TaskCreationModalComponent {
   title: string | null = null;
   description: string | null = null;
   date: string | null = null;
-  startDate: string | null = "01/01/2024";
+  startDate: string | null = null;
   priority: string | null = null;
   category: string | null = null;
 
@@ -40,16 +41,28 @@ export class TaskCreationModalComponent {
     { value: 'Medium', viewValue: 'Medium' },
     { value: 'High', viewValue: 'High' },
   ];
-  categories = [
-    { value: 'Finance', viewValue: 'Finance' },
-    { value: 'Marketing', viewValue: 'Marketing' },
-    { value: 'Development', viewValue: 'Development' },
-  ];
+  categories: { value: string; viewValue: string }[] = [];
+  // get categories(){
+  //   return this.categoryService.getCategories().map(cat => {
+  //     return {
+  //       value: cat.id.toString(),
+  //       viewValue: cat.name
+  //     }
+  //   })
+  // }
 
   constructor(
     private taskService: TaskService,
+    private categoryService: CategoryService,
     public dialogRef: MatDialogRef<TaskCreationModalComponent>
-  ) {}
+  ) {
+    this.categories = this.categoryService.getCategories().map((cat) => {
+      return {
+        value: cat.id.toString(),
+        viewValue: cat.name,
+      };
+    });
+  }
 
   async createTask() {
     if (
