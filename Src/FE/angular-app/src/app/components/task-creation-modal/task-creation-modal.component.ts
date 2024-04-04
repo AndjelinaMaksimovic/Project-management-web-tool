@@ -31,6 +31,7 @@ export class TaskCreationModalComponent {
   title: string | null = null;
   description: string | null = null;
   date: string | null = null;
+  startDate: string | null = "01/01/2024";
   priority: string | null = null;
   category: string | null = null;
 
