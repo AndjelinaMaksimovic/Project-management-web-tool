@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { GanttColumn, Items, TimeScale } from './item';
+import { GanttColumn, Item, Items, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
+import { Task } from '../../services/task.service';
 
 @Component({
   selector: 'app-gantt',
@@ -11,7 +12,8 @@ import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 })
 
 export class GanttComponent implements OnInit{
-  @Input() items: Items = []
+  @Input() tasks: Task[] = []
+  items: Items = []
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
   @Input() colWidths: number[] = [100]
   @Input() timeScale: TimeScale = TimeScale.day
@@ -27,6 +29,21 @@ export class GanttComponent implements OnInit{
   GanttColumn = GanttColumn // must be declared to be used in html
 
   ngOnInit(): void {
+    this.items = new Array<Item>(this.tasks.length)
+    for (let i = 0; i < this.items.length; i++) {
+      this.items[i] = new Item(
+        this.tasks[i].id,
+        this.tasks[i].title,
+        this.tasks[i].description,
+        this.tasks[i].category,
+        this.tasks[i].priority,
+        this.tasks[i].status,
+        Date.now(),
+        this.tasks[i].date.valueOf(),
+        this.tasks[i].assignedTo
+      )
+    }
+
     this.initTimeHeader()
 
     this.holidays.forEach(date => {

@@ -14,6 +14,7 @@ export type Task = Readonly<{
   status: string;
   date: Date;
   id: number;
+  assignedTo: any;
 }>;
 /**
  * this function maps task data from the backend to the frontend task format
@@ -35,6 +36,7 @@ function mapTask(apiTask: any): Task {
     ],
     id: apiTask.taskId,
     date: new Date(Date.parse(apiTask.dueDate)),
+    assignedTo: apiTask.assignedTo,
   };
 }
 
