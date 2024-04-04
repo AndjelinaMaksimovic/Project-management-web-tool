@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list'
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { TopnavComponent } from '../topnav/topnav.component';
 import { NgStyle } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -29,9 +30,16 @@ import { NgStyle } from '@angular/common';
 })
 export class NavbarComponent{
   @Input() title?: string
+  @Input() id?: number
   navMargin = 13;
 
-  constructor(private router: Router){}
+  constructor(private router: Router, private route: ActivatedRoute){}
+
+  ngOnInit(){
+    this.route.params.subscribe(params => {
+      this.id = parseInt(params['id']);
+    });
+  }
   
   isExpanded = true
   
