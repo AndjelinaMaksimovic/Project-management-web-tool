@@ -92,4 +92,20 @@ export class StatusService {
     }
     return false;
   }
+
+  async deleteStatus(statusId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(environment.apiUrl + `/Status/deleteStatus`, {
+          ...this.httpOptions,
+          body: { 
+            statusId: statusId
+          },
+        })
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchStatuses();
+  }
 }
