@@ -76,6 +76,7 @@ export class ProjectService {
         )
       );
       if (!res.ok) return false;
+      this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);

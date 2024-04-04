@@ -12,15 +12,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { NgIf } from '@angular/common';
 
 @Component({
-    selector: 'app-new-project',
+    selector: 'app-new-project-modal',
     standalone: true,
-    templateUrl: './new-project.component.html',
-    styleUrl: './new-project.component.css',
-    imports: [MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule, MatIconModule, NgIf ],
-    providers: [ provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' } ]
+    templateUrl: './new-project-modal.component.html',
+    styleUrl: './new-project-modal.component.css',
+    imports: [MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule, MatIconModule, NgIf ]
 })
-export class NewProjectComponent {
-  constructor(private dialogue: MatDialog, private projectService: ProjectService, private dialogRef: MatDialogRef<NewProjectComponent>){}
+export class NewProjectModalComponent {
+  constructor(private dialogue: MatDialog, private projectService: ProjectService, private dialogRef: MatDialogRef<NewProjectModalComponent>){}
 
   errorMessage = ""
 
@@ -65,7 +64,8 @@ export class NewProjectComponent {
       description: this.description,
       dueDate: this.dueDate.value,
       startDate: this.startDate.value,
-      userIds: this.usersSelected,
+      // userIds: this.usersSelected,
+      userIds: [],
       isStarted: true
     })
     if(!res){
