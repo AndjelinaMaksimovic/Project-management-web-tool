@@ -16,6 +16,7 @@ export type Task = Readonly<{
   status: string;
   date: Date;
   id: number;
+  assignedTo: any;
 }>;
 
 @Injectable({
@@ -48,6 +49,7 @@ export class TaskService {
       ],
       id: apiTask.taskId,
       date: new Date(Date.parse(apiTask.dueDate)),
+      assignedTo: apiTask.assignedTo,
     };
   }
 
