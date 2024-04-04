@@ -126,6 +126,9 @@ namespace Codedberries.Services
                 CategoryId = t.CategoryId,
                 PriorityId = t.PriorityId,
                 StatusId = t.StatusId,
+                CategoryName = t.CategoryId != null ? _databaseContext.Categories.FirstOrDefault(c => c.Id == t.CategoryId).Name : null,
+                PriorityName = t.PriorityId != null ? _databaseContext.Priorities.FirstOrDefault(p => p.Id == t.PriorityId).Name : null,
+                StatusName = t.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == t.StatusId).Name : null,
                 DueDate = t.DueDate,
                 AssignedTo = _databaseContext.Users
                     .Where(u => u.Id == t.UserId)
@@ -319,22 +322,14 @@ namespace Codedberries.Services
 
             await _databaseContext.SaveChangesAsync();
 
-            var category1 = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.CategoryId);
-            var status1=_databaseContext.Statuses.FirstOrDefault(c =>c.Id== request.StatusId);
-            var priority1= _databaseContext.Priorities.FirstOrDefault(c => c.Id == request.PriorityId);
-            
-
             var updatedTaskInfo = new UpdatedTaskInfoDTO
             {
                 Id = task.Id,
                 Name = task.Name,
                 Description = task.Description,
                 CategoryId = task.CategoryId,
-                CategoryName=category1.Name,
                 PriorityId = task.PriorityId,
-                PriorityName=priority1.Name,
                 StatusId = task.StatusId,
-                StatusName=status1.Name,
                 DueDate = task.DueDate,
                 StartDate = task.StartDate,
                 DifficultyLevel = task.DifficultyLevel,
