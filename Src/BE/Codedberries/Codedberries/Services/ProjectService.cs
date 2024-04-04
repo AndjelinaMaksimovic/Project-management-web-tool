@@ -51,6 +51,11 @@ namespace Codedberries.Services
 
             Project project = new Project(request.Name, request.Description, request.DueDate);
 
+            if (request.StartDate != null)
+            {
+                project.StartDate = request.StartDate;
+            }
+
             if (request.UserIds != null && request.UserIds.Any())
             {
                 foreach (int user_id in request.UserIds)
