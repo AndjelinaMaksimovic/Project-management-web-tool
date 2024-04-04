@@ -319,14 +319,22 @@ namespace Codedberries.Services
 
             await _databaseContext.SaveChangesAsync();
 
+            var category1 = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.CategoryId);
+            var status1=_databaseContext.Statuses.FirstOrDefault(c =>c.Id== request.StatusId);
+            var priority1= _databaseContext.Priorities.FirstOrDefault(c => c.Id == request.PriorityId);
+            
+
             var updatedTaskInfo = new UpdatedTaskInfoDTO
             {
                 Id = task.Id,
                 Name = task.Name,
                 Description = task.Description,
                 CategoryId = task.CategoryId,
+                CategoryName=category1.Name,
                 PriorityId = task.PriorityId,
+                PriorityName=priority1.Name,
                 StatusId = task.StatusId,
+                StatusName=status1.Name,
                 DueDate = task.DueDate,
                 StartDate = task.StartDate,
                 DifficultyLevel = task.DifficultyLevel,
