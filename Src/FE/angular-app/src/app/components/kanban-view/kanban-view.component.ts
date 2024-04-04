@@ -4,8 +4,6 @@ import {
   CdkDrag,
   CdkDropList,
   CdkDropListGroup,
-  moveItemInArray,
-  transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { KanbanTaskCardComponent } from '../kanban-task-card/kanban-task-card.component';
 import { Task, TaskService } from '../../services/task.service';
@@ -38,12 +36,13 @@ export class KanbanViewComponent {
     val: Task[]
   ) {
     this._tasks = val;
-    this.statuses = this.statusService.getStatuses().map(s => s.name).sort();
   }
   get tasks() {
     return this._tasks;
   }
-  statuses: string[] = [];
+  get statuses(){
+    return this.statusService.getStatuses().map(s => s.name).sort();
+  }
 
   getTasksOfStatus(status: (typeof this.tasks)[number]['status']) {
     return this.tasks.filter((t) => t.status === status);
