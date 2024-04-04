@@ -37,7 +37,7 @@ export class KanbanViewComponent {
     val: Task[]
   ) {
     this._tasks = val;
-    this.statuses = this.statusService.getStatuses().filter(s => s.projectId === 1).map(s => s.name).sort();
+    this.statuses = this.statusService.getStatuses().map(s => s.name).sort();
   }
   get tasks() {
     return this._tasks;
