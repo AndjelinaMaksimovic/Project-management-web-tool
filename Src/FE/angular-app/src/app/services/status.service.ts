@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -112,9 +112,17 @@ export class StatusService {
       );
     } catch (e) {
       console.log(e);
-      this.snackBar.open("We can't delete a status that has active tasks", undefined, {
-        duration: 2000,
-      });
+      if(e instanceof HttpErrorResponse){
+        if(e?.error?.errorMessage?.includes("exist on project with ID")){
+          this.snackBar.open("We can't delete a status that has active tasks", undefined, {
+            duration: 2000,
+          });
+        } else {
+          this.snackBar.open("We couldn't delete this status", undefined, {
+            duration: 2000,
+          });
+        }
+      }
     }
     await this.fetchStatuses();
   }
