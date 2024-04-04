@@ -34,7 +34,7 @@ namespace Codedberries.Services
             }
 
 
-            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,userId.Value, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
@@ -283,6 +283,11 @@ namespace Codedberries.Services
                 task.DueDate = request.DueDate.Value;
             }
 
+            if (request.StartDate.HasValue)
+            {
+                task.StartDate = request.StartDate.Value;
+            }
+
             if (request.UserId.HasValue && request.UserId > 0)
             {
                 var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
@@ -314,15 +319,24 @@ namespace Codedberries.Services
 
             await _databaseContext.SaveChangesAsync();
 
+            var category1 = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.CategoryId);
+            var status1=_databaseContext.Statuses.FirstOrDefault(c =>c.Id== request.StatusId);
+            var priority1= _databaseContext.Priorities.FirstOrDefault(c => c.Id == request.PriorityId);
+            
+
             var updatedTaskInfo = new UpdatedTaskInfoDTO
             {
                 Id = task.Id,
                 Name = task.Name,
                 Description = task.Description,
                 CategoryId = task.CategoryId,
+                CategoryName=category1.Name,
                 PriorityId = task.PriorityId,
+                PriorityName=priority1.Name,
                 StatusId = task.StatusId,
+                StatusName=status1.Name,
                 DueDate = task.DueDate,
+                StartDate = task.StartDate,
                 DifficultyLevel = task.DifficultyLevel,
                 ProjectId = task.ProjectId 
             };
