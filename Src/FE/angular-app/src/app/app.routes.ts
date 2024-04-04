@@ -4,7 +4,6 @@ import { HomeComponent } from './pages/home/home.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { ActivateComponent } from './pages/activate/activate.component';
-import { NewProjectComponent } from './pages/new-project/new-project.component';
 import { GanttTestComponent } from './pages/gantt-test/gantt-test.component';
 import { MyTasksComponent } from './pages/my-tasks/my-tasks.component';
 import { LoggedIn } from './services/auth.service';
@@ -17,7 +16,6 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [NotLoggedIn] },
   { path: 'register', component: RegisterComponent },
   { path: 'activate', component: ActivateComponent },
-  { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
   { path: 'project/:projectId/task/:taskId', component: TaskComponent, canActivate: [LoggedIn] },
