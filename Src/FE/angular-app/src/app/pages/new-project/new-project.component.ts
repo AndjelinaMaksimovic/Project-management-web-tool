@@ -33,6 +33,7 @@ export class NewProjectComponent {
   description = ""
   usersSelected = []
   dueDate = new FormControl(new Date())
+  startDate = new FormControl(new Date())
   projects = [
     'pr1',
     'project 2'
@@ -63,7 +64,9 @@ export class NewProjectComponent {
       name: this.projectName,
       description: this.description,
       dueDate: this.dueDate.value,
-      userIds: this.usersSelected
+      startDate: this.startDate.value,
+      userIds: this.usersSelected,
+      isStarted: true
     })
     if(!res){
       this.errorMessage = 'Error creating project';

@@ -22,7 +22,7 @@ export class GanttComponent implements OnInit{
   dates!: string[]
   chartStartDate!: number
 
-  columnWidth = 40
+  columnWidth = 60
   taskHeight = 20
   barHeight = 14
 
@@ -93,7 +93,8 @@ export class GanttComponent implements OnInit{
         return this.includeDay(v) // remove weekend and holiday
       })
       .map((v) => {
-        const format = this.timeScale == TimeScale.day ? "d EEEEE" : "d HH"
+        // const format = this.timeScale == TimeScale.day ? "d EEEEE" : "d HH"
+        const format = this.timeScale == TimeScale.day ? "d. E" : "d HH"
         return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset?
       })
   }
