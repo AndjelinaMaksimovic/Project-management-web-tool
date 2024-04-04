@@ -11,11 +11,16 @@
                 <mat-icon>filter_list</mat-icon>
                 Filters
             </button>
-            <mat-button-toggle-group name="fontStyle" class="dense-3" [(ngModel)]="view">
-                <mat-button-toggle value="table" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
-                <mat-button-toggle value="kanban" class="test"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>
-                <mat-button-toggle value="gantt" class="test"><div class="toggle-button-content"><mat-icon>view_stream</mat-icon>Gantogram</div></mat-button-toggle>
-            </mat-button-toggle-group>
+            <div style="display: flex; gap: 8px">
+                <button mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
+                    Create Status
+                </button>
+                <mat-button-toggle-group name="fontStyle" class="dense-3" [(ngModel)]="view">
+                    <mat-button-toggle value="table" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
+                    <mat-button-toggle value="kanban" class="test"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>
+                    <mat-button-toggle value="gantt" class="test"><div class="toggle-button-content"><mat-icon>view_stream</mat-icon>Gantogram</div></mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
         </div>
         <div style="margin-top: 20px;"></div>
         <div [ngSwitch]="view">

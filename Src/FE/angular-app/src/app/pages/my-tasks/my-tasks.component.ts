@@ -10,6 +10,8 @@ import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { TaskCreationModalComponent } from '../../components/task-creation-modal/task-creation-modal.component';
 import { ActivatedRoute } from '@angular/router';
+import { StatusService } from '../../services/status.service';
+import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
 
 @Component({
   selector: 'app-my-tasks',
@@ -28,21 +30,30 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class MyTasksComponent {
   projectId: number = 0;
-  constructor(private taskService: TaskService, private dialog: MatDialog, private route: ActivatedRoute) {}
+  constructor(
+    private taskService: TaskService,
+    private statusService: StatusService,
+    private dialog: MatDialog,
+    private route: ActivatedRoute
+  ) {}
 
-  ngOnInit(){
-    this.route.params.subscribe(params => {
+  ngOnInit() {
+    this.route.params.subscribe((params) => {
       this.projectId = parseInt(params['id']);
     });
-    this.taskService.fetchTasks({projectId: this.projectId});
+    this.taskService.fetchTasks({ projectId: this.projectId });
   }
-  get tasks(){
+  get tasks() {
     return this.taskService.getTasks();
   }
   /** this determines what task view we render */
   view: 'table' | 'kanban' | 'gantt' = 'table';
 
-  createTask(){
-    this.dialog.open(TaskCreationModalComponent)
+  createTask() {
+    this.dialog.open(TaskCreationModalComponent);
+  }
+
+  createStatus() {
+    this.dialog.open(CreateStatusModalComponent);
   }
 }
