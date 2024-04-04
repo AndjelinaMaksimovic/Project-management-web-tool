@@ -11,11 +11,12 @@ import { KanbanTaskCardComponent } from '../kanban-task-card/kanban-task-card.co
 import { Task, TaskService } from '../../services/task.service';
 import { CommonModule } from '@angular/common';
 import { StatusService } from '../../services/status.service';
+import { MaterialModule } from '../../material/material.module';
 
 @Component({
   selector: 'app-kanban-view',
   standalone: true,
-  imports: [KanbanTaskCardComponent, CdkDropListGroup, CdkDropList, CdkDrag, CommonModule ],
+  imports: [KanbanTaskCardComponent, CdkDropListGroup, CdkDropList, CdkDrag, CommonModule, MaterialModule ],
   templateUrl: './kanban-view.component.html',
   styleUrl: './kanban-view.component.css',
 })
