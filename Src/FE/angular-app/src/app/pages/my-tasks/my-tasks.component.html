@@ -26,6 +26,7 @@
         <div [ngSwitch]="view">
             <app-kanban-view *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
             <app-tasks-table *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
+            <app-gantt *ngSwitchCase="'gantt'" [tasks]="tasks"></app-gantt>
         </div>
     </div>
 </app-navbar>

@@ -10,6 +10,7 @@ import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { TaskCreationModalComponent } from '../../components/task-creation-modal/task-creation-modal.component';
 import { ActivatedRoute } from '@angular/router';
+import { GanttComponent } from '../../components/gantt/gantt.component';
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
 
@@ -24,6 +25,7 @@ import { CreateStatusModalComponent } from '../../components/create-status-modal
     KanbanViewComponent,
     TasksTableComponent,
     NavbarComponent,
+    GanttComponent,
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',

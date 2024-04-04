@@ -99,8 +99,18 @@ export class AuthService {
     }
     return true
   }
+  notLoggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+    if(!document.cookie.includes("sessionId")){
+      return true
+    }
+    this.router.navigate(["/"])
+    return false
+  }
 }
 
 export const LoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
   return inject(AuthService).loggedIn(next, state);
+}
+export const NotLoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+  return inject(AuthService).notLoggedIn(next, state);
 }
