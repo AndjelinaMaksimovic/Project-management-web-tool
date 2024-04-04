@@ -1,12 +1,30 @@
-<div style="display: flex; width: 100%;">
+<div *ngIf="!mobile" style="display: flex; width: 100%; align-items: stretch" cdkDropListGroup>
     @for (status of statuses; track status) {
     <div class="kanban-column">
         <h3 style="text-align: center; margin-top: 0;">
             {{status}}
         </h3>
-        <div style="padding: 8px; display: flex; flex-direction: column; gap: 10px; height: 80vh; overflow-y: auto;">
+        <div [id]="status" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)" style="display:block; overflow-y: auto; height: 100%;">
         @for (task of getTasksOfStatus(status); track task) {
-            <app-kanban-task-card [task]="task"></app-kanban-task-card>
+            <div cdkDrag style="margin: 8px">
+                <app-kanban-task-card [task]="task"></app-kanban-task-card>
+            </div>
+        }
+        </div>
+    </div>
+    }
+</div>
+<div *ngIf="mobile" style="display: flex; width: 100%; align-items: stretch; flex-direction: column;" cdkDropListGroup>
+    @for (status of statuses; track status) {
+    <div class="kanban-column-mobile">
+        <h3 style="text-align: center; margin-top: 0; margin-top: auto; margin-bottom: auto;">
+            {{status}}
+        </h3>
+        <div class="mobile-task-list" [id]="status" cdkDropList cdkDropListSortingDisabled cdkDropListOrientation="horizontal" (cdkDropListDropped)="drop($event)">
+        @for (task of getTasksOfStatus(status); track task) {
+            <div cdkDrag [cdkDragStartDelay]="250" style="margin: 8px">
+                <app-kanban-task-card [task]="task"></app-kanban-task-card>
+            </div>
         }
         </div>
     </div>
