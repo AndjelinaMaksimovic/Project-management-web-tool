@@ -8,6 +8,9 @@
         public int? CategoryId { get; set; } 
         public int? PriorityId { get; set; } 
         public int? StatusId { get; set; } 
+        public string CategoryName { get; set; } 
+        public string PriorityName { get; set; } 
+        public string StatusName { get; set; } 
         public DateTime DueDate { get; set; }
         public List<TaskUserInfoDTO> AssignedTo { get; set; }
     }
