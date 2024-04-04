@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 type Status = {
   name: string;
@@ -34,7 +35,7 @@ export class StatusService {
     observe: 'response' as 'response',
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
   /**
    * we use context to determine what project are we working in.
    * for what project/user should statuses be fetched
@@ -111,6 +112,9 @@ export class StatusService {
       );
     } catch (e) {
       console.log(e);
+      this.snackBar.open("We can't delete a status that has active tasks", undefined, {
+        duration: 2000,
+      });
     }
     await this.fetchStatuses();
   }
