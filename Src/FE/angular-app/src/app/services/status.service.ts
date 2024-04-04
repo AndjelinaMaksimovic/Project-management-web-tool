@@ -114,4 +114,17 @@ export class StatusService {
     }
     await this.fetchStatuses();
   }
+  public async createStatus(name: string) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Status/createStatus`, 
+        { name, projectId: this.context.projectId },
+        this.httpOptions
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchStatuses();
+  }
 }
