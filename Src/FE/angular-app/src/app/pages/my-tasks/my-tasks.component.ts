@@ -10,6 +10,7 @@ import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { TaskCreationModalComponent } from '../../components/task-creation-modal/task-creation-modal.component';
 import { ActivatedRoute } from '@angular/router';
+import { GanttComponent } from '../../components/gantt/gantt.component';
 
 @Component({
   selector: 'app-my-tasks',
@@ -22,6 +23,7 @@ import { ActivatedRoute } from '@angular/router';
     KanbanViewComponent,
     TasksTableComponent,
     NavbarComponent,
+    GanttComponent,
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',

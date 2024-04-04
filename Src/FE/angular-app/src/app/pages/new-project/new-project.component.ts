@@ -6,7 +6,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { InvitePopupComponent } from '../../components/invite-popup/invite-popup.component';
 import { TopnavComponent } from "../../components/topnav/topnav.component";
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { ProjectService } from '../../services/project.service';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf } from '@angular/common';
@@ -17,7 +17,7 @@ import { NgIf } from '@angular/common';
     templateUrl: './new-project.component.html',
     styleUrl: './new-project.component.css',
     imports: [MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule, MatIconModule, NgIf ],
-    providers: [ provideNativeDateAdapter() ]
+    providers: [ provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' } ]
 })
 export class NewProjectComponent {
   constructor(private dialogue: MatDialog, private projectService: ProjectService, private dialogRef: MatDialogRef<NewProjectComponent>){}

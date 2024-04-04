@@ -1,16 +1,12 @@
 *{
     margin: 0;
     padding: 0;
-    /* border: 1px solid grey; */
 }
 
 .info{
-    /* width: 50%; */
-    /* float: left; */
     position: relative;
 }
 .chart{
-    /* width: 50%; */
     position: relative; /* contains date-lines because of position: absolute */
     overflow: auto;
     display: inline-block;
@@ -40,14 +36,13 @@
 .column-display{
     display: inline-block;
     margin-bottom: -4px; /*fix inline-block whitespace*/
-    /* width: 50px; */
     overflow: hidden;
 }
 
 .task{
     display: inline-block;
     margin-bottom: -4px; /*fix inline-block whitespace*/
-    position: relative; /*fixes z-index???*/
+    position: relative; /*fixes borders/z-index???*/
 }
 .task-height{
     height: 20px;
