@@ -59,4 +59,8 @@ export class KanbanViewComponent {
       await this.taskService.updateTask({id: task.id, status: event.container.id});
     }
   }
+
+  async deleteStatus(status: string){
+    this.statusService.deleteStatus(status);
+  }
 }
