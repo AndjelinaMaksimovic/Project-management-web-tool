@@ -9,6 +9,7 @@
     width: 100%;
     padding: 0px;
 }
+
 .kanban-column-mobile {
     display: flex;
     flex-grow: 1;
@@ -54,4 +55,29 @@
 
 .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.small-icon-button {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    &>*[role=img] {
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    .mat-mdc-button-touch-target {
+        width: 28px !important;
+        height: 28px !important;
+    }
 }
