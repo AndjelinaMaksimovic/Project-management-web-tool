@@ -93,13 +93,19 @@ export class StatusService {
     return false;
   }
 
-  async deleteStatus(statusId: number) {
+  public async deleteStatus(status: number): Promise<void>
+  public async deleteStatus(status: string): Promise<void>
+  public async deleteStatus(status: number | string) {
+    const statusId = typeof status === "string" ? this.nameToId(status) : status;
+    console.log(statusId);
+    if(statusId === undefined) return;
     try {
       const res = await firstValueFrom(
         this.http.delete<any>(environment.apiUrl + `/Status/deleteStatus`, {
           ...this.httpOptions,
           body: { 
-            statusId: statusId
+            statusId: statusId,
+            projectId: this.context.projectId
           },
         })
       );
