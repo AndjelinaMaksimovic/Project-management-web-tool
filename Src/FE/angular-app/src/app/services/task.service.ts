@@ -17,6 +17,7 @@ export type Task = Readonly<{
   date: Date;
   id: number;
   assignedTo: any;
+  assignedTo: any;
 }>;
 
 @Injectable({
