@@ -16,6 +16,6 @@ export const routes: Routes = [
   { path: 'activate', component: ActivateComponent },
   { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
-  { path: 'project-details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
+  { path: 'project/:id/details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
   { path: '**', component: ErrorComponent },
 ];
