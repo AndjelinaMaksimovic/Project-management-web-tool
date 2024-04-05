@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { GanttColumn, Item, Items, TimeScale } from './item';
+import { GanttColumn, Item, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 
@@ -13,7 +13,7 @@ import { Task } from '../../services/task.service';
 
 export class GanttComponent implements OnInit{
   @Input() tasks: Task[] = []
-  items: Items = []
+  @Input() items: Item[] = []
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
   @Input() colWidths: number[] = [100]
   @Input() timeScale: TimeScale = TimeScale.day
@@ -29,25 +29,29 @@ export class GanttComponent implements OnInit{
   GanttColumn = GanttColumn // must be declared to be used in html
 
   ngOnInit(): void {
-    if(this.tasks.length==0){
-      this.dates = []
-      this.chartStartDate = Date.now()
-      return
-    }
+    if(this.items.length == 0){
+      
+      if(this.tasks.length==0){
+        this.dates = []
+        this.chartStartDate = Date.now()
+        return
+      }
 
-    this.items = new Array<Item>(this.tasks.length)
-    for (let i = 0; i < this.items.length; i++) {
-      this.items[i] = new Item(
-        this.tasks[i].id,
-        this.tasks[i].title,
-        this.tasks[i].description,
-        this.tasks[i].category,
-        this.tasks[i].priority,
-        this.tasks[i].status,
-        Date.now(),
-        this.tasks[i].date.valueOf(),
-        this.tasks[i].assignedTo
-      )
+      this.items = new Array<Item>(this.tasks.length)
+      for (let i = 0; i < this.items.length; i++) {
+        this.items[i] = new Item(
+          this.tasks[i].id,
+          this.tasks[i].title,
+          this.tasks[i].description,
+          this.tasks[i].category,
+          this.tasks[i].priority,
+          this.tasks[i].status,
+          // this.tasks[i].startDate.valueOf(),
+          Date.now(),
+          this.tasks[i].dueDate.valueOf(),
+          this.tasks[i].assignedTo
+        )
+      }
     }
 
     this.initTimeHeader()
@@ -85,6 +89,9 @@ export class GanttComponent implements OnInit{
   }
 
   initTimeHeader(){
+    // this.items.forEach(e => {
+    //   console.log("start: " + new Date(e.startDate) + "; due: " + new Date(e.dueDate))
+    // })
     const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
     const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
     this.chartStartDate = min - min % this.timeScale
@@ -97,9 +104,5 @@ export class GanttComponent implements OnInit{
         const format = this.timeScale == TimeScale.day ? "d. E" : "d HH"
         return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset?
       })
-  }
-
-  rowHover(){
-
   }
 }
