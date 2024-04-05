@@ -1,9 +1,14 @@
 <div *ngIf="!mobile" style="display: flex; width: 100%; align-items: stretch" cdkDropListGroup>
     @for (status of statuses; track status) {
     <div class="kanban-column">
-        <h3 style="text-align: center; margin-top: 0;">
-            {{status}}
-        </h3>
+        <div style="position: relative">
+            <span style="width: 50px; height: 50px; position: absolute; right: 0px">
+                <button (click)="deleteStatus(status)" mat-icon-button class="small-icon-button"><mat-icon>delete_outlined</mat-icon></button>
+            </span>
+            <h3 style="text-align: center; margin-top: 0;">
+                {{status}}
+            </h3>
+        </div>
         <div [id]="status" cdkDropList cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)" style="display:block; overflow-y: auto; height: 100%;">
         @for (task of getTasksOfStatus(status); track task) {
             <div cdkDrag style="margin: 8px">

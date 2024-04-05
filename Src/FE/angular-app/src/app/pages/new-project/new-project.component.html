@@ -25,23 +25,21 @@
                       <mat-label>Description</mat-label>
                       <textarea matInput [(ngModel)]="description"></textarea>
                     </mat-form-field>
-                    <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
-                        <mat-label>Parent project</mat-label>
-                        <!-- <input matInput [(ngModel)]="projectName"> -->
-                        <mat-select [(value)]="parentProject">
-                            <mat-option>None</mat-option>
-                            @for(project of projects; track project){
-                                <mat-option [value]="project">{{project}}</mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field>
-                        <mat-label>Due date</mat-label>
-                        <input matInput [matDatepicker]="dp" [formControl]="dueDate">
-                        <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-form-field style="display: inline-block; width: 45%;">
+                        <mat-label>Start date</mat-label>
+                        <input matInput [matDatepicker]="dp" [formControl]="startDate">
+                        <mat-hint>DD/MM/YYYY</mat-hint>
                         <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
                         <mat-datepicker #dp></mat-datepicker>
-                      </mat-form-field>
+                    </mat-form-field>
+                    <div style="display: inline-block; width: 10%;"></div>
+                    <mat-form-field style="display: inline-block; width: 45%;">
+                        <mat-label>Due date</mat-label>
+                        <input matInput [matDatepicker]="dp2" [formControl]="dueDate">
+                        <mat-hint>DD/MM/YYYY</mat-hint>
+                        <mat-datepicker-toggle matIconSuffix [for]="dp2"></mat-datepicker-toggle>
+                        <mat-datepicker #dp2></mat-datepicker>
+                    </mat-form-field>
                 </div>
                 <button mat-raised-button style="border-radius: 20px; height: 45px;" color="primary" (click)="createNewProject()">Create new project</button>
             </div>

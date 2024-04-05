@@ -103,5 +103,27 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while fetching projects: {ex.Message}"));
             }
         }
+
+        [HttpPut("updateProject")]
+        public async Task<IActionResult> UpdateProject([FromBody] ProjectUpdateRequestDTO request)
+        {
+            try
+            {
+                var updatedProjectInfo = _projectService.UpdateProject(HttpContext, request);
+                return Ok(updatedProjectInfo);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new ErrorMsg(ex.Message)); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating the task: {ex.Message}"));
+            }
+        }
     }
 }

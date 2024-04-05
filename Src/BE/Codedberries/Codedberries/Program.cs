@@ -29,7 +29,7 @@ namespace Codedberries
             builder.Services.AddScoped<TaskService>();
             builder.Services.AddScoped<StatusService>();
             builder.Services.AddScoped<CategoryService>();
-
+            builder.Services.AddScoped<PriorityService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -70,7 +70,7 @@ namespace Codedberries
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
                 dbContext.ApplyMigrations();
                 // dbData.addData1(dbContext);
-                dbData.addData2(dbContext);
+               // dbData.addData2(dbContext);
             }
 
             app.Run();

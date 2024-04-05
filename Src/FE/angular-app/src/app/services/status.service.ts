@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 type Status = {
   name: string;
@@ -34,7 +35,7 @@ export class StatusService {
     observe: 'response' as 'response',
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
   /**
    * we use context to determine what project are we working in.
    * for what project/user should statuses be fetched
@@ -91,5 +92,51 @@ export class StatusService {
       console.log(e);
     }
     return false;
+  }
+
+  public async deleteStatus(status: number): Promise<void>
+  public async deleteStatus(status: string): Promise<void>
+  public async deleteStatus(status: number | string) {
+    const statusId = typeof status === "string" ? this.nameToId(status) : status;
+    console.log(statusId);
+    if(statusId === undefined) return;
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(environment.apiUrl + `/Status/deleteStatus`, {
+          ...this.httpOptions,
+          body: { 
+            statusId: statusId,
+            projectId: this.context.projectId
+          },
+        })
+      );
+    } catch (e) {
+      console.log(e);
+      if(e instanceof HttpErrorResponse){
+        if(e?.error?.errorMessage?.includes("exist on project with ID")){
+          this.snackBar.open("We can't delete a status that has active tasks", undefined, {
+            duration: 2000,
+          });
+        } else {
+          this.snackBar.open("We couldn't delete this status", undefined, {
+            duration: 2000,
+          });
+        }
+      }
+    }
+    await this.fetchStatuses();
+  }
+  public async createStatus(name: string) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Status/createStatus`, 
+        { name, projectId: this.context.projectId },
+        this.httpOptions
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchStatuses();
   }
 }

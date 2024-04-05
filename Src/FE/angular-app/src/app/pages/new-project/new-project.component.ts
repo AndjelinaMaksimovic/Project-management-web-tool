@@ -6,7 +6,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { InvitePopupComponent } from '../../components/invite-popup/invite-popup.component';
 import { TopnavComponent } from "../../components/topnav/topnav.component";
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { ProjectService } from '../../services/project.service';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf } from '@angular/common';
@@ -17,7 +17,7 @@ import { NgIf } from '@angular/common';
     templateUrl: './new-project.component.html',
     styleUrl: './new-project.component.css',
     imports: [MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule, MatIconModule, NgIf ],
-    providers: [ provideNativeDateAdapter() ]
+    providers: [ provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' } ]
 })
 export class NewProjectComponent {
   constructor(private dialogue: MatDialog, private projectService: ProjectService, private dialogRef: MatDialogRef<NewProjectComponent>){}
@@ -33,6 +33,7 @@ export class NewProjectComponent {
   description = ""
   usersSelected = []
   dueDate = new FormControl(new Date())
+  startDate = new FormControl(new Date())
   projects = [
     'pr1',
     'project 2'
@@ -63,7 +64,9 @@ export class NewProjectComponent {
       name: this.projectName,
       description: this.description,
       dueDate: this.dueDate.value,
-      userIds: this.usersSelected
+      startDate: this.startDate.value,
+      userIds: this.usersSelected,
+      isStarted: true
     })
     if(!res){
       this.errorMessage = 'Error creating project';

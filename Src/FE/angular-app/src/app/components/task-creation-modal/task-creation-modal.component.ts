@@ -83,6 +83,7 @@ export class TaskCreationModalComponent {
         category: this.category,
         priority: this.priority as 'Low' | 'High' | 'Medium',
         status: 'Active',
+        assignedTo: [],
       },
       1
     );
