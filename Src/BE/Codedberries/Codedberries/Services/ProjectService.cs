@@ -73,8 +73,6 @@ namespace Codedberries.Services
                 }
             }
 
-            project.Starred = request.IsStarred;
-
             _databaseContext.Projects.Add(project);
             await _databaseContext.SaveChangesAsync();
 
