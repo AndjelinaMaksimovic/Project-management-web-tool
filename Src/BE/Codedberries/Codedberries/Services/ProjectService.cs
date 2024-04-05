@@ -184,8 +184,7 @@ namespace Codedberries.Services
                     ProfilePicture = u.ProfilePicture
                 }).ToList(),
                 DueDate = p.DueDate,
-                StartDate = p.StartDate,
-                Starred = p.Starred
+                StartDate = p.StartDate
             }).ToList();
 
             return projects;
