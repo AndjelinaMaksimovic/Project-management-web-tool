@@ -145,7 +145,7 @@ namespace Codedberries.Services
         public List<ProjectDTO> GetFilteredProjects(HttpContext httpContext, ProjectFilterDTO filter)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
-            
+
             if (userId == null)
             {
                 throw new UnauthorizedAccessException("Invalid session!");
@@ -172,7 +172,7 @@ namespace Codedberries.Services
                 throw new ArgumentException("No filters provided for project search!");
             }
 
-  
+
             var projects = query.Select(p => new ProjectDTO
             {
                 Id = p.Id,
@@ -191,6 +191,88 @@ namespace Codedberries.Services
             }).ToList();
 
             return projects;
+        }
+
+        public async Task<UpdatedProjectInfoDTO> UpdateProject(HttpContext httpContext, ProjectUpdateRequestDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+            if (userRole != null && userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Project!");
+            }
+            if (request.ProjectId <= 0 || request.IsEmpty())
+            {
+                throw new ArgumentException("Not enough parameters for task update!");
+            }
+            var project = await _databaseContext.Projects.FirstOrDefaultAsync(t => t.Id == request.ProjectId);
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {request.ProjectId} not found!");
+            }
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                project.Name = request.Name;
+            }
+            if (!string.IsNullOrEmpty(request.Description))
+            {
+                project.Description = request.Description;
+            }
+            if (request.Users != null)
+            {
+                project.Users.Clear();
+                var userProjectsToRemove = _databaseContext.UserProjects.Where(up => up.ProjectId == request.ProjectId);
+                _databaseContext.UserProjects.RemoveRange(userProjectsToRemove);
+                _databaseContext.SaveChanges();
+                foreach (var userDto in request.Users)
+                {
+                    var userToAdd = await _databaseContext.Users.FindAsync(userDto);
+                    if (userToAdd != null)
+                    {
+                        project.Users.Add(userToAdd);
+                    }
+                }
+            }
+
+            if (request.DueDate.HasValue)
+            {
+                project.DueDate = request.DueDate.Value;
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                project.StartDate = request.StartDate.Value;
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
+            return new UpdatedProjectInfoDTO
+            {
+                Name = project.Name,
+                Description = project.Description,
+                Users = project.Users.Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                    FirstName = u.Firstname,
+                    LastName = u.Lastname,
+                    ProfilePicture = u.ProfilePicture
+                }).ToList(),
+                StartDate = project.StartDate,
+                DueDate = project.DueDate
+            };
         }
     }
 }
