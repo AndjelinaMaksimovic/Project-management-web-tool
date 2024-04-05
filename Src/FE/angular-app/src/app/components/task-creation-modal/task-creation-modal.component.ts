@@ -65,7 +65,8 @@ export class TaskCreationModalComponent {
       {
         title: this.title,
         description: this.description,
-        date: new Date(this.date),
+        startDate: new Date(this.date),
+        dueDate: new Date(this.date),
         category: this.category,
         priority: this.priority as 'Low' | 'High' | 'Medium',
         status: 'Active',

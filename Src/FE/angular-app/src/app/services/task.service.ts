@@ -14,7 +14,8 @@ export type Task = Readonly<{
   category: string;
   priority: 'Low' | 'Medium' | 'High';
   status: string;
-  date: Date;
+  startDate: Date;
+  dueDate: Date;
   id: number;
   projectId?: number | undefined;
   assignedTo: any;
@@ -51,7 +52,8 @@ export class TaskService {
       id: apiTask.taskId,
       projectId: this.context.projectId,
 
-      date: new Date(Date.parse(apiTask.dueDate)),
+      startDate: new Date(Date.parse(apiTask.startDate)),
+      dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
     };
   }
@@ -124,7 +126,7 @@ export class TaskService {
         request['statusId'] = this.statusService.nameToId(task.status);
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
-      if (task.date) request['dueDate'] = task.date;
+      if (task.dueDate) request['dueDate'] = task.dueDate;
       // update cache
       const index = this.tasks.findIndex((t) => t.id === task.id);
       this.tasks[index] = {...this.tasks[index], ...task};
@@ -177,7 +179,8 @@ export class TaskService {
           {
             name: task.title,
             description: task.description,
-            dueDate: task.date.toISOString(),
+            startDate: task.startDate.toISOString(),
+            dueDate: task.dueDate.toISOString(),
             statusId: 1,
             priorityId: 1,
             difficultyLevel: 1,

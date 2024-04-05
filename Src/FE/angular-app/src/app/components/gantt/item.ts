@@ -23,7 +23,6 @@ export class Item {
         public hover = false
     ){}
 }
-export type Items = Array<Item>
 export enum GanttColumn {
     tasks = "Tasks",
     users = "Users"
