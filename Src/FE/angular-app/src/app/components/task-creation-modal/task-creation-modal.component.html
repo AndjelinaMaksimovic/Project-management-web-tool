@@ -24,6 +24,15 @@
             </mat-form-field>
             <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event"></app-select>
             <app-select [options]="categories" label="Category" (valueChange)="category=$event"></app-select>
+            <!-- task dependencies -->
+            <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+                <mat-label>Dependencies</mat-label>
+                <mat-select [multiple]="true">
+                    @for (task of tasks; track task) {
+                        <mat-option [value]="task.value">{{task.viewValue}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
             <button style="width: 80%; margin: auto" (click)="createTask()" class="button-rounded" color="primary" mat-flat-button>Create Task</button>
             <div *ngIf="errorMessage" class="alert alert-danger">
                 {{ errorMessage }}

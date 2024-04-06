@@ -166,7 +166,7 @@ export class TaskService {
     }
   }
 
-  async createTask(task: Omit<Task, 'id'>, projectId: number) {
+  async createTask(task: Omit<Task, 'id'> & {dependencies: string[]}, projectId: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -179,7 +179,7 @@ export class TaskService {
             priorityId: 1,
             difficultyLevel: 1,
             categoryId: 1,
-            dependencyIds: [],
+            dependencyIds: task.dependencies,
             projectId: this.context.projectId,
           },
           {

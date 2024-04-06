@@ -35,6 +35,7 @@ export class TaskCreationModalComponent {
   startDate: string | null = null;
   priority: string | null = null;
   category: string | null = null;
+  dependencies: string[] = [];
 
   priorities = [
     { value: 'Low', viewValue: 'Low' },
@@ -42,6 +43,7 @@ export class TaskCreationModalComponent {
     { value: 'High', viewValue: 'High' },
   ];
   categories: { value: string; viewValue: string }[] = [];
+  tasks = this.taskService.getTasks().map(t => ({value: t.id, viewValue: t.title}));
   // get categories(){
   //   return this.categoryService.getCategories().map(cat => {
   //     return {
@@ -84,6 +86,7 @@ export class TaskCreationModalComponent {
         priority: this.priority as 'Low' | 'High' | 'Medium',
         status: 'Active',
         assignedTo: [],
+        dependencies: this.dependencies,
       },
       1
     );
