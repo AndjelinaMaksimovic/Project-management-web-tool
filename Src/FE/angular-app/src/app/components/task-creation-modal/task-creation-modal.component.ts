@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { AuthService } from '../../services/auth.service';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClearableInputComponent } from '../../components/clearable-input/clearable-input.component';
@@ -11,28 +11,31 @@ import { RolesService } from '../../services/roles.service';
 import { Task, TaskService } from '../../services/task.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { CategoryService } from '../../services/category.service';
-
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 @Component({
   selector: 'app-task-creation-modal',
   standalone: true,
   imports: [
     MaterialModule,
     FormsModule,
+    ReactiveFormsModule,
     CommonModule,
     ClearableInputComponent,
     EmailFieldComponent,
-    MaterialModule,
     SelectComponent,
   ],
   templateUrl: './task-creation-modal.component.html',
   styleUrl: './task-creation-modal.component.css',
+  providers: [ provideNativeDateAdapter(), { provide: MAT_DATE_LOCALE, useValue: 'en-GB' } ]
 })
 export class TaskCreationModalComponent {
   errorMessage: string | null = null;
   title: string | null = null;
   description: string | null = null;
-  date: string | null = null;
-  startDate: string | null = null;
+  // date: string | null = null;
+  // startDate: string | null = null;
+  dueDate = new FormControl(new Date())
+  startDate = new FormControl(new Date())
   priority: string | null = null;
   category: string | null = null;
   dependencies: string[] = [];
@@ -69,10 +72,12 @@ export class TaskCreationModalComponent {
   async createTask() {
     if (
       !this.title ||
-      !this.date ||
+      !this.dueDate ||
       !this.priority ||
       !this.description ||
-      !this.category
+      !this.category ||
+      !this.dueDate.value ||
+      !this.startDate.value
     ) {
       this.errorMessage = 'Please provide all required fields';
       return;
@@ -81,7 +86,7 @@ export class TaskCreationModalComponent {
       {
         title: this.title,
         description: this.description,
-        date: new Date(this.date),
+        date: this.dueDate.value,
         category: this.category,
         priority: this.priority as 'Low' | 'High' | 'Medium',
         status: 'Active',

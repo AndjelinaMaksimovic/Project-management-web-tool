@@ -9,13 +9,27 @@
             <!-- due date -->
             <div style="display: flex; gap: 10px;">
                 <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
-                    <mat-label>Start Date</mat-label>
-                    <input type="date" matInput [(ngModel)]="startDate">
+                    <mat-label>Start date</mat-label>
+                    <input matInput [matDatepicker]="dp" [formControl]="startDate">
+                    <mat-hint>DD/MM/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+                    <mat-datepicker #dp></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+                    <mat-label>Due date</mat-label>
+                    <input matInput [matDatepicker]="dp2" [formControl]="dueDate">
+                    <mat-hint>DD/MM/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="dp2"></mat-datepicker-toggle>
+                    <mat-datepicker #dp2></mat-datepicker>
+                </mat-form-field>
+                <!-- <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+                    <mat-label>Start Date</mat-label>
+                    <input type="date" matInput [(ngModel)]="startDate">
+                </mat-form-field> -->
+                <!-- <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                     <mat-label>Due Date</mat-label>
                     <input type="date" matInput [placeholder]="'Due Date'" [(ngModel)]="date">
-                </mat-form-field>
+                </mat-form-field> -->
             </div>
             <!-- description -->
             <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
