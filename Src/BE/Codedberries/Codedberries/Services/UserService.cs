@@ -169,6 +169,12 @@ namespace Codedberries.Services
 
         public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, int? projectId = null)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
         }
     }
 }
