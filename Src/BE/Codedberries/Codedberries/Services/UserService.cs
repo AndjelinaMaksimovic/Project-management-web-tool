@@ -11,11 +11,13 @@ namespace Codedberries.Services
         private const int Iterations = 10000;
 
         private readonly AppDatabaseContext _databaseContext;
+        private readonly AuthorizationService _authorizationService;
         private const int SessionDurationHours = 24;
 
-        public UserService(AppDatabaseContext databaseContext)
+        public UserService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
         {
             _databaseContext = databaseContext;
+            _authorizationService = authorizationService;
         }
 
         public Session LoginUser(string email, string password)
