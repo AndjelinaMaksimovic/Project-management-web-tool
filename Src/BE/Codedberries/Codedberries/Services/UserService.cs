@@ -164,5 +164,9 @@ namespace Codedberries.Services
 
             return true;
         }
+
+        public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, int? projectId = null)
+        {
+        }
     }
 }
