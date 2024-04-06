@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
 namespace Codedberries.Services
@@ -174,6 +175,13 @@ namespace Codedberries.Services
             if (userId == null)
             {
                 throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
             }
         }
     }
