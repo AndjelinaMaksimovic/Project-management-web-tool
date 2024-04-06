@@ -18,41 +18,40 @@ namespace Codedberries.Helpers
             );
 
             context.Projects.AddRange(
-                new Project ("Project1", "description 1", DateTime.Today.AddDays(3)),
-                new Project ("Project2", "description 2", DateTime.Today.AddDays(5)),
-                new Project ("Project3", "description 3", DateTime.Today.AddDays(4)),
-                new Project ("Project4", "description 4", DateTime.Today.AddDays(2)),
-                new Project ("Project5", "description 5", DateTime.Today.AddDays(4))
+                new Project ("Data Analytics Dashboard for Small Businesses", "This project involves developing a comprehensive data analytics dashboard tailored for small businesses.", DateTime.Today.AddDays(3)),
+                new Project ("Mobile App Development for Fitness Tracker", "This project focuses on developing a mobile application for tracking fitness activities.", DateTime.Today.AddDays(5)),
+                new Project ("Marketing Campaign for New Product Launch", "In this project, a comprehensive marketing campaign will be strategized and executed to promote the launch of a new product.", DateTime.Today.AddDays(4)),
+                new Project ("Infrastructure Upgrade for Local Library", "This project entails upgrading the infrastructure of a local library to modernize its facilities and improve operational efficiency.", DateTime.Today.AddDays(2)),
+                new Project ("E-commerce Platform Development for Fashion Boutique", "This project aims to develop a bespoke e-commerce platform tailored for a fashion boutique's online presence.", DateTime.Today.AddDays(4))
             );
 
             context.Users.AddRange(
 
-             new Models.User("user1@example.com", "password1", "John", "Doe", null),
-             new Models.User("user2@example.com", "password2", "Jane", "Doe", null),
-             new Models.User("user3@example.com", "password3", "Mark", "Smith", 1),
-             new Models.User("user4@example.com", "password3", "Jack", "Smith", 3),
-             new Models.User("user5@example.com", "password3", "Sarah", "Smith", 2),
-             new Models.User("user6@example.com", "password3", "Marry", "Smith", 4)
+             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", 1),
+             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", null),
+             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null),
+             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3),
+             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", 2),
+             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 4)
              );
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), DateTime.Today, 1, 1, 2, 1, 1, 1),
-                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 1, 2),
-                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), DateTime.Today, 3, 3, 1, 1, 1, 1),
-                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), DateTime.Today, 2, 1, 3, 1, 1, 2),
-                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), DateTime.Today, 4, 2, 3, 1, 1, 1),
-                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(1), DateTime.Today, 1, 3, 2, 1, 1, 2)
+                new Models.Task("Market Research", "Conduct market research to analyze competitors' platforms", DateTime.Today.AddDays(1), DateTime.Today, 1, 1, 2, 1, 1, 1),
+                new Models.Task("Design Wireframes", "Create wireframes and mockups for the user interface ", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 1, 2),
+                new Models.Task("Develop Frontend", "Develop frontend components using HTML, CSS, and JavaScript", DateTime.Today.AddDays(6), DateTime.Today, 3, 3, 1, 1, 1, 1),
+                new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication", DateTime.Today.AddDays(5), DateTime.Today, 2, 1, 3, 1, 1, 2),
+                new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility", DateTime.Today.AddDays(4), DateTime.Today, 4, 2, 3, 1, 1, 1),
+                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels", DateTime.Today.AddDays(1), DateTime.Today, 1, 3, 2, 1, 1, 2)
                 );
 
 
             context.Categories.AddRange(
-                new Category("Category 1", 1),
-                new Category("Category 2", 2),
-                new Category("Category 3", 3),
-                new Category("Category 4", 1),
-                new Category("Category 5", 1),
-                new Category("Category 6", 2)
-            );
+                new Category("Development", 1),
+                new Category("Marketing", 2),
+                new Category("Design", 3),
+                new Category("Finance", 5),
+                new Category("Research", 4)
+                );
 
             context.Statuses.AddRange(
                 new Status("New", 1),
@@ -73,9 +72,9 @@ namespace Codedberries.Helpers
             );
 
             context.Priorities.AddRange(
-                new Priority("Priority 1",3),
-                new Priority("Priority 2", 5),
-                new Priority("Priority 3", 6)
+                new Priority("High Priority", 3),
+                new Priority("Medium Priority", 5),
+                new Priority("Low Priority", 6)
             );
 
             context.SaveChanges();
@@ -98,33 +97,33 @@ namespace Codedberries.Helpers
             context.SaveChanges();
 
             context.Projects.AddRange(
-                new Project("Project1", "description 1", DateTime.Today.AddDays(5)),
-                new Project("Project2", "description 2", DateTime.Today.AddDays(6)),
-                new Project("Project3", "description 3", DateTime.Today.AddDays(4)),
-                new Project("Project4", "description 4", DateTime.Today.AddDays(3)),
-                new Project("Project5", "description 5", DateTime.Today.AddDays(4))
+                new Project("Data Analytics Dashboard for Small Businesses", "This project involves developing a comprehensive data analytics dashboard tailored for small businesses.", DateTime.Today.AddDays(5)),
+                new Project("Mobile App Development for Fitness Tracker", "This project focuses on developing a mobile application for tracking fitness activities.", DateTime.Today.AddDays(6)),
+                new Project("Marketing Campaign for New Product Launch", "In this project, a comprehensive marketing campaign will be strategized and executed to promote the launch of a new product.", DateTime.Today.AddDays(4)),
+                new Project("Infrastructure Upgrade for Local Library", "This project entails upgrading the infrastructure of a local library to modernize its facilities and improve operational efficiency.", DateTime.Today.AddDays(3)),
+                new Project("E-commerce Platform Development for Fashion Boutique", "This project aims to develop a bespoke e-commerce platform tailored for a fashion boutique's online presence.", DateTime.Today.AddDays(4))
             );
 
             context.SaveChanges();
 
             context.Users.AddRange(
 
-             new Models.User("user1@example.com", "password1", "John", "Doe", null),
-             new Models.User("user2@example.com", "password2", "Jane", "Doe", 1),
-             new Models.User("user3@example.com", "password3", "Mark", "Smith", null),
-             new Models.User("user4@example.com", "password3", "Jack", "Smith", 3),
-             new Models.User("user5@example.com", "password3", "Sarah", "Smith", null),
-             new Models.User("user6@example.com", "password3", "Marry", "Smith", 5)
+             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", null),
+             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", 1),
+             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null),
+             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3),
+             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", null),
+             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 5)
              );
 
             context.SaveChanges();
 
             context.Categories.AddRange(
-                new Category("Category 1", 1), 
-                new Category("Category 2", 2), 
-                new Category("Category 3", 3), 
-                new Category("Category 4", 4), 
-                new Category("Category 5", 5)
+                new Category("Development",1),
+                new Category("Marketing",2),
+                new Category("Design",3),
+                new Category("Finance",4),
+                new Category("Research",5)
             );
 
             context.SaveChanges();
@@ -150,20 +149,20 @@ namespace Codedberries.Helpers
             context.SaveChanges();
 
             context.Priorities.AddRange(
-                new Priority("Priority 1", 1),
-                new Priority("Priority 2", 2),
-                new Priority("Priority 3", 3)
+                new Priority("High Priority", 9),
+                new Priority("Medium Priority", 6),
+                new Priority("Low Priority", 3)
             );
 
             context.SaveChanges();
 
             context.Tasks.AddRange(
-                new Models.Task("Task 1", "Task 1 Description", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 2, 2),
-                new Models.Task("Task 2", "Task 2 Description", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 1, 1),
-                new Models.Task("Task 3", "Task 3 Description", DateTime.Today.AddDays(6), DateTime.Today, 5, 4, 3, 1, 2, 2),
-                new Models.Task("Task 4", "Task 4 Description", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
-                new Models.Task("Task 5", "Task 5 Description", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 3, 3),
-                new Models.Task("Task 6", "Task 6 Description", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 1, 1)
+                new Models.Task("Market Research", "Conduct market research to analyze competitors' platforms", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 2, 2),
+                new Models.Task("Design Wireframes", "Create wireframes and mockups for the user interface ", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 1, 1),
+                new Models.Task("Develop Frontend", "Develop frontend components using HTML, CSS, and JavaScript", DateTime.Today.AddDays(6), DateTime.Today, 5, 4, 3, 1, 2, 2),
+                new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
+                new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 3, 3),
+                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 1, 1)
             );
 
             context.SaveChanges();
