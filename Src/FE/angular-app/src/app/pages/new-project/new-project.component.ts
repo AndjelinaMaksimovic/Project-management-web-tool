@@ -65,7 +65,11 @@ export class NewProjectComponent {
       description: this.description,
       dueDate: this.dueDate.value,
       startDate: this.startDate.value,
+<<<<<<< Updated upstream
       userIds: this.usersSelected,
+=======
+      userIds:[],
+>>>>>>> Stashed changes
       isStarted: true
     })
     if(!res){

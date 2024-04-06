@@ -75,7 +75,10 @@ export class ProjectService {
           environment.httpOptions
         )
       );
+      await this.fetchProjects();
+
       if (!res.ok) return false;
+      
       return true;
     } catch (e) {
       console.log(e);
