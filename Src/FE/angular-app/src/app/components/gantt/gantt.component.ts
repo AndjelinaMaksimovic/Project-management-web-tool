@@ -3,6 +3,8 @@ import { GanttColumn, Item, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 
+// TODO: bug when item width is 0 or starts and ends during the weekend
+
 @Component({
   selector: 'app-gantt',
   standalone: true,
