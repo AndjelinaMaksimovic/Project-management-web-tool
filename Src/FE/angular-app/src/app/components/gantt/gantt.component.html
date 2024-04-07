@@ -8,10 +8,10 @@
                 </div>
                 <div [style.width]="colWidths[idx]+'px'">
                     @for (item of items; track item) {
-                        <div class="task-height" style="padding-left: 5px;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
+                        <div [style.height]="taskHeight+'px'" style="padding-left: 5px; display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
                             <!-- tasks column -->
-                            <div class="task" style="width: 100%;" *ngIf="col == GanttColumn.tasks">
-                                <p>{{item.title}}</p>
+                            <div class="task" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks">
+                                {{item.title}}
                                 <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div>
                             </div>
                             <!-- users column -->
@@ -36,14 +36,14 @@
                 }
             </div>
             @for (item of items; track item) {
-                <div class="task-height" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
+                <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
                     <div class="task" *ngIf="item.display" [ngStyle]="{
                         'left': item.left,
                         'width': item.width,
                     }">
                         <div class="task-bar" [ngStyle]="{
                             'background-color': item.color,
-                            'height': barHeight+'px'
+                            'height': barHeight+'px',
                         }">
                             @for (user of item.assignedTo; track user; let idx = $index) {
                                 <div style="font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{

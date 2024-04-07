@@ -19,6 +19,8 @@ export class GanttComponent implements OnInit{
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
   @Input() colWidths: number[] = [100]
   @Input() timeScale: TimeScale = TimeScale.day
+  
+  @Input() hideWeekend: boolean = false
   @Input() holidays: Date[] = []
 
   dates!: string[]
@@ -33,7 +35,7 @@ export class GanttComponent implements OnInit{
   ngOnInit(): void {
     if(this.items.length == 0){
       
-      if(this.tasks.length==0){
+      if(this.tasks.length == 0){ // no tasks or items provided
         this.dates = []
         this.chartStartDate = Date.now()
         return
@@ -85,9 +87,11 @@ export class GanttComponent implements OnInit{
     const d = new Date(day);
     d.setHours(0, 0, 0, 0)
     day = d.getDay();
-    if (day >= 1 && day <= 5 && !this.holidays.includes(d))
-      return true
-    return false
+    if (this.hideWeekend && (day == 0 || day == 6))
+      return false
+    if(this.holidays.includes(d))
+      return false
+    return true
   }
 
   initTimeHeader(){
