@@ -58,11 +58,11 @@ namespace Codedberries.Controllers
         }
 
         [HttpGet("getUsers")]
-        public async Task<IActionResult> GetUsers([FromQuery] ProjectIdDTO request)
+        public async Task<IActionResult> GetUsers([FromQuery] UserFilterDTO request)
         {
             try
             {
-                var users = await _userService.GetUsers(HttpContext, request.ProjectId);
+                var users = await _userService.GetUsers(HttpContext, request);
 
                 return Ok(users);
             }
