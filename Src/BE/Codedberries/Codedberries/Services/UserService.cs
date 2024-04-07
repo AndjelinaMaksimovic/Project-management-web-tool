@@ -219,6 +219,11 @@ namespace Codedberries.Services
                     }).ToList()
                 }).ToListAsync();
 
+            if (users.Count == 0)
+            {
+                throw new InvalidOperationException("No users found in database!");
+            }
+
             return users;
         }
     }
