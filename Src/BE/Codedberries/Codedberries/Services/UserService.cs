@@ -196,7 +196,30 @@ namespace Codedberries.Services
                 usersQuery = usersQuery.Where(u => u.Projects.Any(p => p.Id == projectId));
             }
 
-            usersQuery = usersQuery.Where(u => u.RoleId != null && u.Role.Name != "Super user");
+            usersQuery = usersQuery.Where(u => u.Role.Name.ToLower().Contains("super user"));
+
+            var users = await usersQuery
+                .Select(u => new UserInformationDTO
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Firstname = u.Firstname,
+                    Lastname = u.Lastname,
+                    Activated = u.Activated,
+                    ProfilePicture = u.ProfilePicture,
+                    RoleId = u.RoleId,
+                    RoleName = u.Role.Name,
+                    Projects = u.Projects.Select(p => new ProjectDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        DueDate = p.DueDate,
+                        StartDate = p.StartDate
+                    }).ToList()
+                }).ToListAsync();
+
+            return users;
         }
     }
 }
