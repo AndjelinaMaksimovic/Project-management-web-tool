@@ -56,5 +56,28 @@ namespace Codedberries.Controllers
 
             return Ok(new { resp = "Success" });
         }
+
+        [HttpGet("getUsers")]
+        public async Task<IActionResult> GetUsers([FromQuery] int? projectId = null)
+        {
+            try
+            {
+                var users = await _userService.GetUsers(HttpContext, projectId);
+
+                return Ok(users);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
     }
 }
