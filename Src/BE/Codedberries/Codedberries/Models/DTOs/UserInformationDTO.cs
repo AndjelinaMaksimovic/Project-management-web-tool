@@ -9,6 +9,7 @@
         public bool Activated { get; set; }
         public string? ProfilePicture { get; set; }
         public int? RoleId { get; set; }
+        public string? RoleName { get; set; }
         public ICollection<ProjectDTO> Projects { get; set; }
     }
 }
