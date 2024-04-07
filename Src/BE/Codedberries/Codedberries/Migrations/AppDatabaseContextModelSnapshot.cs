@@ -98,9 +98,6 @@ namespace Codedberries.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Starred")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("TEXT");
 

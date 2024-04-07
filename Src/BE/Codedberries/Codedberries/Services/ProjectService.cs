@@ -73,8 +73,6 @@ namespace Codedberries.Services
                 }
             }
 
-            project.Starred = request.IsStarred;
-
             _databaseContext.Projects.Add(project);
             await _databaseContext.SaveChangesAsync();
 
@@ -186,8 +184,7 @@ namespace Codedberries.Services
                     ProfilePicture = u.ProfilePicture
                 }).ToList(),
                 DueDate = p.DueDate,
-                StartDate = p.StartDate,
-                Starred = p.Starred
+                StartDate = p.StartDate
             }).ToList();
 
             return projects;

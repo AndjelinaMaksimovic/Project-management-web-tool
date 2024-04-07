@@ -8,6 +8,5 @@
         public List<UserDTO> Users { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime StartDate { get; set; }
-        public bool Starred { get; set; }
     }
 }
