@@ -168,7 +168,7 @@ namespace Codedberries.Services
             return true;
         }
 
-        public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, int? projectId = null)
+        public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, UserFilterDTO body)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -191,9 +191,14 @@ namespace Codedberries.Services
 
             var usersQuery = _databaseContext.Users.AsQueryable();
 
-            if (projectId != null)
+            if (body.ProjectId != null)
             {
-                usersQuery = usersQuery.Where(u => u.Projects.Any(p => p.Id == projectId));
+                usersQuery = usersQuery.Where(u => u.Projects.Any(p => p.Id == body.ProjectId));
+            }
+
+            if (body.RoleId != null)
+            {
+                usersQuery = usersQuery.Where(u => u.RoleId == body.RoleId);
             }
 
             usersQuery = usersQuery.Where(u => u.Role.Name.ToLower().Contains("super user"));
