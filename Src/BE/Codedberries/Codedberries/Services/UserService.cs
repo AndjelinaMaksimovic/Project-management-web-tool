@@ -188,6 +188,15 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
+
+            var usersQuery = _databaseContext.Users.AsQueryable();
+
+            if (projectId != null)
+            {
+                usersQuery = usersQuery.Where(u => u.Projects.Any(p => p.Id == projectId));
+            }
+
+            usersQuery = usersQuery.Where(u => u.RoleId != null && u.Role.Name != "Super user");
         }
     }
 }
