@@ -1,0 +1,55 @@
+.container {
+    padding: 1rem;
+    padding-top: 0rem;
+    border-radius: 10px;
+    border: 1px solid #C1C1C1;
+    width: 30rem;
+}
+
+.button {
+    letter-spacing: normal;
+    margin-top: auto;
+    margin-bottom: auto;
+    text-align: center;
+    padding: 10px;
+    border: 0;
+    background-color: transparent;
+}
+
+.button:hover {
+    filter: brightness(95%);
+}
+
+.button:active {
+    filter: brightness(90%);
+}
+
+.title {
+    font-size: larger;
+    font-weight: 500;
+}
+
+.clear {
+    font-size: large;
+    font-weight: 500;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+    vertical-align: middle;
+}
+
+.select {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #C1C1C1;
+    width: 7rem;
+}
+
+.input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #C1C1C1;
+    width: 100%;
+}
