@@ -199,7 +199,8 @@ namespace Codedberries.Services
                 usersQuery = usersQuery.Where(u => u.RoleId == body.RoleId);
             }
 
-            usersQuery = usersQuery.Where(u => u.Role.Name.ToLower().Contains("super user"));
+            usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
+
 
             var users = await usersQuery
                 .Select(u => new UserInformationDTO
