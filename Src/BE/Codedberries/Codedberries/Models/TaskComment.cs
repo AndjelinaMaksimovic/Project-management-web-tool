@@ -13,11 +13,17 @@ namespace Codedberries.Models
         [Required]
         public string Comment { get; set; }
 
-        [ForeignKey("UserId")]
+        [Required]
         public int UserId { get; set; }
 
-        [ForeignKey("TaskId")]
+        [ForeignKey("UserId")]
+        public User User { get; set; }
+
+        [Required]
         public int TaskId { get; set; }
+
+        [ForeignKey("TaskId")]
+        public Task Task { get; set; }
 
         public TaskComment(string comment, int userid, int taskid)
         {
