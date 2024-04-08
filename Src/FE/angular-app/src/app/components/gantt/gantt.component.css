@@ -1,7 +1,6 @@
 *{
     margin: 0;
     padding: 0;
-    /* font-size: 0px !important; */
 }
 
 .info{
@@ -56,4 +55,8 @@
 }
 .hover {
     background-color: #F5F5F5;
+}
+.task-title:hover{
+    text-decoration: underline;
+    cursor: text;
 }

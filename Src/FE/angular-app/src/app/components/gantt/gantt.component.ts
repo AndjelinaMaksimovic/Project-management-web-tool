@@ -25,6 +25,7 @@ export class GanttComponent implements OnInit{
 
   dates!: string[]
   chartStartDate!: number
+  idMap: Record<number, number> = [] // id to index
 
   columnWidth = 60
   taskHeight = 20
@@ -37,6 +38,7 @@ export class GanttComponent implements OnInit{
       
       if(this.tasks.length == 0){ // no tasks or items provided
         this.dates = []
+        this.idMap = []
         this.chartStartDate = Date.now()
         return
       }
@@ -57,9 +59,11 @@ export class GanttComponent implements OnInit{
         )
       }
     }
+    for (let i = 0; i < this.items.length; i++) {
+      this.idMap[this.items[i].id] = i
+    }
 
     this.initTimeHeader()
-
     this.holidays.forEach(date => {
       date.setHours(0, 0, 0, 0)
     });
@@ -67,12 +71,12 @@ export class GanttComponent implements OnInit{
     this.items.forEach(item => {
       var t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
       t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.left = t*this.columnWidth + 'px'
+      item.left = t*this.columnWidth
       // console.log()
       t = item.startDate - item.startDate % this.timeScale  // normalize start
       t = (Math.ceil((item.dueDate - t) / this.timeScale))
       t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.width = t*this.columnWidth + 'px'
+      item.width = t*this.columnWidth
     });
   }
 

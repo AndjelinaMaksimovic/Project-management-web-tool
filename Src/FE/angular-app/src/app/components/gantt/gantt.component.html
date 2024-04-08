@@ -10,9 +10,9 @@
                     @for (item of items; track item) {
                         <div [style.height]="taskHeight+'px'" style="padding-left: 5px; display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
                             <!-- tasks column -->
-                            <div class="task" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks">
+                            <div class="task task-title" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks">
                                 {{item.title}}
-                                <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div>
+                            <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
                             </div>
                             <!-- users column -->
                             <div class="task" *ngIf="col == GanttColumn.users">
@@ -38,12 +38,12 @@
             @for (item of items; track item) {
                 <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
                     <div class="task" *ngIf="item.display" [ngStyle]="{
-                        'left': item.left,
-                        'width': item.width,
+                        'left': item.left + 'px',
+                        'width': item.width + 'px',
                     }">
                         <div class="task-bar" [ngStyle]="{
                             'background-color': item.color,
-                            'height': barHeight+'px',
+                            'height': barHeight+'px'
                         }">
                             @for (user of item.assignedTo; track user; let idx = $index) {
                                 <div style="font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{
@@ -51,7 +51,24 @@
                                     'width': (barHeight-2)+'px'
                                 }"> A</div>
                             }
-                            <div style="position: absolute; right: -12px; font-weight: bold; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#10247;</div>
+
+                            <!-- Dependenct lines -->
+                            @for (dependant of item.dependant; track dependant){
+                                <!-- from task to the right -->
+                                <div style="position: absolute; right: -10px; background-color: grey; width: 15px; height: 3px;"
+                                [style.top]="(barHeight / 2 - 1) + 'px'"></div>
+                                <!-- down / up -->
+                                <!-- if the dependency start before the task ends put red and down just below task
+                                otherwise down to the next task -->
+                                <div style="position: absolute; right: -10px; background-color: grey; width: 3px;"
+                                [style.height]="(idMap[dependant]-idMap[item.id])*taskHeight+'px'"
+                                [style.top]="(barHeight / 2 - 1)+'px'"></div>
+                                <div style="position: absolute; background-color: grey; height: 3px;"
+                                [style.width]="(items[idMap[dependant]].left - item.left - item.width)+'px'"
+                                [style.top]="(barHeight / 2 - 1) + idMap[dependant]*taskHeight+'px'"
+                                [style.right]="-(items[idMap[dependant]].left - item.left - item.width + 7)+'px'"></div>
+                            }
+                            <div style="position: absolute; right: -12px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#10247;</div>
                         </div>
                     </div>
                 </div>

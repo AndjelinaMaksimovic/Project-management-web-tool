@@ -14,11 +14,12 @@ export class Item {
         public status: string,
         public startDate: number = Date.now(),
         public dueDate: number,
-        public assignedTo: Array<User> = [],
+        public assignedTo: User[] = [],
+        public dependant: number[] = [], // ID-s of tasks that depend on this one
 
         public color = '#5096A4',
-        public left = '',
-        public width = '',
+        public left = 0,
+        public width = 0,
         public display = true,
         public hover = false
     ){}
