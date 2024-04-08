@@ -37,7 +37,7 @@ namespace Codedberries.Migrations
                     b.HasIndex("Name", "ProjectId")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Invite", b =>
@@ -57,7 +57,7 @@ namespace Codedberries.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Invites");
+                    b.ToTable("Invites", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Priority", b =>
@@ -78,7 +78,7 @@ namespace Codedberries.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Priorities");
+                    b.ToTable("Priorities", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Project", b =>
@@ -103,7 +103,7 @@ namespace Codedberries.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Role", b =>
@@ -151,7 +151,7 @@ namespace Codedberries.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Session", b =>
@@ -171,7 +171,7 @@ namespace Codedberries.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Status", b =>
@@ -191,7 +191,7 @@ namespace Codedberries.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Statuses", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Task", b =>
@@ -245,7 +245,7 @@ namespace Codedberries.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.TaskDependency", b =>
@@ -260,7 +260,7 @@ namespace Codedberries.Migrations
 
                     b.HasKey("TaskId", "DependentTaskId");
 
-                    b.ToTable("TaskDependency");
+                    b.ToTable("TaskDependency", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.User", b =>
@@ -306,7 +306,7 @@ namespace Codedberries.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>
@@ -326,7 +326,7 @@ namespace Codedberries.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("UserProjects");
+                    b.ToTable("UserProjects", (string)null);
                 });
 
             modelBuilder.Entity("Codedberries.Models.Category", b =>
