@@ -41,7 +41,7 @@ namespace Codedberries.Helpers
                 new Models.Task("Develop Frontend", "Develop frontend components using HTML, CSS, and JavaScript", DateTime.Today.AddDays(6), DateTime.Today, 3, 3, 1, 1, 1, 1),
                 new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication", DateTime.Today.AddDays(5), DateTime.Today, 2, 1, 3, 1, 1, 2),
                 new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility", DateTime.Today.AddDays(4), DateTime.Today, 4, 2, 3, 1, 1, 1),
-                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels", DateTime.Today.AddDays(1), DateTime.Today, 1, 3, 2, 1, 1, 2)
+                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels", DateTime.Today.AddDays(1), DateTime.Today, 1, 3, 2, 1, 2, 2)
                 );
 
 
@@ -120,8 +120,8 @@ namespace Codedberries.Helpers
 
             context.Categories.AddRange(
                 new Category("Development",1),
-                new Category("Marketing",2),
-                new Category("Design",3),
+                new Category("Marketing",3),
+                new Category("Design",2),
                 new Category("Finance",4),
                 new Category("Research",5)
             );
@@ -157,12 +157,12 @@ namespace Codedberries.Helpers
             context.SaveChanges();
 
             context.Tasks.AddRange(
-                new Models.Task("Market Research", "Conduct market research to analyze competitors' platforms", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 2, 2),
-                new Models.Task("Design Wireframes", "Create wireframes and mockups for the user interface ", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 1, 1),
-                new Models.Task("Develop Frontend", "Develop frontend components using HTML, CSS, and JavaScript", DateTime.Today.AddDays(6), DateTime.Today, 5, 4, 3, 1, 2, 2),
-                new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
-                new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 3, 3),
-                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 1, 1)
+                new Models.Task("Market Research", "Conduct market research to analyze competitors' platforms.", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 3, 3),
+                new Models.Task("Design Wireframes", "Create wireframes and mockups for the user interface.", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 2, 2),
+                new Models.Task("Develop Frontend", "Develop frontend components using HTML, CSS, and JavaScript.", DateTime.Today.AddDays(6), DateTime.Today, 5, 4, 3, 1, 1, 1),
+                new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication.", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
+                new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility.", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 2, 2),
+                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels.", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 3, 3)
             );
 
             context.SaveChanges();
