@@ -19,6 +19,7 @@ export const routes: Routes = [
   { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
+  { path: 'task/:id', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
   { path: '**', component: ErrorComponent },
 ];
