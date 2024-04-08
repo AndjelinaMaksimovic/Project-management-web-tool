@@ -22,10 +22,7 @@ namespace Codedberries.Models
         public ICollection<Category> Categories { get; set; }
 
         public DateTime DueDate { get; set; }
-
         public DateTime StartDate { get; set; }
-
-        public Boolean Starred { get; set; }
 
         public Project(string name, string description, DateTime dueDate)
         {

@@ -14,5 +14,6 @@ namespace Codedberries.Models.DTOs
         public int CategoryId { get; set; }
         public List<int> DependencyIds { get; set; }
         public int ProjectId { get; set; }
+        public int UserId { get; set; }
     }
 }
