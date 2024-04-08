@@ -10,11 +10,54 @@ namespace Codedberries.Helpers
 
             // Add sample roles
             context.Roles.AddRange(
-                new Role("Super user"),
-                new Role("Project owner"),
-                new Role("Project manager"),
-                new Role("Employee"),
+                new Role("Super user")
+                {
+                    CanAddNewUser = true,
+                    CanAddUserToProject = true,
+                    CanRemoveUserFromProject = true,
+                    CanCreateProject = true,
+                    CanDeleteProject = true,
+                    CanEditProject = true,
+                    CanViewProject = true,
+                    CanAddTaskToUser = true,
+                    CanCreateTask = true,
+                    CanRemoveTask = true,
+                    CanEditTask = true
+                },
+                new Role("Project owner")
+                {
+                    CanAddUserToProject = true,
+                    CanRemoveUserFromProject = true,
+                    CanCreateProject = true,
+                    CanDeleteProject = true,
+                    CanEditProject = true,
+                    CanViewProject = true,
+                    CanAddTaskToUser = true,
+                    CanCreateTask = true,
+                    CanRemoveTask = true,
+                    CanEditTask = true
+                },
+                new Role("Project manager") 
+                {
+                    CanAddUserToProject = true,
+                    CanRemoveUserFromProject = true,
+                    CanEditProject = true,
+                    CanViewProject = true,
+                    CanAddTaskToUser = true,
+                    CanCreateTask = true,
+                    CanRemoveTask = true,
+                    CanEditTask = true
+                },
+                new Role("Employee")
+                {
+                    CanEditProject = true,
+                    CanViewProject = true,
+                    CanEditTask = true
+                },
                 new Role("Viewer")
+                {
+                    CanViewProject = true
+                }
             );
 
             context.Projects.AddRange(
@@ -72,9 +115,9 @@ namespace Codedberries.Helpers
             );
 
             context.Priorities.AddRange(
-                new Priority("High Priority", 3),
-                new Priority("Medium Priority", 5),
-                new Priority("Low Priority", 6)
+                new Priority("High", 3),
+                new Priority("Medium", 5),
+                new Priority("Low", 6)
             );
 
             context.SaveChanges();
@@ -87,11 +130,54 @@ namespace Codedberries.Helpers
 
             // Add sample roles
             context.Roles.AddRange(
-                new Role("Super user"),
-                new Role("Project owner"),
-                new Role("Project manager"),
-                new Role("Employee"),
+                 new Role("Super user")
+                 {
+                     CanAddNewUser = true,
+                     CanAddUserToProject = true,
+                     CanRemoveUserFromProject = true,
+                     CanCreateProject = true,
+                     CanDeleteProject = true,
+                     CanEditProject = true,
+                     CanViewProject = true,
+                     CanAddTaskToUser = true,
+                     CanCreateTask = true,
+                     CanRemoveTask = true,
+                     CanEditTask = true
+                 },
+                new Role("Project owner")
+                {
+                    CanAddUserToProject = true,
+                    CanRemoveUserFromProject = true,
+                    CanCreateProject = true,
+                    CanDeleteProject = true,
+                    CanEditProject = true,
+                    CanViewProject = true,
+                    CanAddTaskToUser = true,
+                    CanCreateTask = true,
+                    CanRemoveTask = true,
+                    CanEditTask = true
+                },
+                new Role("Project manager")
+                {
+                    CanAddUserToProject = true,
+                    CanRemoveUserFromProject = true,
+                    CanEditProject = true,
+                    CanViewProject = true,
+                    CanAddTaskToUser = true,
+                    CanCreateTask = true,
+                    CanRemoveTask = true,
+                    CanEditTask = true
+                },
+                new Role("Employee")
+                {
+                    CanEditProject = true,
+                    CanViewProject = true,
+                    CanEditTask = true
+                },
                 new Role("Viewer")
+                {
+                    CanViewProject = true
+                }
             );
 
             context.SaveChanges();
@@ -149,9 +235,9 @@ namespace Codedberries.Helpers
             context.SaveChanges();
 
             context.Priorities.AddRange(
-                new Priority("High Priority", 9),
-                new Priority("Medium Priority", 6),
-                new Priority("Low Priority", 3)
+                new Priority("High", 9),
+                new Priority("Medium", 6),
+                new Priority("Low", 3)
             );
 
             context.SaveChanges();
