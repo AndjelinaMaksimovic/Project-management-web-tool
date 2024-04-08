@@ -231,5 +231,39 @@ namespace Codedberries.Services
 
             return users;
         }
+
+        /*
+         * method ValidateUsersSession is created because it cannot be directly called
+         * from the AuthorizationService class to prevent a circular dependency between
+         * these classes (AuthorizationService needs UserService and UserService would
+         * need AuthorizationService), this method will only be used here
+         */
+        public int? ValidateUsersSession(HttpContext httpContext)
+        {
+            string? sessionToken = "";
+
+            if (httpContext.Request.Cookies.TryGetValue("sessionId", out sessionToken))
+            {
+                if (this.ValidateSession(sessionToken) == false)
+                {
+                    throw new UnauthorizedAccessException("Session is invalid or expired!");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Session cookie not found!");
+            }
+
+            var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
+
+            if (session != null && session.ExpirationTime > DateTime.UtcNow)
+            {
+                return session.UserId;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
