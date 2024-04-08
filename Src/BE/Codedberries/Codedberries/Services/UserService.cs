@@ -12,13 +12,11 @@ namespace Codedberries.Services
         private const int Iterations = 10000;
 
         private readonly AppDatabaseContext _databaseContext;
-        private readonly AuthorizationService _authorizationService;
         private const int SessionDurationHours = 24;
 
-        public UserService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
+        public UserService(AppDatabaseContext databaseContext)
         {
             _databaseContext = databaseContext;
-            _authorizationService = authorizationService;
         }
 
         public Session LoginUser(string email, string password)
@@ -170,7 +168,7 @@ namespace Codedberries.Services
 
         public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, UserFilterDTO body)
         {
-            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+            var userId = this.GetCurrentSessionUser(httpContext);
 
             if (userId == null)
             {
@@ -233,12 +231,12 @@ namespace Codedberries.Services
         }
 
         /*
-         * method ValidateUsersSession is created because it cannot be directly called
+         * method GetCurrentSessionUser is created because it cannot be directly called
          * from the AuthorizationService class to prevent a circular dependency between
          * these classes (AuthorizationService needs UserService and UserService would
          * need AuthorizationService), this method will only be used here
          */
-        public int? ValidateUsersSession(HttpContext httpContext)
+        public int? GetCurrentSessionUser(HttpContext httpContext)
         {
             string? sessionToken = "";
 
