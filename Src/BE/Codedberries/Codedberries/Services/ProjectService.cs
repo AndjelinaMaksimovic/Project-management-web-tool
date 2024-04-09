@@ -3,6 +3,7 @@ using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
+using Codedberries.Helpers;
 
 namespace Codedberries.Services
 {
@@ -57,6 +58,11 @@ namespace Codedberries.Services
             if (string.IsNullOrWhiteSpace(request.Description))
             {
                 throw new ArgumentException("Project description must not be empty!");
+            }
+
+            if (Helper.IsDateRangeValid(request.StartDate, request.DueDate) == false)
+            {
+                throw new ArgumentException("Invalid date range!");
             }
 
             Project project = new Project(request.Name, request.Description, request.DueDate);
