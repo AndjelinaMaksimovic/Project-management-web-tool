@@ -201,8 +201,8 @@ namespace Codedberries.Services
 
             // usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
 
-            // get all users that are not super user
-            usersQuery = usersQuery.Where(u => !(u.Role.CanAddNewUser
+            // get all users that are not super user, inlcuding ones that dont have any role assigned
+            usersQuery = usersQuery.Where(u => u.RoleId == null || !(u.Role.CanAddNewUser
                                     && u.Role.CanAddUserToProject
                                     && u.Role.CanRemoveUserFromProject
                                     && u.Role.CanCreateProject
