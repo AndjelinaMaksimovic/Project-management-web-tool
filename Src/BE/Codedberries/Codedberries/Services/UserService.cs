@@ -199,8 +199,20 @@ namespace Codedberries.Services
                 usersQuery = usersQuery.Where(u => u.RoleId == body.RoleId);
             }
 
-            usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
+            // usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
 
+            // get all users that are not super user
+            usersQuery = usersQuery.Where(u => !(u.Role.CanAddNewUser
+                                    && u.Role.CanAddUserToProject
+                                    && u.Role.CanRemoveUserFromProject
+                                    && u.Role.CanCreateProject
+                                    && u.Role.CanDeleteProject
+                                    && u.Role.CanEditProject
+                                    && u.Role.CanViewProject
+                                    && u.Role.CanAddTaskToUser
+                                    && u.Role.CanCreateTask
+                                    && u.Role.CanRemoveTask
+                                    && u.Role.CanEditTask));
 
             var users = await usersQuery
                 .Select(u => new UserInformationDTO
