@@ -101,12 +101,25 @@ namespace Codedberries.Services
                 }
             }
 
-            _databaseContext.Projects.Add(project);
-            await _databaseContext.SaveChangesAsync();
+            // if user does not have a permission to create Statuses for project
+            using var transaction = await _databaseContext.Database.BeginTransactionAsync();
 
-            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
-            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
-            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
+            try
+            {
+                _databaseContext.Projects.Add(project);
+                await _databaseContext.SaveChangesAsync();
+
+                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
+                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
+                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception("An error occurred while creating the project and its statuses: ", ex);
+            }
         }
 
         public AllProjectsDTO GetProjects()
