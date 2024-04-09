@@ -2,14 +2,14 @@ import { Component } from '@angular/core';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { ActivatedRoute } from '@angular/router';
 import { Task, TaskService } from '../../services/task.service';
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 @Component({
   selector: 'app-task',
   standalone: true,
-  imports: [
-    NavbarComponent,
-  ],
+  imports: [NavbarComponent, MarkdownModule],
+  providers: [provideMarkdown()],
   templateUrl: './task.component.html',
-  styleUrl: './task.component.css'
+  styleUrl: './task.component.css',
 })
 export class TaskComponent {
   taskId: number = 0;
@@ -26,8 +26,6 @@ export class TaskComponent {
     this.task = this.taskService.getTasks().find((t) => t.id === this.taskId);
   }
 }
-
-
 
 // import { Component } from '@angular/core';
 // import { FormsModule } from '@angular/forms';
