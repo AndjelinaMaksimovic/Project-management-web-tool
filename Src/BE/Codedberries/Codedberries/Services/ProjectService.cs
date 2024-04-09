@@ -83,11 +83,16 @@ namespace Codedberries.Services
             {
                 foreach (int user_id in request.UserIds)
                 {
+                    if (user_id <= 0)
+                    {
+                        throw new ArgumentException("Invalid user ID specified!");
+                    }
+
                     var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
 
                     if (userToAddToProject == null)
                     {
-                        throw new ArgumentException($"User with ID {userId} not found in database!");
+                        throw new ArgumentException($"User with ID {user_id} not found in database!");
                     }
                     else
                     {
@@ -101,7 +106,7 @@ namespace Codedberries.Services
                 }
             }
 
-            // if user does not have a permission to create Statuses for project
+            // if user does not have a permission to create Statuses for project, project won't be created
             using var transaction = await _databaseContext.Database.BeginTransactionAsync();
 
             try
@@ -118,7 +123,7 @@ namespace Codedberries.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw new Exception("An error occurred while creating the project and its statuses: ", ex);
+                throw new Exception($"{ ex.Message }");
             }
         }
 
