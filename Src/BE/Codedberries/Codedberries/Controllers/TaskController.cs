@@ -37,6 +37,14 @@ namespace Codedberries.Controllers
             {
                 return StatusCode(403, new ErrorMsg(ex.Message)); // does not have permission
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
         }
 
         [HttpGet("projectTasks")]
