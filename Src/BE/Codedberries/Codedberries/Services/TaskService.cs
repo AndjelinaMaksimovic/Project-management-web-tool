@@ -130,6 +130,13 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
             }
 
+            var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
+
+            if (existingTask != null)
+            {
+                throw new ArgumentException($"Task with name '{request.Name}' already exists in the database for the specified project!");
+            }
+
             Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
             
             if (request.DependencyIds != null && request.DependencyIds.Any())
