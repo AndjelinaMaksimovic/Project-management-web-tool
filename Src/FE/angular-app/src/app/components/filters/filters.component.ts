@@ -4,6 +4,7 @@ import { NgFor } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 class Item {
   value: string;
@@ -19,6 +20,7 @@ class Filter {
   value: string;
   icon: string;
   name: string;
+  filterName: string;
   type: string;
   items: Array<any>;
   enabled: boolean;
@@ -27,6 +29,7 @@ class Filter {
     this.value = (filter && filter.value) || null;
     this.icon = (filter && filter.icon) || null;
     this.name = (filter && filter.name) || null;
+    this.filterName = (filter && filter.filterName) || null;
     this.type = (filter && filter.type) || "";
     this.items = (filter && filter.items) || [];
     this.enabled = (filter && filter.enabled) || true;
@@ -36,7 +39,7 @@ class Filter {
 @Component({
   selector: 'app-filters',
   standalone: true,
-  imports: [ MatSelectModule, NgFor, NgIf, MatMenuModule, CommonModule ],
+  imports: [ MatSelectModule, NgFor, NgIf, MatMenuModule, CommonModule, FormsModule ],
   templateUrl: './filters.component.html',
   styleUrl: './filters.component.css'
 })
@@ -45,12 +48,9 @@ export class FiltersComponent {
   currentFilters: Map<number, boolean> = new Map();
 
   @Input() allFilters: Filter[] = [
-    // new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' }),
-    // new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' }),
-    // new Filter({ name: 'Created by', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" }) ] }),
-    // new Filter({ name: 'Created on', icon: 'fa-regular fa-calendar-plus', type: 'date' }),
-    // new Filter({ name: 'Last modified on', icon: 'fa-regular fa-pen-to-square', type: 'date' }),
-    // new Filter({ name: 'Priority', icon: 'fa-solid fa-up-long', type: 'select', items: [ new Item({ value: "1", name: "Low" }), new Item({ value: "2", name: "Medium" }), new Item({ value: "3", name: "High" }) ] }),
+    new Filter({ filterName: "DueDateAfter", name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' }),
+    new Filter({ filterName: "DueDateBefore", name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' }),
+    new Filter({ filterName: "AssignedTo", name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" }) ] }),
   ];
   
   constructor() {
@@ -71,5 +71,25 @@ export class FiltersComponent {
     item.name = item.name.replace(',','');
     term = term.toLocaleLowerCase();
     return item.name.toLocaleLowerCase().indexOf(term) > -1;
+  }
+
+  onChange(filterKey : number, event : any) {
+    let newValue = event.target.value;
+    this.allFilters[filterKey].value = newValue;
+  }
+
+  onChangeSelection(filterKey : number, event : any) {
+    let newValue = event.value;
+    this.allFilters[filterKey].value = newValue;
+  }
+
+  save() {
+    let newFilters: Map<string, string> = new Map<string, string>();
+    for(let [key, value] of this.currentFilters) {
+      let filterKey = this.allFilters[key].filterName;
+      newFilters.set(filterKey, this.allFilters[key].value);
+    }
+    const obj = Object.fromEntries(newFilters);
+    return obj;
   }
 }
