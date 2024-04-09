@@ -3,10 +3,11 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { ActivatedRoute } from '@angular/router';
 import { Task, TaskService } from '../../services/task.service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
+import { MaterialModule } from '../../material/material.module';
 @Component({
   selector: 'app-task',
   standalone: true,
-  imports: [NavbarComponent, MarkdownModule],
+  imports: [NavbarComponent, MarkdownModule, MaterialModule],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
   styleUrl: './task.component.css',
