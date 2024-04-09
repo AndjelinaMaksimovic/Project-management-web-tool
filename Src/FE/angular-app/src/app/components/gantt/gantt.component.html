@@ -8,7 +8,7 @@
                 </div>
                 <div [style.width]="colWidths[idx]+'px'">
                     @for (item of items; track item) {
-                        <div [style.height]="taskHeight+'px'" style="padding-left: 5px; display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
+                        <div [style.height]="taskHeight+'px'" style="padding-left: 5px; display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                             <!-- tasks column -->
                             <div class="task task-title" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks">
                                 {{item.title}}
@@ -35,44 +35,64 @@
                     <span class="column-display text-align-center" [style.width]="columnWidth+'px'">{{date}}</span>
                 }
             </div>
-            @for (item of items; track item) {
-                <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="item.hover=true" (mouseleave)="item.hover=false">
-                    <div class="task" *ngIf="item.display" [ngStyle]="{
-                        'left': item.left + 'px',
-                        'width': item.width + 'px',
-                    }">
-                        <div class="task-bar" [ngStyle]="{
-                            'background-color': item.color,
-                            'height': barHeight+'px'
+            <div style="position: relative;">
+                @for (item of items; track item) {
+                    <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
+                        <div class="task" *ngIf="item.display" [ngStyle]="{
+                            'left': item.left + 'px',
+                            'width': item.width + 'px',
                         }">
-                            @for (user of item.assignedTo; track user; let idx = $index) {
-                                <div style="font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{
-                                    'height': (barHeight-2)+'px',
-                                    'width': (barHeight-2)+'px'
-                                }"> A</div>
-                            }
-
-                            <!-- Dependenct lines -->
-                            @for (dependant of item.dependant; track dependant){
-                                <!-- from task to the right -->
-                                <div style="position: absolute; right: -10px; background-color: grey; width: 15px; height: 3px;"
-                                [style.top]="(barHeight / 2 - 1) + 'px'"></div>
-                                <!-- down / up -->
-                                <!-- if the dependency start before the task ends put red and down just below task
-                                otherwise down to the next task -->
-                                <div style="position: absolute; right: -10px; background-color: grey; width: 3px;"
-                                [style.height]="(idMap[dependant]-idMap[item.id])*taskHeight+'px'"
-                                [style.top]="(barHeight / 2 - 1)+'px'"></div>
-                                <div style="position: absolute; background-color: grey; height: 3px;"
-                                [style.width]="(items[idMap[dependant]].left - item.left - item.width)+'px'"
-                                [style.top]="(barHeight / 2 - 1) + idMap[dependant]*taskHeight+'px'"
-                                [style.right]="-(items[idMap[dependant]].left - item.left - item.width + 7)+'px'"></div>
-                            }
-                            <div style="position: absolute; right: -12px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#10247;</div>
+                            <div class="task-bar" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)" [ngStyle]="{
+                                'background-color': item.color,
+                                'height': barHeight+'px'
+                            }">
+                                @for (user of item.assignedTo; track user; let idx = $index) {
+                                    <div style="font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{
+                                        'height': (barHeight-2)+'px',
+                                        'width': (barHeight-2)+'px'
+                                    }"> A</div>
+                                }
+    
+                                <!-- Dependenct lines -->
+                                @for (dependant of item.dependant; track dependant){
+                                    <!-- from task to the right -->
+                                    <div style="position: absolute; right: -10px; background-color: grey; width: 15px; height: 3px;"
+                                    [style.top]="(barHeight / 2 - 1) + 'px'"></div>
+                                    <!-- if the dependency start before the task ends put red and down just below task
+                                    otherwise down to the next task -->
+                                    <!-- down / up -->
+                                    <div style="position: absolute; right: -10px; background-color: grey; width: 3px;"
+                                    [style.height]="(idMap[dependant]-idMap[item.id])*taskHeight+'px'"
+                                    [style.top]="(barHeight / 2 - 1)+'px'"></div>
+                                    <!-- left / right to task -->
+                                    <div style="position: absolute; background-color: grey; height: 3px;"
+                                    [style.width]="(items[idMap[dependant]].left - item.left - item.width)+'px'"
+                                    [style.top]="((barHeight / 2 - 1) + idMap[dependant]*taskHeight) + 'px'"
+                                    [style.right]="-(items[idMap[dependant]].left - item.left - item.width + 7)+'px'"></div>
+                                }
+                                <div style="position: absolute; right: -12px; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#9737;</div>
+                                <div style="position: absolute; right: -24px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#10247;</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+                <ng-template [ngIf]="dragging">
+                    <div style="position: absolute; background-color: blue; width: 15px; height: 3px;"
+                    [style.top]="draggedOriginal.y + 'px'"
+                    [style.left]="draggedOriginal.x + 'px'"></div>
+                    <!-- down / up -->
+                    <div style="position: absolute; background-color: blue; width: 3px;"
+                    [style.left]="draggedOriginal.x + 15 + 'px'"
+                    [style.height]="offset.y + 'px'"
+                    [style.top]="draggedOriginal.y + 'px'"></div>
+                    <!-- left / right to task -->
+                    <div style="position: absolute; background-color: blue; height: 3px;"
+                    [style.left]="draggedOriginal.x + 15 + 'px'"
+                    [style.width]="offset.x - 15 + 'px'"
+                    [style.top]="(draggedOriginal.y + offset.y) +'px'"
+                    ></div>
+                </ng-template>
+            </div>
         </div>
     </div>
 </div>
