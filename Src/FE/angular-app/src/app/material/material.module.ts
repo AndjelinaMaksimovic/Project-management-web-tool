@@ -10,6 +10,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip'
 
 const MaterialComponents = [
   MatButtonModule,
@@ -27,5 +28,17 @@ const MaterialComponents = [
 @NgModule({
   imports: [MaterialComponents],
   exports: [MaterialComponents],
+  providers: [
+    {
+      provide: MAT_TOOLTIP_DEFAULT_OPTIONS,
+      useValue: {
+        showDelay: 0,
+        hideDelay: 0,
+        touchendHideDelay: 1500,
+        position: 'above',
+        disableTooltipInteractivity: true, // <-- Should do the trick
+      },
+    },
+ ]
 })
 export class MaterialModule {}
