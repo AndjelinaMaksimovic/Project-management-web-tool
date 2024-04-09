@@ -49,6 +49,16 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create project!");
             }
 
+            if (string.IsNullOrEmpty(request.Name))
+            {
+                throw new ArgumentException("Project name is required!");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Description))
+            {
+                throw new ArgumentException("Project description must not be empty!");
+            }
+
             Project project = new Project(request.Name, request.Description, request.DueDate);
 
             if (request.StartDate != null)
