@@ -142,15 +142,29 @@ namespace Codedberries.Services
                     {
                         throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project in database!");
                     }
-                    else
-                    {
-                        task.Dependencies.Add(taskDependency);      // new task depends of provided one
-                        taskDependency.DependentTasks.Add(task);    // provided one has new task that is dependend of him
-                    }
                 }
             }
 
             _databaseContext.Tasks.Add(task);
+            await _databaseContext.SaveChangesAsync();
+
+            // adding dependencies to TaskDependency
+            if (request.DependencyIds != null && request.DependencyIds.Any())
+            {
+                foreach (int dependency_id in request.DependencyIds)
+                {
+                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+
+                    TaskDependency newDependency = new TaskDependency
+                    {
+                        TaskId = taskDependency.Id,
+                        DependentTaskId = task.Id
+                    };
+
+                    _databaseContext.Set<TaskDependency>().Add(newDependency);
+                }
+            }
+
             await _databaseContext.SaveChangesAsync();
         }
 
