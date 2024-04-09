@@ -17,7 +17,7 @@ namespace Codedberries.Services
             _authorizationService = authorizationService;
         }
 
-        public async Task<Models.Task> CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
+        public async System.Threading.Tasks.Task CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -147,8 +147,6 @@ namespace Codedberries.Services
 
             _databaseContext.Tasks.Add(task);
             await _databaseContext.SaveChangesAsync();
-
-            return task;
         }
 
         public List<ProjectTasksInfoDTO> GetTasksByFilters(HttpContext httpContext, TaskFilterParamsDTO filterParams)
