@@ -140,11 +140,12 @@ namespace Codedberries.Services
 
                     if (taskDependency == null)
                     {
-                        throw new ArgumentException($"Dependent task with ID {dependency_id} does not exist for the provided project in database!");
+                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project in database!");
                     }
                     else
                     {
-                        task.Dependencies.Add(taskDependency);
+                        task.Dependencies.Add(taskDependency);      // new task depends of provided one
+                        taskDependency.DependentTasks.Add(task);    // provided one has new task that is dependend of him
                     }
                 }
             }
