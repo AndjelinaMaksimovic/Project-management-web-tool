@@ -191,12 +191,26 @@ namespace Codedberries.Services
 
             if (body.ProjectId != null)
             {
-                usersQuery = usersQuery.Where(u => u.Projects.Any(p => p.Id == body.ProjectId));
+                if (body.ProjectId <= 0)
+                {
+                    throw new ArgumentException("ProjectId must be greater than zero!");
+                }
+                else
+                {
+                    usersQuery = usersQuery.Where(u => u.Projects.Any(p => p.Id == body.ProjectId));
+                }
             }
 
             if (body.RoleId != null)
             {
-                usersQuery = usersQuery.Where(u => u.RoleId == body.RoleId);
+                if (body.RoleId <= 0)
+                {
+                    throw new ArgumentException("RoleId must be greater than zero!");
+                }
+                else
+                {
+                    usersQuery = usersQuery.Where(u => u.RoleId == body.RoleId);
+                }
             }
 
             // usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
