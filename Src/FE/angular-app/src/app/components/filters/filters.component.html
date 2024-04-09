@@ -1,7 +1,7 @@
 <div class="container">
     <div class="flex">
         <p class="title">{{title}}</p>
-        <p class="clear lightgray">Clear</p>
+        <p class="title c-pointer" (click)="save()">Save</p>
     </div>
     <div class="flex item-container">
         <div class="flex item" *ngFor="let filter of currentFilters| keyvalue">
@@ -9,8 +9,8 @@
                 <i [ngClass]="['m-auto', allFilters[filter.key].icon]"></i>
                 <p class="option-value ml-10">{{allFilters[filter.key].name}}</p>
             </div>
-            <input *ngIf="allFilters[filter.key].type != 'select'" [type]="allFilters[filter.key].type" class="input ml-20 mr-20">
-            <mat-select *ngIf="allFilters[filter.key].type == 'select'" class="dropdown ml-20 mr-20" placeholder="Select">
+            <input *ngIf="allFilters[filter.key].type != 'select'" [type]="allFilters[filter.key].type" class="input ml-20 mr-20" [(ngModel)]="allFilters[filter.key].value" (input)="onChange(filter.key, $event)">
+            <mat-select *ngIf="allFilters[filter.key].type == 'select'" class="dropdown ml-20 mr-20" placeholder="Select" [(ngModel)]="allFilters[filter.key].value" (selectionChange)="onChangeSelection(filter.key, $event)">
                 <mat-option *ngFor="let item of allFilters[filter.key].items;" [value]="item.value">
                     {{item.name}}
                 </mat-option>
