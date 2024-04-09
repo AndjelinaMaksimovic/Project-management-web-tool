@@ -16,5 +16,6 @@
         </div>
         <mat-divider></mat-divider>
         <markdown ngPreserveWhitespaces>{{task?.description}}</markdown>
+        <markdown ngPreserveWhitespaces [data]="task?.description"></markdown>
     </div>
 </app-navbar>

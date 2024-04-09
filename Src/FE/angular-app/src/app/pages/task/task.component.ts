@@ -14,16 +14,19 @@ import { MaterialModule } from '../../material/material.module';
 })
 export class TaskComponent {
   taskId: number = 0;
+  projectId: number = 0;
   task: Task | undefined;
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.route.params.subscribe((params) => {
-      this.taskId = parseInt(params['id']);
+      this.taskId = parseInt(params['taskId']);
+      this.projectId = parseInt(params['projectId']);
     });
+    await this.taskService.fetchTasks({projectId: this.projectId});
     this.task = this.taskService.getTasks().find((t) => t.id === this.taskId);
   }
 }
