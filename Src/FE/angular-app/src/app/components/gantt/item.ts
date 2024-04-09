@@ -40,3 +40,11 @@ export class User{
         public profilePicture: any = ''
     ){}
 }
+
+export class Milestone{
+    constructor(
+        public id: number,
+        public title: string,
+        public date: number
+    ){}
+}

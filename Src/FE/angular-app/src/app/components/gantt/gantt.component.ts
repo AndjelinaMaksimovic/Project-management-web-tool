@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { GanttColumn, Item, TimeScale } from './item';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { GanttColumn, Item, Milestone, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 
@@ -15,7 +15,8 @@ import { Task } from '../../services/task.service';
 
 export class GanttComponent implements OnInit{
   @Input() tasks: Task[] = []
-  @Input() items: Item[] = []
+  @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
+  @Input() milestones: Milestone[] = []
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
   @Input() colWidths: number[] = [100]
   @Input() timeScale: TimeScale = TimeScale.day
@@ -72,7 +73,6 @@ export class GanttComponent implements OnInit{
       var t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
       t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
       item.left = t*this.columnWidth
-      // console.log()
       t = item.startDate - item.startDate % this.timeScale  // normalize start
       t = (Math.ceil((item.dueDate - t) / this.timeScale))
       t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
@@ -99,9 +99,6 @@ export class GanttComponent implements OnInit{
   }
 
   initTimeHeader(){
-    // this.items.forEach(e => {
-    //   console.log("start: " + new Date(e.startDate) + "; due: " + new Date(e.dueDate))
-    // })
     const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
     const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
     this.chartStartDate = min - min % this.timeScale
@@ -110,9 +107,76 @@ export class GanttComponent implements OnInit{
         return this.includeDay(v) // remove weekend and holiday
       })
       .map((v) => {
-        // const format = this.timeScale == TimeScale.day ? "d EEEEE" : "d HH"
         const format = this.timeScale == TimeScale.day ? "d. E" : "d HH"
         return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset?
       })
+  }
+
+  hovering?: Item = undefined
+  dragging: boolean = false
+  itemHover(item: Item){
+    if(!this.dragging){
+      item.hover = true
+    }
+    this.hovering = item
+  }
+  itemUnHover(item: Item){
+    if(!this.dragging){
+      item.hover = false
+      this.hovering = undefined
+    }
+  }
+
+  // dragged: any = undefined
+  original?: Item = undefined
+  draggedOriginal: any = {x: 0, y: 0}
+  offset: any = {x: 0, y: 0}
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: any){
+    if(this.dragging){
+      // console.log(event.x - this.draggedOriginal.left - this.draggedOriginal.x)
+      this.offset = {x: event.x - this.draggedOriginal.left - this.draggedOriginal.x, y: event.y - this.draggedOriginal.top - this.draggedOriginal.y}
+      // console.log(event.target)
+    }
+    return false
+  }
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: any) {
+    if (this.hovering) {
+      this.dragging = true
+      this.original = this.hovering
+      const rect = event.target.parentElement.getBoundingClientRect()
+      this.draggedOriginal = {x: this.hovering.left + this.hovering.width, y: this.idMap[this.hovering.id] * this.taskHeight + this.taskHeight / 2, left: rect.left, top: rect.top}
+      this.onMouseMove({x: event.x, y: event.y})
+    }
+    return false
+  }
+
+  // TODO: bug, add rehover on mouseup
+  @HostListener('mouseup')
+  onMouseUp(target: any) {
+    if(this.hovering){
+      if(this.dragging){
+        if(!this.hovering.dependant.includes(this.hovering.id)){
+          this.original?.dependant.push(this.hovering.id)
+        }
+        this.dragging = false
+      }
+      if(this.original)
+        this.original.hover = false
+      this.hovering.hover = false
+      this.hovering = undefined
+    }
+    return false
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    this.dragging = false
+    if(this.hovering){
+      this.hovering.hover = false
+      this.hovering = undefined
+    }
+    return false
   }
 }
