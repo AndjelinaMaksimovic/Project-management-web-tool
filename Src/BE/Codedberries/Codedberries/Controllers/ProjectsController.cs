@@ -23,16 +23,9 @@ namespace Codedberries.Controllers
         {
             try
             {
-                Project project = await _projectService.CreateProject(HttpContext, body);
+                await _projectService.CreateProject(HttpContext, body);
 
-                ProjectInfoDTO newProjectInfoDTO = new ProjectInfoDTO();
-                newProjectInfoDTO.Id = project.Id;
-                newProjectInfoDTO.Name = project.Name;
-                newProjectInfoDTO.Description = project.Description;
-                newProjectInfoDTO.DueDate = project.DueDate;
-                newProjectInfoDTO.StartDate = project.StartDate;
-
-                return Ok(newProjectInfoDTO);
+                return Ok("Project successfully created.");
             }
             catch (UnauthorizedAccessException ex)
             {
