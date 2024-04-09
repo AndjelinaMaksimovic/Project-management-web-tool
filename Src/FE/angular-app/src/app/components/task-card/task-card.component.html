@@ -6,8 +6,8 @@
     <div style="width: 100%; display: flex; justify-content: center; display: flex; flex-direction: row; align-items: center; gap: 4px;">
         <!-- delete/edit -->
         <div style="display: flex;">
-            <button mat-icon-button class="small-icon-button" (click)="deleteTask()"><mat-icon>archive</mat-icon></button>
-            <button mat-icon-button class="small-icon-button"><mat-icon>edit</mat-icon></button>
+            <button matTooltip="archive" matTooltipPosition="above" mat-icon-button class="small-icon-button" (click)="deleteTask()"><mat-icon>archive</mat-icon></button>
+            <button matTooltip="edit" matTooltipPosition="above" mat-icon-button class="small-icon-button"><mat-icon>edit</mat-icon></button>
         </div>
         <!-- date -->
         <div style="width: 100%; display: flex; flex-direction: row; align-items: center; gap: 4px;">
