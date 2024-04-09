@@ -67,9 +67,13 @@ namespace Codedberries.Services
 
             Project project = new Project(request.Name, request.Description, request.DueDate);
             project.StartDate = request.StartDate;
-            
 
-            if (request.UserIds != null && request.UserIds.Any())
+
+            if (request.UserIds == null || !request.UserIds.Any())
+            {
+                throw new ArgumentException("At least one user must be specified for the project!");
+            }
+            else
             {
                 foreach (int user_id in request.UserIds)
                 {
