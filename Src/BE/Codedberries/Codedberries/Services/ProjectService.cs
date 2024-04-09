@@ -66,11 +66,8 @@ namespace Codedberries.Services
             }
 
             Project project = new Project(request.Name, request.Description, request.DueDate);
-
-            if (request.StartDate != null)
-            {
-                project.StartDate = request.StartDate;
-            }
+            project.StartDate = request.StartDate;
+            
 
             if (request.UserIds != null && request.UserIds.Any())
             {
@@ -80,7 +77,7 @@ namespace Codedberries.Services
 
                     if (userToAddToProject == null)
                     {
-                        throw new ArgumentException($"User with ID {userId} not found.");
+                        throw new ArgumentException($"User with ID {userId} not found in database!");
                     }
                     else
                     {
