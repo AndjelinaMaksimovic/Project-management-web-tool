@@ -23,15 +23,9 @@ namespace Codedberries.Controllers
         {
             try
             {
-                Models.Task task = await _taskService.CreateTask(HttpContext, body);
+                await _taskService.CreateTask(HttpContext, body);
 
-                TaskInfoDTO newTaskInfoDTO = new TaskInfoDTO();
-                newTaskInfoDTO.Id = task.Id;
-                newTaskInfoDTO.Description = task.Description;
-                newTaskInfoDTO.DueDate = task.DueDate;
-                newTaskInfoDTO.StartDate= task.StartDate;
-
-                return Ok(newTaskInfoDTO);
+                return Ok("Task successfully created.");
             }
             catch (UnauthorizedAccessException ex)
             {
