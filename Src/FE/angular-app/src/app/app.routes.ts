@@ -10,6 +10,7 @@ import { MyTasksComponent } from './pages/my-tasks/my-tasks.component';
 import { LoggedIn } from './services/auth.service';
 import { NotLoggedIn } from './services/auth.service';
 import { ProjectDetailsComponent } from './pages/project-details/project-details.component';
+import { TaskComponent } from './pages/task/task.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [LoggedIn] },
@@ -19,7 +20,7 @@ export const routes: Routes = [
   { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
-  { path: 'task/:id', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
+  { path: 'task/:id', component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
   { path: '**', component: ErrorComponent },
 ];
