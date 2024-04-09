@@ -1,7 +1,24 @@
 <app-navbar>
     <div style="padding: 10px;">
-        <h2>{{task?.title}}</h2>
+        <h1>{{task?.title}}</h1>
         <mat-divider></mat-divider>
         <markdown ngPreserveWhitespaces>{{task?.description}}</markdown>
+        <mat-divider></mat-divider>
+        <div style="display: flex; gap: 20px">
+            <span style="display: flex; gap: 10px; align-items: center;">Category: <div class="chip chip-neutral">
+                    {{task?.category}}</div></span>
+            <span style="display: flex; gap: 10px; align-items: center;">Priority: <div
+                    [classList]="['chip chip-' + 'warn']">{{task?.priority === "High" ? "🎯︎ " + task?.priority :
+                    task?.priority}}</div></span>
+            <span style="display: flex; gap: 10px; align-items: center;">Status: <div
+                    [classList]="['chip chip-' + 'warn']">{{task?.status}}</div></span>
+            <div
+                style="display: flex; justify-content: center; display: flex; flex-direction: row; align-items: center; gap: 4px;">
+                Due date:
+                <div style="display: flex; flex-direction: row; align-items: center; gap: 4px;">
+                    <div>📅 {{task?.date?.toDateString()}}</div>
+                </div>
+            </div>
+        </div>
     </div>
 </app-navbar>
