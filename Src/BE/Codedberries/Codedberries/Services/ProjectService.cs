@@ -22,7 +22,7 @@ namespace Codedberries.Services
             _statusService = statusService;
         }
 
-        public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
+        public async System.Threading.Tasks.Task CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -75,7 +75,6 @@ namespace Codedberries.Services
             Project project = new Project(request.Name, request.Description, request.DueDate);
             project.StartDate = request.StartDate;
 
-
             if (request.UserIds == null || !request.UserIds.Any())
             {
                 throw new ArgumentException("At least one user must be specified for the project!");
@@ -108,8 +107,6 @@ namespace Codedberries.Services
             await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
             await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
             await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
-
-            return project;
         }
 
         public AllProjectsDTO GetProjects()
