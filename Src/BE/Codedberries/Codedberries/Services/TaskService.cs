@@ -2,6 +2,7 @@
 using Codedberries.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Codedberries.Helpers;
 
 namespace Codedberries.Services
 {
@@ -44,8 +45,93 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create Task!");
             }
 
+            if (string.IsNullOrEmpty(request.Name))
+            {
+                throw new ArgumentException("Task name is required!");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Description))
+            {
+                throw new ArgumentException("Description must not be empty!");
+            }
+
+            if (Helper.IsDateRangeValid(request.StartDate, request.DueDate) == false)
+            {
+                throw new ArgumentException("Invalid date range!");
+            }
+
+            if (request.PriorityId <= 0)
+            {
+                throw new ArgumentException("Priority ID must be greater than zero!");
+            }
+
+            var requestedPriority = _databaseContext.Priorities.FirstOrDefault(p => p.Id == request.PriorityId);
+
+            if (requestedPriority == null)
+            {
+                throw new ArgumentException("Priority with the provided ID does not exist!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
+
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist!");
+            }
+
+            if (request.StatusId <= 0)
+            {
+                throw new ArgumentException("Status ID must be greater than zero!");
+            }
+
+            var requestedStatus = _databaseContext.Statuses.FirstOrDefault(s => s.Id == request.StatusId && s.ProjectId == request.ProjectId);
+
+            if (requestedStatus == null)
+            {
+                throw new ArgumentException("Status with the provided ID does not exist for the specified project!");
+            }
+
+            if (request.CategoryId <= 0)
+            {
+                throw new ArgumentException("Category ID must be greater than zero!");
+            }
+
+            var requestedCategory = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.CategoryId && c.ProjectId == request.ProjectId);
+
+            if (requestedCategory == null)
+            {
+                throw new ArgumentException("Category with the provided ID does not exist for the specified project!");
+            }
+
+            if (request.DifficultyLevel <= 0)
+            {
+                throw new ArgumentException("Invalid difficulty level!");
+            }
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("User ID must be greater than zero!");
+            }
+
+            var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+
+            if (requestedUser == null)
+            {
+                throw new ArgumentException("User with the provided ID does not exist!");
+            }
+
+            if (requestedUser.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+            }
 
             Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+            
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
