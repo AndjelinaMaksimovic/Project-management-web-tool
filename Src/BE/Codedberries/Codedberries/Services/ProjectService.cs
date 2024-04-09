@@ -65,6 +65,13 @@ namespace Codedberries.Services
                 throw new ArgumentException("Invalid date range!");
             }
 
+            var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Name == request.Name);
+
+            if (existingProject != null)
+            {
+                throw new ArgumentException($"Project with name '{request.Name}' already exists in the database!");
+            }
+
             Project project = new Project(request.Name, request.Description, request.DueDate);
             project.StartDate = request.StartDate;
 
