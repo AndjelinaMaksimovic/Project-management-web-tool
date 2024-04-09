@@ -136,9 +136,13 @@ namespace Codedberries.Services
             {
                 foreach (int dependency_id in request.DependencyIds)
                 {
-                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id);
+                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
 
-                    if (taskDependency != null)
+                    if (taskDependency == null)
+                    {
+                        throw new ArgumentException($"Dependent task with ID {dependency_id} does not exist for the provided project in database!");
+                    }
+                    else
                     {
                         task.Dependencies.Add(taskDependency);
                     }
