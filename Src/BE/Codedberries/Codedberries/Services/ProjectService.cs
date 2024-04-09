@@ -85,6 +85,11 @@ namespace Codedberries.Services
                     }
                     else
                     {
+                        if (userToAddToProject.RoleId == null)
+                        {
+                            throw new ArgumentException($"User with ID {userToAddToProject.Id} does not have any role assigned!");
+                        }
+
                         project.Users.Add(userToAddToProject);
                     }
                 }
