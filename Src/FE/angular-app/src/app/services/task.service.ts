@@ -16,6 +16,7 @@ export type Task = Readonly<{
   status: string;
   date: Date;
   id: number;
+  projectId?: number | undefined;
   assignedTo: any;
 }>;
 
@@ -48,6 +49,7 @@ export class TaskService {
         apiTask.taskId % 3
       ],
       id: apiTask.taskId,
+      projectId: this.context.projectId,
 
       date: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
@@ -167,7 +169,7 @@ export class TaskService {
     }
   }
 
-  async createTask(task: Omit<Task, 'id'>, projectId: number) {
+  async createTask(task: Omit<Task, 'id' | "projectId">, projectId: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
