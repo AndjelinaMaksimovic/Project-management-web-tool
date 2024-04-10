@@ -1,10 +1,14 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-type User = {
+export type User = {
   email: string;
   firstName: string;
   lastName: string;
@@ -15,7 +19,7 @@ type User = {
 };
 function mapUser(apiUser: any) {
   return {
-    email: apiUser.name,
+    email: apiUser.email,
     firstName: apiUser.firstname,
     lastName: apiUser.lastname,
     roleName: apiUser.roleName,
@@ -37,24 +41,13 @@ export class UserService {
   };
 
   constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
-  /**
-   * @returns a list of tasks (current task cache)
-   * @note this doesn't fetch task data from the server, it just returns the current task cache
-   */
   public getUsers() {
     return this.users;
   }
-  /**
-   * This function is used to update the current tasks cache.
-   * It fetches task data from the backend.
-   * Use it to initialize tasks list or
-   * after deleting/updating/creating tasks
-   * @param context optional context value
-   */
   public async fetchUsers() {
     try {
       const res = await firstValueFrom(
-        this.http.post<any>(
+        this.http.get<any>(
           environment.apiUrl + `/User/getUsers`,
           this.httpOptions
         )
