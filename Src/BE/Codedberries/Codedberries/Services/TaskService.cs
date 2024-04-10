@@ -482,5 +482,34 @@ namespace Codedberries.Services
 
             return updatedTaskInfo;
         }
+
+        public async Task<UpdatedTaskInfoDTO> ArchiveTask(int taskId)
+        {
+            var task = await _databaseContext.Tasks.FindAsync(taskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {taskId} not found!");
+            }
+
+            // Toggle archived status
+            task.Archived = !task.Archived;
+
+            await _databaseContext.SaveChangesAsync();
+            var updatedTaskInfo = new UpdatedTaskInfoDTO
+            {
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                CategoryId = task.CategoryId,
+                PriorityId = task.PriorityId,
+                StatusId = task.StatusId,
+                DueDate = task.DueDate,
+                StartDate = task.StartDate,
+                DifficultyLevel = task.DifficultyLevel,
+                ProjectId = task.ProjectId
+            };
+            return updatedTaskInfo;
+        }
     }
 }
