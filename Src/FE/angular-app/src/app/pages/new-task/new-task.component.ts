@@ -50,6 +50,7 @@ export class NewTaskComponent {
   priority: string | null = null;
   category: string | null = null;
   dependencies: string[] = [];
+  tasks: {value: string, viewValue: string}[] = [];
 
   priorities = [
     { value: 'Low', viewValue: 'Low' },
@@ -57,9 +58,6 @@ export class NewTaskComponent {
     { value: 'High', viewValue: 'High' },
   ];
   categories: { value: string; viewValue: string }[] = [];
-  tasks = this.taskService
-    .getTasks()
-    .map((t) => ({ value: t.id, viewValue: t.title }));
   // get categories(){
   //   return this.categoryService.getCategories().map(cat => {
   //     return {
@@ -89,6 +87,9 @@ export class NewTaskComponent {
         viewValue: cat.name,
       };
     });
+    this.tasks = this.taskService
+    .getTasks()
+    .map((t) => ({ value: t.id.toString(), viewValue: t.title }));
   }
 
   async createTask() {
