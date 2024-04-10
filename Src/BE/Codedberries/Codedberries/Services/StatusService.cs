@@ -196,6 +196,13 @@ namespace Codedberries.Services
                 throw new ArgumentException("ProjectId must be greater than 0!");
             }
 
+            var existingProject = await _databaseContext.Projects.FindAsync(request.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new ArgumentException($"Project with ID {request.ProjectId} does not exist in the database!");
+            }
+
             var statusToDelete = await _databaseContext.Statuses.FirstOrDefaultAsync(s => s.Id == request.StatusId && s.ProjectId == request.ProjectId);
 
             if (statusToDelete == null)
