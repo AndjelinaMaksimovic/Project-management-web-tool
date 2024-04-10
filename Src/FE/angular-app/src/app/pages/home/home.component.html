@@ -1,7 +1,5 @@
 <app-topnav></app-topnav>
 
-<app-filters *ngIf="isFilterOpen" [title]="'Project Filters'" (fetchProjects)="fetchProjectsFromLocalStorage()" [filtersName]="'project_filters'" [allFilters]="filters"></app-filters>
-
 <div class="container column pt-2 pl-container">
     <div class="container row">
         <div class="input-wrapper">
@@ -24,10 +22,15 @@
                 <span>Ganttogram</span>
             </a>
         </div>
-        <a class="small-button" (click)="openFilters()">
-            <i class="fa-solid fa-filter mr-10"></i>
-            <span>Filter</span>
-        </a>
+        <div class="filters">
+            <a class="small-button" (click)="openFilters()">
+                <i class="fa-solid fa-filter mr-10"></i>
+                <span>Filter</span>
+            </a>
+            <app-filters *ngIf="isFilterOpen" [title]="'Project Filters'" (fetchProjects)="fetchProjectsFromLocalStorage()" [filtersName]="'project_filters'" [allFilters]="filters"></app-filters>
+            <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
+            </div>
+        </div>
     </div>
     <!-- <div class="container row align-left pl-l pl-r mt-20">
         <div class="accordion" #mostRecentAccordion>
