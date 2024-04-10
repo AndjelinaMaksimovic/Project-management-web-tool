@@ -4,14 +4,14 @@
         <p class="title c-pointer" (click)="save()">Save</p>
     </div>
     <div class="flex item-container">
-        <div class="flex item" *ngFor="let filter of currentFilters| keyvalue">
+        <div class="flex item" *ngFor="let filter of currentFilters | keyvalue">
             <div class="flex flex-value">
-                <i [ngClass]="['m-auto', allFilters[filter.key].icon]"></i>
-                <p class="option-value ml-10">{{allFilters[filter.key].name}}</p>
+                <i [ngClass]="['m-auto', allFilters.get(filter.key)!.icon]"></i>
+                <p class="option-value ml-10">{{allFilters.get(filter.key)!.name}}</p>
             </div>
-            <input *ngIf="allFilters[filter.key].type != 'select'" [type]="allFilters[filter.key].type" class="input ml-20 mr-20" [(ngModel)]="allFilters[filter.key].value" (input)="onChange(filter.key, $event)">
-            <mat-select *ngIf="allFilters[filter.key].type == 'select'" class="dropdown ml-20 mr-20" placeholder="Select" [(ngModel)]="allFilters[filter.key].value" (selectionChange)="onChangeSelection(filter.key, $event)">
-                <mat-option *ngFor="let item of allFilters[filter.key].items;" [value]="item.value">
+            <input *ngIf="allFilters.get(filter.key)!.type != 'select'" [type]="allFilters.get(filter.key)!.type" class="input ml-20 mr-20" [(ngModel)]="allFilters.get(filter.key)!.value">
+            <mat-select *ngIf="allFilters.get(filter.key)!.type == 'select'" class="dropdown ml-20 mr-20" placeholder="Select" [(ngModel)]="allFilters.get(filter.key)!.value">
+                <mat-option *ngFor="let item of allFilters.get(filter.key)!.items;" [value]="item.value">
                     {{item.name}}
                 </mat-option>
             </mat-select>
@@ -19,10 +19,10 @@
 
             <mat-menu #selectMenu>
                 <input type="text" class="input ml-20 mr-20" (click)="$event.stopPropagation()">
-                <ng-container *ngFor="let filter of allFilters; let i = index;">
-                    <button mat-menu-item *ngIf="filter.enabled" (click)="addFilter(filter, i)">
-                        <i [className]="filter.icon" class="m-auto"></i>
-                        {{filter.name}}
+                <ng-container *ngFor="let filter of allFilters | keyvalue;">
+                    <button mat-menu-item *ngIf="filter.value.enabled" (click)="addFilter(filter.key)">
+                        <i [className]="filter.value.icon" class="m-auto"></i>
+                        {{filter.value.name}}
                     </button>
                 </ng-container>
             </mat-menu>
@@ -34,10 +34,10 @@
         <i class="fa-solid fa-chevron-down fa-xs"></i>
     </button>
     <mat-menu #menu="matMenu">
-        <ng-container *ngFor="let filter of allFilters; let i = index;">
-            <button mat-menu-item *ngIf="filter.enabled" (click)="addFilter(filter, i)">
-                <i [className]="filter.icon" class="m-auto"></i>
-                {{filter.name}}
+        <ng-container *ngFor="let filter of allFilters | keyvalue;">
+            <button mat-menu-item *ngIf="filter.value.enabled" (click)="addFilter(filter.key)">
+                <i [className]="filter.value.icon" class="m-auto"></i>
+                {{filter.value.name}}
             </button>
         </ng-container>
     </mat-menu>

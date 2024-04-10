@@ -1,26 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
 import { MatSelectModule } from '@angular/material/select';
 import { NgFor } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LocalStorageService } from '../../services/localstorage';
+import { EventEmitter } from '@angular/core';
 
-class Item {
-  value: string;
-  name: string;
-
-  constructor(item?: any) {
-    this.value = (item && item.value) || null;
-    this.name = (item && item.name) || null;
-  }
-}
-
-class Filter {
+export class Filter {
   value: string;
   icon: string;
   name: string;
-  filterName: string;
   type: string;
   items: Array<any>;
   enabled: boolean;
@@ -29,7 +20,6 @@ class Filter {
     this.value = (filter && filter.value) || null;
     this.icon = (filter && filter.icon) || null;
     this.name = (filter && filter.name) || null;
-    this.filterName = (filter && filter.filterName) || null;
     this.type = (filter && filter.type) || "";
     this.items = (filter && filter.items) || [];
     this.enabled = (filter && filter.enabled) || true;
@@ -44,52 +34,56 @@ class Filter {
   styleUrl: './filters.component.css'
 })
 export class FiltersComponent {
+  @Input() filtersName: string = "";
   @Input() title: string = "";
-  currentFilters: Map<number, boolean> = new Map();
+  @Output() fetchProjects: EventEmitter<any> = new EventEmitter();
 
-  @Input() allFilters: Filter[] = [
-    new Filter({ filterName: "DueDateAfter", name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' }),
-    new Filter({ filterName: "DueDateBefore", name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' }),
-    new Filter({ filterName: "AssignedTo", name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" }) ] }),
-  ];
+  currentFilters: Map<string, boolean> = new Map();
+
+  @Input() allFilters: Map<string, Filter> = new Map<string, Filter>();
   
-  constructor() {
-    this.allFilters.map((item, index) => ({ ...item, id: index + 1 }));
+  constructor(private localStorageService: LocalStorageService) {
+    
   }
 
-  addFilter(filter : Filter, i : number) {
-    this.currentFilters.set(i, true);
-    this.allFilters[i].enabled = false;
+  ngOnInit() {
+    let storageFilters = new Map(Object.entries(this.localStorageService.getData(this.filtersName)));
+
+    if(storageFilters != null) {
+      for(let [key, value] of storageFilters as Map<string, string>) {
+        if(this.allFilters.has(key)) {
+          this.allFilters.get(key)!.value = value;
+          this.addFilter(key);
+        }
+      }
+    }
   }
 
-  removeFilter(i : number) {
-    this.currentFilters.delete(i);
-    this.allFilters[i].enabled = true;
+  addFilter(key : string) {
+    let filter = this.allFilters.get(key);
+    if(filter) {
+      filter.enabled = false;
+      this.currentFilters.set(key, true);
+    }
   }
 
-  searchUser(term: string, item: any) {
-    item.name = item.name.replace(',','');
-    term = term.toLocaleLowerCase();
-    return item.name.toLocaleLowerCase().indexOf(term) > -1;
-  }
-
-  onChange(filterKey : number, event : any) {
-    let newValue = event.target.value;
-    this.allFilters[filterKey].value = newValue;
-  }
-
-  onChangeSelection(filterKey : number, event : any) {
-    let newValue = event.value;
-    this.allFilters[filterKey].value = newValue;
+  removeFilter(key : string) {
+    let filter = this.allFilters.get(key);
+    if(filter) {
+      filter.enabled = true;
+      filter.value = "";
+      this.currentFilters.delete(key);
+    }
   }
 
   save() {
     let newFilters: Map<string, string> = new Map<string, string>();
     for(let [key, value] of this.currentFilters) {
-      let filterKey = this.allFilters[key].filterName;
-      newFilters.set(filterKey, this.allFilters[key].value);
+      newFilters.set(key, this.allFilters.get(key)!.value);
     }
     const obj = Object.fromEntries(newFilters);
-    return obj;
+    this.localStorageService.saveData(this.filtersName, obj);
+
+    this.fetchProjects.emit();
   }
 }
