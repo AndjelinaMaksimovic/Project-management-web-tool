@@ -16,6 +16,7 @@ import {
   MAT_DATE_LOCALE,
   provideNativeDateAdapter,
 } from '@angular/material/core';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-new-task',
@@ -50,7 +51,10 @@ export class NewTaskComponent {
   priority: string | null = null;
   category: string | null = null;
   dependencies: string[] = [];
+  assignee: string | undefined;
+
   tasks: {value: string, viewValue: string}[] = [];
+  users: {value: string, viewValue: string}[] = [];
 
   priorities = [
     { value: 'Low', viewValue: 'Low' },
@@ -70,6 +74,7 @@ export class NewTaskComponent {
   constructor(
     private taskService: TaskService,
     private categoryService: CategoryService,
+    private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -90,6 +95,10 @@ export class NewTaskComponent {
     this.tasks = this.taskService
     .getTasks()
     .map((t) => ({ value: t.id.toString(), viewValue: t.title }));
+    await this.userService.fetchUsers();
+    this.users = this.userService
+    .getUsers()
+    .map((u) => ({ value: "1", viewValue: `${u.firstName} ${u.lastName}` }));
   }
 
   async createTask() {
