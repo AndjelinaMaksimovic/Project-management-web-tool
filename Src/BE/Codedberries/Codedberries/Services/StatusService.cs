@@ -108,6 +108,16 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found!");
             }
 
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             var statuses = _databaseContext.Statuses
                 .Where(s => s.ProjectId == request.ProjectId)
                 .Select(s => new StatusDTO
