@@ -34,6 +34,10 @@ namespace Codedberries.Controllers
             {
                 return BadRequest(new ErrorMsg(ex.Message));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred while creating the status: {ex.Message}"));
