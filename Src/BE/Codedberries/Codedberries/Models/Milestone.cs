@@ -13,8 +13,7 @@ namespace Codedberries.Models
         [Required]
         public string Name { get; set; }
 
-        [Required]
-        public DateTime MilestoneDate { get; set; }
+        public DateTime Date { get; set; }
 
         [Required]
         public int ProjectId { get; set; }
@@ -22,11 +21,11 @@ namespace Codedberries.Models
         [ForeignKey("ProjectId")]
         public Project Project { get; set; }
 
-        public Milestone(string name, int projectId, DateTime dateTime)
+        public Milestone(string name, int projectId, DateTime date)
         {
             Name = name;
             ProjectId = projectId;
-            MilestoneDate = dateTime;
+            Date = date;
         }
     }
 }
