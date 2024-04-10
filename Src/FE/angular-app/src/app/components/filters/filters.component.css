@@ -4,6 +4,10 @@
     border-radius: 10px;
     border: 1px solid #C1C1C1;
     width: 30rem;
+    position: absolute;
+    background-color: #ffffff;
+    z-index: 100;
+    right: 0;
 }
 
 .button {
