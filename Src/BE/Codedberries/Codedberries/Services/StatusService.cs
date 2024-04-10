@@ -49,6 +49,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
 
+            if (statusDTO == null)
+            {
+                throw new ArgumentNullException(nameof(statusDTO), "Status creation DTO cannot be null!");
+            }
+
             if (string.IsNullOrWhiteSpace(statusDTO.Name))
             {
                 throw new ArgumentException("Status name cannot be empty!");
