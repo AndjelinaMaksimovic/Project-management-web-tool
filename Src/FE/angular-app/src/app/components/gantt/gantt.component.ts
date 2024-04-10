@@ -1,19 +1,18 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
 import { GanttColumn, Item, Milestone, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
-
-// TODO: bug when item width is 0 or starts and ends during the weekend
+import { GanttDependencyLineComponent } from '../gantt-dependency-line/gantt-dependency-line.component';
 
 @Component({
   selector: 'app-gantt',
   standalone: true,
-  imports: [ NgStyle, NgIf, NgClass ],
+  imports: [ NgStyle, NgIf, NgClass, GanttDependencyLineComponent ],
   templateUrl: './gantt.component.html',
   styleUrl: './gantt.component.css'
 })
 
-export class GanttComponent implements OnInit{
+export class GanttComponent implements OnInit, AfterViewInit{
   @Input() tasks: Task[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
   @Input() milestones: Milestone[] = []
@@ -112,71 +111,77 @@ export class GanttComponent implements OnInit{
       })
   }
 
-  hovering?: Item = undefined
+  lastHovered!: Item
   dragging: boolean = false
   itemHover(item: Item){
     if(!this.dragging){
       item.hover = true
     }
-    this.hovering = item
+    this.lastHovered = item
   }
   itemUnHover(item: Item){
     if(!this.dragging){
       item.hover = false
-      this.hovering = undefined
+      // this.hovering = undefined
     }
   }
+  clipLine = false
+  barHover(item: Item){
+    this.itemHover(item)
+    if(this.dragging && this.originalItem != this.lastHovered){
+      this.clipLine = true
+      this.offset = {x: this.lastHovered.left - this.draggedOriginal.x + 5, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2  - this.draggedOriginal.y}
+    }
+  }
+  barUnHover(item: Item){
+    this.clipLine = false
+  }
 
-  // dragged: any = undefined
-  original?: Item = undefined
+  chartRect!: any
+  @ViewChild('chartView', { static: false }) chartElem!: ElementRef;
+  ngAfterViewInit(){
+    this.chartRect = this.chartElem.nativeElement.getBoundingClientRect()
+  }
+  
+  originalItem?: Item = undefined
   draggedOriginal: any = {x: 0, y: 0}
   offset: any = {x: 0, y: 0}
-  @HostListener('mousemove', ['$event'])
-  onMouseMove(event: any){
-    if(this.dragging){
-      // console.log(event.x - this.draggedOriginal.left - this.draggedOriginal.x)
-      this.offset = {x: event.x - this.draggedOriginal.left - this.draggedOriginal.x, y: event.y - this.draggedOriginal.top - this.draggedOriginal.y}
-      // console.log(event.target)
-    }
-    return false
-  }
+
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: any) {
-    if (this.hovering) {
-      this.dragging = true
-      this.original = this.hovering
-      const rect = event.target.parentElement.getBoundingClientRect()
-      this.draggedOriginal = {x: this.hovering.left + this.hovering.width, y: this.idMap[this.hovering.id] * this.taskHeight + this.taskHeight / 2, left: rect.left, top: rect.top}
-      this.onMouseMove({x: event.x, y: event.y})
-    }
+    console.log(event.x +" "+ event.y)
+    this.dragging = true
+    this.originalItem = this.lastHovered
+    this.draggedOriginal = {x: this.lastHovered.left + this.lastHovered.width - 5, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2}
+    this.onMouseMove({x: event.x, y: event.y})
+    return false
+  }
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: any){
+    if(this.dragging && !this.clipLine)
+      this.offset = {x: event.x - this.chartRect.left - this.draggedOriginal.x, y: event.y - this.chartRect.top - this.draggedOriginal.y}
     return false
   }
 
-  // TODO: bug, add rehover on mouseup
   @HostListener('mouseup')
   onMouseUp(target: any) {
-    if(this.hovering){
-      if(this.dragging){
-        if(!this.hovering.dependant.includes(this.hovering.id)){
-          this.original?.dependant.push(this.hovering.id)
-        }
-        this.dragging = false
+    if(this.dragging){
+      if(this.clipLine && !this.lastHovered.dependant.includes(this.lastHovered.id) && this.lastHovered.id != this.originalItem?.id){
+        this.originalItem?.dependant.push(this.lastHovered.id)
       }
-      if(this.original)
-        this.original.hover = false
-      this.hovering.hover = false
-      this.hovering = undefined
+      this.dragging = false
     }
+    if(this.originalItem && this.originalItem != this.lastHovered)
+      this.originalItem.hover = false
     return false
   }
 
   @HostListener('mouseleave')
   onMouseLeave() {
     this.dragging = false
-    if(this.hovering){
-      this.hovering.hover = false
-      this.hovering = undefined
-    }
+    this.lastHovered.hover = false
+    if(this.originalItem)
+      this.originalItem.hover = false
     return false
   }
 }

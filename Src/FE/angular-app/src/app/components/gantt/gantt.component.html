@@ -35,14 +35,18 @@
                     <span class="column-display text-align-center" [style.width]="columnWidth+'px'">{{date}}</span>
                 }
             </div>
-            <div style="position: relative;">
+            <div style="position: relative;" #chartView>
+                <ng-template [ngIf]="dragging">
+                    <app-gantt-dependency-line [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight"></app-gantt-dependency-line>
+                </ng-template>
+
                 @for (item of items; track item) {
                     <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                         <div class="task" *ngIf="item.display" [ngStyle]="{
                             'left': item.left + 'px',
                             'width': item.width + 'px',
                         }">
-                            <div class="task-bar" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)" [ngStyle]="{
+                            <div class="task-bar" (mouseenter)="barHover(item)" (mouseleave)="barUnHover(item)" [ngStyle]="{
                                 'background-color': item.color,
                                 'height': barHeight+'px'
                             }">
@@ -55,20 +59,11 @@
     
                                 <!-- Dependenct lines -->
                                 @for (dependant of item.dependant; track dependant){
-                                    <!-- from task to the right -->
-                                    <div style="position: absolute; right: -10px; background-color: grey; width: 15px; height: 3px;"
-                                    [style.top]="(barHeight / 2 - 1) + 'px'"></div>
-                                    <!-- if the dependency start before the task ends put red and down just below task
-                                    otherwise down to the next task -->
-                                    <!-- down / up -->
-                                    <div style="position: absolute; right: -10px; background-color: grey; width: 3px;"
-                                    [style.height]="(idMap[dependant]-idMap[item.id])*taskHeight+'px'"
-                                    [style.top]="(barHeight / 2 - 1)+'px'"></div>
-                                    <!-- left / right to task -->
-                                    <div style="position: absolute; background-color: grey; height: 3px;"
-                                    [style.width]="(items[idMap[dependant]].left - item.left - item.width)+'px'"
-                                    [style.top]="((barHeight / 2 - 1) + idMap[dependant]*taskHeight) + 'px'"
-                                    [style.right]="-(items[idMap[dependant]].left - item.left - item.width + 7)+'px'"></div>
+                                    <app-gantt-dependency-line
+                                    [from]="{x: item.width - 5, y: barHeight / 2}"
+                                    [offset]="{x: items[idMap[dependant]].left - item.left - item.width + 10, y: (idMap[dependant]-idMap[item.id])*taskHeight}"
+                                    [taskHeight]="taskHeight"
+                                    [hover]="item.hover"></app-gantt-dependency-line>
                                 }
                                 <div style="position: absolute; right: -12px; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#9737;</div>
                                 <div style="position: absolute; right: -24px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#10247;</div>
@@ -76,22 +71,6 @@
                         </div>
                     </div>
                 }
-                <ng-template [ngIf]="dragging">
-                    <div style="position: absolute; background-color: blue; width: 15px; height: 3px;"
-                    [style.top]="draggedOriginal.y + 'px'"
-                    [style.left]="draggedOriginal.x + 'px'"></div>
-                    <!-- down / up -->
-                    <div style="position: absolute; background-color: blue; width: 3px;"
-                    [style.left]="draggedOriginal.x + 15 + 'px'"
-                    [style.height]="offset.y + 'px'"
-                    [style.top]="draggedOriginal.y + 'px'"></div>
-                    <!-- left / right to task -->
-                    <div style="position: absolute; background-color: blue; height: 3px;"
-                    [style.left]="draggedOriginal.x + 15 + 'px'"
-                    [style.width]="offset.x - 15 + 'px'"
-                    [style.top]="(draggedOriginal.y + offset.y) +'px'"
-                    ></div>
-                </ng-template>
             </div>
         </div>
     </div>
