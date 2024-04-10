@@ -191,6 +191,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("StatusId must be greater than 0!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             var statusToDelete = await _databaseContext.Statuses.FirstOrDefaultAsync(s => s.Id == request.StatusId && s.ProjectId == request.ProjectId);
 
             if (statusToDelete == null)
