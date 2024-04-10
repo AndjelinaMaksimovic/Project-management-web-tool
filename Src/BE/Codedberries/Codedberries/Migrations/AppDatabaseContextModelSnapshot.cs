@@ -174,6 +174,27 @@ namespace Codedberries.Migrations
                     b.ToTable("Sessions");
                 });
 
+            modelBuilder.Entity("Codedberries.Models.Starred", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Starred");
+                });
+
             modelBuilder.Entity("Codedberries.Models.Status", b =>
                 {
                     b.Property<int>("Id")
@@ -306,6 +327,8 @@ namespace Codedberries.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("Users");
                 });
 
@@ -338,6 +361,25 @@ namespace Codedberries.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.Starred", b =>
+                {
+                    b.HasOne("Codedberries.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Status", b =>
@@ -393,6 +435,15 @@ namespace Codedberries.Migrations
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Codedberries.Models.User", b =>
+                {
+                    b.HasOne("Codedberries.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>

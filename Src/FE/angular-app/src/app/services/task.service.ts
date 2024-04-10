@@ -48,6 +48,7 @@ export class TaskService {
         apiTask.taskId % 3
       ],
       id: apiTask.taskId,
+
       date: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
     };

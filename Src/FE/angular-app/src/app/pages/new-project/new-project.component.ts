@@ -65,7 +65,8 @@ export class NewProjectComponent {
       description: this.description,
       dueDate: this.dueDate.value,
       startDate: this.startDate.value,
-      userIds: this.usersSelected,
+      // TODO
+      userIds:[],
       isStarted: true
     })
     if(!res){

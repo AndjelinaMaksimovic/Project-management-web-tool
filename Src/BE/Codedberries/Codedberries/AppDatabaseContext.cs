@@ -16,6 +16,7 @@ namespace Codedberries
         public DbSet<UserProject> UserProjects { get; set; }
         public DbSet<Priority> Priorities { get; set; }
         public DbSet<Status> Statuses { get; set; }
+        public DbSet<Starred> Starred { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
