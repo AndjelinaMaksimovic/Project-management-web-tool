@@ -114,6 +114,10 @@ export class NewTaskComponent {
       this.errorMessage = 'Please provide all required fields';
       return;
     }
+    if(this.startDate.value.getTime() > this.dueDate.value.getTime()){
+      this.errorMessage = 'Please enter valid start/due dates';
+      return;
+    }
     await this.taskService.createTask(
       {
         title: this.title,
