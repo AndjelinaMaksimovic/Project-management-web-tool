@@ -181,6 +181,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to delete status!");
             }
 
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
+            }
+
             var statusToDelete = await _databaseContext.Statuses.FirstOrDefaultAsync(s => s.Id == request.StatusId && s.ProjectId == request.ProjectId);
 
             if (statusToDelete == null)
