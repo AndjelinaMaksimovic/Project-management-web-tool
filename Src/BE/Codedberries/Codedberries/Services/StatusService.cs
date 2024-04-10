@@ -59,6 +59,13 @@ namespace Codedberries.Services
                 throw new ArgumentException("ProjectId must be greater than 0!");
             }
 
+            var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == statusDTO.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new ArgumentException($"Project with ID {statusDTO.ProjectId} does not exist in database!");
+            }
+
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
 
             _databaseContext.Statuses.Add(newStatus);
