@@ -19,6 +19,7 @@ export type User = {
 };
 function mapUser(apiUser: any) {
   return {
+    id: apiUser.id,
     email: apiUser.email,
     firstName: apiUser.firstname,
     lastName: apiUser.lastname,
