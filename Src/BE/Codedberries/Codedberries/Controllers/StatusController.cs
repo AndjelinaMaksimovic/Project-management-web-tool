@@ -30,6 +30,10 @@ namespace Codedberries.Controllers
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
             }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new ErrorMsg(ex.Message));
