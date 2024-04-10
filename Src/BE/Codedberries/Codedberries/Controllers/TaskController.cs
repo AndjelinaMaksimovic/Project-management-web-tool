@@ -4,6 +4,7 @@ using Codedberries.Models;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 namespace Codedberries.Controllers
 
 {
@@ -111,6 +112,25 @@ namespace Codedberries.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while updating the task: {ex.Message}"));
+            }
+        }
+
+        [HttpPut("archiveTask")]
+        public async Task<IActionResult> ArchiveTask(int taskId)
+        {
+            try
+            {
+                var TaskInfo=await _taskService.ArchiveTask(taskId);
+
+                return Ok(TaskInfo);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message)); // Task not found
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while archiving/unarchiving the task: {ex.Message}"));
             }
         }
     }
