@@ -49,6 +49,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
 
+            if (string.IsNullOrWhiteSpace(statusDTO.Name))
+            {
+                throw new ArgumentException("Status name cannot be empty!");
+            }
+
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
 
             _databaseContext.Statuses.Add(newStatus);
