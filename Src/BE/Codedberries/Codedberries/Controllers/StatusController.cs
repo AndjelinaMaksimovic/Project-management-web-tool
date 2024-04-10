@@ -88,6 +88,10 @@ namespace Codedberries.Controllers
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
             }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (ArgumentException ex)
             {
                 return NotFound(new ErrorMsg(ex.Message));
