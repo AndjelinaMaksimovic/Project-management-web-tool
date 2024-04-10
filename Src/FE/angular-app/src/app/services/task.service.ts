@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StatusService } from './status.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CategoryService } from './category.service';
 
 /**
  * Task format used within the app
@@ -23,7 +24,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-  constructor(private http: HttpClient, private statusService: StatusService, private snackBar: MatSnackBar) {}
+  constructor(private http: HttpClient, private statusService: StatusService,private categoryService: CategoryService, private snackBar: MatSnackBar) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -82,6 +83,7 @@ export class TaskService {
     this.context = { ...this.context, ...context };
     // after changing the context, we need to clear the previous tasks cache
     this.statusService.setContext(context);
+    this.categoryService.setContext(context);
     this.tasks = [];
   }
   /**
@@ -102,6 +104,7 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });
