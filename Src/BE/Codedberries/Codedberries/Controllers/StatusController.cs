@@ -49,13 +49,17 @@ namespace Codedberries.Controllers
         {
             try
             {
-                var status = _statusService.GetStatusByProjectId(HttpContext, request);
+                var statuses = _statusService.GetStatusByProjectId(HttpContext, request);
 
-                return Ok(status);
+                return Ok(statuses);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (ArgumentException ex)
             {
