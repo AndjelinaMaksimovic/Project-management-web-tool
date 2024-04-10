@@ -66,6 +66,14 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {statusDTO.ProjectId} does not exist in database!");
             }
 
+            var existingStatus = _databaseContext.Statuses
+                .FirstOrDefault(s => s.ProjectId == statusDTO.ProjectId && s.Name.ToLower() == statusDTO.Name.ToLower());
+
+            if (existingStatus != null)
+            {
+                throw new InvalidOperationException("Status with the same name already exists on the project!");
+            }
+
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
 
             _databaseContext.Statuses.Add(newStatus);
