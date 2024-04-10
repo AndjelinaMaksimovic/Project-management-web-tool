@@ -54,6 +54,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("Status name cannot be empty!");
             }
 
+            if (statusDTO.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
 
             _databaseContext.Statuses.Add(newStatus);
