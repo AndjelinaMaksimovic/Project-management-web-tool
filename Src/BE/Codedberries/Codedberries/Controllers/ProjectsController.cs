@@ -117,5 +117,25 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while updating the task: {ex.Message}"));
             }
         }
+
+        [HttpPut("archiveProject")]
+        public IActionResult ArchiveProject([FromBody] ProjectDeletionDTO body)
+        {
+            try
+            {
+                 _projectService.ArchiveProject(HttpContext,body.ProjectId);
+
+                return Ok("project succesfully archieved");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message)); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while archiving/unarchiving the project: {ex.Message}"));
+            }
+        }
+
     }
 }
