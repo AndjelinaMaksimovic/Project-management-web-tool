@@ -3,6 +3,7 @@ using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -270,6 +271,34 @@ namespace Codedberries.Services
                 StartDate = project.StartDate,
                 DueDate = project.DueDate
             };
+        }
+
+        public async Task<UpdatedProjectInfoDTO> ArchiveProject(int projectId)
+        {
+            var project = await _databaseContext.Projects.FindAsync(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {projectId} not found!");
+            }
+
+            project.Archived=!project.Archived;
+            await _databaseContext.SaveChangesAsync();
+            return new UpdatedProjectInfoDTO
+            {
+                Name = project.Name,
+                Description = project.Description,
+                Users = project.Users.Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                    FirstName = u.Firstname,
+                    LastName = u.Lastname,
+                    ProfilePicture = u.ProfilePicture
+                }).ToList(),
+                StartDate = project.StartDate,
+                DueDate = project.DueDate
+            };
+
         }
     }
 }
