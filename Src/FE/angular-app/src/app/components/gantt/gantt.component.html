@@ -1,4 +1,4 @@
-<div style="white-space: nowrap; overflow: auto; display: flex; background-color: white;">
+<div style="white-space: nowrap; overflow: auto; display: flex; background-color: white; height: 300px;">
     <div class="info">
         @for (col of columns; track col; let idx = $index) {
             <div [style.width]="colWidths[idx]+'px'" style="display: inline-block; overflow: hidden;">
@@ -51,12 +51,12 @@
                                 'box-shadow': (item.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
                                 'height': barHeight+'px',
                             }">
-                                <div *ngIf="item.milestone" style="width: 15px; height: 15px; transform: rotateZ(45deg);"
+                                <div *ngIf="item.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
                                 [ngStyle]="{
                                     'background-color': item.color,
                                 }"></div>
                                 <!-- progress bar filter -->
-                                <div *nfIf="!item.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.2); border-radius: 5px; position: absolute; margin-left: 5px; margin-right: 5px; left: 0;">
+                                <div *ngIf="!item.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.2); border-radius: 5px; position: absolute; margin-left: 5px; margin-right: 5px; left: 0;">
                                     <!-- progress bar -->
                                     <div style="border-radius: 5px; height:100%;" [ngStyle]="{
                                         'width': 'calc(' + item.percentage + '%' + ' - 10px)',

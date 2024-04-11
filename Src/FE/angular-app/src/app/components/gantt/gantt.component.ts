@@ -52,7 +52,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
           this.tasks[i].priority,
           this.tasks[i].status,
           // this.tasks[i].startDate.valueOf(),
-          Date.now(),
+          (new Date("2024-04-06T00:00:00")).valueOf(),
           this.tasks[i].dueDate.valueOf(),
           this.tasks[i].assignedTo
         )
@@ -110,8 +110,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
   initTimeHeader(){
     const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
     const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
-    this.chartStartDate = min - min % this.timeScale
-    this.dates = this.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
+    this.chartStartDate = min - min % this.timeScale /* for display ->*/ - this.timeScale * 1
+    this.dates = this.range(this.chartStartDate, max /* for display ->*/ + this.timeScale * 20, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
+    // this.dates = this.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
       .filter((v, i) => {
         return this.includeDay(v) // remove weekend and holiday
       })
