@@ -37,7 +37,7 @@
                 <span style="width: 100%; gap: 10px;">
                     <app-select [options]="categories" label="Category" (valueChange)="category=$event"></app-select>
                 </span>
-                <button mat-icon-button color="primary"><mat-icon>add</mat-icon></button>
+                <button mat-icon-button color="primary" (click)="createCategory()"><mat-icon>add</mat-icon></button>
             </div>
             <!-- task dependencies -->
             <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">

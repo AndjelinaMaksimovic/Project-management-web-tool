@@ -10,13 +10,14 @@ import { EmailFieldComponent } from '../../components/email-field/email-field.co
 import { SelectComponent } from '../../components/select/select.component';
 import { RolesService } from '../../services/roles.service';
 import { Task, TaskService } from '../../services/task.service';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CategoryService } from '../../services/category.service';
 import {
   MAT_DATE_LOCALE,
   provideNativeDateAdapter,
 } from '@angular/material/core';
 import { UserService } from '../../services/user.service';
+import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
 
 @Component({
   selector: 'app-new-task',
@@ -77,6 +78,7 @@ export class NewTaskComponent {
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
+    private dialog: MatDialog,
   ) {
   }
 
@@ -132,5 +134,8 @@ export class NewTaskComponent {
       1
     );
     this.router.navigateByUrl(`/project/${this.projectId}/tasks`);
+  }
+  createCategory() {
+    this.dialog.open(CreateCategoryModalComponent);
   }
 }
