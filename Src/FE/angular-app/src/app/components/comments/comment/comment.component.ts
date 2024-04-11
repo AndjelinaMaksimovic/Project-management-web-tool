@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { Comment } from '../../../services/comments.service';
+import { MaterialModule } from '../../../material/material.module';
 
 @Component({
   selector: 'app-comment',
   standalone: true,
-  imports: [],
+  imports: [MaterialModule],
   templateUrl: './comment.component.html',
   styleUrl: './comment.component.css'
 })
