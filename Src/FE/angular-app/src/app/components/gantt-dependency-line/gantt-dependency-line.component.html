@@ -13,7 +13,7 @@
     <!-- left / right to task -->
     <div class="line normal defaultHeight" [ngClass]="{'hover': hover}"
     [style.left]="from.x + 15 + 'px'"
-    [style.width]="abs(offset.x) - 15 + 'px'"
+    [style.width]="((offset.x < 15) ? 0 : abs(offset.x) - 15) + 'px'"
     [style.top]="(from.y + offset.y) +'px'"
     ></div>
 </ng-template>
