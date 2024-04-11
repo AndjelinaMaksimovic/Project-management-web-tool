@@ -17,6 +17,7 @@ namespace Codedberries
         public DbSet<Priority> Priorities { get; set; }
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Starred> Starred { get; set; }
+        public DbSet<TaskComment> TaskComments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
