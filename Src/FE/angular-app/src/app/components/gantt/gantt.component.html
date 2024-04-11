@@ -44,19 +44,34 @@
                     <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                         <div class="task" *ngIf="item.display" [ngStyle]="{
                             'left': item.left + 'px',
-                            'width': item.width + 'px',
+                            'width': (item.milestone) ? taskHeight : item.width + 'px',
                         }">
                             <div class="task-bar" (mouseenter)="barHover(item)" (mouseleave)="barUnHover(item)" [ngStyle]="{
-                                'background-color': item.color,
-                                'height': barHeight+'px'
+                                'background-color': (item.milestone) ? '' : item.color,
+                                'box-shadow': (item.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
+                                'height': barHeight+'px',
                             }">
+                                <div *ngIf="item.milestone" style="width: 15px; height: 15px; transform: rotateZ(45deg);"
+                                [ngStyle]="{
+                                    'background-color': item.color,
+                                }"></div>
+                                <!-- progress bar filter -->
+                                <div *nfIf="!item.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.2); border-radius: 5px; position: absolute; margin-left: 5px; margin-right: 5px; left: 0;">
+                                    <!-- progress bar -->
+                                    <div style="border-radius: 5px; height:100%;" [ngStyle]="{
+                                        'width': 'calc(' + item.percentage + '%' + ' - 10px)',
+                                        'background-color': item.color,
+                                    }"></div>
+                                </div>
                                 <!-- user icons -->
-                                @for (user of item.assignedTo; track user; let idx = $index) {
-                                    <div style="font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{
-                                        'height': (barHeight-2)+'px',
-                                        'width': (barHeight-2)+'px'
-                                    }"> A</div>
-                                }
+                                <ng-template [ngIf]="!item.milestone">
+                                    @for (user of item.assignedTo; track user; let idx = $index) {
+                                        <div style="z-index: 1; font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{
+                                            'height': (barHeight-2)+'px',
+                                            'width': (barHeight-2)+'px'
+                                        }"> A</div>
+                                    }
+                                </ng-template>
     
                                 <!-- Dependenct lines -->
                                 @for (dependant of item.dependant; track dependant){

@@ -16,6 +16,8 @@ export class Item {
         public dueDate: number,
         public assignedTo: User[] = [],
         public dependant: number[] = [], // ID-s of tasks that depend on this one
+        public percentage: number = 0,
+        public milestone: boolean = false,
 
         public color = '#5096A4',
         public left = 0,
@@ -39,21 +41,5 @@ export class User{
         public firstName: string = '',
         public lastName: string = '',
         public profilePicture: any = ''
-    ){}
-}
-
-export class Milestone{
-    constructor(
-        public id: number,
-        public title: string,
-        public date: number,
-        public assignedTo: User[] = [],
-        public dependant: number[] = [], // ID-s of tasks that depend on this one
-        
-        public color = '#5096A4',
-        public left = 0,
-        public width = 0,
-        public display = true,
-        public hover = false
     ){}
 }

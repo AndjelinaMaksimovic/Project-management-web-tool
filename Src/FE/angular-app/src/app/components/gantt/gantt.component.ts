@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
-import { GanttColumn, Item, Milestone, TimeScale } from './item';
+import { GanttColumn, Item, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 import { GanttDependencyLineComponent } from '../gantt-dependency-line/gantt-dependency-line.component';
@@ -15,7 +15,6 @@ import { GanttDependencyLineComponent } from '../gantt-dependency-line/gantt-dep
 export class GanttComponent implements OnInit, AfterViewInit{
   @Input() tasks: Task[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
-  @Input() milestones: Milestone[] = []
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
   @Input() colWidths: number[] = [100]
   @Input() timeScale: TimeScale = TimeScale.day
@@ -70,19 +69,23 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
     this.items.forEach(item => {
       var t: number
-      // t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
-      // t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      // item.left = t*this.columnWidth
-      // t = item.startDate - item.startDate % this.timeScale  // normalize start
-      // t = (Math.ceil((item.dueDate - t) / this.timeScale))
-      // t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      // item.width = t*this.columnWidth
-      t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
+
+      // rounded
+      t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
       t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.left = t
-      t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
+      item.left = t*this.columnWidth
+      t = item.startDate - item.startDate % this.timeScale  // normalize start
+      t = (Math.ceil((item.dueDate - t) / this.timeScale))
       t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.width = t
+      item.width = t*this.columnWidth
+
+      // exact
+      // t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
+      // t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
+      // item.left = t
+      // t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
+      // t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
+      // item.width = t
     });
   }
 
