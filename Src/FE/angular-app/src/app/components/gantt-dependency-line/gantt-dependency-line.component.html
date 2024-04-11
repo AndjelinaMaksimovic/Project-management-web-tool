@@ -8,7 +8,7 @@
     <!-- up / down -->
     <div class="line normal defaultWidth" [ngClass]="{'hover': hover}"
     [style.left]="from.x + 15 + 'px'"
-    [style.height]="abs(offset.y) + 3 + 'px'"
+    [style.height]="abs(offset.y) + 3 + ((offset.x < 15) ? - (taskHeight / 2) : 0 ) + 'px'"
     [style.top]="from.y + ((offset.y < 0)? offset.y : 0) + 'px'"></div>
     <!-- left / right to task -->
     <div class="line normal defaultHeight" [ngClass]="{'hover': hover}"
@@ -26,13 +26,13 @@
     <!-- up / down -->
     <div class="line red defaultWidth" [ngClass]="{'hover': hover}"
     [style.left]="from.x + 15 + 'px'"
-    [style.height]="taskHeight / 2 + 3 + 'px'"
-    [style.top]="from.y - ((offset.y < 0) ? taskHeight / 2 : 0) + 'px'"></div>
+    [style.height]="taskHeight / 2 + ((offset.y < 0) ? 5 : 1) + 'px'"
+    [style.top]="from.y + ((offset.y < 0) ? - (taskHeight + 4) / 2: 0) + 'px'"></div>
     <!-- left -->
     <div  class="line red defaultHeight" [ngClass]="{'hover': hover}"
     [style.left]="from.x + offset.x - 15 + 'px'"
     [style.width]="abs(offset.x) + 30 + 'px'"
-    [style.top]="(from.y - ((offset.y < 0) ? taskHeight : -taskHeight) / 2) +'px'"
+    [style.top]="(from.y + ((offset.y < 0) ? -taskHeight - 4 : taskHeight - 4) / 2) +'px'"
     ></div>
     <!-- up / down -->
     <!-- TODO: bug when dragging within the same task -->
