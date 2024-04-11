@@ -68,6 +68,12 @@ namespace Codedberries
               .WithMany()
               .HasForeignKey(t => t.PriorityId);
 
+            modelBuilder.Entity<Models.Milestone>()
+                .HasOne(tc => tc.Project)
+                .WithMany()
+                .HasForeignKey(tc => tc.ProjectId);
+
+
             modelBuilder.Entity<TaskComment>()
                 .HasOne(tc => tc.User)
                 .WithMany()
@@ -77,6 +83,7 @@ namespace Codedberries
                 .HasOne(tc => tc.Task)
                 .WithMany()
                 .HasForeignKey(tc => tc.TaskId);
+
         }
 
         public void ApplyMigrations()
