@@ -49,6 +49,36 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
 
+            if (statusDTO == null)
+            {
+                throw new ArgumentNullException(nameof(statusDTO), "Status creation DTO cannot be null!");
+            }
+
+            if (string.IsNullOrWhiteSpace(statusDTO.Name))
+            {
+                throw new ArgumentException("Status name cannot be empty!");
+            }
+
+            if (statusDTO.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == statusDTO.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new ArgumentException($"Project with ID {statusDTO.ProjectId} does not exist in database!");
+            }
+
+            var existingStatus = _databaseContext.Statuses
+                .FirstOrDefault(s => s.ProjectId == statusDTO.ProjectId && s.Name.ToLower() == statusDTO.Name.ToLower());
+
+            if (existingStatus != null)
+            {
+                throw new InvalidOperationException("Status with the same name already exists on the project!");
+            }
+
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
 
             _databaseContext.Statuses.Add(newStatus);
@@ -69,6 +99,35 @@ namespace Codedberries.Services
             if (user == null)
             {
                 throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found!");
+            }
+
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new ArgumentException($"Project with ID {request.ProjectId} does not exist in database!");
             }
 
             var statuses = _databaseContext.Statuses
@@ -120,6 +179,28 @@ namespace Codedberries.Services
             if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to delete status!");
+            }
+
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
+            }
+
+            if (request.StatusId <= 0)
+            {
+                throw new ArgumentException("StatusId must be greater than 0!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            var existingProject = await _databaseContext.Projects.FindAsync(request.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new ArgumentException($"Project with ID {request.ProjectId} does not exist in the database!");
             }
 
             var statusToDelete = await _databaseContext.Statuses.FirstOrDefaultAsync(s => s.Id == request.StatusId && s.ProjectId == request.ProjectId);
