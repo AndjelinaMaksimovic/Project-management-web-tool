@@ -41,6 +41,10 @@ export class ProjectService {
     return this.projects;
   }
 
+  public getProjectWithID(projectId: number) {
+    return this.projects.find(project => project.id == projectId);
+  }
+  
   /**
    * This function is used to update the current project cache.
    * It fetches project data from the backend.
