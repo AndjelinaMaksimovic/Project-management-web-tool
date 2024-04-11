@@ -33,7 +33,12 @@
                 <textarea matInput [(ngModel)]="description" style="height: 70vh;"></textarea>
             </mat-form-field>
             <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event"></app-select>
-            <app-select [options]="categories" label="Category" (valueChange)="category=$event"></app-select>
+            <div style="display: flex; width: 100%; gap: 10px; align-items: button;">
+                <span style="width: 100%; gap: 10px;">
+                    <app-select [options]="categories" label="Category" (valueChange)="category=$event"></app-select>
+                </span>
+                <button mat-icon-button color="primary"><mat-icon>add</mat-icon></button>
+            </div>
             <!-- task dependencies -->
             <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                 <mat-label>Dependencies</mat-label>
