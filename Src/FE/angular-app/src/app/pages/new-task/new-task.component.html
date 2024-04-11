@@ -18,19 +18,11 @@
                     <mat-datepicker-toggle matIconSuffix [for]="dp2"></mat-datepicker-toggle>
                     <mat-datepicker #dp2></mat-datepicker>
                 </mat-form-field>
-                <!-- <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
-                    <mat-label>Start Date</mat-label>
-                    <input type="date" matInput [(ngModel)]="startDate">
-                </mat-form-field> -->
-                <!-- <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
-                    <mat-label>Due Date</mat-label>
-                    <input type="date" matInput [placeholder]="'Due Date'" [(ngModel)]="date">
-                </mat-form-field> -->
             </div>
             <!-- description -->
             <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                 <mat-label>Description</mat-label>
-                <textarea matInput [(ngModel)]="description" style="height: 70vh;"></textarea>
+                <textarea matInput [(ngModel)]="description" style="height: 50vh;"></textarea>
             </mat-form-field>
             <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event"></app-select>
             <div style="display: flex; width: 100%; gap: 10px; align-items: button;">
