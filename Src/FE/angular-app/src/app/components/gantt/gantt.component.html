@@ -63,10 +63,10 @@
                                     [from]="{x: item.width - 5, y: barHeight / 2}"
                                     [offset]="{x: items[idMap[dependant]].left - item.left - item.width + 10, y: (idMap[dependant]-idMap[item.id])*taskHeight}"
                                     [taskHeight]="taskHeight"
-                                    [hover]="item.hover"></app-gantt-dependency-line>
+                                    [hover]="item.hover || items[idMap[dependant]].hover"></app-gantt-dependency-line>
                                 }
-                                <div style="position: absolute; right: -12px; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#9737;</div>
-                                <div style="position: absolute; right: -24px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%;" *ngIf="item.hover">&#10247;</div>
+                                <div style="position: absolute; right: -12px; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%; z-index: 1;" *ngIf="item.hover">&#9737;</div>
+                                <div style="position: absolute; right: -24px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%; z-index: 1;" *ngIf="item.hover">&#10247;</div>
                             </div>
                         </div>
                     </div>
