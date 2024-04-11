@@ -524,5 +524,52 @@ namespace Codedberries.Services
 
             _databaseContext.SaveChanges();
             }
+
+        public async System.Threading.Tasks.Task CreateTaskComment(HttpContext httpContext, TaskCommentCreationRequestDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (string.IsNullOrEmpty(request.Comment))
+            {
+                throw new ArgumentException("Comment is required!");
+            }
+
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("Task ID must be greater than zero!");
+            }
+
+            var task = _databaseContext.Tasks.Find(request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist.");
+            }
+
+            User currentUser =_databaseContext.Users.FirstOrDefault(r => r.Id == userId);
+
+
+            Models.TaskComment taskComment = new TaskComment(request.Comment, currentUser.Id ,request.TaskId);
+
+            _databaseContext.TaskComments.Add(taskComment);
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }
