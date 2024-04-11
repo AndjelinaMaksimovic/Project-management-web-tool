@@ -3,6 +3,7 @@ using Codedberries.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Codedberries.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Codedberries.Services
 {
@@ -482,5 +483,46 @@ namespace Codedberries.Services
 
             return updatedTaskInfo;
         }
+
+        public void ArchiveTask(HttpContext httpContext,int taskId)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && !userRole.CanEditTask)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to remove task!");
+            }
+
+            var task = _databaseContext.Tasks.Find(taskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {taskId} not found!");
+            }
+
+            // Toggle archived status
+            task.Archived = !task.Archived;
+
+            _databaseContext.SaveChanges();
+            }
     }
 }
