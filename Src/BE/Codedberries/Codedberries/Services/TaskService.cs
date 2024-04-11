@@ -514,11 +514,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("Task ID must be greater than zero!");
             }
 
-            var requestedTask = _databaseContext.Priorities.FirstOrDefault(p => p.Id == request.TaskId);
+            var task = _databaseContext.Tasks.Find(request.TaskId);
 
-            if (requestedTask == null)
+            if (task == null)
             {
-                throw new ArgumentException("Task with the provided ID does not exist!");
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist.");
             }
 
             User currentUser =_databaseContext.Users.FirstOrDefault(r => r.Id == userId);
