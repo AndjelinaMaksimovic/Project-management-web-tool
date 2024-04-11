@@ -18,7 +18,7 @@ export const routes: Routes = [
   { path: 'activate', title: 'Codedberries | Activate', component: ActivateComponent },
   { path: 'project/:id/tasks', title: 'Codedberries | Project tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/details', title: 'Codedberries | Project details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
-  { path: 'project/:projectId/task/:taskId', title: 'Codedberries | Task' component: TaskComponent, canActivate: [LoggedIn] },
+  { path: 'project/:projectId/task/:taskId', title: 'Codedberries | Task', component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
