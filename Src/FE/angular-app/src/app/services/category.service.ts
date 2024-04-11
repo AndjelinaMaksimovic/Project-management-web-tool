@@ -57,4 +57,18 @@ export class CategoryService {
     }
     return false;
   }
+
+  public async createCategory(name: string) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Category/createNewCategory`, 
+        { categoryName: name, projectId: this.context.projectId },
+        this.httpOptions
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchCategories();
+  }
 }
