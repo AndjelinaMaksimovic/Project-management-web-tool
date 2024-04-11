@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { LocalStorageService } from './localstorage';
 
 export type Project = Readonly<{
   title: string;
@@ -30,7 +31,7 @@ export class ProjectService {
   /** in-memory project cache */
   private projects: Project[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private localStorageService : LocalStorageService) {}
 
   /**
    * @returns a list of projects (current project cache)
@@ -51,7 +52,25 @@ export class ProjectService {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl + '/Projects/filterProjects',
-          environment.httpOptions
+          environment.httpOptions,
+        )
+      );
+      this.projects = res.body.map((project: any) => {
+        return mapProject(project);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchProjectsLocalStorage(filterName : string) {
+    let params = new HttpParams({ fromObject: this.localStorageService.getData(filterName) });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Projects/filterProjects',
+          { ...environment.httpOptions, params: params }
         )
       );
       this.projects = res.body.map((project: any) => {

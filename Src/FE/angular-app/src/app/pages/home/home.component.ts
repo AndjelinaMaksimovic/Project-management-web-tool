@@ -5,28 +5,46 @@ import { NgIf } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewProjectComponent } from '../new-project/new-project.component';
+import { FiltersComponent } from '../../components/filters/filters.component';
+import { Filter } from '../../components/filters/filters.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ TopnavComponent, ProjectItemComponent, NgIf ],
+  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
+
 export class HomeComponent {
+  filters: Map<string, Filter> = new Map<string, Filter>([
+    ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
+    ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
+    // ["AssignedTo", new Filter({ name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" })]})],
+  ]);
+
+  isFilterOpen: boolean = false;
 
   constructor(private projectService: ProjectService, private dialogue: MatDialog) {}
 
   ngOnInit(){
-    this.projectService.fetchProjects();
+    this.projectService.fetchProjectsLocalStorage('project_filters');
   }
   get projects(){
     return this.projectService.getProjects();
   }
 
+  fetchProjectsFromLocalStorage() {
+    this.projectService.fetchProjectsLocalStorage('project_filters');
+  }
+
   @Input() mostRecentAccordionVisible: boolean = true;
   @Input() starredProjectsAccordionVisible: boolean = true;
   @Input() allProjectsAccordionVisible: boolean = true;
+
+  openFilters() {
+    this.isFilterOpen = !this.isFilterOpen;
+  }
 
   toggleMostRecentAccordion() {
     this.mostRecentAccordionVisible = !this.mostRecentAccordionVisible;
