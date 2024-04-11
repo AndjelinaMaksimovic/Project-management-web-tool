@@ -12,14 +12,14 @@ export type Comment = {
 export class CommentsService {
   comments: Comment[] = [
     {
-      author: "user1",
+      author: "John Doe",
       date: new Date(),
       content: "This is the first comment"
     },
     {
-      author: "user1",
+      author: "Jane Doe",
       date: new Date(),
-      content: "test"
+      content: "This also supports **markdown**\n\n[<img src=\"http://www.google.com.au/images/nav_logo7.png\">](http://google.com.au/)"
     },
   ];
   getComments(){
