@@ -69,13 +69,20 @@ export class GanttComponent implements OnInit, AfterViewInit{
     });
 
     this.items.forEach(item => {
-      var t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
+      var t: number
+      // t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
+      // t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
+      // item.left = t*this.columnWidth
+      // t = item.startDate - item.startDate % this.timeScale  // normalize start
+      // t = (Math.ceil((item.dueDate - t) / this.timeScale))
+      // t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
+      // item.width = t*this.columnWidth
+      t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
       t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.left = t*this.columnWidth
-      t = item.startDate - item.startDate % this.timeScale  // normalize start
-      t = (Math.ceil((item.dueDate - t) / this.timeScale))
+      item.left = t
+      t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
       t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.width = t*this.columnWidth
+      item.width = t
     });
   }
 
@@ -106,34 +113,49 @@ export class GanttComponent implements OnInit, AfterViewInit{
         return this.includeDay(v) // remove weekend and holiday
       })
       .map((v) => {
-        const format = this.timeScale == TimeScale.day ? "d. E" : "d HH"
+        var format: string
+        switch (this.timeScale) {
+          case TimeScale.week:
+            format = "d. E"
+            break;
+          case TimeScale.day:
+            format = "d. E"
+            break;
+          case TimeScale.hour:
+            format = "d. HH:00"
+            break;
+          default:
+            format = "d. E"
+            break;
+        }
+        // const format = this.timeScale == TimeScale.day ? "d. E" : "d HH"
         return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset?
       })
   }
 
-  lastHovered!: Item
+  lastHovered!: Item | Milestone
   dragging: boolean = false
-  itemHover(item: Item){
+  itemHover(item: Item | Milestone){
     if(!this.dragging){
       item.hover = true
     }
     this.lastHovered = item
   }
-  itemUnHover(item: Item){
+  itemUnHover(item: Item | Milestone){
     if(!this.dragging){
       item.hover = false
       // this.hovering = undefined
     }
   }
   clipLine = false
-  barHover(item: Item){
+  barHover(item: Item | Milestone){
     this.itemHover(item)
     if(this.dragging && this.originalItem != this.lastHovered){
       this.clipLine = true
       this.offset = {x: this.lastHovered.left - this.draggedOriginal.x + 5, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2  - this.draggedOriginal.y}
     }
   }
-  barUnHover(item: Item){
+  barUnHover(item: Item | Milestone){
     this.clipLine = false
   }
 
@@ -143,7 +165,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.chartRect = this.chartElem.nativeElement.getBoundingClientRect()
   }
   
-  originalItem?: Item = undefined
+  originalItem?: Item | Milestone = undefined
   draggedOriginal: any = {x: 0, y: 0}
   offset: any = {x: 0, y: 0}
 

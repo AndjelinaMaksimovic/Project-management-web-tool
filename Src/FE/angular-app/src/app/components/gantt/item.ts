@@ -29,6 +29,7 @@ export enum GanttColumn {
     users = "Users"
 }
 export enum TimeScale {
+    week = 86_400_000 * 7,
     day = 86_400_000,
     hour = 3_600_000
 }
@@ -45,6 +46,14 @@ export class Milestone{
     constructor(
         public id: number,
         public title: string,
-        public date: number
+        public date: number,
+        public assignedTo: User[] = [],
+        public dependant: number[] = [], // ID-s of tasks that depend on this one
+        
+        public color = '#5096A4',
+        public left = 0,
+        public width = 0,
+        public display = true,
+        public hover = false
     ){}
 }
