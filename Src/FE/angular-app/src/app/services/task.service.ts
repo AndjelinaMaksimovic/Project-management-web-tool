@@ -153,20 +153,19 @@ export class TaskService {
     try {
       const res = await firstValueFrom(
         this.http.put<any>(
-          environment.apiUrl + `/Task/updateTask`,
+          environment.apiUrl + `/Task/archiveTask`,
           {
             taskId: taskId,
-            statusId: 1,
           },
           {
             ...this.httpOptions,
           }
         )
       );
-      await this.fetchTasks();
     } catch (e) {
       console.log(e);
     }
+    await this.fetchTasks();
   }
 
   async createTask(task: Omit<Task, 'id' | "projectId">, projectId: number) {
