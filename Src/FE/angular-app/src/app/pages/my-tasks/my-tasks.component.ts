@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { GanttComponent } from '../../components/gantt/gantt.component';
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
+import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
 
 @Component({
   selector: 'app-my-tasks',
@@ -57,5 +58,8 @@ export class MyTasksComponent {
 
   createStatus() {
     this.dialog.open(CreateStatusModalComponent);
+  }
+  createCategory() {
+    this.dialog.open(CreateCategoryModalComponent);
   }
 }
