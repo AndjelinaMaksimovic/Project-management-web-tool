@@ -51,7 +51,6 @@ export class TaskService {
       ],
       id: apiTask.taskId,
       projectId: this.context.projectId,
-
       startDate: new Date(Date.parse(apiTask.startDate)),
       dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,

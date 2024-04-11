@@ -21,4 +21,5 @@ export const routes: Routes = [
   { path: 'project/:projectId/task/:taskId', title: 'Codedberries | Task' component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
+  { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];
