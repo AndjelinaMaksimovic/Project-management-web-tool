@@ -133,29 +133,29 @@ export class GanttComponent implements OnInit, AfterViewInit{
       })
   }
 
-  lastHovered!: Item | Milestone
+  lastHovered!: Item
   dragging: boolean = false
-  itemHover(item: Item | Milestone){
+  itemHover(item: Item){
     if(!this.dragging){
       item.hover = true
     }
     this.lastHovered = item
   }
-  itemUnHover(item: Item | Milestone){
+  itemUnHover(item: Item){
     if(!this.dragging){
       item.hover = false
       // this.hovering = undefined
     }
   }
   clipLine = false
-  barHover(item: Item | Milestone){
+  barHover(item: Item){
     this.itemHover(item)
     if(this.dragging && this.originalItem != this.lastHovered){
       this.clipLine = true
       this.offset = {x: this.lastHovered.left - this.draggedOriginal.x + 5, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2  - this.draggedOriginal.y}
     }
   }
-  barUnHover(item: Item | Milestone){
+  barUnHover(item: Item){
     this.clipLine = false
   }
 
@@ -165,13 +165,11 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.chartRect = this.chartElem.nativeElement.getBoundingClientRect()
   }
   
-  originalItem?: Item | Milestone = undefined
+  originalItem?: Item = undefined
   draggedOriginal: any = {x: 0, y: 0}
   offset: any = {x: 0, y: 0}
 
-  @HostListener('mousedown', ['$event'])
-  onMouseDown(event: any) {
-    console.log(event.x +" "+ event.y)
+  startDependencyDrag(event: any) {
     this.dragging = true
     this.originalItem = this.lastHovered
     this.draggedOriginal = {x: this.lastHovered.left + this.lastHovered.width - 5, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2}
@@ -179,17 +177,20 @@ export class GanttComponent implements OnInit, AfterViewInit{
     return false
   }
   @HostListener('mousemove', ['$event'])
-  onMouseMove(event: any){
+  onMouseMove(event: MouseEvent | {x: number, y: number}){
     if(this.dragging && !this.clipLine)
       this.offset = {x: event.x - this.chartRect.left - this.draggedOriginal.x, y: event.y - this.chartRect.top - this.draggedOriginal.y}
     return false
   }
 
   @HostListener('mouseup')
-  onMouseUp(target: any) {
-    if(this.dragging){
-      if(this.clipLine && !this.lastHovered.dependant.includes(this.lastHovered.id) && this.lastHovered.id != this.originalItem?.id){
-        this.originalItem?.dependant.push(this.lastHovered.id)
+  onMouseUp() {
+    if(this.dragging && this.originalItem){
+      if(this.clipLine
+        && this.lastHovered.id != this.originalItem?.id // not the same
+        && !this.lastHovered.dependant.includes(this.originalItem.id) // last doesnt already contain it
+        && !this.originalItem.dependant.includes(this.lastHovered.id)){ // current isn't dependant on it
+        this.originalItem.dependant.push(this.lastHovered.id)
       }
       this.dragging = false
     }
@@ -205,5 +206,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
     if(this.originalItem)
       this.originalItem.hover = false
     return false
+  }
+
+  dependencyPopUp(item: Item){
+    alert("clicked dep")
   }
 }

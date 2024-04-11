@@ -37,10 +37,10 @@
             </div>
             <div style="position: relative;" #chartView>
                 <ng-template [ngIf]="dragging">
-                    <app-gantt-dependency-line [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight"></app-gantt-dependency-line>
+                    <app-gantt-dependency-line style="position: absolute; z-index: 2;" [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight"></app-gantt-dependency-line>
                 </ng-template>
-
                 @for (item of items; track item) {
+                    <!-- task row -->
                     <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                         <div class="task" *ngIf="item.display" [ngStyle]="{
                             'left': item.left + 'px',
@@ -50,6 +50,7 @@
                                 'background-color': item.color,
                                 'height': barHeight+'px'
                             }">
+                                <!-- user icons -->
                                 @for (user of item.assignedTo; track user; let idx = $index) {
                                     <div style="font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{
                                         'height': (barHeight-2)+'px',
@@ -65,8 +66,9 @@
                                     [taskHeight]="taskHeight"
                                     [hover]="item.hover || items[idMap[dependant]].hover"></app-gantt-dependency-line>
                                 }
-                                <div style="position: absolute; right: -12px; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%; z-index: 1;" *ngIf="item.hover">&#9737;</div>
-                                <div style="position: absolute; right: -24px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: grey; border-radius: 20%; z-index: 1;" *ngIf="item.hover">&#10247;</div>
+
+                                <div title="Click and drag to another taks to create a new dependency" style="position: absolute; right: -15px; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" (click)="dependencyPopUp(item)" (mousedown)="startDependencyDrag($event)" *ngIf="item.hover">&#9737;</div>
+                                <div title="Edit task" style="position: absolute; right: -33px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" *ngIf="item.hover">&#10247;</div>
                             </div>
                         </div>
                     </div>

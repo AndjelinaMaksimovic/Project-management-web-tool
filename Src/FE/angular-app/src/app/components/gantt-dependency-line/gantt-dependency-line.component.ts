@@ -1,5 +1,5 @@
 import { NgClass, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 
 @Component({
   selector: 'app-gantt-dependency-line',
@@ -15,5 +15,12 @@ export class GanttDependencyLineComponent {
   @Input() hover: boolean = false
 
   abs(x: number): number{ return (x >= 0) ? x : -x }
+
+  @HostListener('mouseenter', ['$event'])
+  onHoverEnter(e: Event){
+    e.stopImmediatePropagation()
+    e.stopPropagation()
+    return false
+  }
 }
 class Coordinates{constructor(public x: number, public y: number){}}
