@@ -27,8 +27,8 @@ export class ProjectItemComponent {
     toggleStarred() {
         this.starred = !this.starred;
     }
-    
-    deleteProject() {
-        this.projectService.deleteProject(this.id);
+
+    archiveProject() {
+        this.projectService.archiveProject(this.id);
     }
 }
