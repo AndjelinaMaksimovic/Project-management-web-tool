@@ -4,11 +4,12 @@ import { NgIf } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { RouterModule } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-project-item',
     standalone: true,
-    imports: [ProgressbarComponent, NgIf, RouterModule, DatePipe ],
+    imports: [ProgressbarComponent, NgIf, RouterModule, DatePipe, MatTooltipModule ],
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.css'
 })

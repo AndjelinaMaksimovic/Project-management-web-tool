@@ -14,8 +14,8 @@
         <div class="hover">
             <p class="mr-20 samewidth date">{{ dueDate | date:'dd. MMMM yyyy' }}</p>
             <div class="mr-20 samewidth icons">
-                <i class="fa-solid fa-archive mr-20 button" (click)="archiveProject();"></i>
-                <i class="fa-solid fa-pen-to-square mr-20 button"></i>
+                <i class="fa-solid fa-archive mr-20 button" (click)="archiveProject();" matTooltip="Archive"></i>
+                <i class="fa-solid fa-pen-to-square mr-20 button" matTooltip="Edit"></i>
             </div>
         </div>
     </div>
