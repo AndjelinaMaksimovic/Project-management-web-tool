@@ -3,6 +3,7 @@ using Codedberries.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Codedberries.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Codedberries.Services
 {
@@ -483,9 +484,35 @@ namespace Codedberries.Services
             return updatedTaskInfo;
         }
 
-        public async Task<UpdatedTaskInfoDTO> ArchiveTask(int taskId)
+        public void ArchiveTask(HttpContext httpContext,int taskId)
         {
-            var task = await _databaseContext.Tasks.FindAsync(taskId);
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && !userRole.CanEditTask)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to remove task!");
+            }
+
+            var task = _databaseContext.Tasks.Find(taskId);
 
             if (task == null)
             {
@@ -495,21 +522,7 @@ namespace Codedberries.Services
             // Toggle archived status
             task.Archived = !task.Archived;
 
-            await _databaseContext.SaveChangesAsync();
-            var updatedTaskInfo = new UpdatedTaskInfoDTO
-            {
-                Id = task.Id,
-                Name = task.Name,
-                Description = task.Description,
-                CategoryId = task.CategoryId,
-                PriorityId = task.PriorityId,
-                StatusId = task.StatusId,
-                DueDate = task.DueDate,
-                StartDate = task.StartDate,
-                DifficultyLevel = task.DifficultyLevel,
-                ProjectId = task.ProjectId
-            };
-            return updatedTaskInfo;
-        }
+            _databaseContext.SaveChanges();
+            }
     }
 }

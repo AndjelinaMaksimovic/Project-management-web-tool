@@ -116,13 +116,13 @@ namespace Codedberries.Controllers
         }
 
         [HttpPut("archiveTask")]
-        public async Task<IActionResult> ArchiveTask(int taskId)
+        public IActionResult ArchiveTask([FromBody] TaskDeletionDTO body)
         {
             try
             {
-                var TaskInfo=await _taskService.ArchiveTask(taskId);
+                 _taskService.ArchiveTask(HttpContext,body.TaskId);
 
-                return Ok(TaskInfo);
+                return Ok("Task succesfully archieved");
             }
             catch (ArgumentException ex)
             {
