@@ -119,13 +119,13 @@ namespace Codedberries.Controllers
         }
 
         [HttpPut("archiveProject")]
-        public async Task<IActionResult> ArchiveProject(int projectId)
+        public IActionResult ArchiveProject([FromBody] ProjectDeletionDTO body)
         {
             try
             {
-                var ProjectInfo = await _projectService.ArchiveProject(projectId);
+                 _projectService.ArchiveProject(HttpContext,body.ProjectId);
 
-                return Ok(ProjectInfo);
+                return Ok("project succesfully archieved");
             }
             catch (ArgumentException ex)
             {

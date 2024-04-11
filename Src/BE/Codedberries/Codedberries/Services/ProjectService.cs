@@ -317,9 +317,9 @@ namespace Codedberries.Services
             };
         }
 
-        public async Task<UpdatedProjectInfoDTO> ArchiveProject(int projectId)
+        public  void ArchiveProject(HttpContext httpContext, int projectId)
         {
-            var project = await _databaseContext.Projects.FindAsync(projectId);
+            var project =  _databaseContext.Projects.Find(projectId);
 
             if (project == null)
             {
@@ -327,23 +327,8 @@ namespace Codedberries.Services
             }
 
             project.Archived=!project.Archived;
-            await _databaseContext.SaveChangesAsync();
-            return new UpdatedProjectInfoDTO
-            {
-                Name = project.Name,
-                Description = project.Description,
-                Users = project.Users.Select(u => new UserDTO
-                {
-                    Id = u.Id,
-                    FirstName = u.Firstname,
-                    LastName = u.Lastname,
-                    ProfilePicture = u.ProfilePicture
-                }).ToList(),
-                StartDate = project.StartDate,
-                DueDate = project.DueDate
-            };
-
-        }
+            _databaseContext.SaveChanges();
+          }
 
         
     }
