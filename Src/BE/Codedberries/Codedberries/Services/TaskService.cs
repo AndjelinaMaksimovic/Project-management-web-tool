@@ -348,6 +348,13 @@ namespace Codedberries.Services
 
                 if (filterParams.CategoryId.HasValue)
                 {
+                    var categoryId = filterParams.CategoryId.Value;
+
+                    if (categoryId <= 0)
+                    {
+                        throw new ArgumentException("CategoryId must be greater than 0!");
+                    }
+
                     query = query.Where(t => t.CategoryId == filterParams.CategoryId);
                 }
             }
