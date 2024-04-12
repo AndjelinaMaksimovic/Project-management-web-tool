@@ -276,6 +276,13 @@ namespace Codedberries.Services
                         throw new ArgumentException("PriorityId must be greater than 0!");
                     }
 
+                    var existingPriority = _databaseContext.Priorities.FirstOrDefault(p => p.Id == priorityId);
+
+                    if (existingPriority == null)
+                    {
+                        throw new ArgumentException($"Priority with ID {priorityId} does not exist in the database!");
+                    }
+
                     query = query.Where(t => t.PriorityId == filterParams.PriorityId);
                 }
 
