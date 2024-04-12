@@ -535,19 +535,26 @@ namespace Codedberries.Services
                 
                 if (category == null)
                 {
-                    throw new ArgumentException($"Category with ID {request.CategoryId} not found!");
+                    throw new ArgumentException($"Category with ID {request.CategoryId} not found in database!");
                 }
                 
                 task.CategoryId = request.CategoryId.Value;
             }
 
-            if (request.PriorityId.HasValue && request.PriorityId > 0)
+            if (request.PriorityId.HasValue)
             {
+                if (request.PriorityId <= 0)
+                {
+                    throw new ArgumentException("PriorityId must be greater than 0!");
+                }
+
                 var priority = await _databaseContext.Priorities.FindAsync(request.PriorityId.Value);
+                
                 if (priority == null)
                 {
-                    throw new ArgumentException($"Priority with ID {request.PriorityId} not found!");
+                    throw new ArgumentException($"Priority with ID {request.PriorityId} not found in database!!");
                 }
+                
                 task.PriorityId = request.PriorityId.Value;
             }
 
