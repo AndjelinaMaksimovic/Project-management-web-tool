@@ -355,6 +355,13 @@ namespace Codedberries.Services
                         throw new ArgumentException("CategoryId must be greater than 0!");
                     }
 
+                    var existingCategory = _databaseContext.Categories.FirstOrDefault(c => c.Id == categoryId);
+
+                    if (existingCategory == null)
+                    {
+                        throw new ArgumentException($"Category with ID {categoryId} does not exist in the database!");
+                    }
+
                     query = query.Where(t => t.CategoryId == filterParams.CategoryId);
                 }
             }
