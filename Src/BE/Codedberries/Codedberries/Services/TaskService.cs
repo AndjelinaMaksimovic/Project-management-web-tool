@@ -269,6 +269,13 @@ namespace Codedberries.Services
 
                 if (filterParams.PriorityId.HasValue)
                 {
+                    var priorityId = filterParams.PriorityId.Value;
+
+                    if (priorityId <= 0)
+                    {
+                        throw new ArgumentException("PriorityId must be greater than 0!");
+                    }
+
                     query = query.Where(t => t.PriorityId == filterParams.PriorityId);
                 }
 
