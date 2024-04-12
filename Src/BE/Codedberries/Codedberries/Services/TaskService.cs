@@ -366,32 +366,44 @@ namespace Codedberries.Services
                 }
             }
 
-
             List<Codedberries.Models.Task> tasks = query.ToList();
 
-            List<ProjectTasksInfoDTO> tasksDTO = tasks.Select(t => new ProjectTasksInfoDTO
+            List<ProjectTasksInfoDTO> tasksDTO = new List<ProjectTasksInfoDTO>();
+
+            foreach (var task in tasks)
             {
-                TaskId = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                CategoryId = t.CategoryId,
-                PriorityId = t.PriorityId,
-                StatusId = t.StatusId,
-                CategoryName = t.CategoryId != null ? _databaseContext.Categories.FirstOrDefault(c => c.Id == t.CategoryId).Name : null,
-                PriorityName = t.PriorityId != null ? _databaseContext.Priorities.FirstOrDefault(p => p.Id == t.PriorityId).Name : null,
-                StatusName = t.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == t.StatusId).Name : null,
-                DueDate = t.DueDate,
-                AssignedTo = _databaseContext.Users
-                    .Where(u => u.Id == t.UserId)
-                    .Select(u => new TaskUserInfoDTO
-                    {
-                        Id = u.Id,
-                        FirstName = u.Firstname,
-                        LastName = u.Lastname,
-                        ProfilePicture = u.ProfilePicture
-                    })
-                    .ToList()
-            }).ToList();
+                var dependentTaskIds = _databaseContext.Set<TaskDependency>()
+                    .Where(td => td.TaskId == task.Id)
+                    .Select(td => td.DependentTaskId)
+                    .ToList();
+
+                var taskDTO = new ProjectTasksInfoDTO
+                {
+                    TaskId = task.Id,
+                    Name = task.Name,
+                    Description = task.Description,
+                    CategoryId = task.CategoryId,
+                    PriorityId = task.PriorityId,
+                    StatusId = task.StatusId,
+                    CategoryName = task.CategoryId != null ? _databaseContext.Categories.FirstOrDefault(c => c.Id == task.CategoryId).Name : null,
+                    PriorityName = task.PriorityId != null ? _databaseContext.Priorities.FirstOrDefault(p => p.Id == task.PriorityId).Name : null,
+                    StatusName = task.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == task.StatusId).Name : null,
+                    DueDate = task.DueDate,
+                    AssignedTo = _databaseContext.Users
+                        .Where(u => u.Id == task.UserId)
+                        .Select(u => new TaskUserInfoDTO
+                        {
+                            Id = u.Id,
+                            FirstName = u.Firstname,
+                            LastName = u.Lastname,
+                            ProfilePicture = u.ProfilePicture
+                        })
+                        .ToList(),
+                    DependentTasks = dependentTaskIds
+                };
+
+                tasksDTO.Add(taskDTO);
+            }
 
             return tasksDTO;
         }
