@@ -214,20 +214,31 @@ namespace Codedberries.Services
             {
                 if (filterParams.ProjectId != 0)
                 {
+                    var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == filterParams.ProjectId);
+                    
+                    if (existingProject == null)
+                    {
+                        throw new ArgumentException($"Project with ID {filterParams.ProjectId} does not exist in the database!");
+                    }
+
                     query = query.Where(t => t.ProjectId == filterParams.ProjectId);
                 }
+
                 if (filterParams.AssignedTo.HasValue)
                 {
                     query = query.Where(t => t.UserId == filterParams.AssignedTo);
                 }
+
                 if (filterParams.StatusId.HasValue)
                 {
                     query = query.Where(t => t.StatusId == filterParams.StatusId);
                 }
+
                 if (filterParams.PriorityId.HasValue)
                 {
                     query = query.Where(t => t.PriorityId == filterParams.PriorityId);
                 }
+
                 if (filterParams.DifficultyLevelGreaterThan.HasValue)
                 {
                     query = query.Where(t => t.DifficultyLevel > filterParams.DifficultyLevelGreaterThan.Value);
@@ -242,14 +253,17 @@ namespace Codedberries.Services
                 {
                     query = query.Where(t => t.DifficultyLevel == filterParams.DifficultyLevelEquals.Value);
                 }
+
                 if (filterParams.DueDateAfter.HasValue)
                 {
                     query = query.Where(t => t.DueDate >= filterParams.DueDateAfter);
                 }
+
                 if (filterParams.DueDateBefore.HasValue)
                 {
                     query = query.Where(t => t.DueDate <= filterParams.DueDateBefore);
                 }
+
                 if (filterParams.CategoryId.HasValue)
                 {
                     query = query.Where(t => t.CategoryId == filterParams.CategoryId);
