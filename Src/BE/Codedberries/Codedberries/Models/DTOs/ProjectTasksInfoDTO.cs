@@ -13,5 +13,6 @@
         public string StatusName { get; set; } 
         public DateTime DueDate { get; set; }
         public List<TaskUserInfoDTO> AssignedTo { get; set; }
+        public List<int> DependentTasks { get; set; }
     }
 }
