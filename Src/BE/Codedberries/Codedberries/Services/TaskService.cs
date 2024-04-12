@@ -257,6 +257,13 @@ namespace Codedberries.Services
                         throw new ArgumentException("StatusId must be greater than 0!");
                     }
 
+                    var existingStatus = _databaseContext.Statuses.FirstOrDefault(s => s.Id == statusId);
+
+                    if (existingStatus == null)
+                    {
+                        throw new ArgumentException($"Status with ID {statusId} does not exist in the database!");
+                    }
+
                     query = query.Where(t => t.StatusId == filterParams.StatusId);
                 }
 
