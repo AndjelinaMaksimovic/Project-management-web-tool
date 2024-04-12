@@ -619,13 +619,18 @@ namespace Codedberries.Services
                 task.DueDate = request.DueDate.Value;
             }
 
-            if (request.UserId.HasValue && request.UserId > 0)
+            if (request.UserId.HasValue)
             {
+                if (request.UserId <= 0)
+                {
+                    throw new ArgumentException("UserId must be greater than 0!");
+                }
+
                 var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
                 
                 if (userToAssign == null)
                 {
-                    throw new ArgumentException($"User with ID {request.UserId} not found!");
+                    throw new ArgumentException($"User with ID {request.UserId} not found in database!");
                 }
 
                 task.UserId = request.UserId.Value;
