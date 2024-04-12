@@ -214,6 +214,11 @@ namespace Codedberries.Services
             {
                 if (filterParams.ProjectId != 0)
                 {
+                    if (filterParams.ProjectId <= 0)
+                    {
+                        throw new ArgumentException("ProjectId must be greater than 0!");
+                    }
+
                     var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == filterParams.ProjectId);
                     
                     if (existingProject == null)
