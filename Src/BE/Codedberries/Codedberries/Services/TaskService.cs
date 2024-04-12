@@ -524,6 +524,23 @@ namespace Codedberries.Services
                 task.Description = request.Description;
             }
 
+            if (request.ProjectId.HasValue)
+            {
+                if (request.ProjectId <= 0)
+                {
+                    throw new ArgumentException("ProjectId must be greater than 0!");
+                }
+
+                var project = await _databaseContext.Projects.FindAsync(request.ProjectId.Value);
+
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
+                }
+
+                task.ProjectId = request.ProjectId.Value;
+            }
+
             if (request.CategoryId.HasValue)
             {
                 if (request.CategoryId <= 0)
@@ -537,7 +554,12 @@ namespace Codedberries.Services
                 {
                     throw new ArgumentException($"Category with ID {request.CategoryId} not found in database!");
                 }
-                
+
+                if (category.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Category with ID {request.CategoryId} does not belong to the same project as the task!");
+                }
+
                 task.CategoryId = request.CategoryId.Value;
             }
 
@@ -644,23 +666,6 @@ namespace Codedberries.Services
                 }
 
                 task.DifficultyLevel = request.DifficultyLevel.Value;
-            }
-
-            if (request.ProjectId.HasValue)
-            {
-                if (request.ProjectId <= 0)
-                {
-                    throw new ArgumentException("ProjectId must be greater than 0!");
-                }
-
-                var project = await _databaseContext.Projects.FindAsync(request.ProjectId.Value);
-                
-                if (project == null)
-                {
-                    throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
-                }
-
-                task.ProjectId = request.ProjectId.Value;
             }
 
             await _databaseContext.SaveChangesAsync();
