@@ -646,13 +646,18 @@ namespace Codedberries.Services
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
-            if (request.ProjectId.HasValue && request.ProjectId > 0)
+            if (request.ProjectId.HasValue)
             {
+                if (request.ProjectId <= 0)
+                {
+                    throw new ArgumentException("ProjectId must be greater than 0!");
+                }
+
                 var project = await _databaseContext.Projects.FindAsync(request.ProjectId.Value);
                 
                 if (project == null)
                 {
-                    throw new ArgumentException($"Project with ID {request.ProjectId} not found!");
+                    throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
                 }
 
                 task.ProjectId = request.ProjectId.Value;
