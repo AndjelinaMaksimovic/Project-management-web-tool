@@ -575,6 +575,32 @@ namespace Codedberries.Services
                 task.StatusId = request.StatusId.Value;
             }
 
+            if(request.StartDate.HasValue && request.DueDate.HasValue)
+            {
+                if(Helper.IsDateRangeValid(request.StartDate.Value, request.DueDate.Value) == false)
+                {
+                    throw new ArgumentException("Invalid StartDate and DueDate range!");
+                }
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
+                {
+                    throw new ArgumentException("StartDate must be a valid date!");
+                }
+
+                if(request.StartDate > task.DueDate)
+                {
+                    if(!request.DueDate.HasValue)
+                    {
+                        throw new ArgumentException("StartDate cannot be after DueDate!");
+                    }
+                }
+
+                task.StartDate = request.StartDate.Value;
+            }
+
             if (request.DueDate.HasValue)
             {
                 if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
@@ -584,15 +610,13 @@ namespace Codedberries.Services
 
                 if (request.DueDate < task.StartDate)
                 {
-                    throw new ArgumentException("DueDate cannot be before StartDate!");
+                    if (!request.StartDate.HasValue)
+                    {
+                        throw new ArgumentException("DueDate cannot be before StartDate!");
+                    }
                 }
 
                 task.DueDate = request.DueDate.Value;
-            }
-
-            if (request.StartDate.HasValue)
-            {
-                task.StartDate = request.StartDate.Value;
             }
 
             if (request.UserId.HasValue && request.UserId > 0)
