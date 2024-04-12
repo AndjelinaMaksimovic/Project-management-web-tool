@@ -300,6 +300,13 @@ namespace Codedberries.Services
 
                 if (filterParams.DifficultyLevelLesserThan.HasValue)
                 {
+                    var difficultyLevelLesserThan = filterParams.DifficultyLevelLesserThan.Value;
+
+                    if (difficultyLevelLesserThan <= 0)
+                    {
+                        throw new ArgumentException("DifficultyLevelLesserThan must be greater than 0!");
+                    }
+
                     query = query.Where(t => t.DifficultyLevel < filterParams.DifficultyLevelLesserThan.Value);
                 }
 
