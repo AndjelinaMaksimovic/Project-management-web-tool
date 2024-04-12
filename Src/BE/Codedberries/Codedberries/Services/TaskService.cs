@@ -496,9 +496,14 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to edit task!");
             }
 
-            if (request.TaskId <= 0 || request.IsEmpty())
+            if(request.IsEmpty())
             {
                 throw new ArgumentException("Not enough parameters for task update!");
+            }
+
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("TaskId must be greater than 0!");
             }
 
             var task = await _databaseContext.Tasks
@@ -506,7 +511,7 @@ namespace Codedberries.Services
 
             if (task == null)
             {
-                throw new ArgumentException($"Task with ID {request.TaskId} not found!");
+                throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
 
             if (!string.IsNullOrEmpty(request.Name))
