@@ -288,6 +288,13 @@ namespace Codedberries.Services
 
                 if (filterParams.DifficultyLevelGreaterThan.HasValue)
                 {
+                    var difficultyLevelGreaterThan = filterParams.DifficultyLevelGreaterThan.Value;
+
+                    if (difficultyLevelGreaterThan <= 0)
+                    {
+                        throw new ArgumentException("DifficultyLevelGreaterThan must be greater than 0!");
+                    }
+
                     query = query.Where(t => t.DifficultyLevel > filterParams.DifficultyLevelGreaterThan.Value);
                 }
 
