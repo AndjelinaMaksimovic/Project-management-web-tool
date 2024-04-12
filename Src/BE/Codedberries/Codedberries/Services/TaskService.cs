@@ -250,6 +250,13 @@ namespace Codedberries.Services
 
                 if (filterParams.StatusId.HasValue)
                 {
+                    var statusId = filterParams.StatusId.Value;
+
+                    if (statusId <= 0)
+                    {
+                        throw new ArgumentException("StatusId must be greater than 0!");
+                    }
+
                     query = query.Where(t => t.StatusId == filterParams.StatusId);
                 }
 
