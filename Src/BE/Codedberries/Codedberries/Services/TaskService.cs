@@ -744,7 +744,7 @@ namespace Codedberries.Services
             task.Archived = !task.Archived;
 
             _databaseContext.SaveChanges();
-            }
+        }
 
         public async System.Threading.Tasks.Task CreateTaskComment(HttpContext httpContext, TaskCommentCreationRequestDTO request)
         {
