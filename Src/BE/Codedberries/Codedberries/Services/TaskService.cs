@@ -660,6 +660,11 @@ namespace Codedberries.Services
                     throw new ArgumentException($"User with ID {request.UserId} not found in database!");
                 }
 
+                if (userToAssign.RoleId == null)
+                {
+                    throw new InvalidOperationException($"User with ID {request.UserId} does not have a role assigned!");
+                }
+
                 task.UserId = request.UserId.Value;
             }
 
