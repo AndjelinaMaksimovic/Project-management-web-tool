@@ -580,7 +580,7 @@ namespace Codedberries.Services
                 task.PriorityId = request.PriorityId.Value;
             }
 
-            if (request.StatusId.HasValue && request.StatusId > 0)
+            if (request.StatusId.HasValue)
             {
                 if (request.StatusId <= 0)
                 {
@@ -591,9 +591,14 @@ namespace Codedberries.Services
                 
                 if (status == null)
                 {
-                    throw new ArgumentException($"Status with ID {request.StatusId} not found!");
+                    throw new ArgumentException($"Status with ID {request.StatusId} not found in database!");
                 }
-                
+
+                if (status.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Status with ID {request.StatusId} does not match the project of the task!");
+                }
+
                 task.StatusId = request.StatusId.Value;
             }
 
