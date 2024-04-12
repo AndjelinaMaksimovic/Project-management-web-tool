@@ -238,6 +238,13 @@ namespace Codedberries.Services
                         throw new ArgumentException("AssignedTo must be greater than 0!");
                     }
 
+                    var existingUser = _databaseContext.Users.FirstOrDefault(u => u.Id == assignedToUserId);
+
+                    if (existingUser == null)
+                    {
+                        throw new ArgumentException($"User with ID {assignedToUserId} does not exist in the database!");
+                    }
+
                     query = query.Where(t => t.UserId == filterParams.AssignedTo);
                 }
 
