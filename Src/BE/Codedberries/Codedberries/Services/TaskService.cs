@@ -405,6 +405,11 @@ namespace Codedberries.Services
                 tasksDTO.Add(taskDTO);
             }
 
+            if (tasksDTO.Count == 0)
+            {
+                throw new ArgumentException("No tasks found matching the specified criteria!");
+            }
+
             return tasksDTO;
         }
 
