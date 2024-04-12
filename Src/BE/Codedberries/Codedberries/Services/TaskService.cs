@@ -577,6 +577,16 @@ namespace Codedberries.Services
 
             if (request.DueDate.HasValue)
             {
+                if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
+                {
+                    throw new ArgumentException("DueDate must be a valid date!");
+                }
+
+                if (request.DueDate < task.StartDate)
+                {
+                    throw new ArgumentException("DueDate cannot be before StartDate!");
+                }
+
                 task.DueDate = request.DueDate.Value;
             }
 
