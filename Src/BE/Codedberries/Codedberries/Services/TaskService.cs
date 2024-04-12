@@ -312,6 +312,13 @@ namespace Codedberries.Services
 
                 if (filterParams.DifficultyLevelEquals.HasValue)
                 {
+                    var difficultyLevelEquals = filterParams.DifficultyLevelEquals.Value;
+
+                    if (difficultyLevelEquals <= 0)
+                    {
+                        throw new ArgumentException("DifficultyLevelEquals must be greater than 0!");
+                    }
+
                     query = query.Where(t => t.DifficultyLevel == filterParams.DifficultyLevelEquals.Value);
                 }
 
