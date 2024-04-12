@@ -538,6 +538,16 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
                 }
 
+                if (!request.CategoryId.HasValue || request.CategoryId <= 0)
+                {
+                    throw new ArgumentException("CategoryId must be provided and greater than 0 when ProjectId is specified and getting changed!");
+                }
+
+                if (!request.StatusId.HasValue || request.StatusId <= 0)
+                {
+                    throw new ArgumentException("StatusId must be provided and greater than 0 when ProjectId is specified and getting changed!");
+                }
+
                 task.ProjectId = request.ProjectId.Value;
             }
 
