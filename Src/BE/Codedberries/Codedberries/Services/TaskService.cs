@@ -524,13 +524,20 @@ namespace Codedberries.Services
                 task.Description = request.Description;
             }
 
-            if (request.CategoryId.HasValue && request.CategoryId > 0)
+            if (request.CategoryId.HasValue)
             {
+                if (request.CategoryId <= 0)
+                {
+                    throw new ArgumentException("CategoryId must be greater than 0!");
+                }
+
                 var category = await _databaseContext.Categories.FindAsync(request.CategoryId.Value);
+                
                 if (category == null)
                 {
                     throw new ArgumentException($"Category with ID {request.CategoryId} not found!");
                 }
+                
                 task.CategoryId = request.CategoryId.Value;
             }
 
