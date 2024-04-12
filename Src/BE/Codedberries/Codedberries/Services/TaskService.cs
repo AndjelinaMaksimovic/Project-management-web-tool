@@ -324,6 +324,13 @@ namespace Codedberries.Services
 
                 if (filterParams.DueDateAfter.HasValue)
                 {
+                    var dueDateAfter = filterParams.DueDateAfter.Value;
+
+                    if (dueDateAfter <= DateTime.MinValue || dueDateAfter >= DateTime.MaxValue)
+                    {
+                        throw new ArgumentException("DueDateAfter must be a valid date!");
+                    }
+
                     query = query.Where(t => t.DueDate >= filterParams.DueDateAfter);
                 }
 
