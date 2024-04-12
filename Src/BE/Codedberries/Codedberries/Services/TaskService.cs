@@ -231,6 +231,13 @@ namespace Codedberries.Services
 
                 if (filterParams.AssignedTo.HasValue)
                 {
+                    var assignedToUserId = filterParams.AssignedTo.Value;
+
+                    if (assignedToUserId <= 0)
+                    {
+                        throw new ArgumentException("AssignedTo must be greater than 0!");
+                    }
+
                     query = query.Where(t => t.UserId == filterParams.AssignedTo);
                 }
 
