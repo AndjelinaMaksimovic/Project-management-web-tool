@@ -399,7 +399,8 @@ namespace Codedberries.Services
                             ProfilePicture = u.ProfilePicture
                         })
                         .ToList(),
-                    DependentTasks = dependentTaskIds
+                    DependentTasks = dependentTaskIds,
+                    DifficultyLevel = task.DifficultyLevel
                 };
 
                 tasksDTO.Add(taskDTO);
