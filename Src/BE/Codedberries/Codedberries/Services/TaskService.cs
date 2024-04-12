@@ -636,8 +636,13 @@ namespace Codedberries.Services
                 task.UserId = request.UserId.Value;
             }
 
-            if (request.DifficultyLevel.HasValue && request.DifficultyLevel > 0)
+            if (request.DifficultyLevel.HasValue)
             {
+                if (request.DifficultyLevel <= 0)
+                {
+                    throw new ArgumentException("DifficultyLevel must be greater than 0!");
+                }
+
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
