@@ -14,6 +14,7 @@ import { GanttDependencyLineComponent } from '../gantt-dependency-line/gantt-dep
 
 export class GanttComponent implements OnInit, AfterViewInit{
   @Input() tasks: Task[] = []
+  @Input() milestones: Task[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
   @Input() colWidths: number[] = [100]
@@ -42,8 +43,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
         return
       }
 
-      this.items = new Array<Item>(this.tasks.length)
-      for (let i = 0; i < this.items.length; i++) {
+      this.items = new Array<Item>(this.tasks.length + this.milestones.length)
+      var i = 0
+      for (; i < this.items.length; i++) {
         this.items[i] = new Item(
           this.tasks[i].id,
           this.tasks[i].title,
@@ -54,7 +56,27 @@ export class GanttComponent implements OnInit, AfterViewInit{
           // this.tasks[i].startDate.valueOf(),
           (new Date("2024-04-06T00:00:00")).valueOf(),
           this.tasks[i].dueDate.valueOf(),
-          this.tasks[i].assignedTo
+          this.tasks[i].assignedTo,
+          undefined,
+          undefined,
+          false
+        )
+      }
+      for(let j = 0; j < this.milestones.length; j++, i++){
+        this.items[i] = new Item(
+          this.tasks[i].id,
+          this.tasks[i].title,
+          this.tasks[i].description,
+          this.tasks[i].category,
+          this.tasks[i].priority,
+          this.tasks[i].status,
+          // this.tasks[i].startDate.valueOf(),
+          (new Date("2024-04-06T00:00:00")).valueOf(),
+          this.tasks[i].dueDate.valueOf(),
+          this.tasks[i].assignedTo,
+          undefined,
+          undefined,
+          true
         )
       }
     }
