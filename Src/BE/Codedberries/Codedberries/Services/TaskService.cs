@@ -560,11 +560,18 @@ namespace Codedberries.Services
 
             if (request.StatusId.HasValue && request.StatusId > 0)
             {
+                if (request.StatusId <= 0)
+                {
+                    throw new ArgumentException("StatusId must be greater than 0!");
+                }
+
                 var status = await _databaseContext.Statuses.FindAsync(request.StatusId.Value);
+                
                 if (status == null)
                 {
                     throw new ArgumentException($"Status with ID {request.StatusId} not found!");
                 }
+                
                 task.StatusId = request.StatusId.Value;
             }
 
