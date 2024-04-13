@@ -314,6 +314,14 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException("The number of statuses in the NewOrder list does not match the number of statuses in the database!");
             }
+
+            foreach (var statusId in request.NewOrder)
+            {
+                if (!statuses.Any(s => s.Id == statusId))
+                {
+                    throw new ArgumentException($"Invalid status ID {statusId} with the provided NewOrder list!");
+                }
+            }
         }
     }
 }
