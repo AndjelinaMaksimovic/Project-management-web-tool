@@ -106,7 +106,7 @@ namespace Codedberries.Controllers
             }
         }
 
-        [HttpPost("changeOrder")]
+        [HttpPost("changeStatusesOrder")]
         public async Task<IActionResult> ChangeStatusesOrder([FromBody] StatusOrderChangeDTO request)
         {
             try
@@ -117,19 +117,19 @@ namespace Codedberries.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return StatusCode(401, ex.Message);
+                return Unauthorized(new ErrorMsg(ex.Message));
             }
             catch (ArgumentNullException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
+                return StatusCode(500, $"An error occurred while changing status order: {ex.Message}");
             }
         }
     }
