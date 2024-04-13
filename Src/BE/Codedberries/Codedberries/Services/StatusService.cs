@@ -2,6 +2,7 @@
 using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace Codedberries.Services
 {
@@ -302,6 +303,11 @@ namespace Codedberries.Services
             if (request.NewOrder == null || !request.NewOrder.Any())
             {
                 throw new ArgumentException("NewOrder list cannot be null or empty!");
+            }
+
+            if(request.NewOrder.Count < 2)
+{
+                throw new ArgumentException("NewOrder list must contain at least two elements!");
             }
 
             // collect all statuses with provided ProjectId and sort them with current order
