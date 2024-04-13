@@ -139,11 +139,13 @@ namespace Codedberries.Services
 
             var statuses = _databaseContext.Statuses
                 .Where(s => s.ProjectId == request.ProjectId)
+                .OrderBy(s => s.Order)
                 .Select(s => new StatusDTO
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    ProjectId = s.ProjectId
+                    ProjectId = s.ProjectId,
+                    Order = s.Order
                 })
                 .ToList();
 
