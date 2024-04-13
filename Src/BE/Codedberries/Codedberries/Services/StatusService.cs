@@ -298,6 +298,11 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"No statuses found for Project ID {request.ProjectId}!");
             }
+
+            if (request.NewOrder == null || !request.NewOrder.Any())
+            {
+                throw new ArgumentException("NewOrder list cannot be null or empty!");
+            }
         }
     }
 }
