@@ -291,6 +291,13 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"Project with ID {request.ProjectId} does not exist in database!");
             }
+
+            var hasStatuses = _databaseContext.Statuses.Any(s => s.ProjectId == request.ProjectId);
+            
+            if (!hasStatuses)
+            {
+                throw new ArgumentException($"No statuses found for Project ID {request.ProjectId}!");
+            }
         }
     }
 }
