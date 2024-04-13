@@ -62,6 +62,9 @@ export class NewTaskComponent {
     { value: 'Medium', viewValue: 'Medium' },
     { value: 'High', viewValue: 'High' },
   ];
+  // hack fix
+  // we change _categories when `categoryService.getCategories().length` does not match the `_categories.length`
+  // mapping `categoryService.getCategories()` in getter causes an infinite loop due to how angular material select works
   _categories: { value: string; viewValue: string }[] = [];
   get categories() {
     if (
