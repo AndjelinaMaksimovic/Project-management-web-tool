@@ -322,6 +322,14 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Invalid status ID {statusId} with the provided NewOrder list!");
                 }
             }
+
+            // setting new statuses order
+            for (int i = 0; i < statuses.Count; i++)
+            {
+                statuses[i].Order = request.NewOrder[i];
+            }
+
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }
