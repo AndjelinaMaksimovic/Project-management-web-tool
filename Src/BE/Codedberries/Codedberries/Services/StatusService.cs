@@ -244,7 +244,12 @@ namespace Codedberries.Services
 
         public async System.Threading.Tasks.Task ChangeStatusesOrder(HttpContext httpContext, StatusOrderChangeDTO request)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
         }
     }
 }
