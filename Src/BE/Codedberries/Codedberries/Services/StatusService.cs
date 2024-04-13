@@ -303,6 +303,17 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException("NewOrder list cannot be null or empty!");
             }
+
+            // collect all statuses with provided ProjectId and sort them with current order
+            var statuses = await _databaseContext.Statuses
+                .Where(s => s.ProjectId == request.ProjectId)
+                .OrderBy(s => s.Order)
+                .ToListAsync();
+
+            if (statuses.Count != request.NewOrder.Count)
+            {
+                throw new ArgumentException("The number of statuses in the NewOrder list does not match the number of statuses in the database!");
+            }
         }
     }
 }
