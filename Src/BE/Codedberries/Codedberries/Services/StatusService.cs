@@ -79,7 +79,14 @@ namespace Codedberries.Services
                 throw new InvalidOperationException("Status with the same name already exists on the project!");
             }
 
-            var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
+            var existingStatuses = _databaseContext.Statuses
+                .Where(s => s.ProjectId == statusDTO.ProjectId)
+                .OrderBy(s => s.Order)
+                .ToList();
+
+            int newStatusOrder = existingStatuses.Any() ? existingStatuses.Last().Order + 1 : 1;
+
+            var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId, newStatusOrder);
 
             _databaseContext.Statuses.Add(newStatus);
             await _databaseContext.SaveChangesAsync();
