@@ -274,6 +274,11 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have permission to edit status order!");
             }
+
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
+            }
         }
     }
 }
