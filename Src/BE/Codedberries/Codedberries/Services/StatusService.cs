@@ -332,7 +332,17 @@ namespace Codedberries.Services
             // setting new statuses order
             for (int i = 0; i < statuses.Count; i++)
             {
-                statuses[i].Order = request.NewOrder[i];
+                var statusId = request.NewOrder[i];
+                var statusToUpdate = statuses.FirstOrDefault(s => s.Id == statusId);
+
+                if (statusToUpdate != null)
+                {
+                    statusToUpdate.Order = i + 1;
+                }
+                else
+                {
+                    throw new ArgumentException($"Status with ID {statusId} is missing!");
+                }
             }
 
             await _databaseContext.SaveChangesAsync();
