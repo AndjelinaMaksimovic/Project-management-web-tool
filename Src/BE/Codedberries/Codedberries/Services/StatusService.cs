@@ -228,6 +228,17 @@ namespace Codedberries.Services
 
             _databaseContext.Statuses.Remove(statusToDelete);
 
+            // finding all statuses with higher order than this one that is deleted
+            var statusesToUpdate = await _databaseContext.Statuses
+                .Where(s => s.ProjectId == request.ProjectId && s.Order > statusToDelete.Order)
+                .ToListAsync();
+
+            // update orders with the ones with higher order
+            foreach (var status in statusesToUpdate)
+            {
+                status.Order -= 1;
+            }
+
             await _databaseContext.SaveChangesAsync();
         }
     }
