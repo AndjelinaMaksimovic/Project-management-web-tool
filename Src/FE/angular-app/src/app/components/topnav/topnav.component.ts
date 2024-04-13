@@ -5,11 +5,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-topnav',
   standalone: true,
-  imports: [ MatButtonModule, MatIconModule, MatInputModule, MatMenuModule ],
+  imports: [ MatButtonModule, MatIconModule, MatInputModule, MatMenuModule, RouterLink ],
   templateUrl: './topnav.component.html',
   styleUrl: './topnav.component.css'
 })

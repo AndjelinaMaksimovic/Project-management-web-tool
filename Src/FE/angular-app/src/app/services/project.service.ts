@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { LocalStorageService } from './localstorage';
 
 export type Project = Readonly<{
   title: string;
@@ -30,7 +31,7 @@ export class ProjectService {
   /** in-memory project cache */
   private projects: Project[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private localStorageService : LocalStorageService) {}
 
   /**
    * @returns a list of projects (current project cache)
@@ -40,6 +41,10 @@ export class ProjectService {
     return this.projects;
   }
 
+  public getProjectWithID(projectId: number) {
+    return this.projects.find(project => project.id == projectId);
+  }
+  
   /**
    * This function is used to update the current project cache.
    * It fetches project data from the backend.
@@ -51,7 +56,25 @@ export class ProjectService {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl + '/Projects/filterProjects',
-          environment.httpOptions
+          environment.httpOptions,
+        )
+      );
+      this.projects = res.body.map((project: any) => {
+        return mapProject(project);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchProjectsLocalStorage(filterName : string) {
+    let params = new HttpParams({ fromObject: this.localStorageService.getData(filterName) });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Projects/filterProjects',
+          { ...environment.httpOptions, params: params }
         )
       );
       this.projects = res.body.map((project: any) => {
@@ -94,6 +117,24 @@ export class ProjectService {
             `/Projects/projectDeletion`,
           {
             ...environment.httpOptions, body: {id: id}
+          }
+        )
+      );
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  async archiveProject(id: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl +
+            `/Projects/archiveProject`,
+          {
+            ...environment.httpOptions, body: {projectId: id}
           }
         )
       );

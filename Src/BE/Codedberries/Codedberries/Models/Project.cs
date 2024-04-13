@@ -23,6 +23,7 @@ namespace Codedberries.Models
 
         public DateTime DueDate { get; set; }
         public DateTime StartDate { get; set; }
+        public Boolean Archived { get; set; }
 
         public Project(string name, string description, DateTime dueDate)
         {

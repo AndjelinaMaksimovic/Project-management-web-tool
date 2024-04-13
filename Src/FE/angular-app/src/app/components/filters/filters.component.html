@@ -1,0 +1,44 @@
+<div class="container">
+    <div class="flex">
+        <p class="title">{{title}}</p>
+        <p class="title c-pointer" (click)="save()">Save</p>
+    </div>
+    <div class="flex item-container">
+        <div class="flex item" *ngFor="let filter of currentFilters | keyvalue">
+            <div class="flex flex-value">
+                <i [ngClass]="['m-auto', allFilters.get(filter.key)!.icon]"></i>
+                <p class="option-value ml-10">{{allFilters.get(filter.key)!.name}}</p>
+            </div>
+            <input *ngIf="allFilters.get(filter.key)!.type != 'select'" [type]="allFilters.get(filter.key)!.type" class="input ml-20 mr-20" [(ngModel)]="allFilters.get(filter.key)!.value">
+            <mat-select *ngIf="allFilters.get(filter.key)!.type == 'select'" class="dropdown ml-20 mr-20" placeholder="Select" [(ngModel)]="allFilters.get(filter.key)!.value">
+                <mat-option *ngFor="let item of allFilters.get(filter.key)!.items;" [value]="item.value">
+                    {{item.name}}
+                </mat-option>
+            </mat-select>
+            <i class="fa-solid fa-x m-auto lightgray c-pointer" (click)="removeFilter(filter.key)"></i>
+
+            <mat-menu #selectMenu>
+                <input type="text" class="input ml-20 mr-20" (click)="$event.stopPropagation()">
+                <ng-container *ngFor="let filter of allFilters | keyvalue;">
+                    <button mat-menu-item *ngIf="filter.value.enabled" (click)="addFilter(filter.key)">
+                        <i [className]="filter.value.icon" class="m-auto"></i>
+                        {{filter.value.name}}
+                    </button>
+                </ng-container>
+            </mat-menu>
+        </div>
+    </div>
+    <button class="button lightgray mt-20" mat-button [matMenuTriggerFor]="menu">
+        <i class="fa-solid fa-plus fa-xs"></i>
+        Add filter
+        <i class="fa-solid fa-chevron-down fa-xs"></i>
+    </button>
+    <mat-menu #menu="matMenu">
+        <ng-container *ngFor="let filter of allFilters | keyvalue;">
+            <button mat-menu-item *ngIf="filter.value.enabled" (click)="addFilter(filter.key)">
+                <i [className]="filter.value.icon" class="m-auto"></i>
+                {{filter.value.name}}
+            </button>
+        </ng-container>
+    </mat-menu>
+</div>
