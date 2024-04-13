@@ -241,5 +241,10 @@ namespace Codedberries.Services
 
             await _databaseContext.SaveChangesAsync();
         }
+
+        public async System.Threading.Tasks.Task ChangeStatusesOrder(HttpContext httpContext, StatusOrderChangeDTO request)
+        {
+
+        }
     }
 }
