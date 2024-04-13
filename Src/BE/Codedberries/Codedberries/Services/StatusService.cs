@@ -279,6 +279,11 @@ namespace Codedberries.Services
             {
                 throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
             }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
         }
     }
 }
