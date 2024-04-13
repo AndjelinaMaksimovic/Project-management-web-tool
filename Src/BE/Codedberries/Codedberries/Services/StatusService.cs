@@ -269,6 +269,11 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User role not found!");
             }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit status order!");
+            }
         }
     }
 }
