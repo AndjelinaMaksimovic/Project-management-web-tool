@@ -18,10 +18,14 @@ namespace Codedberries.Models
         [ForeignKey("ProjectId")]
         public Project Project { get; set; }
 
-        public Status(string name, int projectId)
+        [Required]
+        public int Order { get; set; }
+
+        public Status(string name, int projectId, int order)
         {
             Name = name;
             ProjectId = projectId;
+            Order = order;
         }
     }
 }
