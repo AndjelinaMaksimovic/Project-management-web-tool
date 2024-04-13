@@ -54,8 +54,8 @@ export class NewTaskComponent {
   dependencies: string[] = [];
   assignee: string | undefined;
 
-  tasks: {value: string, viewValue: string}[] = [];
-  users: {value: string, viewValue: string}[] = [];
+  tasks: { value: string; viewValue: string }[] = [];
+  users: { value: string; viewValue: string }[] = [];
 
   priorities = [
     { value: 'Low', viewValue: 'Low' },
@@ -63,15 +63,17 @@ export class NewTaskComponent {
     { value: 'High', viewValue: 'High' },
   ];
   _categories: { value: string; viewValue: string }[] = [];
-  get categories(){
-    if(this._categories.length !== this.categoryService.getCategories().length){
-    this._categories = this.categoryService.getCategories().map((cat) => {
-      return {
-        value: cat.id.toString(),
-        viewValue: cat.name,
-      };
-    });
-  }
+  get categories() {
+    if (
+      this._categories.length !== this.categoryService.getCategories().length
+    ) {
+      this._categories = this.categoryService.getCategories().map((cat) => {
+        return {
+          value: cat.id.toString(),
+          viewValue: cat.name,
+        };
+      });
+    }
     return this._categories;
   }
 
@@ -81,15 +83,14 @@ export class NewTaskComponent {
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
-    private dialog: MatDialog,
-  ) {
-  }
+    private dialog: MatDialog
+  ) {}
 
   async ngOnInit() {
     this.route.params.subscribe((params) => {
       this.projectId = parseInt(params['id']);
     });
-    if(typeof this.projectId !== "number") return;
+    if (typeof this.projectId !== 'number') return;
     await this.taskService.fetchTasks({ projectId: this.projectId });
     this._categories = this.categoryService.getCategories().map((cat) => {
       return {
@@ -98,12 +99,12 @@ export class NewTaskComponent {
       };
     });
     this.tasks = this.taskService
-    .getTasks()
-    .map((t) => ({ value: t.id.toString(), viewValue: t.title }));
+      .getTasks()
+      .map((t) => ({ value: t.id.toString(), viewValue: t.title }));
     await this.userService.fetchUsers();
     this.users = this.userService
-    .getUsers()
-    .map((u) => ({ value: "1", viewValue: `${u.firstName} ${u.lastName}` }));
+      .getUsers()
+      .map((u) => ({ value: '1', viewValue: `${u.firstName} ${u.lastName}` }));
   }
 
   async createTask() {
@@ -119,7 +120,7 @@ export class NewTaskComponent {
       this.errorMessage = 'Please provide all required fields';
       return;
     }
-    if(this.startDate.value.getTime() > this.dueDate.value.getTime()){
+    if (this.startDate.value.getTime() > this.dueDate.value.getTime()) {
       this.errorMessage = 'Please enter valid start/due dates';
       return;
     }
