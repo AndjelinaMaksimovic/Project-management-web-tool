@@ -291,7 +291,7 @@ namespace Codedberries.Services
             }
         }
 
-        public async Task<UserInformationDTO> GetUser(HttpContext httpContext, UserIdDTO body)
+        public List<UserInformationDTO> GetUser(HttpContext httpContext, UserIdDTO body)
         {
             var userId = this.GetCurrentSessionUser(httpContext);
 
@@ -312,10 +312,12 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            User foundUser = _databaseContext.Users.FirstOrDefault(u => u.Id == body.UserId);
+            IQueryable<User> query = _databaseContext.Users;
+            var foundUser = _databaseContext.Users.FirstOrDefault(u => u.Id == body.UserId);
 
-            var userInformationDTO= new UserInformationDTO
-            {
+            var userInformationDTO= query.Where(s => s.Id == body.UserId)
+                .Select(s => new UserInformationDTO
+                {
                 Id = foundUser.Id,
                 Email = foundUser.Email,
                 Firstname = foundUser.Firstname,
@@ -323,8 +325,8 @@ namespace Codedberries.Services
                 Activated = foundUser.Activated,
                 ProfilePicture = foundUser.ProfilePicture,
                 RoleId = foundUser.RoleId,
-                RoleName = foundUser.Role.Name,
-                Projects = user.Projects.Select(p => new ProjectDTO
+                RoleName = s.Role.Name,
+                Projects = s.Projects.Select(p => new ProjectDTO
                 {
                     Id = p.Id,
                     Name = p.Name,
@@ -332,7 +334,13 @@ namespace Codedberries.Services
                     DueDate = p.DueDate,
                     StartDate = p.StartDate
                 }).ToList()
-            };
+            }).ToList();
+
+            if (userInformationDTO.Count == 0)
+            {
+                throw new ArgumentException($"No User found!");
+            }
+
             return userInformationDTO;
         }
     }
