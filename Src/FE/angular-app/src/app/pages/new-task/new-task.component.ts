@@ -62,15 +62,18 @@ export class NewTaskComponent {
     { value: 'Medium', viewValue: 'Medium' },
     { value: 'High', viewValue: 'High' },
   ];
-  categories: { value: string; viewValue: string }[] = [];
-  // get categories(){
-  //   return this.categoryService.getCategories().map(cat => {
-  //     return {
-  //       value: cat.id.toString(),
-  //       viewValue: cat.name
-  //     }
-  //   })
-  // }
+  _categories: { value: string; viewValue: string }[] = [];
+  get categories(){
+    if(this._categories.length !== this.categoryService.getCategories().length){
+    this._categories = this.categoryService.getCategories().map((cat) => {
+      return {
+        value: cat.id.toString(),
+        viewValue: cat.name,
+      };
+    });
+  }
+    return this._categories;
+  }
 
   constructor(
     private taskService: TaskService,
@@ -88,7 +91,7 @@ export class NewTaskComponent {
     });
     if(typeof this.projectId !== "number") return;
     await this.taskService.fetchTasks({ projectId: this.projectId });
-    this.categories = this.categoryService.getCategories().map((cat) => {
+    this._categories = this.categoryService.getCategories().map((cat) => {
       return {
         value: cat.id.toString(),
         viewValue: cat.name,
