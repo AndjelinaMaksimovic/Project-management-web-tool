@@ -431,9 +431,9 @@ namespace Codedberries.Services
                 return 100.0;
             }
 
-            // number of tasks that were completed within the planned time frame and were not archived
+            // number of tasks that were completed and were not archived
             int completedTasksCount = _databaseContext.Tasks
-                .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && t.DueDate <= DateTime.Now && t.Archived == false);
+                .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && t.Archived == false);
 
             // total number of tasks in the project that have not been archived
             int totalTasksCount = _databaseContext.Tasks
