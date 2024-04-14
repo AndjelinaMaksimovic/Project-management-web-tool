@@ -356,13 +356,20 @@ namespace Codedberries.Services
             _databaseContext.SaveChanges();
         }
 
-        public async Task<double> GetProjectProgress(ProjectIdDTO request)
+        public async Task<double> GetProjectProgress(HttpContext httpContext, ProjectIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
             if (userId == null)
             {
                 throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
             }
         }
 
