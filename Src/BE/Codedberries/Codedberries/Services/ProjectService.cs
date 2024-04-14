@@ -388,6 +388,13 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException("ProjectId must be greater than 0!");
             }
+
+            var project = await _databaseContext.Projects.FindAsync(request.ProjectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
+            }
         }
 
             public double CalculateProjectProgress(int projectId)
