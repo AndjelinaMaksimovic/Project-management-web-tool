@@ -354,8 +354,12 @@ namespace Codedberries.Services
 
             project.Archived=!project.Archived;
             _databaseContext.SaveChanges();
-          }
+        }
 
-        
+        public double CalculateProjectProgress(int projectId)
+        {
+
+            return 0.0;
+        }
     }
 }
