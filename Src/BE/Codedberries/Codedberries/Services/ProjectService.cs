@@ -358,7 +358,12 @@ namespace Codedberries.Services
 
         public async Task<double> GetProjectProgress(ProjectIdDTO request)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
         }
 
             public double CalculateProjectProgress(int projectId)
