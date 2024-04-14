@@ -25,11 +25,17 @@ export class ProjectItemComponent {
     @Input() starred: boolean = false;
     @Input() id: number = 0;
 
+    @Input() isArchived: boolean = false;
+
     toggleStarred() {
         this.starred = !this.starred;
     }
 
     archiveProject() {
         this.projectService.archiveProject(this.id);
+    }
+
+    unarchiveProject() {
+        this.projectService.unarchiveProject(this.id);
     }
 }
