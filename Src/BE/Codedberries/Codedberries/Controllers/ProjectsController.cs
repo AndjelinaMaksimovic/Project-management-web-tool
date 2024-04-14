@@ -88,7 +88,7 @@ namespace Codedberries.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new ErrorMsg (ex.Message));
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
@@ -102,6 +102,7 @@ namespace Codedberries.Controllers
             try
             {
                 var updatedProjectInfo = _projectService.UpdateProject(HttpContext, request);
+
                 return Ok(updatedProjectInfo);
             }
             catch (ArgumentException ex)
@@ -110,7 +111,7 @@ namespace Codedberries.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return StatusCode(403, new ErrorMsg(ex.Message)); 
+                return StatusCode(403, new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
@@ -123,13 +124,13 @@ namespace Codedberries.Controllers
         {
             try
             {
-                 _projectService.ArchiveProject(HttpContext,body.ProjectId);
+                _projectService.ArchiveProject(HttpContext, body.ProjectId);
 
-                return Ok("project succesfully archieved");
+                return Ok("project succesfully archieved.");
             }
             catch (ArgumentException ex)
             {
-                return NotFound(new ErrorMsg(ex.Message)); 
+                return NotFound(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
@@ -137,5 +138,10 @@ namespace Codedberries.Controllers
             }
         }
 
+        [HttpGet("getProjectProgress")]
+        public async Task<ActionResult<ProjectProgressDTO>> GetProjectProgress([FromQuery] ProjectIdDTO request)
+        {
+
+        }
     }
 }
