@@ -358,6 +358,15 @@ namespace Codedberries.Services
 
         public double CalculateProjectProgress(int projectId)
         {
+            var project = _databaseContext.Projects
+                .Include(p => p.Statuses)
+                .Include(p => p.Categories)
+                .SingleOrDefault(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException("Project not found in database!");
+            }
 
             return 0.0;
         }
