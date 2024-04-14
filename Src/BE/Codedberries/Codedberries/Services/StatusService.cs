@@ -38,18 +38,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole == null)
-            {
-                throw new UnauthorizedAccessException("User role not found!");
-            }
-
-            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to create status!");
-            }
-
             if (statusDTO == null)
             {
                 throw new ArgumentNullException(nameof(statusDTO), "Status creation DTO cannot be null!");
@@ -79,6 +67,29 @@ namespace Codedberries.Services
             {
                 throw new InvalidOperationException("Status with the same name already exists on the project!");
             }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == statusDTO.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {statusDTO.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to create status!");
+            }
+            // ---------------- //
 
             var existingStatuses = _databaseContext.Statuses
                 .Where(s => s.ProjectId == statusDTO.ProjectId)
