@@ -395,9 +395,12 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
             }
+
+            var progressCalculator = CalculateProjectProgress(request.ProjectId);
+
         }
 
-            public double CalculateProjectProgress(int projectId)
+        public double CalculateProjectProgress(int projectId)
         {
             var project = _databaseContext.Projects
                 .Include(p => p.Statuses)
