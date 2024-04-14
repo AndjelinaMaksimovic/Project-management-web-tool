@@ -3,6 +3,8 @@ using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
+using Codedberries.Helpers;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -21,7 +23,7 @@ namespace Codedberries.Services
             _statusService = statusService;
         }
 
-        public async Task<Project> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
+        public async System.Threading.Tasks.Task CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -49,38 +51,81 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create project!");
             }
 
-            Project project = new Project(request.Name, request.Description, request.DueDate);
-
-            if (request.StartDate != null)
+            if (string.IsNullOrEmpty(request.Name))
             {
-                project.StartDate = request.StartDate;
+                throw new ArgumentException("Project name is required!");
             }
 
-            if (request.UserIds != null && request.UserIds.Any())
+            if (string.IsNullOrWhiteSpace(request.Description))
+            {
+                throw new ArgumentException("Project description must not be empty!");
+            }
+
+            if (Helper.IsDateRangeValid(request.StartDate, request.DueDate) == false)
+            {
+                throw new ArgumentException("Invalid date range!");
+            }
+
+            var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Name == request.Name);
+
+            if (existingProject != null)
+            {
+                throw new ArgumentException($"Project with name '{request.Name}' already exists in the database!");
+            }
+
+            Project project = new Project(request.Name, request.Description, request.DueDate);
+            project.StartDate = request.StartDate;
+
+            if (request.UserIds == null || !request.UserIds.Any())
+            {
+                throw new ArgumentException("At least one user must be specified for the project!");
+            }
+            else
             {
                 foreach (int user_id in request.UserIds)
                 {
+                    if (user_id <= 0)
+                    {
+                        throw new ArgumentException("Invalid user ID specified!");
+                    }
+
                     var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
 
                     if (userToAddToProject == null)
                     {
-                        throw new ArgumentException($"User with ID {userId} not found.");
+                        throw new ArgumentException($"User with ID {user_id} not found in database!");
                     }
                     else
                     {
+                        if (userToAddToProject.RoleId == null)
+                        {
+                            throw new ArgumentException($"User with ID {userToAddToProject.Id} does not have any role assigned!");
+                        }
+
                         project.Users.Add(userToAddToProject);
                     }
                 }
             }
 
-            _databaseContext.Projects.Add(project);
-            await _databaseContext.SaveChangesAsync();
+            // if user does not have a permission to create Statuses for project, project won't be created
+            using var transaction = await _databaseContext.Database.BeginTransactionAsync();
 
-            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
-            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
-            await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
+            try
+            {
+                _databaseContext.Projects.Add(project);
+                await _databaseContext.SaveChangesAsync();
 
-            return project;
+                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
+                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
+                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception($"{ ex.Message }");
+            }
         }
 
         public AllProjectsDTO GetProjects()
@@ -271,5 +316,46 @@ namespace Codedberries.Services
                 DueDate = project.DueDate
             };
         }
+
+        public  void ArchiveProject(HttpContext httpContext, int projectId)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to archive project!");
+            }
+
+            var project =  _databaseContext.Projects.Find(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {projectId} not found!");
+            }
+
+            project.Archived=!project.Archived;
+            _databaseContext.SaveChanges();
+          }
+
+        
     }
 }

@@ -39,11 +39,9 @@ namespace Codedberries.Models
 
         [ForeignKey("RoleId")]
         public int? RoleId { get; set; }
+        public Role Role { get; set; }
 
         public ICollection<Project> Projects { get; } = new List<Project>();
-
-
-
 
         public string HashPassword(string password)
         {
@@ -53,7 +51,6 @@ namespace Codedberries.Models
                 return Password = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
         }
-
 
         public User(string email, string password, string firstname, string lastname, int? roleId)
         {
@@ -66,8 +63,6 @@ namespace Codedberries.Models
             Activated = false;
             PasswordSalt = new byte[1];
             ActivationToken = null;
-
-            
         }
     }
 }

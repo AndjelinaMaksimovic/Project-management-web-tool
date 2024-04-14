@@ -30,24 +30,40 @@ namespace Codedberries.Controllers
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
             }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred while creating the status: {ex.Message}"));
             }
         }
 
-        [HttpPost("getStatus")]
-        public IActionResult GetStatusByProjectId([FromBody] StatusProjectIdDTO request)
+        [HttpGet("getStatus")]
+        public IActionResult GetStatusByProjectId([FromQuery] StatusProjectIdDTO request)
         {
             try
             {
-                var status = _statusService.GetStatusByProjectId(HttpContext, request);
+                var statuses = _statusService.GetStatusByProjectId(HttpContext, request);
 
-                return Ok(status);
+                return Ok(statuses);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (ArgumentException ex)
             {
@@ -71,6 +87,10 @@ namespace Codedberries.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (ArgumentException ex)
             {

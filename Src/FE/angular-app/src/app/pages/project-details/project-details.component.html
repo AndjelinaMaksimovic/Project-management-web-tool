@@ -1,17 +1,17 @@
 <app-navbar>
     <div class="main-container">
-        <div class="container w-100 margin-15">
+        <div class="container w-100 margin-15 left-container">
             <img class="profile-picture center" src="/assets/logo.svg">
-            <div class="ml-20">
-                <p class="title">Project name</p>
-                <p class="desc">This project involves various tasks and activities aimed at achieving its objectives. It encompasses a range of activities from planning to execution and evaluation.</p>
+            <div class="ml-20 w-100">
+                <p class="title">{{title}}</p>
+                <p class="desc">{{description}}</p>
             </div>
         </div>
         <div class="container w-100 margin-15 inherit-height">
             <div class="justify-container">
-                <app-status-item [title]="'Due date:'" [desc]="'April 2024'" [faicon]="'fa-regular fa-calendar'"></app-status-item>
-                <app-status-item [title]="'Days left:'" [desc]="'27 days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
-                <app-status-item [title]="'Status:'" [desc]="'Need action'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item [title]="'Due date:'" [desc]="(dueDate | date:'dd. MMMM yyyy')!.toString()" [faicon]="'fa-regular fa-calendar'"></app-status-item>
+                <app-status-item [title]="'Days left:'" [desc]="daysLeft + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item [title]="'Status:'" [desc]="'-'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="'#FF5733'" [bold]="true"></app-status-item>
             </div>
         </div>
     </div>
@@ -27,9 +27,9 @@
     <div class="main-container">
         <div class="container pt-1 pb-1 w-100 margin-15">
             <div class="d-container">
-                <app-status-item class="mr-20" [title]="'All tasks:'" [desc]="'45'" [faicon]="'fa-solid fa-list-check'"></app-status-item>
-                <app-status-item class="mr-20" [title]="'Completed tasks:'" [desc]="'45'" [faicon]="'fa-solid fa-check'" [color]="'#5096A4'" [bold]="true"></app-status-item>
-                <app-status-item class="mr-20" [title]="'Overdue tasks:'" [desc]="'45'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item class="mr-20" [title]="'All tasks:'" [desc]="'-'" [faicon]="'fa-solid fa-list-check'"></app-status-item>
+                <app-status-item class="mr-20" [title]="'Completed tasks:'" [desc]="'-'" [faicon]="'fa-solid fa-check'" [color]="'#5096A4'" [bold]="true"></app-status-item>
+                <app-status-item class="mr-20" [title]="'Overdue tasks:'" [desc]="'-'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
             </div>
             <i class="fa-solid fa-sliders center mr-10"></i>
         </div>
@@ -37,11 +37,10 @@
 
     <div class="margin-15">
         <p class="title">Activities:</p>
-        <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
+        <!-- <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
         <hr>
         <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
         <hr>
-        <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
-
+        <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item> -->
     </div>    
 </app-navbar>

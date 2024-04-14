@@ -88,11 +88,7 @@ export class GanttComponent implements OnInit{
     const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
     const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
     this.chartStartDate = min - min % this.timeScale
-<<<<<<< Updated upstream
     this.dates = this.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
-=======
-    this.dates = this.range(this.chartStartDate, max + 30 * this.timeScale, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
->>>>>>> Stashed changes
       .filter((v, i) => {
         return this.includeDay(v) // remove weekend and holiday
       })

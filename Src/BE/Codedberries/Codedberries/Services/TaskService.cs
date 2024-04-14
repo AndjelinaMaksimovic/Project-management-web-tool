@@ -2,6 +2,8 @@
 using Codedberries.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Codedberries.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Codedberries.Services
 {
@@ -16,7 +18,7 @@ namespace Codedberries.Services
             _authorizationService = authorizationService;
         }
 
-        public async Task<Models.Task> CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
+        public async System.Threading.Tasks.Task CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -44,17 +46,109 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create Task!");
             }
 
+            if (string.IsNullOrEmpty(request.Name))
+            {
+                throw new ArgumentException("Task name is required!");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Description))
+            {
+                throw new ArgumentException("Description must not be empty!");
+            }
+
+            if (Helper.IsDateRangeValid(request.StartDate, request.DueDate) == false)
+            {
+                throw new ArgumentException("Invalid date range!");
+            }
+
+            if (request.PriorityId <= 0)
+            {
+                throw new ArgumentException("Priority ID must be greater than zero!");
+            }
+
+            var requestedPriority = _databaseContext.Priorities.FirstOrDefault(p => p.Id == request.PriorityId);
+
+            if (requestedPriority == null)
+            {
+                throw new ArgumentException("Priority with the provided ID does not exist!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
+
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist!");
+            }
+
+            if (request.StatusId <= 0)
+            {
+                throw new ArgumentException("Status ID must be greater than zero!");
+            }
+
+            var requestedStatus = _databaseContext.Statuses.FirstOrDefault(s => s.Id == request.StatusId && s.ProjectId == request.ProjectId);
+
+            if (requestedStatus == null)
+            {
+                throw new ArgumentException("Status with the provided ID does not exist for the specified project!");
+            }
+
+            if (request.CategoryId <= 0)
+            {
+                throw new ArgumentException("Category ID must be greater than zero!");
+            }
+
+            var requestedCategory = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.CategoryId && c.ProjectId == request.ProjectId);
+
+            if (requestedCategory == null)
+            {
+                throw new ArgumentException("Category with the provided ID does not exist for the specified project!");
+            }
+
+            if (request.DifficultyLevel <= 0)
+            {
+                throw new ArgumentException("Invalid difficulty level!");
+            }
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("User ID must be greater than zero!");
+            }
+
+            var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+
+            if (requestedUser == null)
+            {
+                throw new ArgumentException("User with the provided ID does not exist!");
+            }
+
+            if (requestedUser.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+            }
+
+            var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
+
+            if (existingTask != null)
+            {
+                throw new ArgumentException($"Task with name '{request.Name}' already exists in the database for the specified project!");
+            }
 
             Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+            
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
                 {
-                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id);
+                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
 
-                    if (taskDependency != null)
+                    if (taskDependency == null)
                     {
-                        task.Dependencies.Add(taskDependency);
+                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project in database!");
                     }
                 }
             }
@@ -62,7 +156,24 @@ namespace Codedberries.Services
             _databaseContext.Tasks.Add(task);
             await _databaseContext.SaveChangesAsync();
 
-            return task;
+            // adding dependencies to TaskDependency
+            if (request.DependencyIds != null && request.DependencyIds.Any())
+            {
+                foreach (int dependency_id in request.DependencyIds)
+                {
+                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+
+                    TaskDependency newDependency = new TaskDependency
+                    {
+                        TaskId = taskDependency.Id,
+                        DependentTaskId = task.Id
+                    };
+
+                    _databaseContext.Set<TaskDependency>().Add(newDependency);
+                }
+            }
+
+            await _databaseContext.SaveChangesAsync();
         }
 
         public List<ProjectTasksInfoDTO> GetTasksByFilters(HttpContext httpContext, TaskFilterParamsDTO filterParams)
@@ -371,6 +482,94 @@ namespace Codedberries.Services
             updatedTaskInfo.AssignedUsers = userDTOs;
 
             return updatedTaskInfo;
+        }
+
+        public void ArchiveTask(HttpContext httpContext,int taskId)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && !userRole.CanEditTask)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to remove task!");
+            }
+
+            var task = _databaseContext.Tasks.Find(taskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {taskId} not found!");
+            }
+
+            // Toggle archived status
+            task.Archived = !task.Archived;
+
+            _databaseContext.SaveChanges();
+            }
+
+        public async System.Threading.Tasks.Task CreateTaskComment(HttpContext httpContext, TaskCommentCreationRequestDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (string.IsNullOrEmpty(request.Comment))
+            {
+                throw new ArgumentException("Comment is required!");
+            }
+
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("Task ID must be greater than zero!");
+            }
+
+            var task = _databaseContext.Tasks.Find(request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist.");
+            }
+
+            User currentUser =_databaseContext.Users.FirstOrDefault(r => r.Id == userId);
+
+
+            Models.TaskComment taskComment = new TaskComment(request.Comment, currentUser.Id ,request.TaskId);
+
+            _databaseContext.TaskComments.Add(taskComment);
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }
