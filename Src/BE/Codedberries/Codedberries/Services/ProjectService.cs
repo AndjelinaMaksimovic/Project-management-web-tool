@@ -396,7 +396,7 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
             }
 
-            var progressCalculator = CalculateProjectProgress(request.ProjectId);
+            var progressCalculator = this.CalculateProjectProgress(request.ProjectId);
 
             var projectProgressDTO = new ProjectProgressDTO
             {
@@ -433,7 +433,7 @@ namespace Codedberries.Services
 
             // number of tasks that were completed within the planned time frame and were not archived
             int completedTasksCount = _databaseContext.Tasks
-                .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && t.DueDate <= DateTime.Now && !t.Archived);
+                .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && t.DueDate <= DateTime.Now && t.Archived == false);
 
             // total number of tasks in the project that have not been archived
             int totalTasksCount = _databaseContext.Tasks

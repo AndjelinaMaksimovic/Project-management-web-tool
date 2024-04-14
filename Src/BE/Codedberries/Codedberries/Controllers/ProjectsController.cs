@@ -126,7 +126,7 @@ namespace Codedberries.Controllers
             {
                 _projectService.ArchiveProject(HttpContext, body.ProjectId);
 
-                return Ok("project succesfully archieved.");
+                return Ok("Project succesfully archieved.");
             }
             catch (ArgumentException ex)
             {
@@ -139,7 +139,7 @@ namespace Codedberries.Controllers
         }
 
         [HttpGet("getProjectProgress")]
-        public async Task<ActionResult<ProjectProgressDTO>> GetProjectProgress([FromQuery] ProjectIdDTO request)
+        public async Task<IActionResult> GetProjectProgress([FromQuery] ProjectIdDTO request)
         {
             try
             {
