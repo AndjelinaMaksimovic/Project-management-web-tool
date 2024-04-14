@@ -286,18 +286,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole == null)
-            {
-                throw new UnauthorizedAccessException("User role not found!");
-            }
-
-            if (userRole.CanEditProject == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to edit status order!");
-            }
-
             if (request == null)
             {
                 throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
@@ -331,6 +319,29 @@ namespace Codedberries.Services
 {
                 throw new ArgumentException("NewOrder list must contain at least two elements!");
             }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table! User does not have a role for this project!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit status order!");
+            }
+            // ---------------- //
 
             // collect all statuses with provided ProjectId and sort them with current order
             var statuses = await _databaseContext.Statuses
