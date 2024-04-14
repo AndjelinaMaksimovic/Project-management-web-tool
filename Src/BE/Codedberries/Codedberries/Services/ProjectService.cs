@@ -368,6 +368,18 @@ namespace Codedberries.Services
                 throw new ArgumentException("Project not found in database!");
             }
 
+            // if all tasks on the project are completed
+            bool allTasksCompleted = _databaseContext.Tasks
+                .All(t => t.ProjectId == projectId && t.Status.Name == "Done");
+
+            // if DueDate of the project has passed
+            bool projectDueDatePassed = project.DueDate < DateTime.Now;
+
+            if (allTasksCompleted || projectDueDatePassed)
+            {
+                return 100.0;
+            }
+
             // number of tasks that were completed within the planned time frame and were not archived
             int completedTasksCount = _databaseContext.Tasks
                 .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && t.DueDate <= DateTime.Now && !t.Archived);
