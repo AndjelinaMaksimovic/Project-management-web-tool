@@ -376,7 +376,16 @@ namespace Codedberries.Services
             int totalTasksCount = _databaseContext.Tasks
                 .Count(t => t.ProjectId == projectId && !t.Archived);
 
-            return 0.0;
+            if (totalTasksCount == 0)
+            {
+                return 0.0; // there are no finished tasks
+            }
+
+            double progressPercentage = (double)completedTasksCount / totalTasksCount * 100;
+
+            progressPercentage = Math.Min(progressPercentage, 100);
+
+            return progressPercentage;
         }
     }
 }
