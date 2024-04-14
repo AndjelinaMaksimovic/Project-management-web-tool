@@ -388,12 +388,18 @@ namespace Codedberries.Services
             if (highPriorityTasksCount > 0)
             {
                 // increase progress percentage if there are high priority tasks
-                priorityFactor = 1.15; // high priority tasks have 15% higher impact
+                priorityFactor = 1.10; // high priority tasks have 10% higher impact
             }
+
+            // task dependencies
+            // progress is increased by 5% for each completed dependent task
+            var dependentTasksCount = _databaseContext.Tasks.Count(t => t.ProjectId == projectId && t.Dependencies.Any(d => d.Status.Name == "Done"));
             
+
             // calculating progres percentage
             double progressPercentage = (double)completedTasksCount / totalTasksCount * 100;
             progressPercentage *= priorityFactor;
+            progressPercentage += dependentTasksCount * 5;
 
             progressPercentage = Math.Min(progressPercentage, 100);
 
