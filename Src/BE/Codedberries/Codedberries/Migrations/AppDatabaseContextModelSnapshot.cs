@@ -403,6 +403,8 @@ namespace Codedberries.Migrations
 
                     b.HasIndex("ProjectId");
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("UserProjects");
                 });
 
@@ -538,11 +540,19 @@ namespace Codedberries.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Codedberries.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Codedberries.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Project", b =>
