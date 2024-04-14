@@ -383,6 +383,11 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
         }
 
             public double CalculateProjectProgress(int projectId)
