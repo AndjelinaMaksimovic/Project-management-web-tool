@@ -356,7 +356,7 @@ namespace Codedberries.Services
             _databaseContext.SaveChanges();
         }
 
-        public async Task<double> GetProjectProgress(HttpContext httpContext, ProjectIdDTO request)
+        public async Task<ProjectProgressDTO> GetProjectProgress(HttpContext httpContext, ProjectIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -398,6 +398,13 @@ namespace Codedberries.Services
 
             var progressCalculator = CalculateProjectProgress(request.ProjectId);
 
+            var projectProgressDTO = new ProjectProgressDTO
+            {
+                ProjectId = request.ProjectId,
+                ProgressPercentage = progressCalculator
+            };
+
+            return projectProgressDTO;
         }
 
         public double CalculateProjectProgress(int projectId)
