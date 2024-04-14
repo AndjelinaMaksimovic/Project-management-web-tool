@@ -144,4 +144,22 @@ export class ProjectService {
     }
     return false;
   }
+
+  async unarchiveProject(id: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl +
+            `/Projects/unarchiveProject`,
+          {
+            ...environment.httpOptions, body: {projectId: id}
+          }
+        )
+      );
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
 }
