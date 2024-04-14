@@ -7,16 +7,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { NewProjectComponent } from '../new-project/new-project.component';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent ],
+  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 
 export class HomeComponent {
+  search: string = "";
+
   filters: Map<string, Filter> = new Map<string, Filter>([
     ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
     ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
@@ -27,15 +30,20 @@ export class HomeComponent {
 
   constructor(private projectService: ProjectService, private dialogue: MatDialog) {}
 
-  ngOnInit(){
-    this.projectService.fetchProjectsLocalStorage('project_filters');
-  }
-  get projects(){
-    return this.projectService.getProjects();
+  projects: any;
+
+  async ngOnInit(){
+    await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
+    this.projects = this.projectService.getProjects();
   }
 
-  fetchProjectsFromLocalStorage() {
-    this.projectService.fetchProjectsLocalStorage('project_filters');
+  filterItems() {
+    this.projects = this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())); // TO DO - getArchievedProjects
+  }
+
+  async fetchProjectsFromLocalStorage() {
+    await this.projectService.fetchProjectsLocalStorage('project_filters');
+    this.projects = this.projectService.getProjects();
   }
 
   @Input() mostRecentAccordionVisible: boolean = true;

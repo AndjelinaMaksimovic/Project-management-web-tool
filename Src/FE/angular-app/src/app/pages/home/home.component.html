@@ -3,7 +3,7 @@
 <div class="container column pt-2 pl-container">
     <div class="container row">
         <div class="input-wrapper">
-            <input class="input" placeholder="Search project"/>
+            <input class="input" placeholder="Search project" [(ngModel)]="search" (input)="filterItems()"/>
             <i class="fa-solid fa-magnifying-glass input-icon"></i>
         </div>
         <a class="button pl-15 pr-15 ml-20" (click)="newProjectPopUp()">
