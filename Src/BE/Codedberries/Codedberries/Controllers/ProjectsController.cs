@@ -141,7 +141,24 @@ namespace Codedberries.Controllers
         [HttpGet("getProjectProgress")]
         public async Task<ActionResult<ProjectProgressDTO>> GetProjectProgress([FromQuery] ProjectIdDTO request)
         {
+            try
+            {
+                var projectProgress = await _projectService.GetProjectProgress(HttpContext, request);
 
+                return Ok(projectProgress);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while fetching project progress.");
+            }
         }
     }
 }
