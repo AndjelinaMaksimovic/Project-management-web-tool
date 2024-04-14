@@ -356,7 +356,12 @@ namespace Codedberries.Services
             _databaseContext.SaveChanges();
         }
 
-        public double CalculateProjectProgress(int projectId)
+        public async Task<double> GetProjectProgress(ProjectIdDTO request)
+        {
+
+        }
+
+            public double CalculateProjectProgress(int projectId)
         {
             var project = _databaseContext.Projects
                 .Include(p => p.Statuses)
