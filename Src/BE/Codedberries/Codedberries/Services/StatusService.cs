@@ -74,7 +74,7 @@ namespace Codedberries.Services
 
             if (userProject == null)
             {
-                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {statusDTO.ProjectId} in UserProjects table!");
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {statusDTO.ProjectId} in UserProjects table! User does not have a role for this project!");
             }
 
             var userRoleId = userProject.RoleId;
@@ -190,18 +190,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole == null)
-            {
-                throw new UnauthorizedAccessException("User role not found!");
-            }
-
-            if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to delete status!");
-            }
-
             if (request == null)
             {
                 throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
@@ -237,6 +225,29 @@ namespace Codedberries.Services
             {
                 throw new InvalidOperationException($"Tasks with status ID {request.StatusId} exist on project with ID {request.ProjectId}. Cannot delete status!");
             }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table! User does not have a role for this project!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to delete status!");
+            }
+            // ---------------- //
 
             _databaseContext.Statuses.Remove(statusToDelete);
 
