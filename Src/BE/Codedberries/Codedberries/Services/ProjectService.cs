@@ -381,7 +381,19 @@ namespace Codedberries.Services
                 return 0.0; // there are no finished tasks
             }
 
+            // priority
+            double priorityFactor = 1.0; // default factor
+            var highPriorityTasksCount = _databaseContext.Tasks.Count(t => t.ProjectId == projectId && t.Priority.Name == "High" && !t.Archived);
+            
+            if (highPriorityTasksCount > 0)
+            {
+                // increase progress percentage if there are high priority tasks
+                priorityFactor = 1.15; // high priority tasks have 15% higher impact
+            }
+            
+            // calculating progres percentage
             double progressPercentage = (double)completedTasksCount / totalTasksCount * 100;
+            progressPercentage *= priorityFactor;
 
             progressPercentage = Math.Min(progressPercentage, 100);
 
