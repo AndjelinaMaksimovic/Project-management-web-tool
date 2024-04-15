@@ -36,13 +36,18 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
+
+            /*
+                project is being created, therefore we are not using UserProject model
+                to check the role
+            */
 
             var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
 
@@ -86,7 +91,7 @@ namespace Codedberries.Services
                 {
                     if (user_id <= 0)
                     {
-                        throw new ArgumentException("Invalid user ID specified!");
+                        throw new ArgumentException("Invalid user ID specified! UserId must be > 0!");
                     }
 
                     var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
@@ -103,6 +108,16 @@ namespace Codedberries.Services
                         }
 
                         project.Users.Add(userToAddToProject);
+
+                        // adding user to UserProjects table
+                        var userProject = new UserProject
+                        {
+                            UserId = userToAddToProject.Id,
+                            ProjectId = project.Id,
+                            RoleId = userToAddToProject.RoleId.Value
+                        };
+
+                        _databaseContext.UserProjects.Add(userProject);
                     }
                 }
             }
