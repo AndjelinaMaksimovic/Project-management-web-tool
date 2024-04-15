@@ -457,6 +457,7 @@ namespace Codedberries.Services
 
             return new UpdatedProjectInfoDTO
             {
+                Id = project.Id,
                 Name = project.Name,
                 Description = project.Description,
                 Users = project.Users.Select(u => new UserDTO
@@ -466,8 +467,19 @@ namespace Codedberries.Services
                     LastName = u.Lastname,
                     ProfilePicture = u.ProfilePicture
                 }).ToList(),
+                DueDate = project.DueDate,
                 StartDate = project.StartDate,
-                DueDate = project.DueDate
+                Archived = project.Archived,
+                Statuses = project.Statuses.Select(s => new StatusDTO
+                {
+                    Id = s.Id,
+                    Name = s.Name
+                }).ToList(),
+                Categories = project.Categories.Select(c => new CategoryDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                }).ToList()
             };
         }
 
