@@ -471,6 +471,11 @@ namespace Codedberries.Services
                 }).ToList()
             }).ToList();
 
+            if (projects.Count == 0)
+            {
+                throw new Exception("No projects found for provided parameters!");
+            }
+
             return projects;
         }
 
