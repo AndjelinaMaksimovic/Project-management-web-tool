@@ -571,5 +571,30 @@ namespace Codedberries.Services
             _databaseContext.TaskComments.Add(taskComment);
             await _databaseContext.SaveChangesAsync();
         }
+
+        public List<TaskCommentInfoDTO> GetTasksComments(HttpContext httpContext, TaskDeletionDTO filterParams)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+            System.Linq.IQueryable<Codedberries.Models.TaskComment> query = _databaseContext.TaskComments;
+            if (filterParams.TaskId != 0)
+            {
+                query = query.Where(t => t.TaskId == filterParams.TaskId);
+            }
+            List<Codedberries.Models.TaskComment> comments = query.ToList();
+            List<TaskCommentInfoDTO> commentsDTO = comments.Select(t => new TaskCommentInfoDTO
+            {
+                Comment = t.Comment,
+                CommentId = t.CommentId,
+                TaskId = t.TaskId,
+                UserId = t.UserId
+
+            }).ToList();
+            return commentsDTO;
+        }
     }
 }
