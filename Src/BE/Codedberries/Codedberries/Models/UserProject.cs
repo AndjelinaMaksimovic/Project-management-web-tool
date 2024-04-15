@@ -14,7 +14,10 @@ namespace Codedberries.Models
         [Column(Order = 2)]
         public int ProjectId { get; set; }
 
-        [ForeignKey("RoleId")]
+        [Required]
         public int RoleId { get; set; }
+
+        [ForeignKey("RoleId")]
+        public Role Role { get; set; }
     }
 }

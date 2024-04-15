@@ -105,5 +105,32 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while deleting status: {ex.Message}"));
             }
         }
+
+        [HttpPost("changeStatusesOrder")]
+        public async Task<IActionResult> ChangeStatusesOrder([FromBody] StatusOrderChangeDTO request)
+        {
+            try
+            {
+                await _statusService.ChangeStatusesOrder(HttpContext, request);
+                
+                return Ok("Statuses order changed successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while changing status order: {ex.Message}");
+            }
+        }
     }
 }
