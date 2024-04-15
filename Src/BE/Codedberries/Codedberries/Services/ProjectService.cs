@@ -573,7 +573,7 @@ namespace Codedberries.Services
             };
         }
 
-        public void ArchiveProject(HttpContext httpContext, int projectId)
+        public async System.Threading.Tasks.Task ArchiveProject(HttpContext httpContext, int projectId)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -631,10 +631,10 @@ namespace Codedberries.Services
 
             project.Archived = !project.Archived;
 
-            _databaseContext.SaveChanges();
+            await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task<ProjectProgressDTO> GetProjectProgress(HttpContext httpContext, ProjectIdDTO request)
+        public async System.Threading.Tasks.Task<ProjectProgressDTO> GetProjectProgress(HttpContext httpContext, ProjectIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
