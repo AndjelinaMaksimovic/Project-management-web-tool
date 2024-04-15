@@ -161,6 +161,11 @@ namespace Codedberries.Services
                 })
                 .ToList();
 
+            if (activeProjects.Count == 0)
+            {
+                throw new Exception("No active projects found!");
+            }
+
             return new AllProjectsDTO { Projects = activeProjects };
         }
 
