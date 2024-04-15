@@ -127,7 +127,7 @@ namespace Codedberries.Controllers
         }
 
         [HttpPut("archiveProject")]
-        public IActionResult ArchiveProject([FromBody] ProjectDeletionDTO body)
+        public async Task<IActionResult> ArchiveProject([FromBody] ProjectDeletionDTO body)
         {
             try
             {
