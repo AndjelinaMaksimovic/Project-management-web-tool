@@ -2,6 +2,6 @@
 {
     public class AllProjectsDTO
     {
-        public List<ProjectInfoDTO> Projects { get; set; }
+        public List<ProjectInformationDTO> Projects { get; set; }
     }
 }
