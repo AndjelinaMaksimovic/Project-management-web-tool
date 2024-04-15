@@ -13,6 +13,8 @@ import { ActivatedRoute } from '@angular/router';
 import { GanttComponent } from '../../components/gantt/gantt.component';
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
+import { FiltersComponent } from '../../components/filters/filters.component';
+import { Filter } from '../../components/filters/filters.component';
 
 @Component({
   selector: 'app-my-tasks',
@@ -26,11 +28,20 @@ import { CreateStatusModalComponent } from '../../components/create-status-modal
     TasksTableComponent,
     NavbarComponent,
     GanttComponent,
+    FiltersComponent
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',
 })
 export class MyTasksComponent {
+  filters: Map<string, Filter> = new Map<string, Filter>([
+    ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
+    ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
+    // ["AssignedTo", new Filter({ name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" })]})],
+  ]);
+
+  isFilterOpen: boolean = false;
+
   projectId: number = 0;
   constructor(
     private taskService: TaskService,
@@ -43,7 +54,7 @@ export class MyTasksComponent {
     this.route.params.subscribe((params) => {
       this.projectId = parseInt(params['id']);
     });
-    this.taskService.fetchTasks({ projectId: this.projectId });
+    this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
   }
   get tasks() {
     return this.taskService.getTasks();
@@ -51,11 +62,19 @@ export class MyTasksComponent {
   /** this determines what task view we render */
   view: 'table' | 'kanban' | 'gantt' = 'table';
 
+  fetchTasksFromLocalStorage() {
+    this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+  }
+
   createTask() {
     this.dialog.open(TaskCreationModalComponent);
   }
 
   createStatus() {
     this.dialog.open(CreateStatusModalComponent);
+  }
+
+  openFilters() {
+    this.isFilterOpen = !this.isFilterOpen;
   }
 }
