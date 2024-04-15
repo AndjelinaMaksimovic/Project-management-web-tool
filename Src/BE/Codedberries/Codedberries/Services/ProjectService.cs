@@ -241,6 +241,21 @@ namespace Codedberries.Services
                     query = query.Where(p => p.Users.Any(u => filter.AssignedTo.Contains(u.Id)));
                 }
 
+                if (filter.StartDateAfter.HasValue)
+                {
+                    query = query.Where(p => p.StartDate > filter.StartDateAfter);
+                }
+
+                if (filter.StartDateBefore.HasValue)
+                {
+                    query = query.Where(p => p.StartDate < filter.StartDateBefore);
+                }
+
+                if (filter.ExactStartDate.HasValue)
+                {
+                    query = query.Where(p => p.StartDate == filter.ExactStartDate);
+                }
+
                 if (filter.DueDateAfter.HasValue)
                 {
                     query = query.Where(p => p.DueDate > filter.DueDateAfter);
@@ -251,9 +266,38 @@ namespace Codedberries.Services
                     query = query.Where(p => p.DueDate < filter.DueDateBefore);
                 }
 
+                if (filter.ExactDueDate.HasValue)
+                {
+                    query = query.Where(p => p.DueDate == filter.ExactDueDate);
+                }
+
                 if (filter.IsArchived != null)
                 {
                     query = query.Where(p => p.Archived == filter.IsArchived);
+                }
+
+                if (filter.StatusId.HasValue)
+                {
+                    var validStatus = _databaseContext.Statuses.Any(s => s.Id == filter.StatusId);
+                    
+                    if (!validStatus)
+                    {
+                        throw new ArgumentException($"Status with ID {filter.StatusId} does not exist in database!");
+                    }
+
+                    query = query.Where(p => p.Statuses.Any(s => s.Id == filter.StatusId));
+                }
+
+                if (filter.CategoryId.HasValue)
+                {
+                    var validCategory = _databaseContext.Categories.Any(c => c.Id == filter.CategoryId);
+                    
+                    if (!validCategory)
+                    {
+                        throw new ArgumentException($"Category with ID {filter.CategoryId} does not exist in the project!");
+                    }
+
+                    query = query.Where(p => p.Categories.Any(c => c.Id == filter.CategoryId));
                 }
             }
             else
