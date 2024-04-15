@@ -10,10 +10,10 @@ export class Item {
         public title: string,
         public description: string,
         public category: string,
-        public priority: 'Low' | 'Medium' | 'High',
-        public status: string,
+        public priority: 'Low' | 'Medium' | 'High' = 'Low',
+        public status: string = '',
         public startDate: number = Date.now(),
-        public dueDate: number,
+        public dueDate: number = Date.now(),
         public assignedTo: User[] = [],
         public dependant: number[] = [], // ID-s of tasks that depend on this one
         public percentage: number = 0,

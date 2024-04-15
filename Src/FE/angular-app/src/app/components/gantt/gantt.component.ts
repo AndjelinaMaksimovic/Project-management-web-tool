@@ -14,7 +14,7 @@ import { GanttDependencyLineComponent } from '../gantt-dependency-line/gantt-dep
 
 export class GanttComponent implements OnInit, AfterViewInit{
   @Input() tasks: Task[] = []
-  @Input() milestones: Task[] = []
+  @Input() milestones: any[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
   @Input() colWidths: number[] = [100]
@@ -64,16 +64,19 @@ export class GanttComponent implements OnInit, AfterViewInit{
       }
       for(let j = 0; j < this.milestones.length; j++, i++){
         this.items[i] = new Item(
-          this.tasks[i].id,
-          this.tasks[i].title,
-          this.tasks[i].description,
-          this.tasks[i].category,
-          this.tasks[i].priority,
-          this.tasks[i].status,
-          // this.tasks[i].startDate.valueOf(),
-          (new Date("2024-04-06T00:00:00")).valueOf(),
-          this.tasks[i].dueDate.valueOf(),
-          this.tasks[i].assignedTo,
+          this.milestones[i].id,
+          this.milestones[i].title,
+          this.milestones[i].description,
+          this.milestones[i].category,
+          // this.tasks[i].priority,
+          undefined,
+          // this.tasks[i].status,
+          undefined,
+          this.tasks[i].startDate.valueOf(),
+          // (new Date("2024-04-06T00:00:00")).valueOf(),
+          // this.milestones[i].dueDate.valueOf(),
+          undefined,
+          this.milestones[i].assignedTo,
           undefined,
           undefined,
           true

@@ -14,7 +14,18 @@ export class MilestoneService {
 
   mapMilestones(apiMilestone: any){
     return {
-      
+      title: apiMilestone.name,
+      description: apiMilestone.description,
+      // priority: (['Low', 'Medium', 'High'] as const)[apiMilestone.taskId % 3],
+      // status: this.statusService.idToName(apiMilestone.statusId) || 'unknown',
+      category: (['Finance', 'Marketing', 'Development'] as const)[
+        apiMilestone.taskId % 3
+      ],
+      id: apiMilestone.taskId,
+      projectId: this.context.projectId,
+      startDate: new Date(Date.parse(apiMilestone.startDate)),
+      dueDate: new Date(Date.parse(apiMilestone.dueDate)),
+      assignedTo: apiMilestone.assignedTo,
     }
   }
 
@@ -32,7 +43,7 @@ export class MilestoneService {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl +
-            `/Task/projectTasks?projectId=${this.context.projectId}`,
+            `/Milestone/projectMielstones?projectId=${this.context.projectId}`,
           environment.httpOptions
         )
       );
@@ -43,5 +54,8 @@ export class MilestoneService {
       console.log(e);
     }
     return false;
+  }
+  public getMilestones() {
+    return this.milestones;
   }
 }

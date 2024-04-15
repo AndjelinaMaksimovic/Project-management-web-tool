@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { GanttComponent } from '../../components/gantt/gantt.component';
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
+import { MilestoneService } from '../../services/milestone.service';
 
 @Component({
   selector: 'app-my-tasks',
@@ -35,6 +36,7 @@ export class MyTasksComponent {
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
+    private milestoneService: MilestoneService,
     private dialog: MatDialog,
     private route: ActivatedRoute
   ) {}
@@ -44,9 +46,13 @@ export class MyTasksComponent {
       this.projectId = parseInt(params['id']);
     });
     this.taskService.fetchTasks({ projectId: this.projectId });
+    this.milestoneService.fetchMilestones({ projectId: this.projectId });
   }
   get tasks() {
     return this.taskService.getTasks();
+  }
+  get milestones() {
+    return this.milestoneService.getMilestones();
   }
   /** this determines what task view we render */
   view: 'table' | 'kanban' | 'gantt' = 'table';
