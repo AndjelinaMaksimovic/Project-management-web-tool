@@ -129,12 +129,39 @@ namespace Codedberries.Services
         }
 
         // get all active projects
-        public AllProjectsDTO GetProjects()
+        public AllProjectsDTO GetActiveProjects()
         {
-            List<string> projectsNames = _databaseContext.Projects.Select(r => r.Name).ToList();
-            List<int> projectsIds = _databaseContext.Projects.Select(r => r.Id).ToList();
+            var activeProjects = _databaseContext.Projects
+                .Where(p => !p.Archived)
+                .Select(p => new ProjectInformationDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    StartDate = p.StartDate,
+                    DueDate = p.DueDate,
+                    Archived = p.Archived,
+                    Statuses = p.Statuses.Select(s => new StatusDTO
+                    {
+                        Id = s.Id,
+                        Name = s.Name
+                    }).ToList(),
+                    Categories = p.Categories.Select(c => new CategoryDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }).ToList(),
+                    Users = p.Users.Select(u => new UserDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    }).ToList()
+                })
+                .ToList();
 
-            return new AllProjectsDTO { ProjectsNames = projectsNames, ProjectsIds = projectsIds };
+            return new AllProjectsDTO { Projects = activeProjects };
         }
 
         // TO-DO get all archieved projects
