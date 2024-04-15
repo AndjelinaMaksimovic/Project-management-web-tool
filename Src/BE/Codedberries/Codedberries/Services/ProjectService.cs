@@ -553,22 +553,27 @@ namespace Codedberries.Services
             // replaces current list of assigned users with new list that is provided?
             if (request.Users != null && request.Users.Any())
             {
+                if (userRole.CanRemoveUserFromProject == false)
+                {
+                    throw new UnauthorizedAccessException("User does not have permission to remove user from project!");
+                }
+
                 var invalidUsers = request.Users.Except(_databaseContext.Users.Select(u => u.Id));
                 
                 if (invalidUsers.Any())
                 {
                     throw new ArgumentException($"One or more users provided do not exist in the database!");
                 }
-
-                project.Users.Clear();
                 
                 var userProjectsToRemove = _databaseContext.UserProjects.Where(up => up.ProjectId == request.ProjectId);
                 _databaseContext.UserProjects.RemoveRange(userProjectsToRemove);
-                
+
+                project.Users.Clear();
+
                 foreach (var userDto in request.Users)
                 {
-                    var userToAdd = await _databaseContext.Users.FindAsync(userDto);
-                    
+                    var userToAdd = await _databaseContext.Users.FindAsync(userId);
+
                     if (userToAdd != null)
                     {
                         if(userToAdd.RoleId == null)
