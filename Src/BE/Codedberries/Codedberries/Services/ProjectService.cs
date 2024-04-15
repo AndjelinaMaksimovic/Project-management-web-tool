@@ -201,14 +201,17 @@ namespace Codedberries.Services
                 if (filter.ProjectId.HasValue)
                     query = query.Where(p => p.Id == filter.ProjectId);
 
-                if (filter.AssignedTo.HasValue)
-                    query = query.Where(p => p.Users.Any(u => u.Id == filter.AssignedTo));
+                if (filter.AssignedTo != null && filter.AssignedTo.Any())
+                    query = query.Where(p => p.Users.Any(u => filter.AssignedTo.Contains(u.Id)));
 
                 if (filter.DueDateAfter.HasValue)
                     query = query.Where(p => p.DueDate > filter.DueDateAfter);
 
                 if (filter.DueDateBefore.HasValue)
                     query = query.Where(p => p.DueDate < filter.DueDateBefore);
+
+                if (filter.IsArchived != null)
+                    query = query.Where(p => p.Archived == filter.IsArchived);
             }
             else
             {
