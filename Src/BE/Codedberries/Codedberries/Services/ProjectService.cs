@@ -677,7 +677,12 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {projectId} not found in database!");
             }
 
-            project.Archived = !project.Archived;   // ? archieves but also unarchieves ?
+            if (project.Archived)
+            {
+                throw new ArgumentException($"Project with ID {projectId} is already archived!");
+            }
+
+            project.Archived = true;
 
             await _databaseContext.SaveChangesAsync();
         }
