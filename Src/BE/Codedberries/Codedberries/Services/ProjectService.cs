@@ -157,18 +157,39 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
 
-            if (userRole != null && userRole.CanDeleteProject == false)
+            if (userProject == null)
             {
-                throw new UnauthorizedAccessException("User does not have permission to delete project!");
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {projectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanDeleteProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to delete Project!");
+            }
+            // ---------------- //
+
+            if (projectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
             }
 
             var project = _databaseContext.Projects.Find(projectId);
 
             if (project == null)
             {
-                throw new ArgumentException($"Project with ID {projectId} does not exist.");
+                throw new ArgumentException($"Project with ID {projectId} does not found in database!");
             }
 
             /*
