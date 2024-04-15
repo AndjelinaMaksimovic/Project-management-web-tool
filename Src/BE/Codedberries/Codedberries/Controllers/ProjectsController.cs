@@ -61,6 +61,26 @@ namespace Codedberries.Controllers
             }
         }
 
+        // all archieved projects
+        [HttpGet("allArchivedProjects")]
+        public IActionResult GetArchivedProjects()
+        {
+            try
+            {
+                var archivedProjects = _projectService.GetArchivedProjects(HttpContext);
+
+                return Ok(archivedProjects);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while fetching archived projects: {ex.Message}"));
+            }
+        }
+
         [HttpDelete("projectDeletion")]
         public IActionResult DeleteProject([FromBody] ProjectDeletionDTO body)
         {
