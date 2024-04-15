@@ -206,7 +206,24 @@ namespace Codedberries.Services
         // get all archieved projects
         public AllProjectsDTO GetArchivedProjects(HttpContext httpContext)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
         }
 
         public void DeleteProject(HttpContext httpContext, int projectId)
