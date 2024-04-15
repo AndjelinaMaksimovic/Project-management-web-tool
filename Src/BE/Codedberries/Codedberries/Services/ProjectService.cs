@@ -439,8 +439,6 @@ namespace Codedberries.Services
 
                         var newUserProject = new UserProject { UserId = userToAdd.Id, ProjectId = request.ProjectId, RoleId = role };
                         _databaseContext.UserProjects.Add(newUserProject);
-                        
-                        
                     }
                 }
             }
