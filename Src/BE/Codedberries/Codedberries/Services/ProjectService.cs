@@ -255,6 +255,11 @@ namespace Codedberries.Services
                 })
                 .ToList();
 
+            if (archivedProjects.Count == 0)
+            {
+                throw new Exception("No archived projects found!");
+            }
+
             return new AllProjectsDTO { Projects = archivedProjects };
         }
 
