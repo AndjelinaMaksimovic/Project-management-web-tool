@@ -203,7 +203,11 @@ namespace Codedberries.Services
             return new AllProjectsDTO { Projects = activeProjects };
         }
 
-        // TO-DO get all archieved projects
+        // get all archieved projects
+        public AllProjectsDTO GetArchivedProjects(HttpContext httpContext)
+        {
+
+        }
 
         public void DeleteProject(HttpContext httpContext, int projectId)
         {
