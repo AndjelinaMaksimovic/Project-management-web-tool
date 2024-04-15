@@ -185,7 +185,7 @@ namespace Codedberries.Services
             _databaseContext.SaveChanges();
         }
 
-        public List<ProjectDTO> GetFilteredProjects(HttpContext httpContext, ProjectFilterDTO filter)
+        public List<ProjectInformationDTO> GetFilteredProjects(HttpContext httpContext, ProjectFilterDTO filter)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -194,7 +194,9 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Invalid session!");
             }
 
-            IQueryable<Project> query = _databaseContext.Projects;
+            IQueryable<Project> query = _databaseContext.Projects
+                .Include(p => p.Statuses)
+                .Include(p => p.Categories);
 
             if (filter != null)
             {
@@ -219,7 +221,7 @@ namespace Codedberries.Services
             }
 
 
-            var projects = query.Select(p => new ProjectDTO
+            var projects = query.Select(p => new ProjectInformationDTO
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -232,7 +234,18 @@ namespace Codedberries.Services
                     ProfilePicture = u.ProfilePicture
                 }).ToList(),
                 DueDate = p.DueDate,
-                StartDate = p.StartDate
+                StartDate = p.StartDate,
+                Archived = p.Archived,
+                Statuses = p.Statuses.Select(s => new StatusDTO
+                {
+                    Id = s.Id,
+                    Name = s.Name
+                }).ToList(),
+                Categories = p.Categories.Select(c => new CategoryDTO
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                }).ToList()
             }).ToList();
 
             return projects;
