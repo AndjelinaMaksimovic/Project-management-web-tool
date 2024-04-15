@@ -120,21 +120,6 @@ namespace Codedberries.Services
                 _databaseContext.Projects.Add(project);
                 await _databaseContext.SaveChangesAsync();
 
-                // adding user to UserProjects table
-                foreach (int user_id in request.UserIds)
-                {
-                    var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
-
-                    var userProject = new UserProject
-                    {
-                        UserId = userToAddToProject.Id,
-                        ProjectId = project.Id,
-                        RoleId = userToAddToProject.RoleId.Value
-                    };
-
-                    _databaseContext.UserProjects.Add(userProject);
-                }
-
                 await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
                 await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
                 await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
