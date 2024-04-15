@@ -711,6 +711,7 @@ namespace Codedberries.Services
             // if all tasks on the project are completed
             bool allTasksCompleted = _databaseContext.Tasks
                 .All(t => t.ProjectId == projectId && t.Status.Name == "Done");
+                        // !!!!!! can default statuses be deleted? if "Done" is not existing it won't work
 
             // if DueDate of the project has passed
             bool projectDueDatePassed = project.DueDate < DateTime.Now;
@@ -723,6 +724,11 @@ namespace Codedberries.Services
             // number of tasks that were completed and were not archived
             int completedTasksCount = _databaseContext.Tasks
                 .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && t.Archived == false);
+
+            /* !!!!!!
+             * I can't check for dates if the task was completed within the deadline, 
+             * for additional precision, because I don't have information when the task was completed
+             */
 
             // total number of tasks in the project that have not been archived
             int totalTasksCount = _databaseContext.Tasks
