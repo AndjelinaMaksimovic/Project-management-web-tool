@@ -128,6 +128,7 @@ namespace Codedberries.Services
             }
         }
 
+        // get all active projects
         public AllProjectsDTO GetProjects()
         {
             List<string> projectsNames = _databaseContext.Projects.Select(r => r.Name).ToList();
@@ -135,6 +136,8 @@ namespace Codedberries.Services
 
             return new AllProjectsDTO { ProjectsNames = projectsNames, ProjectsIds = projectsIds };
         }
+
+        // TO-DO get all archieved projects
 
         public void DeleteProject(HttpContext httpContext, int projectId)
         {
