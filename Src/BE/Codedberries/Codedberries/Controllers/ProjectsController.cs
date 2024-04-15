@@ -151,7 +151,7 @@ namespace Codedberries.Controllers
         {
             try
             {
-                _projectService.ArchiveProject(HttpContext, body.ProjectId);
+                await _projectService.ArchiveProject(HttpContext, body.ProjectId);
 
                 return Ok("Project succesfully archieved.");
             }
