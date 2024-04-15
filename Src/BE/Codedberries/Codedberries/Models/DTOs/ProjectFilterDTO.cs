@@ -3,7 +3,7 @@
     public class ProjectFilterDTO
     {
         public int? ProjectId { get; set; }
-        public List<int> AssignedTo { get; set; }
+        public List<int>? AssignedTo { get; set; }
         public DateTime? StartDateAfter { get; set; }
         public DateTime? StartDateBefore { get; set; }
         public DateTime? ExactStartDate { get; set; }

@@ -274,6 +274,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (projectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
                 .FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
@@ -296,11 +301,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to delete Project!");
             }
             // ---------------- //
-
-            if (projectId <= 0)
-            {
-                throw new ArgumentException("ProjectId must be greater than 0!");
-            }
 
             var project = _databaseContext.Projects.Find(projectId);
 
@@ -495,6 +495,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
                 .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
@@ -521,11 +526,6 @@ namespace Codedberries.Services
             if (request.IsEmpty())
             {
                 throw new ArgumentException("Not enough parameters for project update!");
-            }
-
-            if (request.ProjectId <= 0)
-            {
-                throw new ArgumentException("ProjectId must be greater than 0!");
             }
 
             var project = await _databaseContext.Projects.FirstOrDefaultAsync(t => t.Id == request.ProjectId);
@@ -642,6 +642,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (projectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
                 .FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
@@ -664,11 +669,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to archive (edit) Project!");
             }
             // ---------------- //
-
-            if (projectId <= 0)
-            {
-                throw new ArgumentException("ProjectId must be greater than 0!");
-            }
 
             var project =  _databaseContext.Projects.Find(projectId);
 
@@ -703,6 +703,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
                 .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
@@ -720,11 +725,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
             // ---------------- //
-
-            if (request.ProjectId <= 0)
-            {
-                throw new ArgumentException("ProjectId must be greater than 0!");
-            }
 
             var project = await _databaseContext.Projects.FindAsync(request.ProjectId);
 
