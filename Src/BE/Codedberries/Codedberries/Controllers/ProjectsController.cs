@@ -41,17 +41,24 @@ namespace Codedberries.Controllers
             }
         }
 
+        // all active projects
         [HttpGet("allProjects")]
         public IActionResult GetAllProjects()
         {
-            AllProjectsDTO allProjectsDTO = _projectService.GetProjects();
-
-            if (allProjectsDTO == null)
+            try
             {
-                return NotFound(new ErrorMsg("No projects found!"));
+                AllProjectsDTO activeProjectsDTO = _projectService.GetActiveProjects(HttpContext);
+                
+                return Ok(activeProjectsDTO);
             }
-
-            return Ok(allProjectsDTO);
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while getting all active projects: {ex.Message}"));
+            }
         }
 
         [HttpDelete("projectDeletion")]
