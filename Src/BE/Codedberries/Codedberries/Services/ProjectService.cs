@@ -339,53 +339,108 @@ namespace Codedberries.Services
         public async Task<UpdatedProjectInfoDTO> UpdateProject(HttpContext httpContext, ProjectUpdateRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
+            
             if (userId == null)
             {
                 throw new UnauthorizedAccessException("Invalid session!");
             }
+            
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            
             if (user == null)
             {
                 throw new UnauthorizedAccessException("User not found!");
             }
+            
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-            if (userRole != null && userRole.CanEditProject == false)
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to edit Project!");
             }
-            if (request.ProjectId <= 0 || request.IsEmpty())
+            // ---------------- //
+
+            if (request.IsEmpty())
             {
-                throw new ArgumentException("Not enough parameters for task update!");
+                throw new ArgumentException("Not enough parameters for project update!");
             }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
             var project = await _databaseContext.Projects.FirstOrDefaultAsync(t => t.Id == request.ProjectId);
+            
             if (project == null)
             {
-                throw new ArgumentException($"Project with ID {request.ProjectId} not found!");
+                throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
             }
+            
             if (!string.IsNullOrEmpty(request.Name))
             {
                 project.Name = request.Name;
             }
+            
             if (!string.IsNullOrEmpty(request.Description))
             {
                 project.Description = request.Description;
             }
-            if (request.Users != null)
+            
+            // replaces current list of assigned users with new list that is provided?
+            if (request.Users != null && request.Users.Any())
             {
+                var invalidUsers = request.Users.Except(_databaseContext.Users.Select(u => u.Id));
+                
+                if (invalidUsers.Any())
+                {
+                    throw new ArgumentException($"One or more users provided do not exist in the database!");
+                }
+
                 project.Users.Clear();
+                
                 var userProjectsToRemove = _databaseContext.UserProjects.Where(up => up.ProjectId == request.ProjectId);
                 _databaseContext.UserProjects.RemoveRange(userProjectsToRemove);
-                _databaseContext.SaveChanges();
+                
                 foreach (var userDto in request.Users)
                 {
                     var userToAdd = await _databaseContext.Users.FindAsync(userDto);
+                    
                     if (userToAdd != null)
                     {
                         project.Users.Add(userToAdd);
+
+                        if(userToAdd.RoleId == null)
+                        {
+                            throw new ArgumentException($"User with id {userToAdd.Id} does not have any roles assigned!");
+                        }
+
+                        int role = userToAdd.RoleId.HasValue ? userToAdd.RoleId.Value : 0;
+
+                        var newUserProject = new UserProject { UserId = userToAdd.Id, ProjectId = request.ProjectId, RoleId = role };
+                        _databaseContext.UserProjects.Add(newUserProject);
+                        
+                        
                     }
                 }
             }
