@@ -1,9 +1,10 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StatusService } from './status.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { LocalStorageService } from './localstorage';
 
 /**
  * Task format used within the app
@@ -24,7 +25,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-  constructor(private http: HttpClient, private statusService: StatusService, private snackBar: MatSnackBar) {}
+  constructor(private http: HttpClient, private statusService: StatusService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -101,6 +102,28 @@ export class TaskService {
           environment.apiUrl +
             `/Task/projectTasks?projectId=${this.context.projectId}`,
           this.httpOptions
+        )
+      );
+      await this.statusService.fetchStatuses();
+      this.tasks = res.body.map((task: any) => {
+        return this.mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchTasksFromLocalStorage(projectId: number, filterName: string) {
+    let data = this.localStorageService.getData(filterName);
+    data = { ...data, projectId: projectId };
+    
+    let params = new HttpParams({ fromObject: data });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Task/projectTasks',
+          { ...environment.httpOptions, params: params }
         )
       );
       await this.statusService.fetchStatuses();
