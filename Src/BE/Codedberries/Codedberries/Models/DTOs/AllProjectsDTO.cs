@@ -2,7 +2,6 @@
 {
     public class AllProjectsDTO
     {
-        public List<string> ProjectsNames { get; set; }
-        public List<int> ProjectsIds { get; set; }
+        public List<ProjectInformationDTO> Projects { get; set; }
     }
 }
