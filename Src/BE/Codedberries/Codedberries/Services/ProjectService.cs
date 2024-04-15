@@ -294,7 +294,7 @@ namespace Codedberries.Services
                     
                     if (!validCategory)
                     {
-                        throw new ArgumentException($"Category with ID {filter.CategoryId} does not exist in the project!");
+                        throw new ArgumentException($"Category with ID {filter.CategoryId} does not exist in database!");
                     }
 
                     query = query.Where(p => p.Categories.Any(c => c.Id == filter.CategoryId));
