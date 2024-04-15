@@ -571,17 +571,12 @@ namespace Codedberries.Services
                     
                     if (userToAdd != null)
                     {
-                        project.Users.Add(userToAdd);
-
                         if(userToAdd.RoleId == null)
                         {
                             throw new ArgumentException($"User with id {userToAdd.Id} does not have any roles assigned!");
                         }
 
-                        int role = userToAdd.RoleId.HasValue ? userToAdd.RoleId.Value : 0;
-
-                        var newUserProject = new UserProject { UserId = userToAdd.Id, ProjectId = request.ProjectId, RoleId = role };
-                        _databaseContext.UserProjects.Add(newUserProject);
+                        project.Users.Add(userToAdd);
                     }
                 }
             }
@@ -682,7 +677,7 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {projectId} not found in database!");
             }
 
-            project.Archived = !project.Archived;
+            project.Archived = !project.Archived;   // ? archieves but also unarchieves ?
 
             await _databaseContext.SaveChangesAsync();
         }
