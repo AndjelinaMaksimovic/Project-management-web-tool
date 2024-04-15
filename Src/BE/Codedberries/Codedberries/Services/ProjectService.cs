@@ -194,6 +194,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Invalid session!");
             }
 
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
             IQueryable<Project> query = _databaseContext.Projects
                 .Include(p => p.Statuses)
                 .Include(p => p.Categories);
@@ -201,19 +213,48 @@ namespace Codedberries.Services
             if (filter != null)
             {
                 if (filter.ProjectId.HasValue)
+                {
+                    if (filter.ProjectId <= 0)
+                    {
+                        throw new ArgumentException("ProjectId must be greater than 0!");
+                    }
+
+                    var existingProject = _databaseContext.Projects.Any(p => p.Id == filter.ProjectId);
+                    
+                    if (!existingProject)
+                    {
+                        throw new ArgumentException($"Project with ID {filter.ProjectId} does not exist in the database!");
+                    }
+
                     query = query.Where(p => p.Id == filter.ProjectId);
+                }
 
                 if (filter.AssignedTo != null && filter.AssignedTo.Any())
+                {
+                    var validUsers = _databaseContext.Users.Any(u => filter.AssignedTo.Contains(u.Id));
+                    
+                    if (!validUsers)
+                    {
+                        throw new ArgumentException("One or more users in the AssignedTo list are not valid!");
+                    }
+
                     query = query.Where(p => p.Users.Any(u => filter.AssignedTo.Contains(u.Id)));
+                }
 
                 if (filter.DueDateAfter.HasValue)
+                {
                     query = query.Where(p => p.DueDate > filter.DueDateAfter);
+                }
 
                 if (filter.DueDateBefore.HasValue)
+                {
                     query = query.Where(p => p.DueDate < filter.DueDateBefore);
+                }
 
                 if (filter.IsArchived != null)
+                {
                     query = query.Where(p => p.Archived == filter.IsArchived);
+                }
             }
             else
             {
