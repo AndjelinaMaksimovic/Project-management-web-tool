@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, View
 import { GanttColumn, Item, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
-import { GanttDependencyLineComponent } from '../gantt-dependency-line/gantt-dependency-line.component';
+import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
 
 @Component({
   selector: 'app-gantt',
@@ -24,6 +24,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() holidays: Date[] = []
 
   dates!: string[]
+  categories!: string[]
   chartStartDate!: number
   idMap: Record<number, number> = [] // id to index
 
@@ -83,6 +84,24 @@ export class GanttComponent implements OnInit, AfterViewInit{
         )
       }
     }
+
+    // this.items.sort((a, b) => a.startDate - b.startDate)
+    this.items.sort((a, b) => a.category > b.category ? 1 : -1)
+    // sort categories by minumum
+    const cats = this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
+      if(!prev[item.category]){
+          prev[item.category] = {min: item.startDate, max: item.dueDate}
+          return prev
+      }
+      if(prev[item.category].min < item.startDate)
+          prev[item.category].min = item.startDate
+      if(prev[item.category])
+          prev[item.category].max = item.dueDate
+      return prev
+
+    }, {})
+    const order = Object.entries(cats).sort((a,b)=> a[1].min - b[1].min)
+
     for (let i = 0; i < this.items.length; i++) {
       this.idMap[this.items[i].id] = i
     }
