@@ -581,7 +581,7 @@ namespace Codedberries.Services
 
                 foreach (var userDto in request.Users)
                 {
-                    var userToAdd = await _databaseContext.Users.FindAsync(userId);
+                    var userToAdd = await _databaseContext.Users.FindAsync(userDto);
 
                     if (userToAdd != null)
                     {
@@ -590,7 +590,14 @@ namespace Codedberries.Services
                             throw new ArgumentException($"User with id {userToAdd.Id} does not have any roles assigned!");
                         }
 
-                        project.Users.Add(userToAdd);
+                        var newUserProject = new UserProject
+                        {
+                            UserId = userToAdd.Id,
+                            ProjectId = project.Id,
+                            RoleId = userToAdd.RoleId.Value
+                        };
+
+                        _databaseContext.UserProjects.Add(newUserProject);
                     }
                 }
             }
