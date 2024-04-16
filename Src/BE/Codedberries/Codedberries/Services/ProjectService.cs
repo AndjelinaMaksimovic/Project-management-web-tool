@@ -613,33 +613,6 @@ namespace Codedberries.Services
             }
 
             await _databaseContext.SaveChangesAsync();
-
-            return new UpdatedProjectInfoDTO
-            {
-                Id = project.Id,
-                Name = project.Name,
-                Description = project.Description,
-                Users = project.Users.Select(u => new UserDTO
-                {
-                    Id = u.Id,
-                    FirstName = u.Firstname,
-                    LastName = u.Lastname,
-                    ProfilePicture = u.ProfilePicture
-                }).ToList(),
-                DueDate = project.DueDate,
-                StartDate = project.StartDate,
-                Archived = project.Archived,
-                Statuses = project.Statuses.Select(s => new StatusDTO
-                {
-                    Id = s.Id,
-                    Name = s.Name
-                }).ToList(),
-                Categories = project.Categories.Select(c => new CategoryDTO
-                {
-                    Id = c.Id,
-                    Name = c.Name
-                }).ToList()
-            };
         }
 
         public async System.Threading.Tasks.Task ArchiveProject(HttpContext httpContext, int projectId)
