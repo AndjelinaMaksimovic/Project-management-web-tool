@@ -24,7 +24,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() holidays: Date[] = []
 
   dates!: string[]
-  categories!: string[]
   chartStartDate!: number
   idMap: Record<number, number> = [] // id to index
 
@@ -84,23 +83,25 @@ export class GanttComponent implements OnInit, AfterViewInit{
         )
       }
     }
-
-    // this.items.sort((a, b) => a.startDate - b.startDate)
-    this.items.sort((a, b) => a.category > b.category ? 1 : -1)
-    // sort categories by minumum
-    const cats = this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
+    
+    // sort categories by start date ------------------------------
+    const categories = this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
       if(!prev[item.category]){
           prev[item.category] = {min: item.startDate, max: item.dueDate}
           return prev
       }
-      if(prev[item.category].min < item.startDate)
+      if(prev[item.category].min > item.startDate)
           prev[item.category].min = item.startDate
-      if(prev[item.category])
+      if(prev[item.category].max < item.dueDate)
           prev[item.category].max = item.dueDate
       return prev
-
     }, {})
-    const order = Object.entries(cats).sort((a,b)=> a[1].min - b[1].min)
+    const order = Object.entries(categories).sort((a,b)=> a[1].min - b[1].min).map((e, i)=>e[0])
+    this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
+    // ---------------------------
+    Object.entries(categories).forEach(category => {
+      // this.items.splice(index, 0, new Item())
+    });
 
     for (let i = 0; i < this.items.length; i++) {
       this.idMap[this.items[i].id] = i
