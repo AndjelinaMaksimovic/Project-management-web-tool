@@ -488,7 +488,7 @@ namespace Codedberries.Services
             return projects;
         }
 
-        public async Task<UpdatedProjectInfoDTO> UpdateProject(HttpContext httpContext, ProjectUpdateRequestDTO request)
+        public async System.Threading.Tasks.Task UpdateProject(HttpContext httpContext, ProjectUpdateRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
             
