@@ -224,6 +224,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new Exception("User role not found!");
+            }
+
+            if (userRole.CanViewProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to view archived projects!");
+            }
+
             var archivedProjects = _databaseContext.Projects
                 .Where(p => p.Archived)
                 .Select(p => new ProjectInformationDTO
