@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -68,11 +68,11 @@ export class StatusService {
    */
   public async fetchStatuses() {
     try {
+      let params = new HttpParams({ fromObject: this.context });
       const res = await firstValueFrom(
-        this.http.post<any>(
+        this.http.get<any>(
           environment.apiUrl + `/Status/getStatus`,
-          { projectId: this.context.projectId },
-          this.httpOptions
+          { ...environment.httpOptions, params: params }
         )
       );
       this.statuses = res.body.map((task: any) => {
