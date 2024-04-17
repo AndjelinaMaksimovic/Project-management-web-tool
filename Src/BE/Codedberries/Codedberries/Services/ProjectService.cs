@@ -168,7 +168,7 @@ namespace Codedberries.Services
 
             if (userRole == null)
             {
-                throw new Exception("User role not found in database!");
+                throw new ArgumentException("User role not found in database!");
             }
 
             if (userRole.CanViewProject == false)
