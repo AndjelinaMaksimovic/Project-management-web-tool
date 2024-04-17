@@ -85,7 +85,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     }
     
     // sort categories by start date ------------------------------
-    const categories = this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
+    const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
       if(!prev[item.category]){
           prev[item.category] = {min: item.startDate, max: item.dueDate}
           return prev
@@ -95,14 +95,40 @@ export class GanttComponent implements OnInit, AfterViewInit{
       if(prev[item.category].max < item.dueDate)
           prev[item.category].max = item.dueDate
       return prev
-    }, {})
-    const order = Object.entries(categories).sort((a,b)=> a[1].min - b[1].min).map((e, i)=>e[0])
+    }, {}))
+    const order = categories.sort((a,b)=> a[1].min - b[1].min).map((e, i)=>e[0])
     this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
     // ---------------------------
-    Object.entries(categories).forEach(category => {
-      // this.items.splice(index, 0, new Item())
-    });
-
+    const newItem = new Item(
+      0,
+      categories[0][0],
+      "",
+      "",
+      "Low",
+      "",
+      categories[0][1].min,
+      categories[0][1].max,
+    )
+    newItem.color = 'grey'
+    this.items.splice(0, 0, newItem)
+    for(let i=2, j=1;i<this.items.length;i++){
+      if(this.items[i].category != this.items[i-1].category){
+        const newItem = new Item(
+          0,
+          categories[j][0],
+          "",
+          "",
+          "Low",
+          "",
+          categories[j][1].min,
+          categories[j][1].max,
+        )
+        newItem.color = 'grey'
+        this.items.splice(i, 0, newItem)
+        j+=1
+        i+=1
+      }
+    }
     for (let i = 0; i < this.items.length; i++) {
       this.idMap[this.items[i].id] = i
     }
