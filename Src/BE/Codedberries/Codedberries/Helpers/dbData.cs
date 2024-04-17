@@ -132,6 +132,15 @@ namespace Codedberries.Helpers
                 new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels", DateTime.Today.AddDays(1), DateTime.Today, 1, 3, 2, 1, 2, 2)
                 );
 
+            context.UserProjects.AddRange(
+                new UserProject { UserId = 1, ProjectId = 1, RoleId = 1 },
+                new UserProject { UserId = 2, ProjectId = 1, RoleId = 2 },
+                new UserProject { UserId = 3, ProjectId = 2, RoleId = 3 },
+                new UserProject { UserId = 4, ProjectId = 2, RoleId = 4 },
+                new UserProject { UserId = 5, ProjectId = 3, RoleId = 2 },
+                new UserProject { UserId = 6, ProjectId = 3, RoleId = 5 }
+            );
+
 
             context.SaveChanges();
 
@@ -262,6 +271,15 @@ namespace Codedberries.Helpers
                 new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication.", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
                 new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility.", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 2, 2),
                 new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels.", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 3, 3)
+            );
+
+            context.UserProjects.AddRange(
+                new UserProject { UserId = 1, ProjectId = 1, RoleId = 1 },
+                new UserProject { UserId = 2, ProjectId = 1, RoleId = 2 },
+                new UserProject { UserId = 3, ProjectId = 2, RoleId = 3 },
+                new UserProject { UserId = 4, ProjectId = 2, RoleId = 4 },
+                new UserProject { UserId = 5, ProjectId = 3, RoleId = 2 },
+                new UserProject { UserId = 6, ProjectId = 3, RoleId = 5 }
             );
 
             context.SaveChanges();
