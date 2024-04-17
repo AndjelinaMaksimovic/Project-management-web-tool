@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StatusService } from './status.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CategoryService } from './category.service';
 
 /**
  * Task format used within the app
@@ -24,7 +25,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-  constructor(private http: HttpClient, private statusService: StatusService, private snackBar: MatSnackBar) {}
+  constructor(private http: HttpClient, private statusService: StatusService,private categoryService: CategoryService, private snackBar: MatSnackBar) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -84,6 +85,7 @@ export class TaskService {
     this.context = { ...this.context, ...context };
     // after changing the context, we need to clear the previous tasks cache
     this.statusService.setContext(context);
+    this.categoryService.setContext(context);
     this.tasks = [];
   }
   /**
@@ -104,6 +106,7 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });
@@ -168,7 +171,7 @@ export class TaskService {
     await this.fetchTasks();
   }
 
-  async createTask(task: Omit<Task, 'id' | "projectId">, projectId: number) {
+  async createTask(task: Omit<Task, 'id'> & {dependencies: string[]}, projectId: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -181,7 +184,7 @@ export class TaskService {
             priorityId: 1,
             difficultyLevel: 1,
             categoryId: 1,
-            dependencyIds: [],
+            dependencyIds: task.dependencies,
             projectId: this.context.projectId,
           },
           {

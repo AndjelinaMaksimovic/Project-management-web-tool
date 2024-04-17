@@ -27,7 +27,7 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
@@ -39,7 +39,7 @@ namespace Codedberries.Services
 
             if (userRole == null)
             {
-                throw new UnauthorizedAccessException("User role not found!");
+                throw new UnauthorizedAccessException("User role not found in database!");
             }
 
             var priorities = await _databaseContext.Priorities
