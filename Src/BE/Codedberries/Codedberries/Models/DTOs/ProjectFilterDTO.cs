@@ -13,5 +13,7 @@
         public bool? IsArchived { get; set; }
         public int? StatusId { get; set; }
         public int? CategoryId { get; set; }
+        public bool? SortByDueDate { get; set; }
+        public bool? SortByStartDate { get; set; }
     }
 }

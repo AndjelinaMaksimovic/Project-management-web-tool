@@ -7,10 +7,18 @@
         </div>
         <!-- filter/view bar -->
         <div style="display: flex; justify-content: space-between; background-color: #EEE; border-radius: 4px; width: 100%; padding: 8px; margin-top: 40px;">
-            <button mat-button>
-                <mat-icon>filter_list</mat-icon>
-                Filters
-            </button>
+
+            <div class="filters">
+                <button mat-button (click)="openFilters()">
+                    <mat-icon>filter_list</mat-icon>
+                    Filters
+                </button>
+                <div *ngIf="isFilterOpen" class="filters-container">
+                    <app-filters [title]="'Task Filters'" (fetchProjects)="fetchTasksFromLocalStorage()" [filtersName]="'task_filters'" [allFilters]="filters"></app-filters>
+                </div>
+                <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
+                </div>
+            </div>
             <div style="display: flex; gap: 8px">
                 <button mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
                     Create Status

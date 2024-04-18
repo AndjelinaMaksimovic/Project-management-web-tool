@@ -1,3 +1,4 @@
+
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
@@ -51,9 +52,20 @@ namespace Codedberries.Services
 
             var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
 
-            if (userRole != null && userRole.CanCreateProject == false)
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanCreateProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create project!");
+            }
+
+
+            if (userRole.CanAddUserToProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to add users to project!");
             }
 
             if (string.IsNullOrEmpty(request.Name))
@@ -164,6 +176,19 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new ArgumentException("User role not found in database!");
+            }
+
+            if (userRole.CanViewProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to view active projects!");
+            }
+
+
             var activeProjects = _databaseContext.Projects
                 .Where(p => !p.Archived)
                 .Select(p => new ProjectInformationDTO
@@ -222,6 +247,18 @@ namespace Codedberries.Services
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new ArgumentException("User role not found in database!");
+            }
+
+            if (userRole.CanViewProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to view archived projects!");
             }
 
             var archivedProjects = _databaseContext.Projects
@@ -452,7 +489,6 @@ namespace Codedberries.Services
                 throw new ArgumentException("No filters provided for project search!");
             }
 
-
             var projects = query.Select(p => new ProjectInformationDTO
             {
                 Id = p.Id,
@@ -483,6 +519,26 @@ namespace Codedberries.Services
             if (projects.Count == 0)
             {
                 throw new Exception("No projects found for provided parameters!");
+            }
+
+            if (filter.SortByStartDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.StartDate < y.StartDate) return (bool)filter.SortByStartDate ? -1 : 1;
+                    else if (x.StartDate > y.StartDate) return !(bool)filter.SortByStartDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
+            if (filter.SortByDueDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.DueDate < y.DueDate) return (bool)filter.SortByDueDate ? -1 : 1;
+                    else if (x.DueDate > y.DueDate) return !(bool)filter.SortByDueDate ? -1 : 1;
+                    return 0;
+                });
             }
 
             return projects;
@@ -551,6 +607,14 @@ namespace Codedberries.Services
             
             if (!string.IsNullOrEmpty(request.Name))
             {
+                var existingProjectWithName = _databaseContext.Projects
+                    .Any(p => p.Name == request.Name && p.Id != request.ProjectId);
+
+                if (existingProjectWithName)
+                {
+                    throw new ArgumentException($"A project with the name '{request.Name}' already exists in database!");
+                }
+
                 project.Name = request.Name;
             }
             
@@ -602,19 +666,74 @@ namespace Codedberries.Services
                 }
             }
 
-            if (request.DueDate.HasValue)
+            if (request.StartDate.HasValue && request.DueDate.HasValue)
             {
-                project.DueDate = request.DueDate.Value;
+                if (Helper.IsDateRangeValid(request.StartDate.Value, request.DueDate.Value) == false)
+                {
+                    throw new ArgumentException("Invalid StartDate and DueDate range!");
+                }
             }
 
             if (request.StartDate.HasValue)
             {
+                if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
+                {
+                    throw new ArgumentException("StartDate must be a valid date!");
+                }
+
+                if (request.StartDate > project.DueDate)
+                {
+                    if (!request.DueDate.HasValue)
+                    {
+                        throw new ArgumentException("StartDate cannot be after DueDate!");
+                    }
+                }
+
                 project.StartDate = request.StartDate.Value;
+            }
+
+            if (request.DueDate.HasValue)
+            {
+                if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
+                {
+                    throw new ArgumentException("DueDate must be a valid date!");
+                }
+
+                if (request.DueDate < project.StartDate)
+                {
+                    if (!request.StartDate.HasValue)
+                    {
+                        throw new ArgumentException("DueDate cannot be before StartDate!");
+                    }
+                }
+
+                project.DueDate = request.DueDate.Value;
+            }
+
+            if (request.Archived.HasValue)
+            {
+                if (request.Archived.Value != true && request.Archived.Value != false)
+                {
+                    throw new ArgumentException("Invalid value for Archived! Expected true or false!");
+                }
+
+                if (request.Archived.Value == true && project.Archived == true)
+                {
+                    throw new ArgumentException("Project is already archived!");
+                }
+
+                if (request.Archived.Value == false && project.Archived == false)
+                {
+                    throw new ArgumentException("Project is already not archived!");
+                }
+
+                project.Archived = request.Archived.Value;
             }
 
             await _databaseContext.SaveChangesAsync();
         }
 
+        // does both makes it archived or makes it active
         public async System.Threading.Tasks.Task ArchiveProject(HttpContext httpContext, int projectId)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
@@ -671,15 +790,13 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {projectId} not found in database!");
             }
 
-            if (project.Archived)
-            {
-                throw new ArgumentException($"Project with ID {projectId} is already archived!");
-            }
-
-            project.Archived = true;
+           
+            // archive/active
+            project.Archived = !project.Archived;
 
             await _databaseContext.SaveChangesAsync();
         }
+
 
         public async System.Threading.Tasks.Task<ProjectProgressDTO> GetProjectProgress(HttpContext httpContext, ProjectIdDTO request)
         {
