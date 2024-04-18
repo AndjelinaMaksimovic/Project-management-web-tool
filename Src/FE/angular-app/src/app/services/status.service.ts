@@ -8,12 +8,14 @@ type Status = {
   name: string;
   id: number;
   projectId: number;
+  order: number;
 };
 function mapStatus(apiStatus: any) {
   return {
     name: apiStatus.name,
     id: apiStatus.id,
     projectId: apiStatus.projectId,
+    order: apiStatus.order,
   };
 }
 
