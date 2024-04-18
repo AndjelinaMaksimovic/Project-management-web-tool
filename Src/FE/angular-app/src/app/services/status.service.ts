@@ -8,12 +8,14 @@ type Status = {
   name: string;
   id: number;
   projectId: number;
+  order: number;
 };
 function mapStatus(apiStatus: any) {
   return {
     name: apiStatus.name,
     id: apiStatus.id,
     projectId: apiStatus.projectId,
+    order: apiStatus.order,
   };
 }
 
@@ -78,6 +80,7 @@ export class StatusService {
       this.statuses = res.body.map((task: any) => {
         return mapStatus(task);
       });
+      this.statuses.sort((a, b) => a.order-b.order);
       this.statusIdMap = Object.fromEntries(
         this.statuses.map((status) => {
           return [status.id, status.name];
@@ -135,6 +138,30 @@ export class StatusService {
         )
       );
     } catch (e) {
+      console.log(e);
+    }
+    await this.fetchStatuses();
+  }
+
+  public async reorderStatuses(newOrder: string[]){
+    const idsOrder = newOrder.map((status) => this.nameToId(status));
+    // order in place
+    const orderMap = Object.fromEntries(idsOrder.map((id, index) => [id, index]));
+    this.statuses.sort((a, b) => orderMap[a.id] - orderMap[b.id]);
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Status/changeStatusesOrder`, 
+        { projectId: this.context.projectId, newOrder: idsOrder },
+        {...this.httpOptions, responseType: "text" as "json"}
+        )
+      );
+      this.snackBar.open("Status order updated successfully", undefined, {
+        duration: 2000,
+      });
+    } catch (e) {
+      this.snackBar.open("We couldn't update status order", undefined, {
+        duration: 2000,
+      });
       console.log(e);
     }
     await this.fetchStatuses();

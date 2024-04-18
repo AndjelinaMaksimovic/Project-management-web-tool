@@ -41,7 +41,7 @@ export class KanbanViewComponent {
     return this._tasks;
   }
   get statuses(){
-    return this.statusService.getStatuses().map(s => s.name).sort();
+    return this.statusService.getStatuses().map(s => s.name);
   }
 
   getTasksOfStatus(status: (typeof this.tasks)[number]['status']) {
@@ -61,5 +61,13 @@ export class KanbanViewComponent {
 
   async deleteStatus(status: string){
     this.statusService.deleteStatus(status);
+  }
+
+  async reorderStatus(event: CdkDragDrop<string[]>){
+    const movedStatus = this.statuses[event.previousIndex];
+    const newOrder = [...this.statuses];
+    newOrder.splice(event.previousIndex, 1);
+    newOrder.splice(event.currentIndex, 0, movedStatus);
+    await this.statusService.reorderStatuses(newOrder);
   }
 }
