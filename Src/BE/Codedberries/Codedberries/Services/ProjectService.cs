@@ -684,7 +684,12 @@ namespace Codedberries.Services
             {
                 if (request.Archived.Value != true && request.Archived.Value != false)
                 {
-                    throw new ArgumentException("Invalid value for Archived. Expected true or false.");
+                    throw new ArgumentException("Invalid value for Archived! Expected true or false!");
+                }
+
+                if (request.Archived.Value == true && project.Archived == true)
+                {
+                    throw new ArgumentException("Project is already archived!");
                 }
 
                 project.Archived = request.Archived.Value;
