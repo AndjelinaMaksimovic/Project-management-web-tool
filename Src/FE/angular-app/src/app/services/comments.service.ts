@@ -60,4 +60,18 @@ export class CommentsService {
     }
     return false;
   }
+
+  public async postComment(comment: string){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Task/createNewTaskComment`, 
+        { comment: comment, taskId: this.context.taskId },
+        this.httpOptions
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchComments();
+  }
 }
