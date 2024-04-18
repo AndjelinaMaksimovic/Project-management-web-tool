@@ -1,10 +1,10 @@
 <div style="display: flex; flex-direction: column; gap: 10px;">
     <!-- description -->
-    <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+    <mat-form-field appearance="outline" style="width: 100%; margin-bottom: -20px;" class="dense-2">
         <mat-label>Write a comment</mat-label>
-        <!-- <textarea matInput [(ngModel)]="newComment" style="height: 50vh;"></textarea> -->
-        <textarea matInput style="height: 120px;"></textarea>
+        <textarea matInput [(ngModel)]="newComment" style="height: 120px;"></textarea>
     </mat-form-field>
+    <button mat-flat-button (click)="postComment()" color="primary">Comment</button>
     @for (comment of comments; track comment) {
     <app-comment [comment]="comment"></app-comment>
     }
