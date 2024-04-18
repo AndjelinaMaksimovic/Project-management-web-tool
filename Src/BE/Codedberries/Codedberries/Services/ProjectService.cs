@@ -711,6 +711,7 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
+        // does both makes it archived or makes it active
         public async System.Threading.Tasks.Task ArchiveProject(HttpContext httpContext, int projectId)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
@@ -767,12 +768,9 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {projectId} not found in database!");
             }
 
-            if (project.Archived)
-            {
-                throw new ArgumentException($"Project with ID {projectId} is already archived!");
-            }
-
-            project.Archived = true;
+           
+            // archive/active
+            project.Archived = !project.Archived;
 
             await _databaseContext.SaveChangesAsync();
         }
