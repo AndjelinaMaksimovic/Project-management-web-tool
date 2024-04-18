@@ -17,7 +17,7 @@
                             <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
                             </div>
                             <!-- task column - category display -->
-                            <div class="task" style="user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
+                            <div class="task" style="margin-right: 5px; user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
                                 <span *ngIf="items[itemIdx+1].display">&#9660;</span>
                                 <span *ngIf="!items[itemIdx+1].display">&#9650;</span>
                                 {{item.title}}
