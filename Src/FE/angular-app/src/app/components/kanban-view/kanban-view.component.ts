@@ -41,7 +41,7 @@ export class KanbanViewComponent {
     return this._tasks;
   }
   get statuses(){
-    return this.statusService.getStatuses().sort((a, b) => a.order - b.order).map(s => s.name);
+    return this.statusService.getStatuses().map(s => s.name);
   }
 
   getTasksOfStatus(status: (typeof this.tasks)[number]['status']) {

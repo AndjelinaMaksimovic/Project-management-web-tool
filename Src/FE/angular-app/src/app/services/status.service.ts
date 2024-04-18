@@ -79,6 +79,7 @@ export class StatusService {
       this.statuses = res.body.map((task: any) => {
         return mapStatus(task);
       });
+      this.statuses.sort((a, b) => a.order-b.order);
       this.statusIdMap = Object.fromEntries(
         this.statuses.map((status) => {
           return [status.id, status.name];
