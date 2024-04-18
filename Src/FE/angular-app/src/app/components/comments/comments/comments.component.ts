@@ -24,5 +24,6 @@ export class CommentsComponent {
   }
   async postComment(){
     await this.commentsService.postComment(this.newComment);
+    this.newComment = "";
   }
 }
