@@ -169,7 +169,7 @@ namespace Codedberries.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorMsg($"An error occurred while archiving/unarchiving the project: {ex.Message}"));
+                return StatusCode(500, new ErrorMsg($"An error occurred while archiveing the project: {ex.Message}"));
             }
         }
 
