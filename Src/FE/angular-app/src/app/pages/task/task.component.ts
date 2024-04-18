@@ -4,10 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Task, TaskService } from '../../services/task.service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { MaterialModule } from '../../material/material.module';
+import { CommentsComponent } from '../../components/comments/comments/comments.component';
 @Component({
   selector: 'app-task',
   standalone: true,
-  imports: [NavbarComponent, MarkdownModule, MaterialModule],
+  imports: [NavbarComponent, MarkdownModule, MaterialModule, CommentsComponent],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
   styleUrl: './task.component.css',

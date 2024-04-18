@@ -1,0 +1,22 @@
+<!-- <p></p> -->
+<mat-card>
+    <mat-card-header>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+            <!-- avatar -->
+            <div style="display: flex; align-items: center; gap: 10px">
+                <div
+                    style="width: 32px; height: 32px; border-radius: 100%; background-color: rgb(255, 102, 0); color: white; text-align: center; vertical-align: center; line-height: 32px;">
+                    A</div>
+                <span>
+                    {{comment?.author}}
+                </span>
+            </div>
+            <span style="font-size: small; color: #888;">{{comment?.date?.toDateString()}}</span>
+        </div>
+    </mat-card-header>
+    <mat-divider style="margin: 20px;"></mat-divider>
+    <!-- <mat-card-content>{{comment?.content}}</mat-card-content> -->
+    <mat-card-content>
+        <markdown ngPreserveWhitespaces [data]="comment?.content"></markdown>
+    </mat-card-content>
+</mat-card>
