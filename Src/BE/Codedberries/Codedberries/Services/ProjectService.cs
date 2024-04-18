@@ -1,59 +1,4 @@
-<<<<<<< HEAD
-﻿using Codedberries.Models.DTOs;
-using Codedberries.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System.Net.Http;
-using Codedberries.Helpers;
-using System.Threading.Tasks;
 
-namespace Codedberries.Services
-{
-    public class ProjectService
-    {
-        private readonly AppDatabaseContext _databaseContext;
-        private readonly AuthorizationService _authorizationService;
-        private readonly TaskService _taskService;
-        private readonly StatusService _statusService;
-
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, StatusService statusService)
-        {
-            _databaseContext = databaseContext;
-            _authorizationService = authorizationService;
-            _taskService = taskService;
-            _statusService = statusService;
-        }
-
-        public async System.Threading.Tasks.Task CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
-        {
-            var userId = _authorizationService.GetUserIdFromSession(httpContext);
-
-            if (userId == null)
-            {
-                throw new UnauthorizedAccessException("Invalid session!");
-            }
-
-            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
-
-            if (user == null)
-            {
-                throw new UnauthorizedAccessException("User not found in database!");
-            }
-
-            if (user.RoleId == null)
-            {
-                throw new UnauthorizedAccessException("User does not have any role assigned!");
-            }
-
-            /*
-                project is being created, therefore we are not using UserProject model
-                to check the role
-            */
-
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole != null && userRole.CanCreateProject == false)
-=======
 ﻿using Codedberries.Models.DTOs;
 using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
@@ -113,19 +58,16 @@ namespace Codedberries.Services
             }
 
             if (userRole.CanCreateProject == false)
->>>>>>> origin/155-be-azuriranje-provera-permisija-2
             {
                 throw new UnauthorizedAccessException("User does not have permission to create project!");
             }
 
-<<<<<<< HEAD
-=======
+
             if (userRole.CanAddUserToProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to add users to project!");
             }
 
->>>>>>> origin/155-be-azuriranje-provera-permisija-2
             if (string.IsNullOrEmpty(request.Name))
             {
                 throw new ArgumentException("Project name is required!");
@@ -246,7 +188,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to view active projects!");
             }
 
->>>>>>> origin/155-be-azuriranje-provera-permisija-2
+
             var activeProjects = _databaseContext.Projects
                 .Where(p => !p.Archived)
                 .Select(p => new ProjectInformationDTO
@@ -855,7 +797,7 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
->>>>>>> origin/155-be-azuriranje-provera-permisija-2
+
         public async System.Threading.Tasks.Task<ProjectProgressDTO> GetProjectProgress(HttpContext httpContext, ProjectIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
