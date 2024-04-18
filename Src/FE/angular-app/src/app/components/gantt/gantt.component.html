@@ -1,4 +1,4 @@
-<div style="white-space: nowrap; overflow: auto; display: flex; background-color: white; height: 300px;">
+<div style="white-space: nowrap; overflow: auto; display: flex; background-color: white; height: 600px;">
     <div class="info">
         @for (col of columns; track col; let idx = $index) {
             <div [style.width]="colWidths[idx]+'px'" style="display: inline-block; overflow: hidden;">
@@ -59,8 +59,7 @@
                                 'background-color': (item.type == ItemType.milestone) ? '' : item.color,
                                 'box-shadow': (item.type == ItemType.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
                                 'height': barHeight+'px',
-                            }"
-                            [attr.title]="item.startDate + ', ' + item.dueDate">
+                            }">
                                 <div *ngIf="item.type == ItemType.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
                                 [ngStyle]="{
                                     'background-color': item.color,
@@ -93,9 +92,11 @@
                                     *ngIf="items[idMap[dependant]].display && item.display"></app-gantt-dependency-line>
                                 }
 
-                                <div title="Click and drag to another taks to create a new dependency" style="position: absolute; right: -15px; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" (click)="dependencyPopUp(item)" (mousedown)="startDependencyDrag($event)" *ngIf="item.hover">&#9737;</div>
-                                <div title="Edit task" style="position: absolute; right: -33px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" *ngIf="item.hover"
-                                (click)="editTask(item)">&#10247;</div>
+                                <ng-template [ngIf]="item.type != ItemType.category">
+                                    <div title="Click and drag to another taks to create a new dependency" style="position: absolute; right: -15px; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" (click)="dependencyPopUp(item)" (mousedown)="startDependencyDrag($event)" *ngIf="item.hover">&#9737;</div>
+                                    <div title="Edit task" style="position: absolute; right: -33px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" *ngIf="item.hover"
+                                    (click)="editTask(item)">&#10247;</div>
+                                </ng-template>
                             </div>
                         </div>
                     </div>
