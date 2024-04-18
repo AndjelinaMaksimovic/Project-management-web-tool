@@ -34,16 +34,16 @@ export class HomeComponent {
 
   async ngOnInit(){
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
-    this.projects = this.projectService.getProjects();
+    this.projects = this.projectService.getProjects().filter(project => !project.archived);
   }
 
   filterItems() {
-    this.projects = this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())); // TO DO - getArchievedProjects
+    this.projects = this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
   }
 
   async fetchProjectsFromLocalStorage() {
     await this.projectService.fetchProjectsLocalStorage('project_filters');
-    this.projects = this.projectService.getProjects();
+    this.projects = this.projectService.getProjects().filter(project => !project.archived);
   }
 
   @Input() mostRecentAccordionVisible: boolean = true;

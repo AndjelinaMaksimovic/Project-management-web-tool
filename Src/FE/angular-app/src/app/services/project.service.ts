@@ -136,7 +136,11 @@ export class ProjectService {
           environment.apiUrl +
             `/Projects/archiveProject`,
           {
-            ...environment.httpOptions, body: {projectId: id}
+            projectId: id
+          },
+          {
+            ...environment.httpOptions,
+            responseType: "text" as "json"
           }
         )
       );

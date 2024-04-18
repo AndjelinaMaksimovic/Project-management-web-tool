@@ -15,7 +15,7 @@
             <p class="mr-20 samewidth date">{{ dueDate | date:'dd. MMMM yyyy' }}</p>
             <div class="mr-20 samewidth icons">
                 <i *ngIf="!isArchived" class="fa-solid fa-archive mr-20 button" (click)="archiveProject();" matTooltip="Archive"></i>
-                <i *ngIf="isArchived" class="fa-solid fa-box-open mr-20 button" (click)="unarchiveProject();" matTooltip="Unarchive"></i>
+                <i *ngIf="isArchived" class="fa-solid fa-box-open mr-20 button" (click)="archiveProject();" matTooltip="Unarchive"></i>
                 <i *ngIf="!isArchived" class="fa-solid fa-pen-to-square mr-20 button" matTooltip="Edit"></i>
                 <i *ngIf="isArchived" class="fa-solid fa-magnifying-glass mr-20 button" matTooltip="View"></i>
             </div>
