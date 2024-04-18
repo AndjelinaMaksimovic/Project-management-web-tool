@@ -83,6 +83,7 @@ export class AuthService {
     var r = false
     try {
       r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/logout', {}, environment.httpOptions))).ok
+      this.router.navigate(['login'])
     } catch (e) {
       console.log(e)
     }

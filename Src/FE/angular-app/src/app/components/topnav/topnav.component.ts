@@ -4,8 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-topnav',
@@ -20,6 +19,5 @@ export class TopnavComponent {
 
   async logOut(){
     await this.authService.logout()
-    this.router.navigate(['login'])
   }
 }

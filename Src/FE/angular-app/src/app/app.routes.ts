@@ -4,7 +4,6 @@ import { HomeComponent } from './pages/home/home.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { ActivateComponent } from './pages/activate/activate.component';
-import { NewProjectComponent } from './pages/new-project/new-project.component';
 import { GanttTestComponent } from './pages/gantt-test/gantt-test.component';
 import { MyTasksComponent } from './pages/my-tasks/my-tasks.component';
 import { LoggedIn } from './services/auth.service';
@@ -15,16 +14,15 @@ import { NewTaskComponent } from './pages/new-task/new-task.component';
 import { TaskComponent } from './pages/task/task.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, canActivate: [LoggedIn] },
-  { path: 'login', component: LoginComponent, canActivate: [NotLoggedIn] },
-  { path: 'register', component: RegisterComponent },
-  { path: 'activate', component: ActivateComponent },
-  { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/new-task', component: NewTaskComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
-  { path: 'profile', component: ProfileComponent, canActivate: [LoggedIn] },
-  { path: 'project/:projectId/task/:taskId', component: TaskComponent, canActivate: [LoggedIn] },
+  { path: '', title: 'Codedberries | Home', component: HomeComponent, canActivate: [LoggedIn] },
+  { path: 'login', title: 'Codedberries | Log in', component: LoginComponent, canActivate: [NotLoggedIn] },
+  { path: 'register', title: 'Codedberries | Register', component: RegisterComponent },
+  { path: 'activate', title: 'Codedberries | Activate', component: ActivateComponent },
+  { path: 'project/:id/tasks', title: 'Codedberries | Project tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
+  { path: 'project/:id/new-task', title: 'Codedberries | New task', component: NewTaskComponent, canActivate: [LoggedIn] },
+  { path: 'project/:id/details', title: 'Codedberries | Project details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
+  { path: 'profile', title: 'Codedberries | Profile', component: ProfileComponent, canActivate: [LoggedIn] },
+  { path: 'project/:projectId/task/:taskId', title: 'Codedberries | Task', component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
-  { path: '**', component: ErrorComponent },
+  { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];
