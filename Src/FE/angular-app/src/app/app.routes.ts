@@ -16,17 +16,17 @@ import { TaskComponent } from './pages/task/task.component';
 import { ArchivedProjectsComponent } from './pages/archived-projects/archived-projects.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, canActivate: [LoggedIn] },
-  { path: 'login', component: LoginComponent, canActivate: [NotLoggedIn] },
-  { path: 'register', component: RegisterComponent },
-  { path: 'activate', component: ActivateComponent },
+  { path: '', title: 'Codedberries | Home', component: HomeComponent, canActivate: [LoggedIn] },
+  { path: 'login', title: 'Codedberries | Log in', component: LoginComponent, canActivate: [NotLoggedIn] },
+  { path: 'register', title: 'Codedberries | Register', component: RegisterComponent },
+  { path: 'activate', title: 'Codedberries | Activate', component: ActivateComponent },
   { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/new-task', component: NewTaskComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
-  { path: 'profile', component: ProfileComponent, canActivate: [LoggedIn] },
-  { path: 'project/:projectId/task/:taskId', component: TaskComponent, canActivate: [LoggedIn] },
+  { path: 'project/:id/tasks', title: 'Codedberries | Project tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
+  { path: 'project/:id/new-task', title: 'Codedberries | New task', component: NewTaskComponent, canActivate: [LoggedIn] },
+  { path: 'project/:id/details', title: 'Codedberries | Project details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
+  { path: 'profile', title: 'Codedberries | Profile', component: ProfileComponent, canActivate: [LoggedIn] },
+  { path: 'project/:projectId/task/:taskId', title: 'Codedberries | Task', component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'archived-projects', component: ArchivedProjectsComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
-  { path: '**', component: ErrorComponent },
+  { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];
