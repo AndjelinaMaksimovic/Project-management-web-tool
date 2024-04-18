@@ -119,6 +119,7 @@ export class TaskService {
   }
 
   public async fetchTasksFromLocalStorage(projectId: number, filterName: string) {
+    this.setContext({projectId});
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: projectId };
     
@@ -131,6 +132,7 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });
