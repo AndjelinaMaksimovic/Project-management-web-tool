@@ -144,6 +144,9 @@ export class StatusService {
 
   public async reorderStatuses(newOrder: string[]){
     const idsOrder = newOrder.map((status) => this.nameToId(status));
+    // order in place
+    const orderMap = Object.fromEntries(idsOrder.map((id, index) => [id, index]));
+    this.statuses.sort((a, b) => orderMap[a.id] - orderMap[b.id]);
     try {
       const res = await firstValueFrom(
         this.http.post<any>(environment.apiUrl + `/Status/changeStatusesOrder`, 
