@@ -131,6 +131,7 @@ export class NewTaskComponent {
       {
         title: this.title,
         description: this.description,
+        // date: this.dueDate.value,
         startDate: this.startDate.value,
         dueDate: this.dueDate.value,
         category: this.category,
