@@ -55,6 +55,10 @@ namespace Codedberries.Controllers
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while getting all active projects: {ex.Message}"));
@@ -74,6 +78,10 @@ namespace Codedberries.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
@@ -161,7 +169,7 @@ namespace Codedberries.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorMsg($"An error occurred while archiving/unarchiving the project: {ex.Message}"));
+                return StatusCode(500, new ErrorMsg($"An error occurred while archiveing the project: {ex.Message}"));
             }
         }
 
