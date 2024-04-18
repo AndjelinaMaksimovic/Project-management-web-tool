@@ -81,37 +81,6 @@ namespace Codedberries.Services
             Project project = new Project(request.Name, request.Description, request.DueDate);
             project.StartDate = request.StartDate;
 
-            if (request.UserIds == null || !request.UserIds.Any())
-            {
-                throw new ArgumentException("At least one user must be specified for the project!");
-            }
-            else
-            {
-                foreach (int user_id in request.UserIds)
-                {
-                    if (user_id <= 0)
-                    {
-                        throw new ArgumentException("Invalid user ID specified! UserId must be > 0!");
-                    }
-
-                    var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
-
-                    if (userToAddToProject == null)
-                    {
-                        throw new ArgumentException($"User with ID {user_id} not found in database!");
-                    }
-                    else
-                    {
-                        if (userToAddToProject.RoleId == null)
-                        {
-                            throw new ArgumentException($"User with ID {userToAddToProject.Id} does not have any role assigned!");
-                        }
-
-                        project.Users.Add(userToAddToProject);
-                    }
-                }
-            }
-
             // if user does not have a permission to create Statuses for project, project won't be created
             using var transaction = await _databaseContext.Database.BeginTransactionAsync();
 
@@ -120,6 +89,46 @@ namespace Codedberries.Services
                 _databaseContext.Projects.Add(project);
                 await _databaseContext.SaveChangesAsync();
 
+                if (request.UserIds == null || !request.UserIds.Any())
+                {
+                    throw new ArgumentException("At least one user must be specified for the project!");
+                }
+                else
+                {
+                    foreach (int user_id in request.UserIds)
+                    {
+                        if (user_id <= 0)
+                        {
+                            throw new ArgumentException("Invalid user ID specified! UserId must be > 0!");
+                        }
+
+                        var userToAddToProject = _databaseContext.Users.FirstOrDefault(u => u.Id == user_id);
+
+                        if (userToAddToProject == null)
+                        {
+                            throw new ArgumentException($"User with ID {user_id} not found in database!");
+                        }
+                        else
+                        {
+                            if (userToAddToProject.RoleId == null)
+                            {
+                                throw new ArgumentException($"User with ID {userToAddToProject.Id} does not have any role assigned!");
+                            }
+
+                            var userProject = new UserProject
+                            {
+                                UserId = userToAddToProject.Id,
+                                ProjectId = project.Id,
+                                RoleId = userToAddToProject.RoleId.Value
+                            };
+
+                            _databaseContext.UserProjects.Add(userProject);
+                            await _databaseContext.SaveChangesAsync();
+                        }
+                    }
+                }
+
+                // the one creating it needs to be on that project also so he could create default statuses
                 await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
                 await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
                 await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
@@ -443,7 +452,6 @@ namespace Codedberries.Services
                 throw new ArgumentException("No filters provided for project search!");
             }
 
-
             var projects = query.Select(p => new ProjectInformationDTO
             {
                 Id = p.Id,
@@ -476,10 +484,30 @@ namespace Codedberries.Services
                 throw new Exception("No projects found for provided parameters!");
             }
 
+            if (filter.SortByStartDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.StartDate < y.StartDate) return (bool)filter.SortByStartDate ? -1 : 1;
+                    else if (x.StartDate > y.StartDate) return !(bool)filter.SortByStartDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
+            if (filter.SortByDueDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.DueDate < y.DueDate) return (bool)filter.SortByDueDate ? -1 : 1;
+                    else if (x.DueDate > y.DueDate) return !(bool)filter.SortByDueDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
             return projects;
         }
 
-        public async Task<UpdatedProjectInfoDTO> UpdateProject(HttpContext httpContext, ProjectUpdateRequestDTO request)
+        public async System.Threading.Tasks.Task UpdateProject(HttpContext httpContext, ProjectUpdateRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
             
@@ -572,7 +600,7 @@ namespace Codedberries.Services
 
                 foreach (var userDto in request.Users)
                 {
-                    var userToAdd = await _databaseContext.Users.FindAsync(userId);
+                    var userToAdd = await _databaseContext.Users.FindAsync(userDto);
 
                     if (userToAdd != null)
                     {
@@ -581,7 +609,14 @@ namespace Codedberries.Services
                             throw new ArgumentException($"User with id {userToAdd.Id} does not have any roles assigned!");
                         }
 
-                        project.Users.Add(userToAdd);
+                        var newUserProject = new UserProject
+                        {
+                            UserId = userToAdd.Id,
+                            ProjectId = project.Id,
+                            RoleId = userToAdd.RoleId.Value
+                        };
+
+                        _databaseContext.UserProjects.Add(newUserProject);
                     }
                 }
             }
@@ -597,33 +632,6 @@ namespace Codedberries.Services
             }
 
             await _databaseContext.SaveChangesAsync();
-
-            return new UpdatedProjectInfoDTO
-            {
-                Id = project.Id,
-                Name = project.Name,
-                Description = project.Description,
-                Users = project.Users.Select(u => new UserDTO
-                {
-                    Id = u.Id,
-                    FirstName = u.Firstname,
-                    LastName = u.Lastname,
-                    ProfilePicture = u.ProfilePicture
-                }).ToList(),
-                DueDate = project.DueDate,
-                StartDate = project.StartDate,
-                Archived = project.Archived,
-                Statuses = project.Statuses.Select(s => new StatusDTO
-                {
-                    Id = s.Id,
-                    Name = s.Name
-                }).ToList(),
-                Categories = project.Categories.Select(c => new CategoryDTO
-                {
-                    Id = c.Id,
-                    Name = c.Name
-                }).ToList()
-            };
         }
 
         public async System.Threading.Tasks.Task ArchiveProject(HttpContext httpContext, int projectId)

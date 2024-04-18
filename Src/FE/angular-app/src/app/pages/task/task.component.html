@@ -1,21 +1,28 @@
 <app-navbar>
     <div style="padding: 10px;">
         <h1>{{task?.title}}</h1>
-        <!-- <mat-divider></mat-divider> -->
-        <div style="display: flex; gap: 20px; margin-top: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-            <span class="tag">Category: <div class="chip chip-neutral">
-                    {{task?.category}}</div></span>
-            <span class="tag">Priority: <div [classList]="['chip chip-' + 'warn']">{{task?.priority === "High" ? "🎯︎ "
-                    + task?.priority :
-                    task?.priority}}</div></span>
-            <span class="tag">Status: <div [classList]="['chip chip-' + 'warn']">{{task?.status}}</div></span>
-            <div class="tag">
-                Due date:
-                <div style="font-size: small; font-weight: bold; color: black">📅 {{task?.dueDate?.toDateString()}}</div>
-            </div>
-        </div>
-        <mat-divider></mat-divider>
-        <markdown ngPreserveWhitespaces>{{task?.description}}</markdown>
-        <markdown ngPreserveWhitespaces [data]="task?.description"></markdown>
+        <mat-card>
+            <mat-card-content>
+                <!-- <mat-divider></mat-divider> -->
+                <div style="display: flex; gap: 20px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <span class="tag">Category: <div class="chip chip-neutral">
+                            {{task?.category}}</div></span>
+                    <span class="tag">Priority: <div [classList]="['chip chip-' + 'warn']">{{task?.priority === "High" ?
+                            "🎯︎ "
+                            + task?.priority :
+                            task?.priority}}</div></span>
+                    <span class="tag">Status: <div [classList]="['chip chip-' + 'warn']">{{task?.status}}</div></span>
+                    <div class="tag">
+                        Due date:
+                        <div style="font-size: small; font-weight: bold; color: black">📅 {{task?.date?.toDateString()}}
+                        </div>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <markdown ngPreserveWhitespaces [data]="task?.description"></markdown>
+            </mat-card-content>
+        </mat-card>
+        <h3>Comments:</h3>
+        <app-comments [taskId]="taskId"></app-comments>
     </div>
 </app-navbar>

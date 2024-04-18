@@ -83,5 +83,32 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
+
+        [HttpGet("getUser")]
+        public async Task<IActionResult> GetUser([FromQuery] UserIdDTO request)
+        {
+            try
+            {
+                var user =  _userService.GetUser(HttpContext, request);
+
+                return Ok(user);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
     }
 }

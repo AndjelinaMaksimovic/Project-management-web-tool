@@ -69,14 +69,9 @@ export class StatusService {
   public async fetchStatuses() {
     try {
       const res = await firstValueFrom(
-        // this.http.post<any>(
-        //   environment.apiUrl + `/Status/getStatus`,
-        //   { projectId: this.context.projectId },
-        //   this.httpOptions
-        // )
         this.http.get<any>(
-          environment.apiUrl + '/Status/getStatus?ProjectId=' + this.context.projectId,
-          environment.httpOptions
+          environment.apiUrl + `/Status/getStatus?projectId=${this.context.projectId}`,
+          this.httpOptions
         )
       );
       this.statuses = res.body.map((task: any) => {

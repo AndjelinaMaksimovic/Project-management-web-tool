@@ -128,9 +128,9 @@ namespace Codedberries.Controllers
         {
             try
             {
-                var updatedProjectInfo = await _projectService.UpdateProject(HttpContext, request);
+                await _projectService.UpdateProject(HttpContext, request);
 
-                return Ok(updatedProjectInfo);
+                return Ok("Project updated succesfully.");
             }
             catch (ArgumentException ex)
             {

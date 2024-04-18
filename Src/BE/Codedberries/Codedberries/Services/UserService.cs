@@ -290,5 +290,58 @@ namespace Codedberries.Services
                 return null;
             }
         }
+
+        public List<UserInformationDTO> GetUser(HttpContext httpContext, UserIdDTO body)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            IQueryable<User> query = _databaseContext.Users;
+            var foundUser = _databaseContext.Users.FirstOrDefault(u => u.Id == body.UserId);
+
+            var userInformationDTO= query.Where(s => s.Id == body.UserId)
+                .Select(s => new UserInformationDTO
+                {
+                Id = foundUser.Id,
+                Email = foundUser.Email,
+                Firstname = foundUser.Firstname,
+                Lastname = foundUser.Lastname,
+                Activated = foundUser.Activated,
+                ProfilePicture = foundUser.ProfilePicture,
+                RoleId = foundUser.RoleId,
+                RoleName = s.Role.Name,
+                Projects = s.Projects.Select(p => new ProjectDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    DueDate = p.DueDate,
+                    StartDate = p.StartDate
+                }).ToList()
+            }).ToList();
+
+            if (userInformationDTO.Count == 0)
+            {
+                throw new ArgumentException($"No User found!");
+            }
+
+            return userInformationDTO;
+        }
     }
 }
