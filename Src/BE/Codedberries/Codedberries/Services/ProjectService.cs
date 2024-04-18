@@ -452,7 +452,6 @@ namespace Codedberries.Services
                 throw new ArgumentException("No filters provided for project search!");
             }
 
-
             var projects = query.Select(p => new ProjectInformationDTO
             {
                 Id = p.Id,
@@ -483,6 +482,26 @@ namespace Codedberries.Services
             if (projects.Count == 0)
             {
                 throw new Exception("No projects found for provided parameters!");
+            }
+
+            if (filter.SortByStartDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.StartDate < y.StartDate) return (bool)filter.SortByStartDate ? -1 : 1;
+                    else if (x.StartDate > y.StartDate) return !(bool)filter.SortByStartDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
+            if (filter.SortByDueDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.DueDate < y.DueDate) return (bool)filter.SortByDueDate ? -1 : 1;
+                    else if (x.DueDate > y.DueDate) return !(bool)filter.SortByDueDate ? -1 : 1;
+                    return 0;
+                });
             }
 
             return projects;
