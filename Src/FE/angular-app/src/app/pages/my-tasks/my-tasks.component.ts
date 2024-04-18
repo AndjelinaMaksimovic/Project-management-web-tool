@@ -9,10 +9,11 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { TaskCreationModalComponent } from '../../components/task-creation-modal/task-creation-modal.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GanttComponent } from '../../components/gantt/gantt.component';
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
+import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { PriorityService } from '../../services/priority.service';
@@ -45,7 +46,8 @@ export class MyTasksComponent {
     private statusService: StatusService,
     private priorityService: PriorityService,
     private dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
   ) {}
 
   async ngOnInit() {
@@ -77,11 +79,14 @@ export class MyTasksComponent {
   }
 
   createTask() {
-    this.dialog.open(TaskCreationModalComponent);
+    this.router.navigateByUrl(`/project/${this.projectId}/new-task`);
   }
 
   createStatus() {
     this.dialog.open(CreateStatusModalComponent);
+  }
+  createCategory() {
+    this.dialog.open(CreateCategoryModalComponent);
   }
 
   openFilters() {

@@ -25,6 +25,7 @@ export class SelectComponent {
   @Input() options: {value: string, viewValue: string}[] = [];
   @Input() label: string = "";
   @Input() placeholder: string = "";
+  @Input() multiple: boolean = false;
   @Output() valueChange = new EventEmitter<string>();
 
   private _data: string = "";
