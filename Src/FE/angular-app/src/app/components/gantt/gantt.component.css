@@ -14,6 +14,7 @@
 }
 .header{
     border-bottom: 1px solid #5096A4;
+    height: 20px;
     /* overflow: auto; */
     /* display: inline-block; */
 }
@@ -26,6 +27,9 @@
 }
 .date-line-active{
     background-color: #FF5733;
+}
+.current-date{
+    background-color: #ff583398;
 }
 .text-align-center{
     text-align: center;
@@ -58,5 +62,6 @@
 }
 .task-title:hover{
     text-decoration: underline;
-    cursor: text;
+    /* cursor: text; */
+    cursor: pointer;
 }

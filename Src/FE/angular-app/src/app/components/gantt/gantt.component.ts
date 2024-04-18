@@ -23,7 +23,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() hideWeekend: boolean = false
   @Input() holidays: Date[] = []
 
+  // list of dates in the header
   dates!: string[]
+  // marks the current date in the header
+  currentDateIndex!: number
   chartStartDate!: number
   idMap: Record<number, number> = [] // id to index
 
@@ -185,12 +188,13 @@ export class GanttComponent implements OnInit, AfterViewInit{
     const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
     const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
     this.chartStartDate = min - min % this.timeScale /* for display ->*/ - this.timeScale * 1
-    this.dates = this.range(this.chartStartDate, max /* for display ->*/ + this.timeScale * 20, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
+    const datesNumber = this.range(this.chartStartDate, max /* for display ->*/ + this.timeScale * 20, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
     // this.dates = this.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
       .filter((v, i) => {
         return this.includeDay(v) // remove weekend and holiday
       })
-      .map((v) => {
+    this.currentDateIndex = datesNumber.indexOf(Date.now() - Date.now() % this.timeScale)
+    this.dates = datesNumber.map((v) => {
         var format: string
         switch (this.timeScale) {
           case TimeScale.week:
@@ -296,5 +300,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
     for(; itemIdx < this.items.length && this.items[itemIdx].category == cat; itemIdx++){
       this.items[itemIdx].display = !this.items[itemIdx].display
     }
+  }
+
+  editTask(item: Item){
+    alert('edit task')
   }
 }
