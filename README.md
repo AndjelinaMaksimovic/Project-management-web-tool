@@ -1,4 +1,4 @@
-﻿<h1>Sadržaj</h1>
+<h1>Sadržaj</h1>
 
 
 - [Razvojna verzija](#razvojna-verzija)
@@ -60,6 +60,7 @@ Kako bi se pokrenuo frontend otkucati komandu:
 `ng serve`
 
 Kao odgovor na ovu komandu, dobija se port na kome se nalazi aplikacija (podrazumevani port angular aplikacija 4200). Odgovor na navedenu komandu bi trebalo da izgleda ovako:
+    
 ![slika terminala psole komande *dotnent run*](images/ngServe.JPG)
 
 Ukoliko je i bekend prethodno uspešno pokrenut, otvaranjem adrese frontenda koja je dobijena bi trebalo da je alat uspešno pokrenut.
