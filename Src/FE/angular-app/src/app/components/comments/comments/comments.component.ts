@@ -10,9 +10,11 @@ import { CommentComponent } from '../comment/comment.component';
   styleUrl: './comments.component.css'
 })
 export class CommentsComponent {
-  comments: Comment[] = [];
+  get comments(){
+    return this.commentsService.getComments();
+  }
   constructor(private commentsService: CommentsService) {}
   ngOnInit(){
-    this.comments = this.commentsService.getComments();
+    this.commentsService.fetchComments({taskId: 1});
   }
 }
