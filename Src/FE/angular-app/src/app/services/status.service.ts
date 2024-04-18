@@ -151,10 +151,16 @@ export class StatusService {
       const res = await firstValueFrom(
         this.http.post<any>(environment.apiUrl + `/Status/changeStatusesOrder`, 
         { projectId: this.context.projectId, newOrder: idsOrder },
-        this.httpOptions
+        {...this.httpOptions, responseType: "text" as "json"}
         )
       );
+      this.snackBar.open("Status order updated successfully", undefined, {
+        duration: 2000,
+      });
     } catch (e) {
+      this.snackBar.open("We couldn't update status order", undefined, {
+        duration: 2000,
+      });
       console.log(e);
     }
     await this.fetchStatuses();
