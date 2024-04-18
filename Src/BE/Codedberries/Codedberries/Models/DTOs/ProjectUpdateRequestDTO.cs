@@ -10,6 +10,7 @@ namespace Codedberries.Models.DTOs
         public List<int>? Users { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? StartDate { get; set; }
+        public bool? Archived { get; set; }
 
         public bool IsEmpty()
         {
@@ -17,9 +18,8 @@ namespace Codedberries.Models.DTOs
                    string.IsNullOrEmpty(Description) &&
                    Users == null &&
                    DueDate == null &&
-                   StartDate == null;
-                   
-
+                   StartDate == null &&
+                   Archived == null;
         }
     }
 }

@@ -40,6 +40,7 @@ namespace Codedberries
                 options.AddPolicy("AllowAnyOrigin", builder2 =>
                 {
                     builder2.WithOrigins(builder.Configuration.GetValue<string>("Config:FrontendURL"))
+                    
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials();
