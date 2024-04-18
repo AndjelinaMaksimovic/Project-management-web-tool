@@ -585,6 +585,14 @@ namespace Codedberries.Services
             
             if (!string.IsNullOrEmpty(request.Name))
             {
+                var existingProjectWithName = _databaseContext.Projects
+                    .Any(p => p.Name == request.Name && p.Id != request.ProjectId);
+
+                if (existingProjectWithName)
+                {
+                    throw new ArgumentException($"A project with the name '{request.Name}' already exists in database!");
+                }
+
                 project.Name = request.Name;
             }
             
