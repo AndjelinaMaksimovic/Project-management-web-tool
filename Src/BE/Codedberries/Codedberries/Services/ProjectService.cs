@@ -692,6 +692,11 @@ namespace Codedberries.Services
                     throw new ArgumentException("Project is already archived!");
                 }
 
+                if (request.Archived.Value == false && project.Archived == false)
+                {
+                    throw new ArgumentException("Project is already not archived!");
+                }
+
                 project.Archived = request.Archived.Value;
             }
 
