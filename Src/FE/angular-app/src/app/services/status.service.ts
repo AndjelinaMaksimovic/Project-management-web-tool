@@ -140,4 +140,19 @@ export class StatusService {
     }
     await this.fetchStatuses();
   }
+
+  public async reorderStatuses(newOrder: string[]){
+    const idsOrder = newOrder.map((status) => this.nameToId(status));
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Status/changeStatusesOrder`, 
+        { projectId: this.context.projectId, newOrder: idsOrder },
+        this.httpOptions
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchStatuses();
+  }
 }
