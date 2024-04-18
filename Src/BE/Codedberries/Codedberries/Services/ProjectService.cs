@@ -452,45 +452,6 @@ namespace Codedberries.Services
                 throw new ArgumentException("No filters provided for project search!");
             }
 
-
-<<<<<<< HEAD
-            var projects = query.Select(p => new ProjectDTO
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                Users = p.Users.Select(u => new UserDTO
-                {
-                    Id = u.Id,
-                    FirstName = u.Firstname,
-                    LastName = u.Lastname,
-                    ProfilePicture = u.ProfilePicture
-                }).ToList(),
-                DueDate = p.DueDate,
-                StartDate = p.StartDate
-            }).ToList();
-
-            if (filter.SortByStartDate.HasValue)
-            {
-                projects.Sort((x, y) =>
-                {
-                    if (x.StartDate < y.StartDate) return (bool)filter.SortByStartDate ? -1 : 1;
-                    else if (x.StartDate > y.StartDate) return !(bool)filter.SortByStartDate ? -1 : 1;
-                    return 0;
-                });
-            }
-
-            if (filter.SortByDueDate.HasValue)
-            {
-                projects.Sort((x, y) =>
-                {
-                    if (x.DueDate < y.DueDate) return (bool)filter.SortByDueDate ? -1 : 1;
-                    else if(x.DueDate > y.DueDate) return !(bool)filter.SortByDueDate ? -1 : 1;
-                    return 0;
-                });
-            }
-
-=======
             var projects = query.Select(p => new ProjectInformationDTO
             {
                 Id = p.Id,
@@ -523,7 +484,26 @@ namespace Codedberries.Services
                 throw new Exception("No projects found for provided parameters!");
             }
 
->>>>>>> origin/dev
+            if (filter.SortByStartDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.StartDate < y.StartDate) return (bool)filter.SortByStartDate ? -1 : 1;
+                    else if (x.StartDate > y.StartDate) return !(bool)filter.SortByStartDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
+            if (filter.SortByDueDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.DueDate < y.DueDate) return (bool)filter.SortByDueDate ? -1 : 1;
+                    else if (x.DueDate > y.DueDate) return !(bool)filter.SortByDueDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
             return projects;
         }
 
