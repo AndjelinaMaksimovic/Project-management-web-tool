@@ -1,5 +1,11 @@
 <div style="display: flex; flex-direction: column; gap: 10px;">
-@for (comment of comments; track comment) {
-<app-comment [comment]="comment"></app-comment>
-}
+    <!-- description -->
+    <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+        <mat-label>Write a comment</mat-label>
+        <!-- <textarea matInput [(ngModel)]="newComment" style="height: 50vh;"></textarea> -->
+        <textarea matInput style="height: 120px;"></textarea>
+    </mat-form-field>
+    @for (comment of comments; track comment) {
+    <app-comment [comment]="comment"></app-comment>
+    }
 </div>
