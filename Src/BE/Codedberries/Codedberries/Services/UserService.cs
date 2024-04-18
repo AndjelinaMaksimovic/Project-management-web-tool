@@ -1,7 +1,9 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Codedberries.Services
 {
@@ -23,7 +25,7 @@ namespace Codedberries.Services
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
 
-            if (user != null) // && VerifyPassword(password, user.Password, user.PasswordSalt)) /* TO-DO */
+            if (user != null && VerifyPassword(password, user.Password, user.PasswordSalt))
             {
                 // create new session
                 var sessionToken = GenerateSessionToken();
@@ -57,24 +59,26 @@ namespace Codedberries.Services
 
         private bool VerifyPassword(string password, string hashedPassword, byte[] salt)
         {
-            byte[] hashBytes = Convert.FromBase64String(hashedPassword);
-            byte[] saltFromHash = new byte[SaltSize];
-            Array.Copy(hashBytes, 0, saltFromHash, 0, SaltSize);
-
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, saltFromHash, Iterations))
+            using (var sha256 = SHA256.Create())
             {
-                byte[] key = pbkdf2.GetBytes(KeySize);
+                
+                var hashedInputPassword = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                string str = BitConverter.ToString(hashedInputPassword).Replace("-", "").ToLower(); ;
+                var hashed2= sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
+                string str2 = BitConverter.ToString(hashed2).Replace("-", "").ToLower(); ;
+                
+              
 
-                for (int i = 0; i < KeySize; i++)
-                {
-                    if (key[i] != hashBytes[i + SaltSize])
+                // Compare the computed hash with the stored hashed password
+                
+                    if (hashedPassword==str2)
                     {
-                        return false; // wrong password
+                        return true; // wrong password
                     }
-                }
+                
             }
 
-            return true;
+            return false; // passwords matc
         }
 
         public bool ValidateSession(string sessionToken)
