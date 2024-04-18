@@ -156,5 +156,28 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
+
+        [HttpGet("TaskComments")]
+        public IActionResult GetTaskComments([FromQuery] TaskDeletionDTO filterParams)
+        {
+            try
+            {
+                var comments = _taskService.GetTasksComments(HttpContext, filterParams);
+
+                return Ok(comments);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg("An error occurred while processing your request."));
+            }
+        }
     }
 }
