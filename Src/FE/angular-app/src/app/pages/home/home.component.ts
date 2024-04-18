@@ -4,7 +4,7 @@ import { ProjectItemComponent } from '../../components/project-item/project-item
 import { NgIf } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
-import { NewProjectComponent } from '../new-project/new-project.component';
+import { NewProjectModalComponent } from '../../components/new-project-modal/new-project-modal.component';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
@@ -69,6 +69,6 @@ export class HomeComponent {
   }
 
   newProjectPopUp(){
-    this.dialogue.open(NewProjectComponent, { autoFocus: false })
+    this.dialogue.open(NewProjectModalComponent, { autoFocus: false })
   }
 }

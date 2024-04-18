@@ -14,6 +14,7 @@ import { GanttComponent } from '../../components/gantt/gantt.component';
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
+import { MilestoneService } from '../../services/milestone.service';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { PriorityService } from '../../services/priority.service';
@@ -44,6 +45,7 @@ export class MyTasksComponent {
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
+    private milestoneService: MilestoneService,
     private priorityService: PriorityService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
@@ -55,6 +57,7 @@ export class MyTasksComponent {
       this.projectId = parseInt(params['id']);
     });
     this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    this.milestoneService.fetchMilestones({ projectId: this.projectId });
     
     this.statusService.setContext({ projectId: this.projectId });
     await this.statusService.fetchStatuses();
@@ -70,6 +73,9 @@ export class MyTasksComponent {
   }
   get tasks() {
     return this.taskService.getTasks();
+  }
+  get milestones() {
+    return this.milestoneService.getMilestones();
   }
   /** this determines what task view we render */
   view: 'table' | 'kanban' | 'gantt' = 'table';
