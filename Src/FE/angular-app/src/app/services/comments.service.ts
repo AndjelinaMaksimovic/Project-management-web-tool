@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 export type Comment = {
   author: string,
@@ -32,7 +33,7 @@ export class CommentsService {
     observe: 'response' as 'response',
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
 
   public setContext(context: { taskId?: number } = {}) {
     this.context = { ...this.context, ...context };
@@ -66,11 +67,17 @@ export class CommentsService {
       const res = await firstValueFrom(
         this.http.post<any>(environment.apiUrl + `/Task/createNewTaskComment`, 
         { comment: comment, taskId: this.context.taskId },
-        this.httpOptions
+        {...this.httpOptions, responseType: 'text' as 'json',}
         )
       );
+      this.snackBar.open("comment posted!", undefined, {
+        duration: 2000,
+      });
     } catch (e) {
       console.log(e);
+      this.snackBar.open("there was an error posting your comment", undefined, {
+        duration: 2000,
+      });
     }
     await this.fetchComments();
   }
