@@ -17,8 +17,8 @@ export class GanttTestComponent{
     new Item(4, "Milestone", "desc 4", "category 1", "Low", "status 1", Date.now(), Date.now(), [{firstName: 'Ivan', lastName: 'Ivanovic', id: 1, profilePicture: ''}], [], 50, ItemType.milestone, '#c24e4e'),
     new Item(5, "Item 4", "desc 4", "category 1", "Low", "status 1", Date.now(), Date.now() + TimeScale.day * 10, [{firstName: 'Milan', lastName: 'Milanovic', id: 1, profilePicture: ''}], [], 50, ItemType.task, '#c24e4e'),
   ]
-  columns = [GanttColumn.tasks, GanttColumn.users]
-  // columns = [GanttColumn.tasks]
+  // columns = [GanttColumn.tasks, GanttColumn.users]
+  columns = [GanttColumn.tasks]
   colWidths = [100, 250]
   TimeScale = TimeScale
 }
