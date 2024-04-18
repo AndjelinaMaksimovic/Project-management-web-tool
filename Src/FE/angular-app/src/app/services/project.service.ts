@@ -144,6 +144,7 @@ export class ProjectService {
           }
         )
       );
+      await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);
@@ -162,6 +163,7 @@ export class ProjectService {
           }
         )
       );
+      await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);
