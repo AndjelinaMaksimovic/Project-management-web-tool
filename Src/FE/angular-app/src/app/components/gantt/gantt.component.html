@@ -7,10 +7,16 @@
                     <h4 class="column-display">{{col}}</h4>
                 </div>
                 <div [style.width]="colWidths[idx]+'px'">
-                    @for (item of items; track item) {
+                    @for (item of items; track item; let itemIdx = $index) {
                         <div [style.height]="taskHeight+'px'" style="padding-left: 5px; display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                             <!-- tasks column -->
-                            <div class="task task-title" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks">
+                            <div class="task task-title" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks && item.type != ItemType.category">
+                                {{item.title}}
+                            <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
+                            </div>
+                            <div class="task" style="width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #bdbdbd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
+                                <span *ngIf="items[itemIdx+1].display">&#9660;</span>
+                                <span *ngIf="!items[itemIdx+1].display">&#9650;</span>
                                 {{item.title}}
                             <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
                             </div>
@@ -44,19 +50,19 @@
                     <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                         <div class="task" *ngIf="item.display" [ngStyle]="{
                             'left': item.left + 'px',
-                            'width': (item.milestone) ? taskHeight : item.width + 'px',
+                            'width': (item.type == ItemType.milestone) ? taskHeight : item.width + 'px',
                         }">
                             <div class="task-bar" (mouseenter)="barHover(item)" (mouseleave)="barUnHover(item)" [ngStyle]="{
-                                'background-color': (item.milestone) ? '' : item.color,
-                                'box-shadow': (item.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
+                                'background-color': (item.type == ItemType.milestone) ? '' : item.color,
+                                'box-shadow': (item.type == ItemType.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
                                 'height': barHeight+'px',
                             }">
-                                <div *ngIf="item.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
+                                <div *ngIf="item.type == ItemType.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
                                 [ngStyle]="{
                                     'background-color': item.color,
                                 }"></div>
                                 <!-- progress bar filter -->
-                                <div *ngIf="!item.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.2); border-radius: 5px; position: absolute; margin-left: 5px; margin-right: 5px; left: 0;">
+                                <div *ngIf="item.type != ItemType.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.2); border-radius: 5px; position: absolute; margin-left: 5px; margin-right: 5px; left: 0;">
                                     <!-- progress bar -->
                                     <div style="border-radius: 5px; height:100%;" [ngStyle]="{
                                         'width': 'calc(' + item.percentage + '%' + ' - 10px)',
@@ -64,7 +70,7 @@
                                     }"></div>
                                 </div>
                                 <!-- user icons -->
-                                <ng-template [ngIf]="!item.milestone">
+                                <ng-template [ngIf]="item.type == ItemType.task">
                                     @for (user of item.assignedTo; track user; let idx = $index) {
                                         <div style="z-index: 1; font-size: 11px; color: white; font-weight: 400; text-align: center; border-radius: 50%; background-color: lightsalmon; float: right; margin: auto 1px;" [ngStyle]="{
                                             'height': (barHeight-2)+'px',
@@ -79,7 +85,8 @@
                                     [from]="{x: item.width - 5, y: barHeight / 2}"
                                     [offset]="{x: items[idMap[dependant]].left - item.left - item.width + 10, y: (idMap[dependant]-idMap[item.id])*taskHeight}"
                                     [taskHeight]="taskHeight"
-                                    [hover]="item.hover || items[idMap[dependant]].hover"></app-gantt-dependency-line>
+                                    [hover]="item.hover || items[idMap[dependant]].hover"
+                                    *ngIf="items[idMap[dependant]].display && item.display"></app-gantt-dependency-line>
                                 }
 
                                 <div title="Click and drag to another taks to create a new dependency" style="position: absolute; right: -15px; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" (click)="dependencyPopUp(item)" (mousedown)="startDependencyDrag($event)" *ngIf="item.hover">&#9737;</div>

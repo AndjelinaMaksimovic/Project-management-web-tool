@@ -17,7 +17,8 @@ export class Item {
         public assignedTo: User[] = [],
         public dependant: number[] = [], // ID-s of tasks that depend on this one
         public percentage: number = 0,
-        public milestone: boolean = false,
+        // public milestone: boolean = false,
+        public type: ItemType = ItemType.task,
 
         public color = '#5096A4',
         public left = 0,
@@ -34,6 +35,11 @@ export enum TimeScale {
     week = 86_400_000 * 7,
     day = 86_400_000,
     hour = 3_600_000
+}
+export enum ItemType {
+    task,
+    milestone,
+    category
 }
 export class User{
     constructor(

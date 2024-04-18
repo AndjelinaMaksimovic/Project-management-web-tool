@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
-import { GanttColumn, Item, TimeScale } from './item';
+import { GanttColumn, Item, ItemType, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
@@ -32,6 +32,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   barHeight = 14
 
   GanttColumn = GanttColumn // must be declared to be used in html
+  ItemType = ItemType // must be declared to be used in html
 
   ngOnInit(): void {
     if(this.items.length == 0){
@@ -59,7 +60,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
           this.tasks[i].assignedTo,
           undefined,
           undefined,
-          false
+          ItemType.task
         )
       }
       for(let j = 0; j < this.milestones.length; j++, i++){
@@ -79,7 +80,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
           this.milestones[i].assignedTo,
           undefined,
           undefined,
-          true
+          ItemType.milestone
         )
       }
     }
@@ -110,6 +111,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       categories[0][1].max,
     )
     newItem.color = 'grey'
+    newItem.type = ItemType.category
     this.items.splice(0, 0, newItem)
     for(let i=2, j=1;i<this.items.length;i++){
       if(this.items[i].category != this.items[i-1].category){
@@ -124,6 +126,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
           categories[j][1].max,
         )
         newItem.color = 'grey'
+        newItem.type = ItemType.category
         this.items.splice(i, 0, newItem)
         j+=1
         i+=1
@@ -285,5 +288,13 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   dependencyPopUp(item: Item){
     alert("clicked dep")
+  }
+
+  categoryToggle(itemIdx: number){
+    itemIdx+=1
+    const cat = this.items[itemIdx].category
+    for(; itemIdx < this.items.length && this.items[itemIdx].category == cat; itemIdx++){
+      this.items[itemIdx].display = !this.items[itemIdx].display
+    }
   }
 }
