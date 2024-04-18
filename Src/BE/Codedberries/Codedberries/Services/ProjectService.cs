@@ -626,6 +626,14 @@ namespace Codedberries.Services
                 }
             }
 
+            if (request.StartDate.HasValue && request.DueDate.HasValue)
+            {
+                if (Helper.IsDateRangeValid(request.StartDate.Value, request.DueDate.Value) == false)
+                {
+                    throw new ArgumentException("Invalid StartDate and DueDate range!");
+                }
+            }
+
             if (request.DueDate.HasValue)
             {
                 project.DueDate = request.DueDate.Value;
