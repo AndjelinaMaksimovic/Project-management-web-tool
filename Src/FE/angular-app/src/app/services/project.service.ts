@@ -10,6 +10,7 @@ export type Project = Readonly<{
   dueDate: Date;
   startDate: Date;
   starred: boolean;
+  archived: boolean;
   id: number;
 }>;
 
@@ -20,6 +21,7 @@ function mapProject(apiProject: any): Project {
     id: apiProject.id,
     dueDate: new Date(Date.parse(apiProject.dueDate)),
     startDate: new Date(Date.parse(apiProject.startDate)),
+    archived: apiProject.archived,
     starred: apiProject.starred,
   };
 }
@@ -130,14 +132,38 @@ export class ProjectService {
   async archiveProject(id: number){
     try {
       const res = await firstValueFrom(
-        this.http.delete<any>(
+        this.http.put<any>(
           environment.apiUrl +
             `/Projects/archiveProject`,
+          {
+            projectId: id
+          },
+          {
+            ...environment.httpOptions,
+            responseType: "text" as "json"
+          }
+        )
+      );
+      await this.fetchProjects();
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  async unarchiveProject(id: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl +
+            `/Projects/unarchiveProject`,
           {
             ...environment.httpOptions, body: {projectId: id}
           }
         )
       );
+      await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);

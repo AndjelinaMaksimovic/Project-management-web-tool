@@ -4,20 +4,20 @@ import { ProjectItemComponent } from '../../components/project-item/project-item
 import { NgIf } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
-import { NewProjectModalComponent } from '../../components/new-project-modal/new-project-modal.component';
+import { NewProjectComponent } from '../new-project/new-project.component';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-archived-projects',
   standalone: true,
   imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule ],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  templateUrl: './archived-projects.component.html',
+  styleUrl: './archived-projects.component.scss'
 })
 
-export class HomeComponent {
+export class ArchivedProjectsComponent {
   search: string = "";
 
   filters: Map<string, Filter> = new Map<string, Filter>([
@@ -28,24 +28,26 @@ export class HomeComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private projectService: ProjectService, private dialogue: MatDialog) {}
+  constructor(private projectService: ProjectService, private dialogue: MatDialog) {
+  }
 
+  // projects: any;
   get projects(){
-    return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
+    return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => project.archived);
   }
 
   async ngOnInit(){
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
-    // this.projects = this.projectService.getProjects().filter(project => !project.archived);
+    // this.projects = this.projectService.getProjects().filter(project => project.archived);
   }
 
   filterItems() {
-    // this.projects = this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
+    // this.projects = this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => project.archived);
   }
 
   async fetchProjectsFromLocalStorage() {
-    await this.projectService.fetchProjectsLocalStorage('project_filters');
-    // this.projects = this.projectService.getProjects().filter(project => !project.archived);
+    await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
+    // this.projects = this.projectService.getProjects().filter(project => project.archived);
   }
 
   @Input() mostRecentAccordionVisible: boolean = true;
@@ -69,6 +71,6 @@ export class HomeComponent {
   }
 
   newProjectPopUp(){
-    this.dialogue.open(NewProjectModalComponent, { autoFocus: false })
+    this.dialogue.open(NewProjectComponent, { autoFocus: false })
   }
 }
