@@ -15,6 +15,9 @@
                 <button mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
                     Create Status
                 </button>
+                <button mat-stroked-button color="primary" class="button-rounded" (click)="createCategory()">
+                    Create Category
+                </button>
                 <mat-button-toggle-group name="fontStyle" class="dense-3" [(ngModel)]="view">
                     <mat-button-toggle value="table" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
                     <mat-button-toggle value="kanban" class="test"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>

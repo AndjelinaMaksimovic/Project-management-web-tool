@@ -2,6 +2,7 @@
 using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace Codedberries.Services
 {
@@ -37,18 +38,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole == null)
-            {
-                throw new UnauthorizedAccessException("User role not found!");
-            }
-
-            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to create status!");
-            }
-
             if (statusDTO == null)
             {
                 throw new ArgumentNullException(nameof(statusDTO), "Status creation DTO cannot be null!");
@@ -79,7 +68,37 @@ namespace Codedberries.Services
                 throw new InvalidOperationException("Status with the same name already exists on the project!");
             }
 
-            var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId);
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == statusDTO.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {statusDTO.ProjectId} in UserProjects table! User does not have a role for this project!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to create status!");
+            }
+            // ---------------- //
+
+            var existingStatuses = _databaseContext.Statuses
+                .Where(s => s.ProjectId == statusDTO.ProjectId)
+                .OrderBy(s => s.Order)
+                .ToList();
+
+            int newStatusOrder = existingStatuses.Any() ? existingStatuses.Last().Order + 1 : 1;
+
+            var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId, newStatusOrder);
 
             _databaseContext.Statuses.Add(newStatus);
             await _databaseContext.SaveChangesAsync();
@@ -98,7 +117,7 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
@@ -132,11 +151,13 @@ namespace Codedberries.Services
 
             var statuses = _databaseContext.Statuses
                 .Where(s => s.ProjectId == request.ProjectId)
+                .OrderBy(s => s.Order)
                 .Select(s => new StatusDTO
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    ProjectId = s.ProjectId
+                    ProjectId = s.ProjectId,
+                    Order = s.Order
                 })
                 .ToList();
 
@@ -161,24 +182,12 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
-            }
-
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole == null)
-            {
-                throw new UnauthorizedAccessException("User role not found!");
-            }
-
-            if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to delete status!");
             }
 
             if (request == null)
@@ -217,7 +226,157 @@ namespace Codedberries.Services
                 throw new InvalidOperationException($"Tasks with status ID {request.StatusId} exist on project with ID {request.ProjectId}. Cannot delete status!");
             }
 
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table! User does not have a role for this project!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to delete status!");
+            }
+            // ---------------- //
+
             _databaseContext.Statuses.Remove(statusToDelete);
+
+            // finding all statuses with higher order than this one that is deleted
+            var statusesToUpdate = await _databaseContext.Statuses
+                .Where(s => s.ProjectId == request.ProjectId && s.Order > statusToDelete.Order)
+                .ToListAsync();
+
+            // update orders with the ones with higher order
+            foreach (var status in statusesToUpdate)
+            {
+                status.Order -= 1;
+            }
+
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task ChangeStatusesOrder(HttpContext httpContext, StatusOrderChangeDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Request object cannot be null!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            var existingProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new ArgumentException($"Project with ID {request.ProjectId} does not exist in database!");
+            }
+
+            var hasStatuses = _databaseContext.Statuses.Any(s => s.ProjectId == request.ProjectId);
+            
+            if (!hasStatuses)
+            {
+                throw new ArgumentException($"No statuses found for Project ID {request.ProjectId}!");
+            }
+
+            if (request.NewOrder == null || !request.NewOrder.Any())
+            {
+                throw new ArgumentException("NewOrder list cannot be null or empty!");
+            }
+
+            if(request.NewOrder.Count < 2)
+{
+                throw new ArgumentException("NewOrder list must contain at least two elements!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table! User does not have a role for this project!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit status order!");
+            }
+            // ---------------- //
+
+            // collect all statuses with provided ProjectId and sort them with current order
+            var statuses = await _databaseContext.Statuses
+                .Where(s => s.ProjectId == request.ProjectId)
+                .OrderBy(s => s.Order)
+                .ToListAsync();
+
+            if (statuses.Count != request.NewOrder.Count)
+            {
+                throw new ArgumentException("The number of statuses in the NewOrder list does not match the number of statuses in the database!");
+            }
+
+            foreach (var statusId in request.NewOrder)
+            {
+                if (!statuses.Any(s => s.Id == statusId))
+                {
+                    throw new ArgumentException($"Invalid status ID {statusId} with the provided NewOrder list!");
+                }
+            }
+
+            // setting new statuses order
+            for (int i = 0; i < statuses.Count; i++)
+            {
+                var statusId = request.NewOrder[i];
+                var statusToUpdate = statuses.FirstOrDefault(s => s.Id == statusId);
+
+                if (statusToUpdate != null)
+                {
+                    statusToUpdate.Order = i + 1;
+                }
+                else
+                {
+                    throw new ArgumentException($"Status with ID {statusId} is missing!");
+                }
+            }
 
             await _databaseContext.SaveChangesAsync();
         }

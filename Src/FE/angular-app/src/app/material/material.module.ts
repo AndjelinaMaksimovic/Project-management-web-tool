@@ -9,6 +9,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatListModule } from '@angular/material/list';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip'
@@ -24,6 +26,8 @@ const MaterialComponents = [
   MatDialogModule,
   MatButtonToggleModule,
   MatMenuModule,
+  MatListModule,
+  MatDatepickerModule,
   MatTooltipModule,
   MatDividerModule,
 ];
