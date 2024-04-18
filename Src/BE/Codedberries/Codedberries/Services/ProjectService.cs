@@ -634,14 +634,27 @@ namespace Codedberries.Services
                 }
             }
 
+            if (request.StartDate.HasValue)
+            {
+                if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
+                {
+                    throw new ArgumentException("StartDate must be a valid date!");
+                }
+
+                if (request.StartDate > project.DueDate)
+                {
+                    if (!request.DueDate.HasValue)
+                    {
+                        throw new ArgumentException("StartDate cannot be after DueDate!");
+                    }
+                }
+
+                project.StartDate = request.StartDate.Value;
+            }
+
             if (request.DueDate.HasValue)
             {
                 project.DueDate = request.DueDate.Value;
-            }
-
-            if (request.StartDate.HasValue)
-            {
-                project.StartDate = request.StartDate.Value;
             }
 
             if (request.Archived.HasValue)
