@@ -232,6 +232,26 @@ namespace Codedberries.Services
                 StartDate = p.StartDate
             }).ToList();
 
+            if (filter.SortByStartDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.StartDate < y.StartDate) return (bool)filter.SortByStartDate ? -1 : 1;
+                    else if (x.StartDate > y.StartDate) return !(bool)filter.SortByStartDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
+            if (filter.SortByDueDate.HasValue)
+            {
+                projects.Sort((x, y) =>
+                {
+                    if (x.DueDate < y.DueDate) return (bool)filter.SortByDueDate ? -1 : 1;
+                    else if(x.DueDate > y.DueDate) return !(bool)filter.SortByDueDate ? -1 : 1;
+                    return 0;
+                });
+            }
+
             return projects;
         }
 
