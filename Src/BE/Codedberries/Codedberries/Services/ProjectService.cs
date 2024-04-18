@@ -636,6 +636,16 @@ namespace Codedberries.Services
                 project.StartDate = request.StartDate.Value;
             }
 
+            if (request.Archived.HasValue)
+            {
+                if (request.Archived.Value != true && request.Archived.Value != false)
+                {
+                    throw new ArgumentException("Invalid value for Archived. Expected true or false.");
+                }
+
+                project.Archived = request.Archived.Value;
+            }
+
             await _databaseContext.SaveChangesAsync();
         }
 
