@@ -4,7 +4,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { ActivateComponent } from './pages/activate/activate.component';
-import { NewProjectComponent } from './pages/new-project/new-project.component';
+// import { NewProjectComponent } from './pages/new-project/new-project.component';
 import { GanttTestComponent } from './pages/gantt-test/gantt-test.component';
 import { MyTasksComponent } from './pages/my-tasks/my-tasks.component';
 import { LoggedIn } from './services/auth.service';
@@ -20,7 +20,7 @@ export const routes: Routes = [
   { path: 'login', title: 'Codedberries | Log in', component: LoginComponent, canActivate: [NotLoggedIn] },
   { path: 'register', title: 'Codedberries | Register', component: RegisterComponent },
   { path: 'activate', title: 'Codedberries | Activate', component: ActivateComponent },
-  { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
+  // { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/tasks', title: 'Codedberries | Project tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/new-task', title: 'Codedberries | New task', component: NewTaskComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/details', title: 'Codedberries | Project details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
