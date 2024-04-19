@@ -1,20 +1,24 @@
-<div (mouseenter)="toggleHovered();" (mouseleave)="toggleHovered();">
+<div>
     <div class="container mt-5 mb-5">
-        <div class="container">
-            <div class="color"></div>
-            <a (click)="toggleStarred();" style="cursor: pointer;">
+        <div class="container" style="width: 40rem; text-align: left; justify-content: left;">
+            <div class="color" *ngIf="!isArchived"></div>
+            <a (click)="toggleStarred();" style="cursor: pointer;" *ngIf="!isArchived">
                 <i class="fa-regular fa-star ml-10 lightgray" *ngIf="!starred"></i>
                 <i class="fa-solid fa-star ml-10 lightgray" *ngIf="starred"></i>
             </a>
-            <a [routerLink]="'/project/'+id+'/tasks'" class="project-name ml-10">{{ projectName }}</a>
+            <a [routerLink]="'/project/'+id+'/details'" class="project-name ml-10">{{ projectName }}</a>
         </div>
         <div class="" style="width: 28rem; margin-top: auto;">
-            <app-progressbar [progress]="progressBarProgress" [color]="progressBarColor"></app-progressbar>
+            <app-progressbar [progress]="progressBarProgress" [color]="progressBarColor" *ngIf="!isArchived"></app-progressbar>
         </div>
-        <p class="mr-20 samewidth" *ngIf="!isHovered">{{ dueDate }}</p>
-        <div class="mr-20 samewidth" *ngIf="isHovered">
-            <i class="fa-regular fa-trash-can mr-20 button" (click)="deleteProject();"></i>
-            <i class="fa-solid fa-pen-to-square mr-20 button"></i>
+        <div class="hover">
+            <p class="mr-20 samewidth date">{{ dueDate | date:'dd. MMMM yyyy' }}</p>
+            <div class="mr-20 samewidth icons">
+                <i *ngIf="!isArchived" class="fa-solid fa-archive mr-20 button" (click)="archiveProject();" matTooltip="Archive"></i>
+                <i *ngIf="isArchived" class="fa-solid fa-box-open mr-20 button" (click)="archiveProject();" matTooltip="Unarchive"></i>
+                <i *ngIf="!isArchived" class="fa-solid fa-pen-to-square mr-20 button" matTooltip="Edit"></i>
+                <i *ngIf="isArchived" class="fa-solid fa-magnifying-glass mr-20 button" matTooltip="View"></i>
+            </div>
         </div>
     </div>
 </div>

@@ -7,13 +7,24 @@
         </div>
         <!-- filter/view bar -->
         <div style="display: flex; justify-content: space-between; background-color: #EEE; border-radius: 4px; width: 100%; padding: 8px; margin-top: 40px;">
-            <button mat-button>
-                <mat-icon>filter_list</mat-icon>
-                Filters
-            </button>
+
+            <div class="filters">
+                <button mat-button (click)="openFilters()">
+                    <mat-icon>filter_list</mat-icon>
+                    Filters
+                </button>
+                <div *ngIf="isFilterOpen" class="filters-container">
+                    <app-filters [title]="'Task Filters'" (fetchProjects)="fetchTasksFromLocalStorage()" [filtersName]="'task_filters'" [allFilters]="filters"></app-filters>
+                </div>
+                <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
+                </div>
+            </div>
             <div style="display: flex; gap: 8px">
                 <button mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
                     Create Status
+                </button>
+                <button mat-stroked-button color="primary" class="button-rounded" (click)="createCategory()">
+                    Create Category
                 </button>
                 <mat-button-toggle-group name="fontStyle" class="dense-3" [(ngModel)]="view">
                     <mat-button-toggle value="table" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
@@ -26,7 +37,7 @@
         <div [ngSwitch]="view">
             <app-kanban-view *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
             <app-tasks-table *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
-            <app-gantt *ngSwitchCase="'gantt'" [tasks]="tasks"></app-gantt>
+            <app-gantt style="border: 1px solid #5096A4; display: inline-block; width: 100%;" *ngSwitchCase="'gantt'" [tasks]="tasks" [milestones]="milestones"></app-gantt>
         </div>
     </div>
 </app-navbar>

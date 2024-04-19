@@ -1,6 +1,9 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Codedberries.Services
 {
@@ -22,7 +25,7 @@ namespace Codedberries.Services
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
 
-            if (user != null) // && VerifyPassword(password, user.Password, user.PasswordSalt)) /* TO-DO */
+            if (user != null && VerifyPassword(password, user.Password, user.PasswordSalt))
             {
                 // create new session
                 var sessionToken = GenerateSessionToken();
@@ -56,24 +59,26 @@ namespace Codedberries.Services
 
         private bool VerifyPassword(string password, string hashedPassword, byte[] salt)
         {
-            byte[] hashBytes = Convert.FromBase64String(hashedPassword);
-            byte[] saltFromHash = new byte[SaltSize];
-            Array.Copy(hashBytes, 0, saltFromHash, 0, SaltSize);
-
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, saltFromHash, Iterations))
+            using (var sha256 = SHA256.Create())
             {
-                byte[] key = pbkdf2.GetBytes(KeySize);
+                
+                var hashedInputPassword = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                string str = BitConverter.ToString(hashedInputPassword).Replace("-", "").ToLower(); ;
+                var hashed2= sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
+                string str2 = BitConverter.ToString(hashed2).Replace("-", "").ToLower(); ;
+                
+              
 
-                for (int i = 0; i < KeySize; i++)
-                {
-                    if (key[i] != hashBytes[i + SaltSize])
+                // Compare the computed hash with the stored hashed password
+                
+                    if (hashedPassword==str2)
                     {
-                        return false; // wrong password
+                        return true; // wrong password
                     }
-                }
+                
             }
 
-            return true;
+            return false; // passwords matc
         }
 
         public bool ValidateSession(string sessionToken)
@@ -163,6 +168,184 @@ namespace Codedberries.Services
             _databaseContext.SaveChanges();
 
             return true;
+        }
+
+        public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, UserFilterDTO body)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var usersQuery = _databaseContext.Users.AsQueryable();
+
+            if (body.ProjectId != null)
+            {
+                if (body.ProjectId <= 0)
+                {
+                    throw new ArgumentException("ProjectId must be greater than zero!");
+                }
+                else
+                {
+                    usersQuery = usersQuery.Where(u => u.Projects.Any(p => p.Id == body.ProjectId));
+                }
+            }
+
+            if (body.RoleId != null)
+            {
+                if (body.RoleId <= 0)
+                {
+                    throw new ArgumentException("RoleId must be greater than zero!");
+                }
+                else
+                {
+                    usersQuery = usersQuery.Where(u => u.RoleId == body.RoleId);
+                }
+            }
+
+            // usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
+
+            // get all users that are not super user, inlcuding ones that dont have any role assigned
+            usersQuery = usersQuery.Where(u => u.RoleId == null || !(u.Role.CanAddNewUser
+                                    && u.Role.CanAddUserToProject
+                                    && u.Role.CanRemoveUserFromProject
+                                    && u.Role.CanCreateProject
+                                    && u.Role.CanDeleteProject
+                                    && u.Role.CanEditProject
+                                    && u.Role.CanViewProject
+                                    && u.Role.CanAddTaskToUser
+                                    && u.Role.CanCreateTask
+                                    && u.Role.CanRemoveTask
+                                    && u.Role.CanEditTask));
+
+            var users = await usersQuery
+                .Select(u => new UserInformationDTO
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Firstname = u.Firstname,
+                    Lastname = u.Lastname,
+                    Activated = u.Activated,
+                    ProfilePicture = u.ProfilePicture,
+                    RoleId = u.RoleId,
+                    RoleName = u.Role.Name,
+                    Projects = u.Projects.Select(p => new ProjectDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        DueDate = p.DueDate,
+                        StartDate = p.StartDate
+                    }).ToList()
+                }).ToListAsync();
+
+            if (users.Count == 0)
+            {
+                throw new InvalidOperationException("No users found in database!");
+            }
+
+            return users;
+        }
+
+        /*
+         * method GetCurrentSessionUser is created because it cannot be directly called
+         * from the AuthorizationService class to prevent a circular dependency between
+         * these classes (AuthorizationService needs UserService and UserService would
+         * need AuthorizationService), this method will only be used here
+         */
+        public int? GetCurrentSessionUser(HttpContext httpContext)
+        {
+            string? sessionToken = "";
+
+            if (httpContext.Request.Cookies.TryGetValue("sessionId", out sessionToken))
+            {
+                if (this.ValidateSession(sessionToken) == false)
+                {
+                    throw new UnauthorizedAccessException("Session is invalid or expired!");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Session cookie not found!");
+            }
+
+            var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
+
+            if (session != null && session.ExpirationTime > DateTime.UtcNow)
+            {
+                return session.UserId;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public List<UserInformationDTO> GetUser(HttpContext httpContext, UserIdDTO body)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            IQueryable<User> query = _databaseContext.Users;
+            var foundUser = _databaseContext.Users.FirstOrDefault(u => u.Id == body.UserId);
+
+            var userInformationDTO= query.Where(s => s.Id == body.UserId)
+                .Select(s => new UserInformationDTO
+                {
+                Id = foundUser.Id,
+                Email = foundUser.Email,
+                Firstname = foundUser.Firstname,
+                Lastname = foundUser.Lastname,
+                Activated = foundUser.Activated,
+                ProfilePicture = foundUser.ProfilePicture,
+                RoleId = foundUser.RoleId,
+                RoleName = s.Role.Name,
+                Projects = s.Projects.Select(p => new ProjectDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    DueDate = p.DueDate,
+                    StartDate = p.StartDate
+                }).ToList()
+            }).ToList();
+
+            if (userInformationDTO.Count == 0)
+            {
+                throw new ArgumentException($"No User found!");
+            }
+
+            return userInformationDTO;
         }
     }
 }

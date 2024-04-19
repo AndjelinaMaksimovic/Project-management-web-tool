@@ -1,9 +1,11 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StatusService } from './status.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CategoryService } from './category.service';
+import { LocalStorageService } from './localstorage';
 
 /**
  * Task format used within the app
@@ -14,8 +16,10 @@ export type Task = Readonly<{
   category: string;
   priority: 'Low' | 'Medium' | 'High';
   status: string;
-  date: Date;
+  startDate: Date;
+  dueDate: Date;
   id: number;
+  projectId?: number | undefined;
   assignedTo: any;
 }>;
 
@@ -23,7 +27,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-  constructor(private http: HttpClient, private statusService: StatusService, private snackBar: MatSnackBar) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -48,7 +52,9 @@ export class TaskService {
         apiTask.taskId % 3
       ],
       id: apiTask.taskId,
-      date: new Date(Date.parse(apiTask.dueDate)),
+      projectId: this.context.projectId,
+      startDate: new Date(Date.parse(apiTask.startDate)),
+      dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
     };
   }
@@ -81,6 +87,7 @@ export class TaskService {
     this.context = { ...this.context, ...context };
     // after changing the context, we need to clear the previous tasks cache
     this.statusService.setContext(context);
+    this.categoryService.setContext(context);
     this.tasks = [];
   }
   /**
@@ -101,6 +108,31 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.categoryService.fetchCategories();
+      this.tasks = res.body.map((task: any) => {
+        return this.mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchTasksFromLocalStorage(projectId: number, filterName: string) {
+    this.setContext({projectId});
+    let data = this.localStorageService.getData(filterName);
+    data = { ...data, projectId: projectId };
+    
+    let params = new HttpParams({ fromObject: data });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Task/projectTasks',
+          { ...environment.httpOptions, params: params }
+        )
+      );
+      await this.statusService.fetchStatuses();
+      await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });
@@ -121,7 +153,7 @@ export class TaskService {
         request['statusId'] = this.statusService.nameToId(task.status);
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
-      if (task.date) request['dueDate'] = task.date;
+      if (task.dueDate) request['dueDate'] = task.dueDate;
       // update cache
       const index = this.tasks.findIndex((t) => t.id === task.id);
       this.tasks[index] = {...this.tasks[index], ...task};
@@ -150,23 +182,22 @@ export class TaskService {
     try {
       const res = await firstValueFrom(
         this.http.put<any>(
-          environment.apiUrl + `/Task/updateTask`,
+          environment.apiUrl + `/Task/archiveTask`,
           {
             taskId: taskId,
-            statusId: 1,
           },
           {
             ...this.httpOptions,
           }
         )
       );
-      await this.fetchTasks();
     } catch (e) {
       console.log(e);
     }
+    await this.fetchTasks();
   }
 
-  async createTask(task: Omit<Task, 'id'>, projectId: number) {
+  async createTask(task: Omit<Task, 'id'> & {dependencies: string[]}, projectId: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -174,12 +205,13 @@ export class TaskService {
           {
             name: task.title,
             description: task.description,
-            dueDate: task.date.toISOString(),
+            startDate: task.startDate.toISOString(),
+            dueDate: task.dueDate.toISOString(),
             statusId: 1,
             priorityId: 1,
             difficultyLevel: 1,
             categoryId: 1,
-            dependencyIds: [],
+            dependencyIds: task.dependencies,
             projectId: this.context.projectId,
           },
           {

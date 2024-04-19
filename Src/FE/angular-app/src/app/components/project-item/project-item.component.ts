@@ -3,11 +3,13 @@ import { ProgressbarComponent } from '../progressbar/progressbar.component';
 import { NgIf } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { RouterModule } from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-project-item',
     standalone: true,
-    imports: [ProgressbarComponent, NgIf, RouterModule],
+    imports: [ProgressbarComponent, NgIf, RouterModule, DatePipe, MatTooltipModule ],
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.css'
 })
@@ -23,16 +25,17 @@ export class ProjectItemComponent {
     @Input() starred: boolean = false;
     @Input() id: number = 0;
 
-    isHovered = false;
+    @Input() isArchived: boolean = false;
 
     toggleStarred() {
         this.starred = !this.starred;
     }
-    toggleHovered() {
-        this.isHovered = !this.isHovered;
+
+    archiveProject() {
+        this.projectService.archiveProject(this.id);
     }
 
-    deleteProject() {
-        this.projectService.deleteProject(this.id);
+    unarchiveProject() {
+        this.projectService.unarchiveProject(this.id);
     }
 }

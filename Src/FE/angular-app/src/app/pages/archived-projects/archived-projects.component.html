@@ -1,0 +1,37 @@
+<app-topnav></app-topnav>
+
+<div class="container column pt-2 pl-container">
+    <div class="container row">
+        <div class="input-wrapper">
+            <input class="input" placeholder="Search project" [(ngModel)]="search" (input)="filterItems()"/>
+            <i class="fa-solid fa-magnifying-glass input-icon"></i>
+        </div>
+    </div>
+    <div class="container row pl-l pl-r mt-20" style="justify-content: space-between;">
+        <div class="container row align-left">
+        </div>
+        <div class="filters">
+            <a class="small-button" (click)="openFilters()">
+                <i class="fa-solid fa-filter mr-10"></i>
+                <span>Filter</span>
+            </a>
+            <app-filters *ngIf="isFilterOpen" [title]="'Archived Project Filters'" (fetchProjects)="fetchProjectsFromLocalStorage()" [filtersName]="'archived_project_filters'" [allFilters]="filters"></app-filters>
+            <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
+            </div>
+        </div>
+    </div>
+
+    <div class="container row align-left pl-l pl-r mt-20">
+        <div class="accordion" #allProjectsAccordion>
+            <div class="accordion-item accordion-header" (click)="toggleAllProjectsAccordion();">
+                <i class="fa-solid fa-chevron-down mr-10"></i>
+                <span>Archived projects</span>
+            </div>
+            <div *ngIf="allProjectsAccordionVisible">
+                @for (project of projects; track project) {
+                    <app-project-item [isArchived]="true" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                }
+            </div>
+        </div>
+    </div>
+</div>

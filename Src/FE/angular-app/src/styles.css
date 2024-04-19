@@ -132,3 +132,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-
     margin-bottom: auto;
     text-align: center;
 }
+
+.c-pointer {
+    cursor: pointer;
+}

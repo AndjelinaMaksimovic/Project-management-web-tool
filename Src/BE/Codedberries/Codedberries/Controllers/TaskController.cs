@@ -4,6 +4,7 @@ using Codedberries.Models;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 namespace Codedberries.Controllers
 
 {
@@ -23,19 +24,21 @@ namespace Codedberries.Controllers
         {
             try
             {
-                Models.Task task = await _taskService.CreateTask(HttpContext, body);
+                await _taskService.CreateTask(HttpContext, body);
 
-                TaskInfoDTO newTaskInfoDTO = new TaskInfoDTO();
-                newTaskInfoDTO.Id = task.Id;
-                newTaskInfoDTO.Description = task.Description;
-                newTaskInfoDTO.DueDate = task.DueDate;
-                newTaskInfoDTO.StartDate= task.StartDate;
-
-                return Ok(newTaskInfoDTO);
+                return Ok("Task successfully created.");
             }
             catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, new ErrorMsg(ex.Message)); // does not have permission
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
 
@@ -109,6 +112,71 @@ namespace Codedberries.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while updating the task: {ex.Message}"));
+            }
+        }
+
+        [HttpPut("archiveTask")]
+        public IActionResult ArchiveTask([FromBody] TaskDeletionDTO body)
+        {
+            try
+            {
+                 _taskService.ArchiveTask(HttpContext,body.TaskId);
+
+                return Ok("Task succesfully archieved");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message)); // Task not found
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while archiving/unarchiving the task: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("createNewTaskComment")]
+        public async Task<IActionResult> CreateTaskComment([FromBody] TaskCommentCreationRequestDTO body)
+        {
+            try
+            {
+                await _taskService.CreateTaskComment(HttpContext, body);
+
+                return Ok("TaskComment successfully created.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new ErrorMsg(ex.Message)); // does not have permission
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("TaskComments")]
+        public IActionResult GetTaskComments([FromQuery] TaskDeletionDTO filterParams)
+        {
+            try
+            {
+                var comments = _taskService.GetTasksComments(HttpContext, filterParams);
+
+                return Ok(comments);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg("An error occurred while processing your request."));
             }
         }
     }

@@ -16,6 +16,8 @@ namespace Codedberries
         public DbSet<UserProject> UserProjects { get; set; }
         public DbSet<Priority> Priorities { get; set; }
         public DbSet<Status> Statuses { get; set; }
+        public DbSet<Starred> Starred { get; set; }
+        public DbSet<TaskComment> TaskComments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -66,6 +68,23 @@ namespace Codedberries
               .HasOne(t => t.Priority)
               .WithMany()
               .HasForeignKey(t => t.PriorityId);
+
+            modelBuilder.Entity<Models.Milestone>()
+                .HasOne(tc => tc.Project)
+                .WithMany()
+                .HasForeignKey(tc => tc.ProjectId);
+
+
+            modelBuilder.Entity<TaskComment>()
+                .HasOne(tc => tc.User)
+                .WithMany()
+                .HasForeignKey(tc => tc.UserId);
+
+            modelBuilder.Entity<TaskComment>()
+                .HasOne(tc => tc.Task)
+                .WithMany()
+                .HasForeignKey(tc => tc.TaskId);
+
         }
 
         public void ApplyMigrations()

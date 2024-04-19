@@ -1,0 +1,19 @@
+.line{
+    position: absolute;
+}
+.red{
+    background-color: lightcoral;
+}
+.normal{
+    background-color: grey;
+}
+.defaultHeight{
+    height: 3px;
+}
+.defaultWidth{
+    width: 3px;
+}
+.hover{
+    background-color: black;
+    z-index: 1;
+}

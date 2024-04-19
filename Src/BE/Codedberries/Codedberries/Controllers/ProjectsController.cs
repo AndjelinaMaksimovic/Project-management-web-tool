@@ -23,16 +23,9 @@ namespace Codedberries.Controllers
         {
             try
             {
-                Project project = await _projectService.CreateProject(HttpContext, body);
+                await _projectService.CreateProject(HttpContext, body);
 
-                ProjectInfoDTO newProjectInfoDTO = new ProjectInfoDTO();
-                newProjectInfoDTO.Id = project.Id;
-                newProjectInfoDTO.Name = project.Name;
-                newProjectInfoDTO.Description = project.Description;
-                newProjectInfoDTO.DueDate = project.DueDate;
-                newProjectInfoDTO.StartDate = project.StartDate;
-
-                return Ok(newProjectInfoDTO);
+                return Ok("Project successfully created.");
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -48,17 +41,52 @@ namespace Codedberries.Controllers
             }
         }
 
+        // all active projects
         [HttpGet("allProjects")]
         public IActionResult GetAllProjects()
         {
-            AllProjectsDTO allProjectsDTO = _projectService.GetProjects();
-
-            if (allProjectsDTO == null)
+            try
             {
-                return NotFound(new ErrorMsg("No projects found!"));
+                AllProjectsDTO activeProjectsDTO = _projectService.GetActiveProjects(HttpContext);
+                
+                return Ok(activeProjectsDTO);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while getting all active projects: {ex.Message}"));
+            }
+        }
 
-            return Ok(allProjectsDTO);
+        // all archieved projects
+        [HttpGet("allArchivedProjects")]
+        public IActionResult GetArchivedProjects()
+        {
+            try
+            {
+                var archivedProjects = _projectService.GetArchivedProjects(HttpContext);
+
+                return Ok(archivedProjects);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while fetching archived projects: {ex.Message}"));
+            }
         }
 
         [HttpDelete("projectDeletion")]
@@ -95,7 +123,7 @@ namespace Codedberries.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new ErrorMsg (ex.Message));
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
@@ -108,8 +136,9 @@ namespace Codedberries.Controllers
         {
             try
             {
-                var updatedProjectInfo = _projectService.UpdateProject(HttpContext, request);
-                return Ok(updatedProjectInfo);
+                await _projectService.UpdateProject(HttpContext, request);
+
+                return Ok("Project updated succesfully.");
             }
             catch (ArgumentException ex)
             {
@@ -117,11 +146,53 @@ namespace Codedberries.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return StatusCode(403, new ErrorMsg(ex.Message)); 
+                return StatusCode(403, new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while updating the task: {ex.Message}"));
+            }
+        }
+
+        [HttpPut("archiveProject")]
+        public async Task<IActionResult> ArchiveProject([FromBody] ProjectDeletionDTO body)
+        {
+            try
+            {
+                await _projectService.ArchiveProject(HttpContext, body.ProjectId);
+
+                return Ok("Project succesfully archieved.");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while archiveing the project: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("getProjectProgress")]
+        public async Task<IActionResult> GetProjectProgress([FromQuery] ProjectIdDTO request)
+        {
+            try
+            {
+                var projectProgress = await _projectService.GetProjectProgress(HttpContext, request);
+
+                return Ok(projectProgress);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while calculating the progress: {ex.Message}"));
             }
         }
     }
