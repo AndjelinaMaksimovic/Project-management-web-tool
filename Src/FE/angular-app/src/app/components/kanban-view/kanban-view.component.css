@@ -1,5 +1,5 @@
 .kanban-column {
-    min-height: 80vh;
+    height: 80vh;
     flex-grow: 1;
     border-right: solid;
     border-left: solid;
