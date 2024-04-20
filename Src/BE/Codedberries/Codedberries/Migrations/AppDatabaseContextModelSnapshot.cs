@@ -266,6 +266,9 @@ namespace Codedberries.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("FinishedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
