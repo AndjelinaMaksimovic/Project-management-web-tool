@@ -19,6 +19,7 @@ namespace Codedberries.Models
 
         public DateTime DueDate { get; set; }
         public DateTime StartDate { get; set; }
+        public DateTime? FinishedDate { get; set; }
 
         [ForeignKey("UserId")]
         public int UserId { get; set; }
