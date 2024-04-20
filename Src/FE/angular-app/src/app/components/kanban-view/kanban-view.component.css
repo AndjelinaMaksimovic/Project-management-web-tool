@@ -1,5 +1,6 @@
 .kanban-column {
     height: 80vh;
+    min-width: 180px;
     flex-grow: 1;
     border-right: solid;
     border-left: solid;
