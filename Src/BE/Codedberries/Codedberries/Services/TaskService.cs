@@ -482,19 +482,12 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
-            }
-
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole != null && userRole.CanEditTask == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to edit task!");
             }
 
             if(request.IsEmpty())
@@ -514,6 +507,29 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == task.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {task.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task!");
+            }
+            // ---------------- //
 
             if (!string.IsNullOrEmpty(request.Name))
             {
