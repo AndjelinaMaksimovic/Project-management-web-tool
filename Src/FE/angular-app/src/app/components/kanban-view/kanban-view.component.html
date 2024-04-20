@@ -13,7 +13,7 @@
         </div>
         <div [id]="status" [cdkDropListConnectedTo]="statuses" cdkDropList cdkDropListOrientation="vertical"
             cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)"
-            style="display:block; overflow-y: auto; min-height: 80%;">
+            style="display:block; overflow-y: auto; height: 80vh; scrollbar-width: thin;">
             @for (task of getTasksOfStatus(status); track task) {
             <div cdkDrag style="margin: 8px; cursor: move;">
                 <app-kanban-task-card [task]="task"></app-kanban-task-card>
