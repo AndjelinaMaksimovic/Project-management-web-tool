@@ -9,6 +9,7 @@
     margin-right: -1px;
     width: 100%;
     padding: 0px;
+    cursor: move;
 }
 
 .kanban-column-mobile {
