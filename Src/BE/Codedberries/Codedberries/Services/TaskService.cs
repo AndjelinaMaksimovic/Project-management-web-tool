@@ -628,6 +628,11 @@ namespace Codedberries.Services
 
                 var currentStatus = await _databaseContext.Statuses.FindAsync(task.StatusId);
 
+                if (currentStatus == null)
+                {
+                    throw new ArgumentException($"Current status with ID {task.StatusId} not found in database!");
+                }
+
                 if (currentStatus.Name == "Done" && status.Name != "Done")
                 {
                     task.FinishedDate = null; // from Done to other
