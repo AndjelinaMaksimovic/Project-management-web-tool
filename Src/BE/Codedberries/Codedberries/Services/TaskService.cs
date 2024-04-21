@@ -626,6 +626,13 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Status with ID {request.StatusId} does not match the project of the task!");
                 }
 
+                var currentStatus = await _databaseContext.Statuses.FindAsync(task.StatusId);
+
+                if (currentStatus.Name == "Done" && status.Name != "Done")
+                {
+                    task.FinishedDate = null; // from Done to other
+                }
+
                 task.StatusId = request.StatusId.Value;
             }
 
