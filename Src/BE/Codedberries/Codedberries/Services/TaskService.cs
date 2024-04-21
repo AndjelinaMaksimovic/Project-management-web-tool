@@ -736,8 +736,9 @@ namespace Codedberries.Services
                 CategoryId = task.CategoryId,
                 PriorityId = task.PriorityId,
                 StatusId = task.StatusId,
-                DueDate = task.DueDate,
                 StartDate = task.StartDate,
+                DueDate = task.DueDate,
+                FinishedDate = task.FinishedDate,
                 DifficultyLevel = task.DifficultyLevel,
                 ProjectId = task.ProjectId 
             };
