@@ -633,6 +633,11 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Current status with ID {task.StatusId} not found in database!");
                 }
 
+                if (currentStatus.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Current status with ID {currentStatus.Id} and {currentStatus.ProjectId} does not match the project of the task {task.Project}!");
+                }
+
                 if (currentStatus.Name == "Done" && status.Name != "Done")
                 {
                     task.FinishedDate = null; // from Done to other
