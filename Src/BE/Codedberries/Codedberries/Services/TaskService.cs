@@ -632,6 +632,10 @@ namespace Codedberries.Services
                 {
                     task.FinishedDate = null; // from Done to other
                 }
+                else if (currentStatus.Name != "Done" && status.Name == "Done")
+                {
+                    task.FinishedDate = DateTime.UtcNow; // from other to Done
+                }
 
                 task.StatusId = request.StatusId.Value;
             }
