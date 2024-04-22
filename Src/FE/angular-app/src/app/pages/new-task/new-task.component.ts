@@ -19,6 +19,7 @@ import {
 import { UserService } from '../../services/user.service';
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
 import { StatusService } from '../../services/status.service';
+import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
 
 @Component({
   selector: 'app-new-task',
@@ -163,5 +164,8 @@ export class NewTaskComponent {
   }
   createCategory() {
     this.dialog.open(CreateCategoryModalComponent);
+  }
+  createStatus() {
+    this.dialog.open(CreateStatusModalComponent);
   }
 }
