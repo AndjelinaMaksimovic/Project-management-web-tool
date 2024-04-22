@@ -1,6 +1,6 @@
 <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
     <mat-label>{{label}}</mat-label>
-    <input [type]="type" matInput [placeholder]="placeholder" [(ngModel)]="data">
+    <input [type]="type" matInput [placeholder]="placeholder" [(ngModel)]="data" [required]="required">
     <button matSuffix mat-icon-button aria-label="Clear" (click)="data=''">
         <mat-icon>close</mat-icon>
     </button>

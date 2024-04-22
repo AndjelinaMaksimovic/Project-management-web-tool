@@ -28,6 +28,7 @@ export class SelectComponent {
   @Input() multiple: boolean = false;
   @Output() valueChange = new EventEmitter<string>();
   @Input() value: string = "";
+  @Input() required: boolean = false;
   get data(){
     return this.value;
   }
