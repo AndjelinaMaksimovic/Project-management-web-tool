@@ -50,7 +50,7 @@
             </mat-select>
         </mat-form-field>
         <!-- asignee -->
-        <app-select [options]="users" label="Assignee" (valueChange)="category=$event"></app-select>
+        <app-select [options]="users" label="Assignee" (valueChange)="assignee=$event"></app-select>
         <button style="width: 80%; margin: auto" (click)="createTask()" class="button-rounded" color="primary"
             mat-flat-button>Create Task</button>
         <div *ngIf="errorMessage" class="alert alert-danger">

@@ -61,9 +61,9 @@ export class NewTaskComponent {
   users: { value: string; viewValue: string }[] = [];
 
   priorities = [
-    { value: 'Low', viewValue: 'Low' },
-    { value: 'Medium', viewValue: 'Medium' },
-    { value: 'High', viewValue: 'High' },
+    { value: '1', viewValue: 'Low' },
+    { value: '2', viewValue: 'Medium' },
+    { value: '3', viewValue: 'High' },
   ];
   // hack fix
   // we change _categories when `categoryService.getCategories().length` does not match the `_categories.length`
@@ -153,9 +153,9 @@ export class NewTaskComponent {
         startDate: this.startDate.value,
         dueDate: this.dueDate.value,
         category: this.category,
-        priority: this.priority as 'Low' | 'High' | 'Medium',
+        priority: this.priority,
         status: this.status,
-        assignedTo: [],
+        assignedTo: this.assignee,
         dependencies: this.dependencies,
       },
       1
