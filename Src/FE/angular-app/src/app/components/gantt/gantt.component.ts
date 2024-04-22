@@ -234,7 +234,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.itemHover(item)
     if(this.dragging && this.originalItem != this.lastHovered && this.lastHovered.type != ItemType.category){
       this.clipLine = true
-      this.offset = {x: this.lastHovered.left - this.draggedOriginal.x + 5, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2  - this.draggedOriginal.y}
+      this.offset = {x: this.lastHovered.left - this.draggedOriginal.x, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2  - this.draggedOriginal.y}
     }
   }
   barUnHover(item: Item){
@@ -254,7 +254,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   startDependencyDrag(event: any) {
     this.dragging = true
     this.originalItem = this.lastHovered
-    this.draggedOriginal = {x: this.lastHovered.left + this.lastHovered.width - 5, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2}
+    this.draggedOriginal = {x: this.lastHovered.left + this.lastHovered.width, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2}
     this.onMouseMove({x: event.x, y: event.y})
     return false
   }
