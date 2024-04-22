@@ -369,6 +369,13 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
             var tasks = await _databaseContext.Tasks
                 .Where(t => t.UserId == userId)
                 .Select(t => new TaskInformationDTO
@@ -393,44 +400,38 @@ namespace Codedberries.Services
                 .Where(up => up.UserId == userId)
                 .ToListAsync();
 
-            var projects = userProjects.Select(up =>
-            {
-                var project = _databaseContext.Projects.FirstOrDefault(p => p.Id == up.ProjectId);
+            var userProjectIds = userProjects.Select(up => up.ProjectId).ToList();
 
-                return new UserProjectDTO
+            var projects = await _databaseContext.Projects
+                .Where(p => userProjectIds.Contains(p.Id))
+                .Select(p => new ProjectInformationDTO
                 {
-                    UserId = up.UserId,
-                    RoleId = up.RoleId,
-                    RoleName = up.Role.Name,
-                    Project = new ProjectInformationDTO
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    StartDate = p.StartDate,
+                    DueDate = p.DueDate,
+                    Archived = p.Archived,
+                    Statuses = p.Statuses.Select(s => new StatusDTO
                     {
-                        Id = project.Id,
-                        Name = project.Name,
-                        Description = project.Description,
-                        StartDate = project.StartDate,
-                        DueDate = project.DueDate,
-                        Archived = project.Archived,
-                        Statuses = project.Statuses.Select(s => new StatusDTO
-                        {
-                            Id = s.Id,
-                            Name = s.Name,
-                            Order = s.Order
-                        }).ToList(),
-                        Categories = project.Categories.Select(c => new CategoryDTO
-                        {
-                            Id = c.Id,
-                            Name = c.Name
-                        }).ToList(),
-                        Users = project.Users.Select(u => new UserDTO
-                        {
-                            Id = u.Id,
-                            FirstName = u.Firstname,
-                            LastName = u.Lastname,
-                            ProfilePicture = u.ProfilePicture
-                        }).ToList()
-                    }
-                };
-            }).ToList();
+                        Id = s.Id,
+                        Name = s.Name,
+                        Order = s.Order
+                    }).ToList(),
+                    Categories = p.Categories.Select(c => new CategoryDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }).ToList(),
+                    Users = p.Users.Select(u => new UserDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    }).ToList()
+                })
+                .ToListAsync();
 
             var currentSessionUserDTO = new CurrentSessionUserDTO
             {
@@ -441,7 +442,7 @@ namespace Codedberries.Services
                 Activated = user.Activated,
                 ProfilePicture = user.ProfilePicture,
                 RoleId = user.RoleId,
-                RoleName = user.Role.Name,
+                RoleName = userRole.Name,
                 Projects = projects,
                 Tasks = tasks
             };
