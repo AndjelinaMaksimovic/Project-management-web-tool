@@ -52,7 +52,7 @@ export class NewTaskComponent {
   dueDate = new FormControl(new Date());
   startDate = new FormControl(new Date());
   priority: string | null = null;
-  status: string = this.statusService.getStatuses()[0].id.toString();
+  status: string = this.statusService.getStatuses()[0]?.id?.toString() || "";
   category: string | null = null;
   dependencies: string[] = [];
   assignee: string | undefined;
@@ -135,6 +135,7 @@ export class NewTaskComponent {
       !this.priority ||
       !this.description ||
       !this.category ||
+      !this.status ||
       !this.dueDate.value ||
       !this.startDate.value
     ) {
