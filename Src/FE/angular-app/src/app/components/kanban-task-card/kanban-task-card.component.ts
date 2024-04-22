@@ -3,11 +3,12 @@ import { MaterialModule } from '../../material/material.module';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmTaskDeleteModalComponent } from '../confirm-task-delete-modal/confirm-task-delete-modal.component';
 import { Task } from '../../services/task.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-kanban-task-card',
   standalone: true,
-  imports: [MaterialModule],
+  imports: [MaterialModule, RouterModule],
   templateUrl: './kanban-task-card.component.html',
   styleUrl: './kanban-task-card.component.css',
 })
