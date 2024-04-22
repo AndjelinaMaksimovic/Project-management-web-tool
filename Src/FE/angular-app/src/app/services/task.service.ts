@@ -191,7 +191,17 @@ export class TaskService {
     await this.fetchTasks();
   }
 
-  async createTask(task: Omit<Task, 'id'> & {dependencies: string[]}, projectId: number) {
+  async createTask(task: {
+    title: string;
+    description: string;
+    startDate: Date;
+    dueDate: Date;
+    status: string;
+    priority: string;
+    category: string;
+    dependencies: string[];
+    assignedTo: any;
+  }, projectId: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -207,6 +217,7 @@ export class TaskService {
             categoryId: task.category,
             dependencyIds: task.dependencies,
             projectId: this.context.projectId,
+            userId: task.assignedTo,
           },
           {
             ...this.httpOptions,
