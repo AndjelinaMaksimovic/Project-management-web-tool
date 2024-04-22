@@ -369,6 +369,25 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            var tasks = await _databaseContext.Tasks
+                .Where(t => t.UserId == userId)
+                .Select(t => new TaskInformationDTO
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    StartDate = t.StartDate,
+                    DueDate = t.DueDate,
+                    FinishedDate = t.FinishedDate,
+                    UserId = t.UserId,
+                    ProjectId = t.ProjectId,
+                    StatusId = t.StatusId,
+                    CategoryId = t.CategoryId,
+                    PriorityId = t.PriorityId,
+                    DifficultyLevel = t.DifficultyLevel,
+                    Archived = t.Archived
+                })
+                .ToListAsync();
 
 
             return null;
