@@ -34,10 +34,6 @@ import { CreateStatusModalComponent } from '../../components/create-status-modal
     EmailFieldComponent,
     SelectComponent,
   ],
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
-  ],
   templateUrl: './new-task.component.html',
   styleUrl: './new-task.component.css',
 })
