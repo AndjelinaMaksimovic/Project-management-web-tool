@@ -61,21 +61,21 @@ namespace Codedberries.Services
         {
             using (var sha256 = SHA256.Create())
             {
-                
+
                 var hashedInputPassword = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
                 string str = BitConverter.ToString(hashedInputPassword).Replace("-", "").ToLower(); ;
-                var hashed2= sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
+                var hashed2 = sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
                 string str2 = BitConverter.ToString(hashed2).Replace("-", "").ToLower(); ;
-                
-              
+
+
 
                 // Compare the computed hash with the stored hashed password
-                
-                    if (hashedPassword==str2)
-                    {
-                        return true; // wrong password
-                    }
-                
+
+                if (hashedPassword == str2)
+                {
+                    return true; // wrong password
+                }
+
             }
 
             return false; // passwords matc
@@ -319,26 +319,26 @@ namespace Codedberries.Services
             IQueryable<User> query = _databaseContext.Users;
             var foundUser = _databaseContext.Users.FirstOrDefault(u => u.Id == body.UserId);
 
-            var userInformationDTO= query.Where(s => s.Id == body.UserId)
+            var userInformationDTO = query.Where(s => s.Id == body.UserId)
                 .Select(s => new UserInformationDTO
                 {
-                Id = foundUser.Id,
-                Email = foundUser.Email,
-                Firstname = foundUser.Firstname,
-                Lastname = foundUser.Lastname,
-                Activated = foundUser.Activated,
-                ProfilePicture = foundUser.ProfilePicture,
-                RoleId = foundUser.RoleId,
-                RoleName = s.Role.Name,
-                Projects = s.Projects.Select(p => new ProjectDTO
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    DueDate = p.DueDate,
-                    StartDate = p.StartDate
-                }).ToList()
-            }).ToList();
+                    Id = foundUser.Id,
+                    Email = foundUser.Email,
+                    Firstname = foundUser.Firstname,
+                    Lastname = foundUser.Lastname,
+                    Activated = foundUser.Activated,
+                    ProfilePicture = foundUser.ProfilePicture,
+                    RoleId = foundUser.RoleId,
+                    RoleName = s.Role.Name,
+                    Projects = s.Projects.Select(p => new ProjectDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        DueDate = p.DueDate,
+                        StartDate = p.StartDate
+                    }).ToList()
+                }).ToList();
 
             if (userInformationDTO.Count == 0)
             {
@@ -346,6 +346,18 @@ namespace Codedberries.Services
             }
 
             return userInformationDTO;
+        }
+
+        public async Task<CurrentSessionUserDTO> GetCurrentSessionUserData(HttpContext httpContext)
+        {
+            var userId = GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            return null;
         }
     }
 }
