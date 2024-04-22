@@ -62,6 +62,7 @@ export class TaskService {
   /** for which project/user should we fetch tasks? */
   private context: {
     projectId?: number;
+    assignedTo?: number;
   } = {};
 
   private httpOptions = {
@@ -83,7 +84,7 @@ export class TaskService {
    * for what project/user should the tasks be fetched
    * @param context new context
    */
-  public setContext(context: { projectId?: number } = {}) {
+  public setContext(context: { projectId?: number, assignedTo?: number } = {}) {
     this.context = { ...this.context, ...context };
     // after changing the context, we need to clear the previous tasks cache
     this.statusService.setContext(context);
@@ -104,6 +105,27 @@ export class TaskService {
         this.http.get<any>(
           environment.apiUrl +
             `/Task/projectTasks?projectId=${this.context.projectId}`,
+          this.httpOptions
+        )
+      );
+      await this.statusService.fetchStatuses();
+      await this.categoryService.fetchCategories();
+      this.tasks = res.body.map((task: any) => {
+        return this.mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchUserTasks(context?: { projectId: number, assignedTo: number }) {
+    if (context) this.setContext(context);
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl +
+            `/Task/projectTasks?projectId=${this.context.projectId}&assignedTo=${this.context.assignedTo}`,
           this.httpOptions
         )
       );
