@@ -43,19 +43,30 @@ namespace Codedberries.Models
 
         public ICollection<Project> Projects { get; } = new List<Project>();
 
-        public string HashPassword(string password)
+        public void HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
             {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Password = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+                // Generate a random salt
+                byte[] salt = new byte[16];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(salt);
+                }
+
+                PasswordSalt = salt;
+
+                // Combine password and salt, then hash
+                var saltedPassword = Encoding.UTF8.GetBytes(password).Concat(salt).ToArray();
+                var hashedBytes = sha256.ComputeHash(saltedPassword);
+                Password = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
         }
 
         public User(string email, string password, string firstname, string lastname, int? roleId)
         {
             Email = email;
-            Password=HashPassword(password);
+            HashPassword(password);
             //Password = password;
             Firstname = firstname;
             Lastname = lastname;
