@@ -3,7 +3,17 @@
         <h1 style="font-weight: normal; text-align: center; margin-top: 0;">Create new task</h1>
         <app-clearable-input type="text" label="Title" (valueChange)="title=$event" [required]="true"></app-clearable-input>
         <!-- due date -->
-        <div style="display: flex; gap: 10px;">
+        <mat-form-field appearance="outline">
+            <mat-label>Start Date - Due Date</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input matStartDate placeholder="Start date" [formControl]="startDate" [required]="true">
+              <input matEndDate placeholder="End date" [formControl]="dueDate" [required]="true">
+            </mat-date-range-input>
+            <mat-hint>DD/MM/YYYY - DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+        <!-- <div style="display: flex; gap: 10px;">
             <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                 <mat-label>Start date</mat-label>
                 <input matInput [matDatepicker]="dp" [formControl]="startDate" [required]="true">
@@ -18,7 +28,7 @@
                 <mat-datepicker-toggle matIconSuffix [for]="dp2"></mat-datepicker-toggle>
                 <mat-datepicker #dp2></mat-datepicker>
             </mat-form-field>
-        </div>
+        </div> -->
         <!-- description -->
         <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
             <mat-label>Description</mat-label>
