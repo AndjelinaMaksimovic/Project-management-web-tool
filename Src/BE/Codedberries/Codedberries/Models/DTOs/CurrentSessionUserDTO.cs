@@ -10,7 +10,7 @@
         public string? ProfilePicture { get; set; }
         public int? RoleId { get; set; }
         public string? RoleName { get; set; }
-        public List<UserProjectDTO> Projects { get; set; }
-        public List<TaskInformationDTO> Tasks { get; set; }
+        public List<ProjectInformationDTO>? Projects { get; set; }
+        public List<TaskInformationDTO>? Tasks { get; set; }
     }
 }
