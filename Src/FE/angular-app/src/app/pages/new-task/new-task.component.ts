@@ -18,6 +18,7 @@ import {
 } from '@angular/material/core';
 import { UserService } from '../../services/user.service';
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
+import { StatusService } from '../../services/status.service';
 
 @Component({
   selector: 'app-new-task',
@@ -50,6 +51,7 @@ export class NewTaskComponent {
   dueDate = new FormControl(new Date());
   startDate = new FormControl(new Date());
   priority: string | null = null;
+  status: string = this.statusService.getStatuses()[0].id.toString();
   category: string | null = null;
   dependencies: string[] = [];
   assignee: string | undefined;
@@ -79,10 +81,25 @@ export class NewTaskComponent {
     }
     return this._categories;
   }
+  _statuses: { value: string; viewValue: string }[] = [];
+  get statuses() {
+    if (
+      this._statuses.length !== this.statusService.getStatuses().length
+    ) {
+      this._statuses = this.statusService.getStatuses().map((cat) => {
+        return {
+          value: cat.id.toString(),
+          viewValue: cat.name,
+        };
+      });
+    }
+    return this._statuses;
+  }
 
   constructor(
     private taskService: TaskService,
     private categoryService: CategoryService,
+    private statusService: StatusService,
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
@@ -136,7 +153,7 @@ export class NewTaskComponent {
         dueDate: this.dueDate.value,
         category: this.category,
         priority: this.priority as 'Low' | 'High' | 'Medium',
-        status: 'Active',
+        status: this.status,
         assignedTo: [],
         dependencies: this.dependencies,
       },
