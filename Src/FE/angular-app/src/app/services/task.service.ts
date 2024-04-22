@@ -214,7 +214,7 @@ export class TaskService {
             statusId: task.status,
             priorityId: task.priority,
             difficultyLevel: 1,
-            categoryId: task.category,
+            categoryId: 2,
             dependencyIds: task.dependencies,
             projectId: this.context.projectId,
             userId: task.assignedTo,
