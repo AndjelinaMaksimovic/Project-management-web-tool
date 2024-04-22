@@ -350,12 +350,26 @@ namespace Codedberries.Services
 
         public async Task<CurrentSessionUserDTO> GetCurrentSessionUserData(HttpContext httpContext)
         {
-            var userId = GetCurrentSessionUser(httpContext);
+            var userId = this.GetCurrentSessionUser(httpContext);
 
             if (userId == null)
             {
                 throw new UnauthorizedAccessException("Invalid session!");
             }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+
 
             return null;
         }
