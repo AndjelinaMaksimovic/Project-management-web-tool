@@ -432,7 +432,21 @@ namespace Codedberries.Services
                 };
             }).ToList();
 
-            return null;
+            var currentSessionUserDTO = new CurrentSessionUserDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Firstname = user.Firstname,
+                Lastname = user.Lastname,
+                Activated = user.Activated,
+                ProfilePicture = user.ProfilePicture,
+                RoleId = user.RoleId,
+                RoleName = user.Role.Name,
+                Projects = projects,
+                Tasks = tasks
+            };
+
+            return currentSessionUserDTO;
         }
     }
 }
