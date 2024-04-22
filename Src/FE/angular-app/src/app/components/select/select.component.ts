@@ -27,13 +27,12 @@ export class SelectComponent {
   @Input() placeholder: string = "";
   @Input() multiple: boolean = false;
   @Output() valueChange = new EventEmitter<string>();
-
-  private _data: string = "";
+  @Input() value: string = "";
   get data(){
-    return this._data;
+    return this.value;
   }
   set data(value: string){
-    this._data = value;
+    this.value = value;
     this.valueChange.emit(this.data);
   }
 }
