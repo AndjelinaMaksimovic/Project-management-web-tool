@@ -393,6 +393,45 @@ namespace Codedberries.Services
                 .Where(up => up.UserId == userId)
                 .ToListAsync();
 
+            var projects = userProjects.Select(up =>
+            {
+                var project = _databaseContext.Projects.FirstOrDefault(p => p.Id == up.ProjectId);
+
+                return new UserProjectDTO
+                {
+                    UserId = up.UserId,
+                    RoleId = up.RoleId,
+                    RoleName = up.Role.Name,
+                    Project = new ProjectInformationDTO
+                    {
+                        Id = project.Id,
+                        Name = project.Name,
+                        Description = project.Description,
+                        StartDate = project.StartDate,
+                        DueDate = project.DueDate,
+                        Archived = project.Archived,
+                        Statuses = project.Statuses.Select(s => new StatusDTO
+                        {
+                            Id = s.Id,
+                            Name = s.Name,
+                            Order = s.Order
+                        }).ToList(),
+                        Categories = project.Categories.Select(c => new CategoryDTO
+                        {
+                            Id = c.Id,
+                            Name = c.Name
+                        }).ToList(),
+                        Users = project.Users.Select(u => new UserDTO
+                        {
+                            Id = u.Id,
+                            FirstName = u.Firstname,
+                            LastName = u.Lastname,
+                            ProfilePicture = u.ProfilePicture
+                        }).ToList()
+                    }
+                };
+            }).ToList();
+
             return null;
         }
     }
