@@ -389,6 +389,9 @@ namespace Codedberries.Services
                 })
                 .ToListAsync();
 
+            var userProjects = await _databaseContext.UserProjects
+                .Where(up => up.UserId == userId)
+                .ToListAsync();
 
             return null;
         }
