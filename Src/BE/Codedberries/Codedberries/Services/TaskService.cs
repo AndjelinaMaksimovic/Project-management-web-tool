@@ -153,39 +153,52 @@ namespace Codedberries.Services
                 }
             }
 
-            _databaseContext.Tasks.Add(task);
-            await _databaseContext.SaveChangesAsync();
+            // if there is circual dependency, task won't be created
+            using var transaction = await _databaseContext.Database.BeginTransactionAsync();
 
-            // adding dependencies to TaskDependency
-            if (request.DependencyIds != null && request.DependencyIds.Any())
+            try
             {
-                foreach (int dependency_id in request.DependencyIds)
+                _databaseContext.Tasks.Add(task);
+                await _databaseContext.SaveChangesAsync();
+
+                // adding dependencies to TaskDependency
+                if (request.DependencyIds != null && request.DependencyIds.Any())
                 {
-                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
-
-                    if (taskDependency == null)
+                    foreach (int dependency_id in request.DependencyIds)
                     {
-                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                        var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+
+                        if (taskDependency == null)
+                        {
+                            throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                        }
+
+                        var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
+
+                        if (cyclicDependencyDetected)
+                        {
+                            throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                        }
+
+                        TaskDependency newDependency = new TaskDependency
+                        {
+                            TaskId = taskDependency.Id,
+                            DependentTaskId = task.Id
+                        };
+
+                        _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
-
-                    var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
-                    
-                    if (cyclicDependencyDetected)
-                    {
-                        throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
-                    }
-
-                    TaskDependency newDependency = new TaskDependency
-                    {
-                        TaskId = taskDependency.Id,
-                        DependentTaskId = task.Id
-                    };
-
-                    _databaseContext.Set<TaskDependency>().Add(newDependency);
                 }
+
+                await _databaseContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception($"{ex.Message}");
             }
 
-            await _databaseContext.SaveChangesAsync();
         }
 
         public List<ProjectTasksInfoDTO> GetTasksByFilters(HttpContext httpContext, TaskFilterParamsDTO filterParams)
