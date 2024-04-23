@@ -168,6 +168,13 @@ namespace Codedberries.Services
                         throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
                     }
 
+                    var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
+                    
+                    if (cyclicDependencyDetected)
+                    {
+                        throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                    }
+
                     TaskDependency newDependency = new TaskDependency
                     {
                         TaskId = taskDependency.Id,
