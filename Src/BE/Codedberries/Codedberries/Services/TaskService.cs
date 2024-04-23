@@ -164,7 +164,7 @@ namespace Codedberries.Services
 
                     if (taskDependency == null)
                     {
-                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project in database!");
+                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
                     }
                 }
             }
@@ -214,7 +214,6 @@ namespace Codedberries.Services
                 await transaction.RollbackAsync();
                 throw new Exception($"{ex.Message}");
             }
-
         }
 
         public List<ProjectTasksInfoDTO> GetTasksByFilters(HttpContext httpContext, TaskFilterParamsDTO filterParams)
