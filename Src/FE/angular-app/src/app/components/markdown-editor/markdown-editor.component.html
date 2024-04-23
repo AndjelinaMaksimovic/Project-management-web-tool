@@ -1,7 +1,7 @@
 <div>
     <mat-divider></mat-divider>
     <mat-form-field [floatLabel]="'always'" appearance="outline" style="width: 100%;" class="dense-2">
-        <mat-label>Description</mat-label>
+        <mat-label>{{label}}</mat-label>
         <div style="display: flex;">
             <button mat-icon-button (click)="insertText('**', '**')"><mat-icon>format_bold</mat-icon></button>
             <button mat-icon-button (click)="insertText('*', '*')"><mat-icon>format_italic</mat-icon></button>

@@ -13,6 +13,7 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 })
 export class MarkdownEditorComponent {
   @Input() value: string | null | undefined = "";
+  @Input() label: string = "Content";
   @Output() valueChange = new EventEmitter<string>();
   changeValue(newSelection: string) {
     this.value = newSelection;
