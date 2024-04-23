@@ -51,12 +51,17 @@ namespace Codedberries.Services
                 throw new ArgumentException("Project with the provided ID does not exist in database!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
 
-            if (userRole != null && userRole.CanCreateTask == false)
+            if (userProject == null)
             {
-                throw new UnauthorizedAccessException("User does not have permission to create Task!");
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
             }
+
+            var userRoleId = userProject.RoleId;
+            // ---------------- //
 
             if (string.IsNullOrEmpty(request.Name))
             {
