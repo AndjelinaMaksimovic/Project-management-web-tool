@@ -21,6 +21,7 @@ import { CreateCategoryModalComponent } from '../../components/create-category-m
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
 import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
+import moment from "moment";
 
 @Component({
   selector: 'app-new-task',
@@ -47,8 +48,8 @@ export class NewTaskComponent {
   description: string | null = null;
   // date: string | null = null;
   // startDate: string | null = null;
-  dueDate = new FormControl(new Date());
-  startDate = new FormControl(new Date());
+  dueDate = new FormControl(moment());
+  startDate = new FormControl(moment());
   priority: string | null = null;
   status: string = this.statusService.getStatuses()[0]?.id?.toString() || "";
   category: string | null = null;
@@ -140,7 +141,7 @@ export class NewTaskComponent {
       this.errorMessage = 'Please provide all required fields';
       return;
     }
-    if (this.startDate.value.getTime() > this.dueDate.value.getTime()) {
+    if (this.startDate.value.toDate().getTime() > this.dueDate.value.toDate().getTime()) {
       this.errorMessage = 'Please enter valid start/due dates';
       return;
     }
@@ -149,8 +150,8 @@ export class NewTaskComponent {
         title: this.title,
         description: this.description,
         // date: this.dueDate.value,
-        startDate: this.startDate.value,
-        dueDate: this.dueDate.value,
+        startDate: this.startDate.value.toDate(),
+        dueDate: this.dueDate.value.toDate(),
         category: this.category,
         priority: this.priority,
         status: this.status,
