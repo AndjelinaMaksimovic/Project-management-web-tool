@@ -8,7 +8,7 @@
     <!-- up / down -->
     <div class="line normal defaultWidth" [ngClass]="{'hover': hover}"
     [style.left]="from.x + 15 + 'px'"
-    [style.height]="abs(offset.y) + 3 + ((offset.x < 15) ? - (taskHeight / 2) : 0 ) + 'px'"
+    [style.height]="abs(offset.y) + ((offset.x < 15) ? - (barHeight / 2) : 0 ) + 'px'"
     [style.top]="from.y + ((offset.y < 0)? offset.y : 0) + 'px'"></div>
     <!-- left / right to task -->
     <div class="line normal defaultHeight" [ngClass]="{'hover': hover}"

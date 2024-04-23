@@ -47,7 +47,7 @@
             </div>
             <div style="position: relative;" #chartView>
                 <ng-template [ngIf]="dragging">
-                    <app-gantt-dependency-line style="position: absolute; z-index: 2;" [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight"></app-gantt-dependency-line>
+                    <app-gantt-dependency-line style="position: absolute; z-index: 2;" [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight" [barHeight]="barHeight"></app-gantt-dependency-line>
                 </ng-template>
                 @for (item of items; track item) {
                     <!-- task row -->
@@ -66,7 +66,7 @@
                                     'background-color': item.color,
                                 }"></div>
                                 <!-- progress bar filter -->
-                                <div *ngIf="item.type != ItemType.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.35); border-radius: 5px; position: absolute; left: 0;">
+                                <div *ngIf="item.type != ItemType.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.35); border-radius: 5px; position: absolute; left: 0; overflow: hidden;">
                                     <!-- progress bar -->
                                     <div style="border-radius: 5px; height:100%;" [ngStyle]="{
                                         'width': item.percentage + '%',
@@ -89,6 +89,7 @@
                                     [from]="{x: item.width, y: barHeight / 2}"
                                     [offset]="{x: items[idMap[dependant]].left - item.left - item.width, y: (idMap[dependant]-idMap[item.id])*taskHeight}"
                                     [taskHeight]="taskHeight"
+                                    [barHeight]="barHeight"
                                     [hover]="item.hover || items[idMap[dependant]].hover"
                                     *ngIf="items[idMap[dependant]].display && item.display"></app-gantt-dependency-line>
                                 }

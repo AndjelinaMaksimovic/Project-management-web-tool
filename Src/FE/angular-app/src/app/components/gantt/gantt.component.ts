@@ -33,6 +33,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   currentDateIndex!: number
   chartStartDate!: number
   idMap: Record<number, number> = [] // id to index
+  snapDate!: boolean
 
   columnWidth = 60
   taskHeight = 20
@@ -83,7 +84,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.items[i].type = ItemType.milestone
       }
     }
-    
     this.sortByCategories()
     for (let i = 0; i < this.items.length; i++) { // init after sorting by categories
       this.idMap[this.items[i].id] = i
@@ -166,24 +166,26 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   initItemDisplay(){
     this.items.forEach(item => {
+      this.snapDate = this.timeScale != TimeScale.week
       var t: number
 
-      // rounded
-      t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
-      t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
-      item.left = t*this.columnWidth
-      t = item.startDate - item.startDate % this.timeScale  // normalize start
-      t = (Math.ceil((item.dueDate - t) / this.timeScale))
-      t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
-      item.width = t*this.columnWidth
-
-      // exact
-      // t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
-      // t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr) ? prev : prev + 1, 0)
-      // item.left = t
-      // t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
-      // t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr) ? prev : prev + 1, 0)
-      // item.width = t
+      if(this.snapDate){
+        t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
+        t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
+        item.left = t*this.columnWidth
+        t = item.startDate - item.startDate % this.timeScale  // normalize start
+        t = (Math.ceil((item.dueDate - t) / this.timeScale))
+        t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
+        item.width = t*this.columnWidth
+      }
+      else{
+        t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
+        t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
+        item.left = t
+        t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
+        t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
+        item.width = t
+      }
     });
   }
 
