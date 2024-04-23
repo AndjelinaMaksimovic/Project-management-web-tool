@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -12,7 +12,12 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
   styleUrl: './markdown-editor.component.css',
 })
 export class MarkdownEditorComponent {
-  description: string = ""
+  @Input() description: string | null | undefined = "";
+  @Output() descriptionChange = new EventEmitter<string>();
+  changeSelection(newSelection: string) {
+    this.description = newSelection;
+    this.descriptionChange.emit(this.description);
+  }
 
   @ViewChild('editor') editor!: ElementRef;
 

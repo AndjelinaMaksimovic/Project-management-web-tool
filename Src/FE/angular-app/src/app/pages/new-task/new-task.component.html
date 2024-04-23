@@ -31,7 +31,7 @@
         </div> -->
         <!-- description -->
         
-        <app-markdown-editor></app-markdown-editor>
+        <app-markdown-editor [(description)]="description"></app-markdown-editor>
         <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event" [required]="true"></app-select>
         <div style="display: flex; width: 100%; gap: 10px; align-items: button;">
             <span style="width: 100%; gap: 10px;">

@@ -10,6 +10,6 @@
             <button mat-icon-button (click)="insertText('![Image](<url>)', '')"><mat-icon>image</mat-icon></button>
             <button mat-icon-button (click)="insertText('[', '](<url>)')"><mat-icon>link</mat-icon></button>
         </div>
-        <textarea #editor matInput [(ngModel)]="description" style="height: 50vh;" [required]="true"></textarea>
+        <textarea #editor matInput [(ngModel)]="description" style="height: 50vh;" [required]="true" (ngModelChange)="changeSelection($event)"></textarea>
     </mat-form-field>
 </div>
