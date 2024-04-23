@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
-import { GanttColumn, Item, ItemType, TimeScale } from './item';
+import { DraggingType, GanttColumn, Item, ItemType, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
@@ -42,6 +42,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   GanttColumn = GanttColumn // must be declared to be used in html
   ItemType = ItemType // must be declared to be used in html
   helpers = helpers
+  DraggingType = DraggingType
 
   constructor(private dialogue: MatDialog){}
 
@@ -190,15 +191,15 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   lastHovered: Item = this.items.length > 0 ? this.items[0] : new Item() // quick hack
-  dragging: boolean = false
+  dragging: DraggingType = DraggingType.none
   itemHover(item: Item){
-    if(!this.dragging){
+    if(this.dragging == DraggingType.none){
       item.hover = true
     }
     this.lastHovered = item
   }
   itemUnHover(item: Item){
-    if(!this.dragging){
+    if(this.dragging == DraggingType.none){
       item.hover = false
       // this.hovering = undefined
     }
@@ -206,7 +207,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   clipLine = false
   barHover(item: Item){
     this.itemHover(item)
-    if(this.dragging && this.originalItem != this.lastHovered && this.lastHovered.type != ItemType.category){
+    if(this.dragging == DraggingType.dependency && this.originalItem != this.lastHovered && this.lastHovered.type != ItemType.category){
       this.clipLine = true
       this.offset = {x: this.lastHovered.left - this.draggedOriginal.x, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2  - this.draggedOriginal.y}
     }
@@ -221,51 +222,109 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.chartRect = this.chartElem.nativeElement.getBoundingClientRect()
   }
   
+  
   originalItem?: Item = undefined
   draggedOriginal: any = {x: 0, y: 0}
   offset: any = {x: 0, y: 0}
 
   startDependencyDrag(event: any) {
-    this.dragging = true
+    this.dragging = DraggingType.dependency
     this.originalItem = this.lastHovered
     this.draggedOriginal = {x: this.lastHovered.left + this.lastHovered.width, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2}
     this.onMouseMove({x: event.x, y: event.y})
+    event.stopPropagation();
     return false
   }
+
+  originalWidth = 0
+  originalLeft = 0
+  startTaskLeftEdgeDrag(event: any){
+    this.dragging = DraggingType.taskEdgesLeft
+    this.originalItem = this.lastHovered
+    this.originalWidth = this.lastHovered.width
+    this.originalLeft = this.lastHovered.left
+    this.draggedOriginal = {x: event.x, y: event.y}
+    event.stopPropagation();
+    return false
+  }
+  startTaskRightEdgeDrag(event: any){
+    this.dragging = DraggingType.taskEdgesRight
+    this.originalItem = this.lastHovered
+    this.originalWidth = this.lastHovered.width
+    this.draggedOriginal = {x: event.x, y: event.y}
+    event.stopPropagation();
+    return false
+  }
+
+  startTaskDrag(event: any){
+    if(this.lastHovered.type == ItemType.category)
+      return false
+    this.dragging = DraggingType.task
+    this.originalItem = this.lastHovered
+    this.originalLeft = this.lastHovered.left
+    this.draggedOriginal = {x: event.x, y: event.y}
+    event.stopPropagation();
+    return false
+  }
+
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent | {x: number, y: number}){
-    if(this.dragging && !this.clipLine)
+    if(this.dragging == DraggingType.dependency && !this.clipLine)
       this.offset = {x: event.x - this.chartRect.left - this.draggedOriginal.x, y: event.y - this.chartRect.top - this.draggedOriginal.y}
+
+    if(this.dragging == DraggingType.taskEdgesLeft && this.originalItem){
+      this.originalItem.width = this.originalWidth - (event.x - this.draggedOriginal.x)
+      this.originalItem.left = this.originalLeft + (event.x - this.draggedOriginal.x)
+    }
+    if(this.dragging == DraggingType.taskEdgesRight && this.originalItem){
+      this.originalItem.width = this.originalWidth + event.x - this.draggedOriginal.x
+    }
+
+    if(this.dragging == DraggingType.task && this.originalItem){
+      this.originalItem.left = this.originalLeft + (event.x - this.draggedOriginal.x)
+    }
     return false
   }
 
   @HostListener('mouseup')
   onMouseUp() {
-    if(this.dragging && this.originalItem){
+    if(this.dragging == DraggingType.dependency && this.originalItem){
       if(this.clipLine
         && this.lastHovered.id != this.originalItem?.id // not the same
         && !this.lastHovered.dependant.includes(this.originalItem.id) // last doesnt already contain it
         && !this.originalItem.dependant.includes(this.lastHovered.id)){ // current isn't dependant on it
         this.originalItem.dependant.push(this.lastHovered.id)
       }
-      this.dragging = false
+      this.dragging = DraggingType.none
     }
     if(this.originalItem && this.originalItem != this.lastHovered)
       this.originalItem.hover = false
+
+    if(this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight){
+      this.dragging = DraggingType.none
+    }
+    if(this.dragging == DraggingType.task){
+      this.dragging = DraggingType.none
+    }
     return false
   }
 
   @HostListener('mouseleave')
   onMouseLeave() {
-    this.dragging = false
+    this.dragging = DraggingType.none
     this.lastHovered.hover = false
     if(this.originalItem)
       this.originalItem.hover = false
     return false
   }
 
-  dependencyPopUp(item: Item){
+  dependencyPopUp(item: Item, event: any){
     alert("clicked dep")
+    event.stopPropagation()
+    return false
+  }
+  editTask(item: Item){
+    alert('edit task')
   }
 
   categoryToggle(itemIdx: number){
@@ -274,10 +333,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
     for(; itemIdx < this.items.length && this.items[itemIdx].category == cat; itemIdx++){
       this.items[itemIdx].display = !this.items[itemIdx].display
     }
-  }
-
-  editTask(item: Item){
-    alert('edit task')
   }
 
   openSettings(){

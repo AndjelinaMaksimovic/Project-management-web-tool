@@ -41,6 +41,13 @@ export enum ItemType {
     milestone,
     category
 }
+export enum DraggingType{
+    dependency,
+    taskEdgesLeft,
+    taskEdgesRight,
+    task,
+    none
+}
 export class User{
     constructor(
         public id: number,

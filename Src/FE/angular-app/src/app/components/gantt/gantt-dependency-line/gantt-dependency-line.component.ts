@@ -15,6 +15,8 @@ export class GanttDependencyLineComponent {
   @Input() barHeight: number = 14
   @Input() hover: boolean = false
 
+  firstOffset = 5 // line from the origin task to the right, and goal task from the left
+
   abs(x: number): number{ return (x >= 0) ? x : -x }
 
   @HostListener('mouseenter', ['$event']) //TODO: not working
