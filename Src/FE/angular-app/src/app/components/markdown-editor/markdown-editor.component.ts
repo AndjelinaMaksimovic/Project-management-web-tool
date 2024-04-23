@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -13,4 +13,19 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 })
 export class MarkdownEditorComponent {
   description: string = ""
+
+  @ViewChild('editor') editor!: ElementRef;
+
+  insertText(before: string, after: string) {
+     const textarea = this.editor.nativeElement;
+     const start = textarea.selectionStart;
+     const end = textarea.selectionEnd;
+     const textBefore = textarea.value.substring(0, start);
+     const textAfter = textarea.value.substring(end);
+     const selectedText = textarea.value.substring(start, end);
+     const newText = `${textBefore}${before}${selectedText}${after}${textAfter}`;
+     textarea.value = newText;
+     textarea.selectionStart = start + before.length;
+     textarea.selectionEnd = end + before.length;
+  }
 }
