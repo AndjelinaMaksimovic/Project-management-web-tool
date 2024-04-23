@@ -43,15 +43,15 @@ namespace Codedberries.Models
 
         public ICollection<Project> Projects { get; } = new List<Project>();
 
-        public string HashPassword(string password, byte[] salt)
+        public void HashPassword(string password, byte[] salt)
         {
             using (var sha256 = SHA256.Create())
             {
                 var saltedPassword = Encoding.UTF8.GetBytes(password).Concat(salt).ToArray();
                 var hashedBytes = sha256.ComputeHash(saltedPassword);
                 string pass  = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-                return pass;
-            }
+                Password= pass;
+                }
         }
 
         public void GenerateSalt()
@@ -61,21 +61,20 @@ namespace Codedberries.Models
             {
                 rng.GetBytes(salt);
             }
-
-            PasswordSalt = salt;
+            PasswordSalt= salt;
         }
 
         public User(string email, string password, string firstname, string lastname, int? roleId)
         {
             Email = email;
-            GenerateSalt();
-            string pass=HashPassword(password,PasswordSalt);
-            Password = pass;
+            GenerateSalt(); 
             Firstname = firstname;
             Lastname = lastname;
             RoleId = roleId;
             Activated = false;
             ActivationToken = null;
+            if(password.Length<64) { HashPassword(password,PasswordSalt); }
+            else Password = password;
         }
     }
 }
