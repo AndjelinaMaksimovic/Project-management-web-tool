@@ -881,5 +881,41 @@ namespace Codedberries.Services
             }).ToList();
             return commentsDTO;
         }
+
+        // function is used to detect cyclic dependencies between tasks
+        private bool DetectCyclicDependency(int taskId, int dependencyId)
+        {
+            var visited = new HashSet<int>();
+            visited.Add(taskId);
+
+            var queue = new Queue<int>();
+            queue.Enqueue(dependencyId);
+
+            while (queue.Count > 0)
+            {
+                var currentTaskId = queue.Dequeue();
+
+                var dependentTasks = _databaseContext.Set<TaskDependency>()
+                    .Where(td => td.TaskId == currentTaskId)
+                    .Select(td => td.DependentTaskId)
+                    .ToList();
+
+                foreach (var dependentTaskId in dependentTasks)
+                {
+                    if (dependentTaskId == taskId)
+                    {
+                        return true; // circular dependency detected
+                    }
+
+                    if (!visited.Contains(dependentTaskId))
+                    {
+                        visited.Add(dependentTaskId);
+                        queue.Enqueue(dependentTaskId);
+                    }
+                }
+            }
+
+            return false; // no circular dependency detected
+        }
     }
 }
