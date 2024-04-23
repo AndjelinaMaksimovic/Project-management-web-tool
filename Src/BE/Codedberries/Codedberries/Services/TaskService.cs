@@ -61,6 +61,17 @@ namespace Codedberries.Services
             }
 
             var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanCreateTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to create Task!");
+            }
             // ---------------- //
 
             if (string.IsNullOrEmpty(request.Name))
