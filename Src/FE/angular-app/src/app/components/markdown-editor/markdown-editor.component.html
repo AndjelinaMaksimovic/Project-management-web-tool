@@ -1,0 +1,18 @@
+<mat-card>
+<!-- <mat-card-content> -->
+<mat-tab-group mat-align-tabs="start" mat-stretch-tabs="false">
+    <mat-tab label="Edit">
+        <div style="margin-top: 10px;">
+            <button mat-flat-button>test</button>
+            <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+                <mat-label>Description</mat-label>
+                <textarea matInput [(ngModel)]="description" style="height: 50vh;" [required]="true"></textarea>
+            </mat-form-field>
+        </div>
+    </mat-tab>
+    <mat-tab label="Preview">
+        <markdown ngPreserveWhitespaces [data]="description"></markdown>
+    </mat-tab>
+</mat-tab-group>
+<!-- </mat-card-content> -->
+</mat-card>

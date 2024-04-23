@@ -30,10 +30,8 @@
             </mat-form-field>
         </div> -->
         <!-- description -->
-        <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
-            <mat-label>Description</mat-label>
-            <textarea matInput [(ngModel)]="description" style="height: 50vh;" [required]="true"></textarea>
-        </mat-form-field>
+        
+        <app-markdown-editor></app-markdown-editor>
         <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event" [required]="true"></app-select>
         <div style="display: flex; width: 100%; gap: 10px; align-items: button;">
             <span style="width: 100%; gap: 10px;">

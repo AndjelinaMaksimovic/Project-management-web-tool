@@ -20,6 +20,7 @@ import { UserService } from '../../services/user.service';
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
 import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
+import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
 
 @Component({
   selector: 'app-new-task',
@@ -33,6 +34,7 @@ import { CreateStatusModalComponent } from '../../components/create-status-modal
     ClearableInputComponent,
     EmailFieldComponent,
     SelectComponent,
+    MarkdownEditorComponent,
   ],
   templateUrl: './new-task.component.html',
   styleUrl: './new-task.component.css',
