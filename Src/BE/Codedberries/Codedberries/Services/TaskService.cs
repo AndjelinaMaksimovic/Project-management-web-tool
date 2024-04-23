@@ -139,12 +139,21 @@ namespace Codedberries.Services
 
             if (requestedUser == null)
             {
-                throw new ArgumentException("User with the provided ID does not exist!");
+                throw new ArgumentException("User with the provided ID does not exist in database!");
             }
 
             if (requestedUser.RoleId == null)
             {
                 throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+            }
+
+            // is provided user assigned on project where new task is being created?
+            var userOnTask = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == request.ProjectId);
+
+            if (userOnTask == null)
+            {
+                throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {request.ProjectId} in UserProjects table!");
             }
 
             var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
