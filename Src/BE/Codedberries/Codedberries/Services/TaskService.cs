@@ -163,6 +163,11 @@ namespace Codedberries.Services
                 {
                     var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
 
+                    if (taskDependency == null)
+                    {
+                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                    }
+
                     TaskDependency newDependency = new TaskDependency
                     {
                         TaskId = taskDependency.Id,
