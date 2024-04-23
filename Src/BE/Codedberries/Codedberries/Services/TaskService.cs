@@ -39,6 +39,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
+
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist in database!");
+            }
+
             var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
 
             if (userRole != null && userRole.CanCreateTask == false)
@@ -71,18 +83,6 @@ namespace Codedberries.Services
             if (requestedPriority == null)
             {
                 throw new ArgumentException("Priority with the provided ID does not exist!");
-            }
-
-            if (request.ProjectId <= 0)
-            {
-                throw new ArgumentException("Project ID must be greater than zero!");
-            }
-
-            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
-
-            if (requestedProject == null)
-            {
-                throw new ArgumentException("Project with the provided ID does not exist!");
             }
 
             if (request.StatusId <= 0)
