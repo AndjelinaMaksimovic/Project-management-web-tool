@@ -1,1 +1,11 @@
-<p>gantt-settings works!</p>
+<div style="padding: 100px;">
+    <h1>Settings</h1>
+    <mat-select placeholder="Select" [(value)]="scale">
+        <mat-option *ngFor="let scaleOption of timeScale;" [value]="scaleOption">
+            {{scaleOption}}
+        </mat-option>
+    </mat-select>
+    <mat-checkbox [(ngModel)]="hideWeekend">Hide weekend</mat-checkbox>
+    <button mat-button (click)="submit()">Submit</button>
+    <button mat-button (click)="cancel()">Cancel</button>
+</div>

@@ -3,6 +3,10 @@ import { GanttColumn, Item, ItemType, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
+import { MatDialog } from '@angular/material/dialog';
+import { GanttSettingsComponent } from './gantt-settings/gantt-settings.component';
+import { Subscription } from 'rxjs';
+import { helpers } from './helpers';
 
 @Component({
   selector: 'app-gantt',
@@ -36,6 +40,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   GanttColumn = GanttColumn // must be declared to be used in html
   ItemType = ItemType // must be declared to be used in html
+  helpers = helpers
+
+  constructor(private dialogue: MatDialog){}
 
   ngOnInit(): void {
     if(this.items.length == 0){
@@ -61,10 +68,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
           (new Date("2024-04-06T00:00:00")).valueOf(),
           this.tasks[i].dueDate.valueOf(),
           this.tasks[i].assignedTo,
-          undefined,
-          undefined,
-          ItemType.task
         )
+        this.items[i].type = ItemType.task
       }
       for(let j = 0; j < this.milestones.length; j++, i++){
         this.items[i] = new Item(
@@ -72,126 +77,32 @@ export class GanttComponent implements OnInit, AfterViewInit{
           this.milestones[i].title,
           this.milestones[i].description,
           this.milestones[i].category,
-          // this.tasks[i].priority,
-          undefined,
-          // this.tasks[i].status,
-          undefined,
-          this.tasks[i].startDate.valueOf(),
-          // (new Date("2024-04-06T00:00:00")).valueOf(),
-          // this.milestones[i].dueDate.valueOf(),
-          undefined,
-          this.milestones[i].assignedTo,
-          undefined,
-          undefined,
-          ItemType.milestone
         )
+        this.items[i].startDate = this.milestones[i].startDate.valueOf()
+        this.items[i].assignedTo = this.milestones[i].startDate
+        this.items[i].type = ItemType.milestone
       }
     }
     
-    // sort categories by start date ------------------------------
-    const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
-      if(!prev[item.category]){
-          prev[item.category] = {min: item.startDate, max: item.dueDate}
-          return prev
-      }
-      if(prev[item.category].min > item.startDate)
-          prev[item.category].min = item.startDate
-      if(prev[item.category].max < item.dueDate)
-          prev[item.category].max = item.dueDate
-      return prev
-    }, {}))
-    const order = categories.sort((a,b)=> a[1].min - b[1].min).map((e, i)=>e[0])
-    this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
-    // ---------------------------
-    const newItem = new Item(
-      0,
-      categories[0][0],
-      "",
-      "",
-      "Low",
-      "",
-      categories[0][1].min,
-      categories[0][1].max,
-    )
-    newItem.color = 'grey'
-    newItem.type = ItemType.category
-    this.items.splice(0, 0, newItem)
-    for(let i=2, j=1;i<this.items.length;i++){
-      if(this.items[i].category != this.items[i-1].category){
-        const newItem = new Item(
-          0,
-          categories[j][0],
-          "",
-          "",
-          "Low",
-          "",
-          categories[j][1].min,
-          categories[j][1].max,
-        )
-        newItem.color = 'grey'
-        newItem.type = ItemType.category
-        this.items.splice(i, 0, newItem)
-        j+=1
-        i+=1
-      }
-    }
-    for (let i = 0; i < this.items.length; i++) {
+    this.sortByCategories()
+    for (let i = 0; i < this.items.length; i++) { // init after sorting by categories
       this.idMap[this.items[i].id] = i
     }
-
     this.initTimeHeader()
-    this.holidays.forEach(date => {
-      date.setHours(0, 0, 0, 0)
-    });
-
-    this.items.forEach(item => {
-      var t: number
-
-      // rounded
-      t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
-      t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.left = t*this.columnWidth
-      t = item.startDate - item.startDate % this.timeScale  // normalize start
-      t = (Math.ceil((item.dueDate - t) / this.timeScale))
-      t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      item.width = t*this.columnWidth
-
-      // exact
-      // t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
-      // t = t - this.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      // item.left = t
-      // t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
-      // t = t - this.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => this.includeDay(curr) ? prev : prev + 1, 0)
-      // item.width = t
-    });
-  }
-
-  range(start: number, end: number, step: number = 1){ // inclusive
-    return Array(Math.floor((end - start) / step + 1)).fill(0).map((_, i) => start + i * step)
-  }
-  colOffset(idx: number){
-    return this.colWidths.slice(0, idx+1).reduce((a,b)=>a+b,0)
-  }
-
-  includeDay(day: number){
-    const d = new Date(day);
-    d.setHours(0, 0, 0, 0)
-    day = d.getDay();
-    if (this.hideWeekend && (day == 0 || day == 6))
-      return false
-    if(this.holidays.includes(d))
-      return false
-    return true
+    // this.holidays.forEach(date => {
+    //   date.setHours(0, 0, 0, 0)
+    // });
+    this.initItemDisplay()
   }
 
   initTimeHeader(){
     const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
     const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
     this.chartStartDate = min - min % this.timeScale /* for display ->*/ - this.timeScale * 1
-    const datesNumber = this.range(this.chartStartDate, max /* for display ->*/ + this.timeScale * 20, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
-    // this.dates = this.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
+    const datesNumber = helpers.range(this.chartStartDate, max /* for display ->*/ + this.timeScale * 20, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
+    // this.dates = helpers.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
       .filter((v, i) => {
-        return this.includeDay(v) // remove weekend and holiday
+        return helpers.includeDay(v, this.hideWeekend, this.holidays) // remove weekend and holiday
       })
     this.currentDateIndex = datesNumber.indexOf(Date.now() - Date.now() % this.timeScale)
     this.dates = datesNumber.map((v) => {
@@ -215,7 +126,68 @@ export class GanttComponent implements OnInit, AfterViewInit{
       })
   }
 
-  lastHovered!: Item
+  sortByCategories(){
+    // sort categories by start date ------------------------------
+    const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
+      if(!prev[item.category]){
+          prev[item.category] = {min: item.startDate, max: item.dueDate}
+          return prev
+      }
+      if(prev[item.category].min > item.startDate)
+          prev[item.category].min = item.startDate
+      if(prev[item.category].max < item.dueDate)
+          prev[item.category].max = item.dueDate
+      return prev
+    }, {}))
+    const order = categories.sort((a,b)=> a[1].min - b[1].min).map((e, i)=>e[0])
+    this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
+    // ---------------------------
+    const newItem = new Item()
+    newItem.title = categories[0][0]
+    newItem.startDate = categories[0][1].min
+    newItem.dueDate = categories[0][1].max
+    newItem.color = 'grey'
+    newItem.type = ItemType.category
+    this.items.splice(0, 0, newItem)
+    for(let i=2, j=1;i<this.items.length;i++){
+      if(this.items[i].category != this.items[i-1].category){
+        const newItem = new Item()
+        newItem.title = categories[j][0]
+        newItem.startDate = categories[j][1].min
+        newItem.dueDate = categories[j][1].max
+        newItem.color = 'grey'
+        newItem.type = ItemType.category
+        this.items.splice(i, 0, newItem)
+        j+=1
+        i+=1
+      }
+    }
+  }
+
+  initItemDisplay(){
+    this.items.forEach(item => {
+      var t: number
+
+      // rounded
+      t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
+      t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
+      item.left = t*this.columnWidth
+      t = item.startDate - item.startDate % this.timeScale  // normalize start
+      t = (Math.ceil((item.dueDate - t) / this.timeScale))
+      t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
+      item.width = t*this.columnWidth
+
+      // exact
+      // t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
+      // t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr) ? prev : prev + 1, 0)
+      // item.left = t
+      // t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
+      // t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr) ? prev : prev + 1, 0)
+      // item.width = t
+    });
+  }
+
+  lastHovered: Item = this.items.length > 0 ? this.items[0] : new Item() // quick hack
   dragging: boolean = false
   itemHover(item: Item){
     if(!this.dragging){
@@ -304,5 +276,27 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   editTask(item: Item){
     alert('edit task')
+  }
+
+  openSettings(){
+    const ref = this.dialogue.open(GanttSettingsComponent, { autoFocus: false, data: {
+      scale: this.timeScale,
+      hideWeekend: this.hideWeekend,
+      holidays: this.holidays,
+      columns: this.columns
+    } })
+
+    ref.beforeClosed().subscribe((data: any)=>{
+      if(data){
+        this.columns = data.columns
+        if(this.timeScale != data.scale || this.hideWeekend != data.hideWeekend || this.holidays != data.holidays){
+          this.timeScale = data.scale
+          this.hideWeekend = data.hideWeekend
+          this.holidays = data.holidays
+          this.initTimeHeader()
+          this.initItemDisplay()
+        }
+      }
+    })
   }
 }

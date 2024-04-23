@@ -1,9 +1,10 @@
 <div style="white-space: nowrap; overflow: auto; display: flex; background-color: white; height: 500px;">
     <div class="info">
+        <div style="position: absolute; width: 20px; height: 20px; color: gray; cursor: pointer;" (click)="openSettings()">&#9881;</div>
         @for (col of columns; track col; let idx = $index) {
             <div [style.width]="colWidths[idx]+'px'" style="display: inline-block; overflow: hidden;">
                 <div class="header text-align-center" [style.width]="colWidths[idx]+'px'">
-                    <div class="date-line" [style.left]="colOffset(idx)"></div>
+                    <div class="date-line" [style.left]="helpers.colOffset(idx, colWidths)"></div>
                     <h4 class="column-display">{{col}}</h4>
                 </div>
                 <div [style.width]="colWidths[idx]+'px'">
