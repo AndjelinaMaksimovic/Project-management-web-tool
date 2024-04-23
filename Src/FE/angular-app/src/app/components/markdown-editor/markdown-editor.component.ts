@@ -12,11 +12,11 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
   styleUrl: './markdown-editor.component.css',
 })
 export class MarkdownEditorComponent {
-  @Input() description: string | null | undefined = "";
-  @Output() descriptionChange = new EventEmitter<string>();
-  changeSelection(newSelection: string) {
-    this.description = newSelection;
-    this.descriptionChange.emit(this.description);
+  @Input() value: string | null | undefined = "";
+  @Output() valueChange = new EventEmitter<string>();
+  changeValue(newSelection: string) {
+    this.value = newSelection;
+    this.valueChange.emit(this.value);
   }
 
   @ViewChild('editor') editor!: ElementRef;
