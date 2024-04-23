@@ -13,6 +13,7 @@ export class ClearableInputComponent {
   @Input() type: string = "";
   @Input() label: string = "";
   @Input() placeholder: string = "";
+  @Input() required: boolean = false;
   @Output() valueChange = new EventEmitter<string>();
 
   private _data: string = "";

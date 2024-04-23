@@ -13,7 +13,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip'
+import { MatTabsModule } from '@angular/material/tabs';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
 
 const MaterialComponents = [
   MatButtonModule,
@@ -30,7 +33,19 @@ const MaterialComponents = [
   MatDatepickerModule,
   MatTooltipModule,
   MatDividerModule,
+  MatTabsModule
 ];
+const MY_DATE_FORMAT = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // this is how your date will be parsed from Input
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // this is how your date will get displayed on the Input
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY'
+  }
+};
 @NgModule({
   imports: [MaterialComponents],
   exports: [MaterialComponents],
@@ -45,6 +60,8 @@ const MaterialComponents = [
         disableTooltipInteractivity: true, // <-- Should do the trick
       },
     },
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMAT }
  ]
 })
 export class MaterialModule {}

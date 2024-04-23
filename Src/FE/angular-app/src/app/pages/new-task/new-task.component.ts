@@ -18,6 +18,10 @@ import {
 } from '@angular/material/core';
 import { UserService } from '../../services/user.service';
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
+import { StatusService } from '../../services/status.service';
+import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
+import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
+import moment from "moment";
 
 @Component({
   selector: 'app-new-task',
@@ -31,10 +35,7 @@ import { CreateCategoryModalComponent } from '../../components/create-category-m
     ClearableInputComponent,
     EmailFieldComponent,
     SelectComponent,
-  ],
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    MarkdownEditorComponent,
   ],
   templateUrl: './new-task.component.html',
   styleUrl: './new-task.component.css',
@@ -47,9 +48,10 @@ export class NewTaskComponent {
   description: string | null = null;
   // date: string | null = null;
   // startDate: string | null = null;
-  dueDate = new FormControl(new Date());
-  startDate = new FormControl(new Date());
+  dueDate = new FormControl(moment());
+  startDate = new FormControl(moment());
   priority: string | null = null;
+  status: string = this.statusService.getStatuses()[0]?.id?.toString() || "";
   category: string | null = null;
   dependencies: string[] = [];
   assignee: string | undefined;
@@ -58,9 +60,9 @@ export class NewTaskComponent {
   users: { value: string; viewValue: string }[] = [];
 
   priorities = [
-    { value: 'Low', viewValue: 'Low' },
-    { value: 'Medium', viewValue: 'Medium' },
-    { value: 'High', viewValue: 'High' },
+    { value: '1', viewValue: 'Low' },
+    { value: '2', viewValue: 'Medium' },
+    { value: '3', viewValue: 'High' },
   ];
   // hack fix
   // we change _categories when `categoryService.getCategories().length` does not match the `_categories.length`
@@ -79,10 +81,25 @@ export class NewTaskComponent {
     }
     return this._categories;
   }
+  _statuses: { value: string; viewValue: string }[] = [];
+  get statuses() {
+    if (
+      this._statuses.length !== this.statusService.getStatuses().length
+    ) {
+      this._statuses = this.statusService.getStatuses().map((cat) => {
+        return {
+          value: cat.id.toString(),
+          viewValue: cat.name,
+        };
+      });
+    }
+    return this._statuses;
+  }
 
   constructor(
     private taskService: TaskService,
     private categoryService: CategoryService,
+    private statusService: StatusService,
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
@@ -117,13 +134,14 @@ export class NewTaskComponent {
       !this.priority ||
       !this.description ||
       !this.category ||
+      !this.status ||
       !this.dueDate.value ||
       !this.startDate.value
     ) {
       this.errorMessage = 'Please provide all required fields';
       return;
     }
-    if (this.startDate.value.getTime() > this.dueDate.value.getTime()) {
+    if (this.startDate.value.toDate().getTime() > this.dueDate.value.toDate().getTime()) {
       this.errorMessage = 'Please enter valid start/due dates';
       return;
     }
@@ -132,12 +150,12 @@ export class NewTaskComponent {
         title: this.title,
         description: this.description,
         // date: this.dueDate.value,
-        startDate: this.startDate.value,
-        dueDate: this.dueDate.value,
+        startDate: this.startDate.value.toDate(),
+        dueDate: this.dueDate.value.toDate(),
         category: this.category,
-        priority: this.priority as 'Low' | 'High' | 'Medium',
-        status: 'Active',
-        assignedTo: [],
+        priority: this.priority,
+        status: this.status,
+        assignedTo: this.assignee,
         dependencies: this.dependencies,
       },
       1
@@ -146,5 +164,8 @@ export class NewTaskComponent {
   }
   createCategory() {
     this.dialog.open(CreateCategoryModalComponent);
+  }
+  createStatus() {
+    this.dialog.open(CreateStatusModalComponent);
   }
 }
