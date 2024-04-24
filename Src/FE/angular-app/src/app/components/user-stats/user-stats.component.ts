@@ -40,6 +40,7 @@ export class UserStatsComponent {
 
   constructor(private userService: UserService, private projectService: ProjectService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.userId = data.id;
+    this.title = data.title;
   }
 
   async ngOnInit() {

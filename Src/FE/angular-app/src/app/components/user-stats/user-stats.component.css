@@ -2,8 +2,8 @@
     padding: 1rem;
     padding-top: 0rem;
     border-radius: 10px;
+    width: 50vw;
     border: 1px solid #C1C1C1;
-    width: 90%;
     background-color: #ffffff;
 }
 
@@ -77,8 +77,9 @@
 }
 
 .profile-picture {
+    border: 1px solid black;
     float:left;
-    height: 3rem;
+    height: 4rem;
     border-radius: 50%;
     background-color: white;
 }
@@ -118,9 +119,4 @@
     font-size: x-large;
     font-weight: 500;
     cursor: pointer;
-}
-
-.mat-dialog-container {
-    padding: 0px !important;
-    background-color: red !important;
 }
