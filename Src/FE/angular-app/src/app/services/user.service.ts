@@ -45,6 +45,23 @@ export class UserService {
   public getUsers() {
     return this.users;
   }
+  public async fetchUsersByRole(roleId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + `/User/getUsers?roleId=${roleId}`,
+          this.httpOptions
+        )
+      );
+      this.users = res.body.map((user: any) => {
+        return mapUser(user);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
   public async fetchUsers() {
     try {
       const res = await firstValueFrom(
@@ -56,6 +73,21 @@ export class UserService {
       this.users = res.body.map((user: any) => {
         return mapUser(user);
       });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async getUser(userId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + `/User/getUser?userId=${userId}`,
+          this.httpOptions
+        )
+      );
+      return res.body[0];
     } catch (e) {
       console.log(e);
     }
