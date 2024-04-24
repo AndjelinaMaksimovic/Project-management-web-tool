@@ -39,7 +39,7 @@ export class TaskComponent {
   async ngOnInit() {
     this.route.params.subscribe((params) => {
       this.taskId = parseInt(params['taskId']);
-      this.projectId = parseInt(params['projectId']);
+      this.projectId = parseInt(params['id']);
     });
     await this.taskService.fetchTasks({ projectId: this.projectId });
   }
