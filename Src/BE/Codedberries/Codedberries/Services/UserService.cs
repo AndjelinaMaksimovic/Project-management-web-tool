@@ -61,21 +61,21 @@ namespace Codedberries.Services
         {
             using (var sha256 = SHA256.Create())
             {
-                
+
                 var hashedInputPassword = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
                 string str = BitConverter.ToString(hashedInputPassword).Replace("-", "").ToLower(); ;
-                var hashed2= sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
+                var hashed2 = sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
                 string str2 = BitConverter.ToString(hashed2).Replace("-", "").ToLower(); ;
-                
-              
+
+
 
                 // Compare the computed hash with the stored hashed password
-                
-                    if (hashedPassword==str2)
-                    {
-                        return true; // wrong password
-                    }
-                
+
+                if (hashedPassword == str2)
+                {
+                    return true; // wrong password
+                }
+
             }
 
             return false; // passwords matc
@@ -319,26 +319,26 @@ namespace Codedberries.Services
             IQueryable<User> query = _databaseContext.Users;
             var foundUser = _databaseContext.Users.FirstOrDefault(u => u.Id == body.UserId);
 
-            var userInformationDTO= query.Where(s => s.Id == body.UserId)
+            var userInformationDTO = query.Where(s => s.Id == body.UserId)
                 .Select(s => new UserInformationDTO
                 {
-                Id = foundUser.Id,
-                Email = foundUser.Email,
-                Firstname = foundUser.Firstname,
-                Lastname = foundUser.Lastname,
-                Activated = foundUser.Activated,
-                ProfilePicture = foundUser.ProfilePicture,
-                RoleId = foundUser.RoleId,
-                RoleName = s.Role.Name,
-                Projects = s.Projects.Select(p => new ProjectDTO
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    DueDate = p.DueDate,
-                    StartDate = p.StartDate
-                }).ToList()
-            }).ToList();
+                    Id = foundUser.Id,
+                    Email = foundUser.Email,
+                    Firstname = foundUser.Firstname,
+                    Lastname = foundUser.Lastname,
+                    Activated = foundUser.Activated,
+                    ProfilePicture = foundUser.ProfilePicture,
+                    RoleId = foundUser.RoleId,
+                    RoleName = s.Role.Name,
+                    Projects = s.Projects.Select(p => new ProjectDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        DueDate = p.DueDate,
+                        StartDate = p.StartDate
+                    }).ToList()
+                }).ToList();
 
             if (userInformationDTO.Count == 0)
             {
@@ -346,6 +346,108 @@ namespace Codedberries.Services
             }
 
             return userInformationDTO;
+        }
+
+        public async Task<CurrentSessionUserDTO> GetCurrentSessionUserData(HttpContext httpContext)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            var tasks = await _databaseContext.Tasks
+                .Where(t => t.UserId == userId)
+                .Select(t => new TaskInformationDTO
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    StartDate = t.StartDate,
+                    DueDate = t.DueDate,
+                    FinishedDate = t.FinishedDate,
+                    UserId = t.UserId,
+                    ProjectId = t.ProjectId,
+                    StatusId = t.StatusId,
+                    CategoryId = t.CategoryId,
+                    PriorityId = t.PriorityId,
+                    DifficultyLevel = t.DifficultyLevel,
+                    Archived = t.Archived
+                })
+                .ToListAsync();
+
+            var userProjects = await _databaseContext.UserProjects
+                .Where(up => up.UserId == userId)
+                .ToListAsync();
+
+            var userProjectIds = userProjects.Select(up => up.ProjectId).ToList();
+
+            var projects = await _databaseContext.Projects
+                .Where(p => userProjectIds.Contains(p.Id))
+                .Select(p => new ProjectInformationDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    StartDate = p.StartDate,
+                    DueDate = p.DueDate,
+                    Archived = p.Archived,
+                    Statuses = p.Statuses.Select(s => new StatusDTO
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Order = s.Order
+                    }).ToList(),
+                    Categories = p.Categories.Select(c => new CategoryDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }).ToList(),
+                    Users = p.Users.Select(u => new UserDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            var currentSessionUserDTO = new CurrentSessionUserDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Firstname = user.Firstname,
+                Lastname = user.Lastname,
+                Activated = user.Activated,
+                ProfilePicture = user.ProfilePicture,
+                RoleId = user.RoleId,
+                RoleName = userRole.Name,
+                Projects = projects,
+                Tasks = tasks
+            };
+
+            return currentSessionUserDTO;
         }
     }
 }
