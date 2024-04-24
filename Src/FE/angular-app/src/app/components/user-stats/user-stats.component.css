@@ -119,3 +119,8 @@
     font-weight: 500;
     cursor: pointer;
 }
+
+.mat-dialog-container {
+    padding: 0px !important;
+    background-color: red !important;
+}

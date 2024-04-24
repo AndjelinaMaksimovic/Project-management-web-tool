@@ -5,7 +5,7 @@
     </div>
     <div class="main-container">
         <div class="basic-container margin-15 left-container flex-2">
-            <img class="profile-picture center" src="/assets/logo.svg">
+            <img class="profile-picture center" [src]="image">
             <div class="ml-20 w-100">
                 <p class="title">{{name}}</p>
                 <p class="desc">{{desc}}</p>
@@ -28,7 +28,7 @@
             <i class="fa-solid fa-sliders center mr-10"></i>
         </div>
     </div>
-    <div class="margin-15">
+    <div *ngIf="tasksVisible" class="margin-15">
         <div class="accordion">
             <div class="accordion-item accordion-header" (click)="toggleTasks();">
                 <i *ngIf="allTasksAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
@@ -49,7 +49,7 @@
                 <i *ngIf="!allProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
                 <span>Active projects</span>
             </div>
-            <div *ngIf="allTasksAccordionVisible">
+            <div *ngIf="allProjectsAccordionVisible">
                 @for (project of projects; track project) {
                     <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
                 }
