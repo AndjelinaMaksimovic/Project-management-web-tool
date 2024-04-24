@@ -14,9 +14,20 @@
                     <span class="tag">Status: <div [classList]="['chip chip-' + 'warn']">{{task?.status}}</div></span>
                     <div class="tag">
                         Due date:
-                        <div style="font-size: small; font-weight: bold; color: black">📅 {{task?.dueDate?.toDateString()}}
+                        <div style="font-size: small; font-weight: bold; color: black">📅
+                            {{task?.dueDate?.toDateString()}}
                         </div>
                     </div>
+
+                    <span class="tag">Assigned to:
+                        @for (assignee of task?.assignedTo; track assignee) {
+                        <span style="display: flex; align-items: center; gap: 10px" [matTooltip]="assignee.firstName + ' ' + assignee.lastName">
+                            <span
+                                style="width: 24px; height: 24px; border-radius: 100%; background-color: rgb(255, 102, 0); color: white; text-align: center; vertical-align: center; line-height: 24px;">
+                                {{assignee.firstName[0]}}</span>
+                        </span>
+                        }
+                    </span>
                 </div>
                 <mat-divider></mat-divider>
                 <markdown ngPreserveWhitespaces [data]="task?.description"></markdown>
