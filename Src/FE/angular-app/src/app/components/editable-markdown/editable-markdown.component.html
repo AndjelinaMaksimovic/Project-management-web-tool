@@ -1,0 +1,13 @@
+<div *ngIf="!isEditing">
+    <mat-divider></mat-divider>
+    <markdown ngPreserveWhitespaces [data]="content" (click)="isEditing = true"></markdown>
+    <!-- <button color="primary" mat-flat-button (click)="isEditing = true">Edit description</button> -->
+    <!-- <button mat-icon-button (click)="isEditing = true"><mat-icon>edit</mat-icon></button> -->
+</div>
+<div *ngIf="isEditing">
+    <app-markdown-editor [(value)]="editContent"></app-markdown-editor>
+    <div style="display: flex; gap: 10px">
+    <button color="primary" mat-flat-button (click)="save()">Save</button>
+    <button color="primary" mat-flat-button (click)="cancel()">Cancel</button>
+    </div>
+</div>
