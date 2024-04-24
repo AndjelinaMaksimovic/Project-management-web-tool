@@ -12,6 +12,7 @@
     font-weight: bold;
     padding: 4px;
     font-size: small;
+    cursor: pointer;
 }
 
 .chip-warn {

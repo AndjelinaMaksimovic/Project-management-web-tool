@@ -1,2 +1,7 @@
-<span class="tag">Category: <div class="chip chip-neutral">
-    {{task?.category}}</div></span>
+<div class="chip chip-neutral" [matMenuTriggerFor]="menu">{{task?.category}}</div>
+
+<mat-menu #menu="matMenu">
+    @for(category of categories; track category){
+    <button mat-menu-item (click)="updateCategory(category.id.toString())">{{category.name}}</button>
+    }
+</mat-menu>
