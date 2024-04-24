@@ -145,6 +145,10 @@ export class TaskService {
       const request: Record<string, unknown> = { taskId: task.id };
       if (task.status)
         request['statusId'] = this.statusService.nameToId(task.status);
+      if (task.category)
+        request['categoryId'] = this.statusService.nameToId(task.category);
+      if (task.priority)
+        request['priorityId'] = this.statusService.nameToId(task.priority);
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.dueDate) request['dueDate'] = task.dueDate;
