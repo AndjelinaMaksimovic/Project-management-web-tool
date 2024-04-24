@@ -11,7 +11,15 @@ import { StatusChipComponent } from '../../components/task-chips/status-chip/sta
 @Component({
   selector: 'app-task',
   standalone: true,
-  imports: [NavbarComponent, MarkdownModule, MaterialModule, CommentsComponent, EditableMarkdownComponent, CategoryChipComponent, StatusChipComponent],
+  imports: [
+    NavbarComponent,
+    MarkdownModule,
+    MaterialModule,
+    CommentsComponent,
+    EditableMarkdownComponent,
+    CategoryChipComponent,
+    StatusChipComponent,
+  ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
   styleUrl: './task.component.css',
@@ -24,7 +32,7 @@ export class TaskComponent {
     private route: ActivatedRoute
   ) {}
 
-  get task(){
+  get task() {
     return this.taskService.getTasks().find((t) => t.id === this.taskId);
   }
 
@@ -33,13 +41,13 @@ export class TaskComponent {
       this.taskId = parseInt(params['taskId']);
       this.projectId = parseInt(params['projectId']);
     });
-    await this.taskService.fetchTasks({projectId: this.projectId});
+    await this.taskService.fetchTasks({ projectId: this.projectId });
   }
 
-  updateDescription(newDescription: string){
+  updateDescription(newDescription: string) {
     this.taskService.updateTask({
       id: this.taskId,
-      description: newDescription
-    })
+      description: newDescription,
+    });
   }
 }

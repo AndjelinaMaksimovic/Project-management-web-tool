@@ -20,7 +20,8 @@
 
                     <span class="tag">Assigned to:
                         @for (assignee of task?.assignedTo; track assignee) {
-                        <span style="display: flex; align-items: center; gap: 10px" [matTooltip]="assignee.firstName + ' ' + assignee.lastName">
+                        <span style="display: flex; align-items: center; gap: 10px"
+                            [matTooltip]="assignee.firstName + ' ' + assignee.lastName">
                             <span
                                 style="width: 24px; height: 24px; border-radius: 100%; background-color: rgb(255, 102, 0); color: white; text-align: center; vertical-align: center; line-height: 24px;">
                                 {{assignee.firstName[0]}}</span>
@@ -29,7 +30,8 @@
                     </span>
                 </div>
                 <mat-divider></mat-divider>
-                <app-editable-markdown [content]="task?.description" (onSave)="updateDescription($event)"></app-editable-markdown>
+                <app-editable-markdown [content]="task?.description"
+                    (onSave)="updateDescription($event)"></app-editable-markdown>
                 <!-- <markdown ngPreserveWhitespaces [data]="task?.description"></markdown> -->
             </mat-card-content>
         </mat-card>
