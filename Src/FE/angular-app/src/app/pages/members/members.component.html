@@ -34,7 +34,7 @@
                 </div>
                 <div class="member-container" *ngIf="role.value.active">
                     @for (member of role.value.members; track member) {
-                        <app-member-item [name]="member.name" [desc]="member.projects + ' projects'" [image]="member.image"></app-member-item>
+                        <app-member-item [name]="member.firstname + ' ' + member.lastname" [desc]="''" [image]="member.image" (click)="openMember(member.id)"></app-member-item>
                     }
                 </div>
             </div>
