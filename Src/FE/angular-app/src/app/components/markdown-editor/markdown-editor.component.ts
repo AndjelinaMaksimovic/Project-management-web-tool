@@ -33,5 +33,6 @@ export class MarkdownEditorComponent {
      textarea.value = newText;
      textarea.selectionStart = start + before.length;
      textarea.selectionEnd = end + before.length;
+     this.changeValue(textarea.value);
   }
 }
