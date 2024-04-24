@@ -112,3 +112,11 @@
     display: flex;
     gap: 1rem;
 }
+
+.borderless-dialog .mat-dialog-container {
+    padding: 0px;
+    overflow: hidden;
+    background-color: red !important;
+    color: red !important;
+  }
+  

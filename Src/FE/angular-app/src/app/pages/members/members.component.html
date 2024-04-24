@@ -14,7 +14,7 @@
     <div class="container row pl-l pl-r mt-20" style="justify-content: space-between;">
         <div class="container row align-left">
         </div>
-        <div class="filters">
+        <!-- <div class="filters">
             <a class="small-button" (click)="openFilters()">
                 <i class="fa-solid fa-filter mr-10"></i>
                 <span>Filter</span>
@@ -22,7 +22,7 @@
             <app-filters *ngIf="isFilterOpen" [title]="'Member Filters'" (fetchMembers)="fetchMembersFromLocalStorage()" [filtersName]="'member_filters'" [allFilters]="filters"></app-filters>
             <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
             </div>
-        </div>
+        </div> -->
     </div>
     <ng-container *ngFor="let role of roles | keyvalue">
         <div class="container row align-left pl-l pl-r mt-20">

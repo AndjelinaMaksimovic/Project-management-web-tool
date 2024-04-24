@@ -74,12 +74,13 @@ export class MembersComponent {
     onlyRoles?.forEach((val, index) => {
       this.roles.set(val.id, new Role(val.roleName, val.id, []));
     });
+    this.roles.set(-1, new Role("No role", -1, []));
 
     await this.userService.fetchUsers();
     let onlyUsers = await this.userService.getUsers();
 
     onlyUsers?.forEach((val, index) => {
-      this.roles.get(val.id)?.addMember(new Member(val.firstName, val.lastName, val.id, val.profilePicture, 0));
+      this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, val.profilePicture, 0));
     });
   }
 
@@ -100,7 +101,11 @@ export class MembersComponent {
 
   openMember(id: number) {
     const dialogRef = this.dialog.open(UserStatsComponent, {
-      data: {id: id}
+      panelClass: 'borderless-dialog',
+      data: {
+        id: id,
+        title: "User details"
+      }
     });
   }
 }
