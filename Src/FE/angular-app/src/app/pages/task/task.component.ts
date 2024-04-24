@@ -17,11 +17,14 @@ import { EditableMarkdownComponent } from '../../components/editable-markdown/ed
 export class TaskComponent {
   taskId: number = 0;
   projectId: number = 0;
-  task: Task | undefined;
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute
   ) {}
+
+  get task(){
+    return this.taskService.getTasks().find((t) => t.id === this.taskId);
+  }
 
   async ngOnInit() {
     this.route.params.subscribe((params) => {
@@ -29,7 +32,6 @@ export class TaskComponent {
       this.projectId = parseInt(params['projectId']);
     });
     await this.taskService.fetchTasks({projectId: this.projectId});
-    this.task = this.taskService.getTasks().find((t) => t.id === this.taskId);
   }
 
   updateDescription(newDescription: string){
