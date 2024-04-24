@@ -9,26 +9,31 @@
                 </div>
                 <div [style.width]="colWidths[idx]+'px'">
                     @for (item of items; track item; let itemIdx = $index) {
-                        <div [style.height]="taskHeight+'px'" style="padding-left: 5px; display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
+                        <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                             <!-- tasks column -->
-                            <div class="task task-title" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks && item.type != ItemType.category"
+                            <div class="task task-title" style="padding-left: 5px; width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks && item.type != ItemType.category"
                             [attr.title]="item.title"
                             (click)="editTask(item)">
                                 {{item.title}}
                             <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
                             </div>
                             <!-- task column - category display -->
-                            <div class="task" style="margin-right: 5px; user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
+                            <div class="task" style="padding-left: 5px; margin-right: 5px; user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
                                 <span *ngIf="items[itemIdx+1].display">&#9660;</span>
                                 <span *ngIf="!items[itemIdx+1].display">&#9650;</span>
                                 {{item.title}}
                             <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
                             </div>
                             <!-- users column -->
-                            <div class="task" *ngIf="col == GanttColumn.users">
+                            <div class="task" *ngIf="col == GanttColumn.users" style="padding-left: 5px;">
                                 @for(user of item.assignedTo; track user; let last = $last){
                                     <span class="">{{user.firstName}}<span *ngIf="!last">, </span></span>
                                 }
+                            </div>
+                            <!-- progress column -->
+                            <div class="task" *ngIf="col == GanttColumn.progress" style="width: 100%; text-align: center;">
+                                <span *ngIf="item.type == ItemType.task">{{item.percentage}}%</span>
+                                <input type="checkbox" *ngIf="item.type == ItemType.milestone">
                             </div>
                         </div>
                     }

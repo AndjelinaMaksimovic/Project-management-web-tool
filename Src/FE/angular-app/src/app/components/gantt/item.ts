@@ -29,7 +29,8 @@ export class Item {
 }
 export enum GanttColumn {
     tasks = "Tasks",
-    users = "Users"
+    users = "Users",
+    progress = "Progress"
 }
 export enum TimeScale {
     week = 86_400_000 * 7,
