@@ -1,0 +1,15 @@
+<div style="font-size: small; font-weight: bold; color: black" [matMenuTriggerFor]="menu">📅
+    {{task?.dueDate?.toDateString()}}
+</div>
+<mat-menu #menu="matMenu">
+    <div style="padding: 10px">
+        <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+            <mat-label>Start date</mat-label>
+            <input matInput [matDatepicker]="dp" [formControl]="dueDate" [min]="task?.startDate" [required]="true">
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+        </mat-form-field>
+        <button mat-flat-button (click)="updateDate()">Update Due date</button>
+    </div>
+</mat-menu>
