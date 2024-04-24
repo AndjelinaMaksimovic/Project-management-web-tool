@@ -30,7 +30,8 @@
                     </span>
                 </div>
                 <mat-divider></mat-divider>
-                <markdown ngPreserveWhitespaces [data]="task?.description"></markdown>
+                <app-editable-markdown [content]="task?.description" (onSave)="updateDescription($event)"></app-editable-markdown>
+                <!-- <markdown ngPreserveWhitespaces [data]="task?.description"></markdown> -->
             </mat-card-content>
         </mat-card>
         <h3>Comments:</h3>
