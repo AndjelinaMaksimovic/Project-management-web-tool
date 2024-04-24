@@ -60,6 +60,7 @@
                                 'background-color': (item.type == ItemType.milestone) ? '' : item.color,
                                 'box-shadow': (item.type == ItemType.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
                                 'height': barHeight+'px',
+                                'cursor': item.type != ItemType.category ? 'move' : ''
                             }">
                                 <div *ngIf="item.type == ItemType.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
                                 [ngStyle]="{

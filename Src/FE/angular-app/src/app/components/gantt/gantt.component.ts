@@ -85,10 +85,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.items[i].type = ItemType.milestone
       }
     }
-    this.sortByCategories()
-    for (let i = 0; i < this.items.length; i++) { // init after sorting by categories
-      this.idMap[this.items[i].id] = i
-    }
+    this.insertCategories() // also init idMap
     this.initTimeHeader()
     // this.holidays.forEach(date => {
     //   date.setHours(0, 0, 0, 0)
@@ -127,29 +124,22 @@ export class GanttComponent implements OnInit, AfterViewInit{
       })
   }
 
-  sortByCategories(){
-    // sort categories by start date ------------------------------
-    const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
-      if(!prev[item.category]){
-          prev[item.category] = {min: item.startDate, max: item.dueDate}
-          return prev
-      }
-      if(prev[item.category].min > item.startDate)
-          prev[item.category].min = item.startDate
-      if(prev[item.category].max < item.dueDate)
-          prev[item.category].max = item.dueDate
-      return prev
-    }, {}))
-    const order = categories.sort((a,b)=> a[1].min - b[1].min).map((e, i)=>e[0])
-    this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
-    // ---------------------------
+  insertCategories(){
+    this.items = this.items.filter(a => a.type != ItemType.category)
+
+    const categories = this.sortItemsByCategories(
+      this.makeCategories()
+    )
+
     const newItem = new Item()
     newItem.title = categories[0][0]
     newItem.startDate = categories[0][1].min
     newItem.dueDate = categories[0][1].max
     newItem.color = 'grey'
     newItem.type = ItemType.category
-    this.items.splice(0, 0, newItem)
+
+    this.items.splice(0, 0, newItem)  // insert at index 0
+
     for(let i=2, j=1;i<this.items.length;i++){
       if(this.items[i].category != this.items[i-1].category){
         const newItem = new Item()
@@ -163,6 +153,30 @@ export class GanttComponent implements OnInit, AfterViewInit{
         i+=1
       }
     }
+
+    for (let i = 0; i < this.items.length; i++) { // init after sorting by categories
+      this.idMap[this.items[i].id] = i
+    }
+  }
+  makeCategories(){
+    const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
+      if(!prev[item.category]){
+          prev[item.category] = {min: item.startDate, max: item.dueDate}
+          return prev
+      }
+      if(prev[item.category].min > item.startDate)
+          prev[item.category].min = item.startDate
+      if(prev[item.category].max < item.dueDate)
+          prev[item.category].max = item.dueDate
+      return prev
+    }, {}))
+    return categories
+  }
+  sortItemsByCategories(categories: any){
+    const order = categories.sort((a: any,b: any)=> a[1].min - b[1].min).map((e: any, i: any)=>e[0])
+    this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
+
+    return categories
   }
 
   initItemDisplay(){
@@ -288,7 +302,11 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   @HostListener('mouseup')
   onMouseUp() {
-    if(this.dragging == DraggingType.dependency && this.originalItem){
+    if(!this.originalItem){
+      this.dragging = DraggingType.none // just in case?
+      return
+    }
+    if(this.dragging == DraggingType.dependency){
       if(this.clipLine
         && this.lastHovered.id != this.originalItem?.id // not the same
         && !this.lastHovered.dependant.includes(this.originalItem.id) // last doesnt already contain it
@@ -300,11 +318,21 @@ export class GanttComponent implements OnInit, AfterViewInit{
     if(this.originalItem && this.originalItem != this.lastHovered)
       this.originalItem.hover = false
 
-    if(this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight){
+    if((this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight)){
+      this.updateItemDates(this.originalItem)
+
       this.dragging = DraggingType.none
+      
+      this.insertCategories()
+      this.initItemDisplay()
     }
     if(this.dragging == DraggingType.task){
+      this.updateItemDates(this.originalItem)
+
       this.dragging = DraggingType.none
+      
+      this.insertCategories()
+      this.initItemDisplay()
     }
     return false
   }
@@ -316,6 +344,40 @@ export class GanttComponent implements OnInit, AfterViewInit{
     if(this.originalItem)
       this.originalItem.hover = false
     return false
+  }
+
+  updateItemDates(item: Item){
+    //TODO: weekend bug?
+    // ------------------
+    // problems snapping because start / due date aren't rounded to day
+    // var d: number = event.x - this.draggedOriginal.x
+    // d = d / this.columnWidth + ((d % this.columnWidth > this.columnWidth / 2) ? -1 : 0)  // when d % col_width = 0 ???
+    // d *= this.timeScale
+    // item.startDate += d
+    // item.dueDate += d
+    // ------------------
+    var bias = (item.left % this.columnWidth > this.columnWidth / 2) ? 1 : 0
+    item.startDate = this.chartStartDate + (item.left / this.columnWidth + bias) * this.timeScale
+    const rem = (item.left + item.width) % this.columnWidth
+    bias = (rem < this.columnWidth / 2 && rem != 0) ? -1 : 0 // possible bug with rem == 0 ?
+    item.dueDate = this.chartStartDate + ((item.width + item.left) / this.columnWidth + bias) * this.timeScale
+
+    // item.dependant.forEach(_item => {
+    //   this.updateItemDates(this.items[this.idMap[_item]])
+    // });
+    this.updateDependencies(item)
+  }
+  updateDependencies(item: Item, limit = 50){
+    //TODO: dragging left egde offsets deps by 1 to the right???
+
+    const updateDependency = (prev: Item, next: Item, limit: number) => {
+      if(limit == 0) return
+       // TODO: timescale
+      next.dueDate += prev.dueDate - next.startDate + TimeScale.day
+      next.startDate = prev.dueDate + TimeScale.day
+      next.dependant.forEach(next2 => updateDependency(next, this.items[this.idMap[next2]], limit - 1))
+    }
+    item.dependant.forEach(_item => updateDependency(item, this.items[this.idMap[_item]], limit - 1))
   }
 
   dependencyPopUp(item: Item, event: any){
