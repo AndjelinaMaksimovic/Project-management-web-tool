@@ -150,6 +150,7 @@ export class TaskService {
       if (task.status)
         request['statusId'] = this.statusService.nameToId(task.status);
       if(task.categoryId) request["categoryId"] = task.categoryId;
+      if(task.statusId) request["statusId"] = task.statusId;
       if(task.priorityId) request["priorityId"] = task.priorityId;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
