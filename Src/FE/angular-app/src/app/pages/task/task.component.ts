@@ -6,10 +6,12 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { MaterialModule } from '../../material/material.module';
 import { CommentsComponent } from '../../components/comments/comments/comments.component';
 import { EditableMarkdownComponent } from '../../components/editable-markdown/editable-markdown.component';
+import { CategoryChipComponent } from '../../components/task-chips/category-chip/category-chip.component';
+import { StatusChipComponent } from '../../components/task-chips/status-chip/status-chip.component';
 @Component({
   selector: 'app-task',
   standalone: true,
-  imports: [NavbarComponent, MarkdownModule, MaterialModule, CommentsComponent, EditableMarkdownComponent],
+  imports: [NavbarComponent, MarkdownModule, MaterialModule, CommentsComponent, EditableMarkdownComponent, CategoryChipComponent, StatusChipComponent],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
   styleUrl: './task.component.css',

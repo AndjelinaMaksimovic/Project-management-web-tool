@@ -5,13 +5,12 @@
             <mat-card-content>
                 <!-- <mat-divider></mat-divider> -->
                 <div style="display: flex; gap: 20px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <span class="tag">Category: <div class="chip chip-neutral">
-                            {{task?.category}}</div></span>
+                    <span class="tag">Category: <app-category-chip [task]="task"></app-category-chip></span>
                     <span class="tag">Priority: <div [classList]="['chip chip-' + 'warn']">{{task?.priority === "High" ?
                             "🎯︎ "
                             + task?.priority :
                             task?.priority}}</div></span>
-                    <span class="tag">Status: <div [classList]="['chip chip-' + 'warn']">{{task?.status}}</div></span>
+                    <span class="tag">Status: <app-status-chip [task]="task"></app-status-chip></span>
                     <div class="tag">
                         Due date:
                         <div style="font-size: small; font-weight: bold; color: black">📅
