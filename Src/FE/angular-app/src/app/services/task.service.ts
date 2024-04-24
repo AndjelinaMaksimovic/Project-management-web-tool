@@ -42,15 +42,9 @@ export class TaskService {
     return {
       title: apiTask.name,
       description: apiTask.description,
-      // priority: apiTask.priority,
-      // status: apiTask.status,
-      // category: apiTask.category,
-      priority: (['Low', 'Medium', 'High'] as const)[apiTask.taskId % 3],
-      // status: (['Active', 'Close', 'Past Due'] as const)[apiTask.taskId % 3],
-      status: this.statusService.idToName(apiTask.statusId) || 'unknown',
-      category: (['Finance', 'Marketing', 'Development'] as const)[
-        apiTask.taskId % 3
-      ],
+      priority: apiTask.priorityName,
+      status: apiTask.statusName,
+      category: apiTask.categoryName,
       id: apiTask.taskId,
       projectId: this.context.projectId,
       startDate: new Date(Date.parse(apiTask.startDate)),
@@ -219,7 +213,17 @@ export class TaskService {
     await this.fetchTasks();
   }
 
-  async createTask(task: Omit<Task, 'id'> & {dependencies: string[]}, projectId: number) {
+  async createTask(task: {
+    title: string;
+    description: string;
+    startDate: Date;
+    dueDate: Date;
+    status: string;
+    priority: string;
+    category: string;
+    dependencies: string[];
+    assignedTo: any;
+  }, projectId: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -229,12 +233,13 @@ export class TaskService {
             description: task.description,
             startDate: task.startDate.toISOString(),
             dueDate: task.dueDate.toISOString(),
-            statusId: 1,
-            priorityId: 1,
+            statusId: task.status,
+            priorityId: task.priority,
             difficultyLevel: 1,
-            categoryId: 1,
+            categoryId: task.category,
             dependencyIds: task.dependencies,
             projectId: this.context.projectId,
+            userId: task.assignedTo,
           },
           {
             ...this.httpOptions,

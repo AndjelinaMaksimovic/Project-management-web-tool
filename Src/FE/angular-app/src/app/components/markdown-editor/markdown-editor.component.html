@@ -1,0 +1,15 @@
+<div>
+    <mat-divider></mat-divider>
+    <mat-form-field [floatLabel]="'always'" appearance="outline" style="width: 100%;" class="dense-2">
+        <mat-label>{{label}}</mat-label>
+        <div style="display: flex;">
+            <button mat-icon-button (click)="insertText('**', '**')"><mat-icon>format_bold</mat-icon></button>
+            <button mat-icon-button (click)="insertText('*', '*')"><mat-icon>format_italic</mat-icon></button>
+            <button mat-icon-button (click)="insertText('\n* ', '')"><mat-icon>format_list_bulleted</mat-icon></button>
+            <button mat-icon-button (click)="insertText('> ', '')"><mat-icon>format_quote</mat-icon></button>
+            <button mat-icon-button (click)="insertText('![Image](<url>)', '')"><mat-icon>image</mat-icon></button>
+            <button mat-icon-button (click)="insertText('[', '](<url>)')"><mat-icon>link</mat-icon></button>
+        </div>
+        <textarea #editor matInput [(ngModel)]="value" style="min-height: 180px;" [required]="true" (ngModelChange)="changeValue($event)"></textarea>
+    </mat-form-field>
+</div>

@@ -18,6 +18,7 @@ import { MilestoneService } from '../../services/milestone.service';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { PriorityService } from '../../services/priority.service';
+import { LocalStorageService } from '../../services/localstorage';
 
 @Component({
   selector: 'app-my-tasks',
@@ -50,6 +51,7 @@ export class MyTasksComponent {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router,
+    private localStorageService: LocalStorageService,
   ) {}
 
   async ngOnInit() {
@@ -78,7 +80,15 @@ export class MyTasksComponent {
     return this.milestoneService.getMilestones();
   }
   /** this determines what task view we render */
-  view: 'table' | 'kanban' | 'gantt' = 'table';
+  validViews = ['table', 'kanban', 'gantt'] as const;
+  _view: (typeof this.validViews)[number] = this.validViews.find(e => e === this.localStorageService.getData("task-view")) || "table";
+  get view(){
+    return this._view
+  }
+  set view(newView: (typeof this.validViews)[number]){
+    this._view = newView;
+    this.localStorageService.saveData("task-view", newView);
+  }
 
   fetchTasksFromLocalStorage() {
     this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
