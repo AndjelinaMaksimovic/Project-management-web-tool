@@ -43,6 +43,10 @@ export class HomeComponent {
     return projects;
   }
 
+  get projectProgress() {
+    return this.projectService.getProgresses();
+  }
+
   async ngOnInit(){
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);

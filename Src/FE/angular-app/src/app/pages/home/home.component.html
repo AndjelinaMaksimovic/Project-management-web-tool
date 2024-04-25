@@ -91,7 +91,7 @@
             </div>
             <div *ngIf="activeProjectsAccordionVisible">
                 @for (project of projects; track project) {
-                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="0" [progressBarColor]="'#FFCF32'"></app-project-item>
                 }
                 @if (projects.length == 0) {
                     <p>No active projects!</p>
