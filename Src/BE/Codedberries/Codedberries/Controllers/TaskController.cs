@@ -40,6 +40,10 @@ namespace Codedberries.Controllers
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while creating new Task: {ex.Message}"));
+            }
         }
 
         [HttpGet("projectTasks")]

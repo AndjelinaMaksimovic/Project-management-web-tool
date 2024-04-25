@@ -1,0 +1,6 @@
+<div class="chip chip-neutral" [matMenuTriggerFor]="menu" [matTooltip]="'click to change'">{{task?.status}}</div>
+<mat-menu #menu="matMenu">
+    @for(status of statuses; track status){
+    <button mat-menu-item (click)="updateStatus(status.id.toString())">{{status.name}}</button>
+    }
+</mat-menu>

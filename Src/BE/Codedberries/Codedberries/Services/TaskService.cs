@@ -39,12 +39,40 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
 
-            if (userRole != null && userRole.CanCreateTask == false)
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanCreateTask == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create Task!");
             }
+            // ---------------- //
 
             if (string.IsNullOrEmpty(request.Name))
             {
@@ -71,18 +99,6 @@ namespace Codedberries.Services
             if (requestedPriority == null)
             {
                 throw new ArgumentException("Priority with the provided ID does not exist!");
-            }
-
-            if (request.ProjectId <= 0)
-            {
-                throw new ArgumentException("Project ID must be greater than zero!");
-            }
-
-            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
-
-            if (requestedProject == null)
-            {
-                throw new ArgumentException("Project with the provided ID does not exist!");
             }
 
             if (request.StatusId <= 0)
@@ -123,12 +139,21 @@ namespace Codedberries.Services
 
             if (requestedUser == null)
             {
-                throw new ArgumentException("User with the provided ID does not exist!");
+                throw new ArgumentException("User with the provided ID does not exist in database!");
             }
 
             if (requestedUser.RoleId == null)
             {
                 throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+            }
+
+            // is provided user assigned on project where new task is being created?
+            var userOnTask = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == request.ProjectId);
+
+            if (userOnTask == null)
+            {
+                throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {request.ProjectId} in UserProjects table!");
             }
 
             var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
@@ -148,32 +173,56 @@ namespace Codedberries.Services
 
                     if (taskDependency == null)
                     {
-                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project in database!");
+                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
                     }
                 }
             }
 
-            _databaseContext.Tasks.Add(task);
-            await _databaseContext.SaveChangesAsync();
+            // if there is circual dependency, task won't be created
+            using var transaction = await _databaseContext.Database.BeginTransactionAsync();
 
-            // adding dependencies to TaskDependency
-            if (request.DependencyIds != null && request.DependencyIds.Any())
+            try
             {
-                foreach (int dependency_id in request.DependencyIds)
+                _databaseContext.Tasks.Add(task);
+                await _databaseContext.SaveChangesAsync();
+
+                // adding dependencies to TaskDependency
+                if (request.DependencyIds != null && request.DependencyIds.Any())
                 {
-                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
-
-                    TaskDependency newDependency = new TaskDependency
+                    foreach (int dependency_id in request.DependencyIds)
                     {
-                        TaskId = taskDependency.Id,
-                        DependentTaskId = task.Id
-                    };
+                        var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
 
-                    _databaseContext.Set<TaskDependency>().Add(newDependency);
+                        if (taskDependency == null)
+                        {
+                            throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                        }
+
+                        var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
+
+                        if (cyclicDependencyDetected)
+                        {
+                            throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                        }
+
+                        TaskDependency newDependency = new TaskDependency
+                        {
+                            TaskId = taskDependency.Id,
+                            DependentTaskId = task.Id
+                        };
+
+                        _databaseContext.Set<TaskDependency>().Add(newDependency);
+                    }
                 }
-            }
 
-            await _databaseContext.SaveChangesAsync();
+                await _databaseContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception($"{ex.Message}");
+            }
         }
 
         public List<ProjectTasksInfoDTO> GetTasksByFilters(HttpContext httpContext, TaskFilterParamsDTO filterParams)
@@ -482,19 +531,12 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
-            }
-
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole != null && userRole.CanEditTask == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to edit task!");
             }
 
             if(request.IsEmpty())
@@ -514,6 +556,29 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == task.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {task.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task!");
+            }
+            // ---------------- //
 
             if (!string.IsNullOrEmpty(request.Name))
             {
@@ -610,6 +675,27 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Status with ID {request.StatusId} does not match the project of the task!");
                 }
 
+                var currentStatus = await _databaseContext.Statuses.FindAsync(task.StatusId);
+
+                if (currentStatus == null)
+                {
+                    throw new ArgumentException($"Current status with ID {task.StatusId} not found in database!");
+                }
+
+                if (currentStatus.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Current status with ID {currentStatus.Id} and {currentStatus.ProjectId} does not match the project of the task {task.Project}!");
+                }
+
+                if (currentStatus.Name == "Done" && status.Name != "Done")
+                {
+                    task.FinishedDate = null; // from Done to other
+                }
+                else if (currentStatus.Name != "Done" && status.Name == "Done")
+                {
+                    task.FinishedDate = DateTime.UtcNow; // from other to Done
+                }
+
                 task.StatusId = request.StatusId.Value;
             }
 
@@ -699,8 +785,9 @@ namespace Codedberries.Services
                 CategoryId = task.CategoryId,
                 PriorityId = task.PriorityId,
                 StatusId = task.StatusId,
-                DueDate = task.DueDate,
                 StartDate = task.StartDate,
+                DueDate = task.DueDate,
+                FinishedDate = task.FinishedDate,
                 DifficultyLevel = task.DifficultyLevel,
                 ProjectId = task.ProjectId 
             };
@@ -842,6 +929,42 @@ namespace Codedberries.Services
 
             }).ToList();
             return commentsDTO;
+        }
+
+        // function is used to detect cyclic dependencies between tasks
+        private bool DetectCyclicDependency(int taskId, int dependencyId)
+        {
+            var visited = new HashSet<int>();
+            visited.Add(taskId);
+
+            var queue = new Queue<int>();
+            queue.Enqueue(dependencyId);
+
+            while (queue.Count > 0)
+            {
+                var currentTaskId = queue.Dequeue();
+
+                var dependentTasks = _databaseContext.Set<TaskDependency>()
+                    .Where(td => td.TaskId == currentTaskId)
+                    .Select(td => td.DependentTaskId)
+                    .ToList();
+
+                foreach (var dependentTaskId in dependentTasks)
+                {
+                    if (dependentTaskId == taskId)
+                    {
+                        return true; // circular dependency detected
+                    }
+
+                    if (!visited.Contains(dependentTaskId))
+                    {
+                        visited.Add(dependentTaskId);
+                        queue.Enqueue(dependentTaskId);
+                    }
+                }
+            }
+
+            return false; // no circular dependency detected
         }
     }
 }

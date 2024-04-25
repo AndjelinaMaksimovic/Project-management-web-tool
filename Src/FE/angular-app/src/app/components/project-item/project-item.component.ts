@@ -19,11 +19,13 @@ export class ProjectItemComponent {
     @Input() projectName: string = "";
     @Input() dueDate: string = "";
 
-    @Input() progressBarProgress: Number = 0;
+    @Input() progressBarProgress: number = 0;
     @Input() progressBarColor: string = "black";
 
     @Input() starred: boolean = false;
     @Input() id: number = 0;
+
+    @Input() isArchived: boolean = false;
 
     toggleStarred() {
         this.starred = !this.starred;
@@ -31,5 +33,9 @@ export class ProjectItemComponent {
 
     archiveProject() {
         this.projectService.archiveProject(this.id);
+    }
+
+    unarchiveProject() {
+        this.projectService.unarchiveProject(this.id);
     }
 }

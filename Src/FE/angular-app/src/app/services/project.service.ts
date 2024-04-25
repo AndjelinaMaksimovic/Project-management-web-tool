@@ -10,6 +10,7 @@ export type Project = Readonly<{
   dueDate: Date;
   startDate: Date;
   starred: boolean;
+  archived: boolean;
   id: number;
 }>;
 
@@ -20,6 +21,7 @@ function mapProject(apiProject: any): Project {
     id: apiProject.id,
     dueDate: new Date(Date.parse(apiProject.dueDate)),
     startDate: new Date(Date.parse(apiProject.startDate)),
+    archived: apiProject.archived,
     starred: apiProject.starred,
   };
 }
@@ -30,6 +32,7 @@ function mapProject(apiProject: any): Project {
 export class ProjectService {
   /** in-memory project cache */
   private projects: Project[] = [];
+  private projectsProgress: Map<number, number> = new Map<number, number>();
 
   constructor(private http: HttpClient, private localStorageService : LocalStorageService) {}
 
@@ -44,6 +47,20 @@ export class ProjectService {
   public getProjectWithID(projectId: number) {
     return this.projects.find(project => project.id == projectId);
   }
+
+  public getProgresses() {
+    return this.projectsProgress;
+  }
+
+  public getProgress(projectId: number) {
+    return this.projectsProgress.get(projectId);
+  }
+
+  public updateProgresses() {
+    this.projects.forEach(async (project) => {
+      this.projectsProgress.set(project.id, await this.getProjectProgress(project.id));
+    });
+  }
   
   /**
    * This function is used to update the current project cache.
@@ -57,6 +74,25 @@ export class ProjectService {
         this.http.get<any>(
           environment.apiUrl + '/Projects/filterProjects',
           environment.httpOptions,
+        )
+      );
+      this.projects = res.body.map((project: any) => {
+        return mapProject(project);
+      });
+      this.updateProgresses();
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchUserProjects(id : number) {
+    let params = new HttpParams({ fromObject: { AssignedTo: [ id ]} });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Projects/filterProjects',
+          { ...environment.httpOptions, params: params }
         )
       );
       this.projects = res.body.map((project: any) => {
@@ -80,11 +116,29 @@ export class ProjectService {
       this.projects = res.body.map((project: any) => {
         return mapProject(project);
       });
+      this.updateProgresses();
     } catch (e) {
       console.log(e);
     }
     return false;
   }
+
+  public async getProjectProgress(projectId : number) {
+    let params = new HttpParams({ fromObject: { ProjectId: projectId } });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Projects/getProjectProgress',
+          { ...environment.httpOptions, params: params }
+        )
+      );
+      return res.body.progressPercentage;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
 
   async createNew(
     obj: any
@@ -130,14 +184,38 @@ export class ProjectService {
   async archiveProject(id: number){
     try {
       const res = await firstValueFrom(
-        this.http.delete<any>(
+        this.http.put<any>(
           environment.apiUrl +
             `/Projects/archiveProject`,
+          {
+            projectId: id
+          },
+          {
+            ...environment.httpOptions,
+            responseType: "text" as "json"
+          }
+        )
+      );
+      await this.fetchProjects();
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  async unarchiveProject(id: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl +
+            `/Projects/unarchiveProject`,
           {
             ...environment.httpOptions, body: {projectId: id}
           }
         )
       );
+      await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);

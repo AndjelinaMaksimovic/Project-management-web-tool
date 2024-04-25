@@ -1,13 +1,16 @@
 .kanban-column {
+    min-width: 200px;
     flex-grow: 1;
     border-right: solid;
     border-left: solid;
     border-width: 2px;
-    border-color: #dcedff;
+    border-color: #b1d6ff;
+    background-color: white;
     margin-left: -1px;
     margin-right: -1px;
     width: 100%;
     padding: 0px;
+    cursor: move;
 }
 
 .kanban-column-mobile {
@@ -42,7 +45,7 @@
 }
 
 .cdk-drag-placeholder {
-    opacity: 0;
+    opacity: 0.5;
 }
 
 .cdk-drag-animating {

@@ -110,5 +110,24 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
+
+        [HttpGet("getMyData")]  // current session user info
+        public async Task<IActionResult> GetCurrentSessionUser()
+        {
+            try
+            {
+                var currentSessionUser = await _userService.GetCurrentSessionUserData(HttpContext);
+                
+                return Ok(currentSessionUser);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
     }
 }

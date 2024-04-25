@@ -6,6 +6,7 @@ import { StatusService } from './status.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from './category.service';
 import { LocalStorageService } from './localstorage';
+import { PriorityService } from './priority.service';
 
 /**
  * Task format used within the app
@@ -27,7 +28,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-    constructor(private http: HttpClient, private statusService: StatusService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -42,15 +43,9 @@ export class TaskService {
     return {
       title: apiTask.name,
       description: apiTask.description,
-      // priority: apiTask.priority,
-      // status: apiTask.status,
-      // category: apiTask.category,
-      priority: (['Low', 'Medium', 'High'] as const)[apiTask.taskId % 3],
-      // status: (['Active', 'Close', 'Past Due'] as const)[apiTask.taskId % 3],
-      status: this.statusService.idToName(apiTask.statusId) || 'unknown',
-      category: (['Finance', 'Marketing', 'Development'] as const)[
-        apiTask.taskId % 3
-      ],
+      priority: apiTask.priorityName,
+      status: apiTask.statusName,
+      category: apiTask.categoryName,
       id: apiTask.taskId,
       projectId: this.context.projectId,
       startDate: new Date(Date.parse(apiTask.startDate)),
@@ -62,6 +57,7 @@ export class TaskService {
   /** for which project/user should we fetch tasks? */
   private context: {
     projectId?: number;
+    assignedTo?: number;
   } = {};
 
   private httpOptions = {
@@ -83,7 +79,7 @@ export class TaskService {
    * for what project/user should the tasks be fetched
    * @param context new context
    */
-  public setContext(context: { projectId?: number } = {}) {
+  public setContext(context: { projectId?: number, assignedTo?: number } = {}) {
     this.context = { ...this.context, ...context };
     // after changing the context, we need to clear the previous tasks cache
     this.statusService.setContext(context);
@@ -108,6 +104,28 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
+      await this.categoryService.fetchCategories();
+      this.tasks = res.body.map((task: any) => {
+        return this.mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchUserTasks(context?: { projectId: number, assignedTo: number }) {
+    if (context) this.setContext(context);
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl +
+            `/Task/projectTasks?projectId=${this.context.projectId}&assignedTo=${this.context.assignedTo}`,
+          this.httpOptions
+        )
+      );
+      await this.statusService.fetchStatuses();
       await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
@@ -119,6 +137,7 @@ export class TaskService {
   }
 
   public async fetchTasksFromLocalStorage(projectId: number, filterName: string) {
+    this.setContext({projectId});
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: projectId };
     
@@ -131,6 +150,8 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
+      await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });
@@ -144,11 +165,20 @@ export class TaskService {
    * this function takes a partial task object and updates the corresponding task accordingly
    * @param task partial task object. Must have Id
    */
-  async updateTask(task: Partial<Task> & Pick<Task, 'id'>) {
+  async updateTask(task: Partial<Task> & Pick<Task, 'id'> & {
+    categoryId?: string | undefined,
+    statusId?: string | undefined,
+    priorityId?: string | undefined,
+    userId?: string | undefined,
+  }) {
     try {
       const request: Record<string, unknown> = { taskId: task.id };
       if (task.status)
         request['statusId'] = this.statusService.nameToId(task.status);
+      if(task.categoryId) request["categoryId"] = task.categoryId;
+      if(task.statusId) request["statusId"] = task.statusId;
+      if(task.priorityId) request["priorityId"] = task.priorityId;
+      if(task.userId) request["userId"] = task.userId;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.dueDate) request['dueDate'] = task.dueDate;
@@ -195,7 +225,17 @@ export class TaskService {
     await this.fetchTasks();
   }
 
-  async createTask(task: Omit<Task, 'id'> & {dependencies: string[]}, projectId: number) {
+  async createTask(task: {
+    title: string;
+    description: string;
+    startDate: Date;
+    dueDate: Date;
+    status: string;
+    priority: string;
+    category: string;
+    dependencies: string[];
+    assignedTo: any;
+  }, projectId: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -205,12 +245,13 @@ export class TaskService {
             description: task.description,
             startDate: task.startDate.toISOString(),
             dueDate: task.dueDate.toISOString(),
-            statusId: 1,
-            priorityId: 1,
+            statusId: task.status,
+            priorityId: task.priority,
             difficultyLevel: 1,
-            categoryId: 1,
+            categoryId: task.category,
             dependencyIds: task.dependencies,
             projectId: this.context.projectId,
+            userId: task.assignedTo,
           },
           {
             ...this.httpOptions,

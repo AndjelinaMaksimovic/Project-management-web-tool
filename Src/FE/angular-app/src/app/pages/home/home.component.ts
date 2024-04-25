@@ -2,21 +2,24 @@ import { Component, Input } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectItemComponent } from '../../components/project-item/project-item.component';
 import { NgIf } from '@angular/common';
-import { ProjectService } from '../../services/project.service';
+import { ProjectService, Project } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewProjectModalComponent } from '../../components/new-project-modal/new-project-modal.component';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent ],
+  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 
 export class HomeComponent {
+  search: string = "";
+
   filters: Map<string, Filter> = new Map<string, Filter>([
     ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
     ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
@@ -27,35 +30,62 @@ export class HomeComponent {
 
   constructor(private projectService: ProjectService, private dialogue: MatDialog) {}
 
-  ngOnInit(){
-    this.projectService.fetchProjectsLocalStorage('project_filters');
-  }
   get projects(){
-    return this.projectService.getProjects();
+    return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
   }
 
-  fetchProjectsFromLocalStorage() {
-    this.projectService.fetchProjectsLocalStorage('project_filters');
+  get archivedProjects(){
+    return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => project.archived);
   }
 
-  @Input() mostRecentAccordionVisible: boolean = true;
-  @Input() starredProjectsAccordionVisible: boolean = true;
-  @Input() allProjectsAccordionVisible: boolean = true;
+  get starredProjects(){
+    let projects: Project[] = [];
+    return projects;
+  }
+
+  get projectProgress() {
+    return this.projectService.getProgresses();
+  }
+
+  async ngOnInit(){
+    await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
+    // this.projects = this.projectService.getProjects().filter(project => !project.archived);
+
+    if(this.starredProjects.length == 0) {
+      this.staredProjectsAccordionVisible = false;
+    }
+    if(this.projects.length == 0) {
+      this.activeProjectsAccordionVisible = false;
+    }
+  }
+
+  filterItems() {
+    // this.projects = this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
+  }
+
+  async fetchProjectsFromLocalStorage() {
+    await this.projectService.fetchProjectsLocalStorage('project_filters');
+    // this.projects = this.projectService.getProjects().filter(project => !project.archived);
+  }
+
+  staredProjectsAccordionVisible: boolean = true;
+  activeProjectsAccordionVisible: boolean = true;
+  archivedProjectsAccordionVisible: boolean = false;
 
   openFilters() {
     this.isFilterOpen = !this.isFilterOpen;
   }
 
-  toggleMostRecentAccordion() {
-    this.mostRecentAccordionVisible = !this.mostRecentAccordionVisible;
+  toggleStarred() {
+    this.staredProjectsAccordionVisible = !this.staredProjectsAccordionVisible
   }
 
-  toggleStarredProjectsAccordion() {
-    this.starredProjectsAccordionVisible = !this.starredProjectsAccordionVisible;
+  toggleActive() {
+    this.activeProjectsAccordionVisible = !this.activeProjectsAccordionVisible
   }
-
-  toggleAllProjectsAccordion() {
-    this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  
+  toggleArchived() {
+    this.archivedProjectsAccordionVisible = !this.archivedProjectsAccordionVisible
   }
 
   newProjectPopUp(){
