@@ -32,6 +32,7 @@ function mapProject(apiProject: any): Project {
 export class ProjectService {
   /** in-memory project cache */
   private projects: Project[] = [];
+  private projectsProgress: Map<number, number> = new Map<number, number>();
 
   constructor(private http: HttpClient, private localStorageService : LocalStorageService) {}
 
@@ -45,6 +46,20 @@ export class ProjectService {
 
   public getProjectWithID(projectId: number) {
     return this.projects.find(project => project.id == projectId);
+  }
+
+  public getProgresses() {
+    return this.projectsProgress;
+  }
+
+  public getProgress(projectId: number) {
+    return this.projectsProgress.get(projectId);
+  }
+
+  public updateProgresses() {
+    this.projects.forEach(async (project) => {
+      this.projectsProgress.set(project.id, await this.getProjectProgress(project.id));
+    });
   }
   
   /**
@@ -64,6 +79,7 @@ export class ProjectService {
       this.projects = res.body.map((project: any) => {
         return mapProject(project);
       });
+      this.updateProgresses();
     } catch (e) {
       console.log(e);
     }
@@ -100,11 +116,29 @@ export class ProjectService {
       this.projects = res.body.map((project: any) => {
         return mapProject(project);
       });
+      this.updateProgresses();
     } catch (e) {
       console.log(e);
     }
     return false;
   }
+
+  public async getProjectProgress(projectId : number) {
+    let params = new HttpParams({ fromObject: { ProjectId: projectId } });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Projects/getProjectProgress',
+          { ...environment.httpOptions, params: params }
+        )
+      );
+      return res.body.progressPercentage;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
 
   async createNew(
     obj: any

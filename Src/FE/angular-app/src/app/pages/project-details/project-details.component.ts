@@ -8,6 +8,7 @@ import { ActivityItemComponent } from '../../components/activity-item/activity-i
 import { Project, ProjectService } from '../../services/project.service';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -25,8 +26,13 @@ export class ProjectDetailsComponent {
   description?: string = "";
   dueDate?: Date = new Date();
   daysLeft : number = 0;
+  progress : number = 0;
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, public dialog: MatDialog) {
+  allTasks : number = 0;
+  completedTasks : number = 0;
+  overdueTasks : number = 0;
+
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog) {
     this.dialog.closeAll();
   }
 
@@ -37,11 +43,23 @@ export class ProjectDetailsComponent {
     await this.projectService.fetchProjects();
     this.project = this.projectService.getProjectWithID(this.projectId);
 
+    await this.taskService.fetchTasks({ projectId: this.projectId });
+
     this.title = this.project?.title;
     this.description = this.project?.description;
     this.dueDate = this.project?.dueDate;
 
     let difference = this.dueDate!.getTime() - new Date().getTime();
     this.daysLeft = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+    const _progress = this.projectService.getProgress(this.projectId);
+    if(_progress != null && _progress != undefined) {
+      this.progress = _progress;
+    }
+    this.allTasks = this.taskService.getTasks().length;
+    this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
+    this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
+
+    console.log(this.taskService.getTasks());
   }
 }

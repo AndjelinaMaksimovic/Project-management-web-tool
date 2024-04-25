@@ -19,7 +19,7 @@ export class ProjectItemComponent {
     @Input() projectName: string = "";
     @Input() dueDate: string = "";
 
-    @Input() progressBarProgress: Number = 0;
+    @Input() progressBarProgress: number = 0;
     @Input() progressBarColor: string = "black";
 
     @Input() starred: boolean = false;
