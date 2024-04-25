@@ -24,6 +24,7 @@ export class ProjectDetailsComponent {
   description?: string = "";
   dueDate?: Date = new Date();
   daysLeft : number = 0;
+  progress : number = 0;
 
   constructor(private projectService: ProjectService, private route: ActivatedRoute) { }
 
@@ -40,5 +41,10 @@ export class ProjectDetailsComponent {
 
     let difference = this.dueDate!.getTime() - new Date().getTime();
     this.daysLeft = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+    const _progress = this.projectService.getProgress(this.projectId);
+    if(_progress) {
+      this.progress = _progress;
+    }
   }
 }
