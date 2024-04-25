@@ -955,20 +955,24 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
 
-            System.Linq.IQueryable<Codedberries.Models.TaskComment> query = _databaseContext.TaskComments;
-            if (request.TaskId != 0)
+            var comments = await _databaseContext.TaskComments
+                .Where(tc => tc.TaskId == request.TaskId)
+                .ToListAsync();
+
+            if (!comments.Any())
             {
-                query = query.Where(t => t.TaskId == request.TaskId);
+                throw new ArgumentException($"There are no comments for task with ID {request.TaskId}!");
             }
 
-            List<Codedberries.Models.TaskComment> comments = query.ToList();
-            
             List<TaskCommentInfoDTO> commentsDTO = comments.Select(t => new TaskCommentInfoDTO
             {
                 Comment = t.Comment,
                 CommentId = t.CommentId,
                 TaskId = t.TaskId,
-                UserId = t.UserId
+                UserId = t.UserId,
+                FirstName = t.User.Firstname,
+                LastName = t.User.Lastname,
+                CommentDate = t.CommentDate
 
             }).ToList();
             
