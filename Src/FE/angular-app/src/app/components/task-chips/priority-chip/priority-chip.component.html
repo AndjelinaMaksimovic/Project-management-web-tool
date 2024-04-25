@@ -1,0 +1,10 @@
+<div [classList]="['chip chip-' + 'warn']" [matMenuTriggerFor]="menu">{{task?.priority === "High" ?
+    "🎯︎ "
+    + task?.priority :
+    task?.priority}}</div>
+
+<mat-menu #menu="matMenu">
+    @for(category of categories; track category){
+    <button mat-menu-item (click)="updateCategory(category.id.toString())">{{category.name}}</button>
+    }
+</mat-menu>

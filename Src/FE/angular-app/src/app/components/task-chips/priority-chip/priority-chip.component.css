@@ -1,0 +1,36 @@
+.tag {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    color: #222;
+    font-weight: bold;
+    font-size: small;
+}
+
+.chip {
+    border-radius: 5px;
+    font-weight: bold;
+    padding: 4px;
+    font-size: small;
+    cursor: pointer;
+}
+
+.chip-warn {
+    color: rgb(199, 49, 17);
+    background-color: rgb(199, 49, 17, 0.15);
+}
+
+.chip-mid {
+    color: rgb(255, 182, 45);
+    background-color: rgb(255, 182, 45, 0.15);
+}
+
+.chip-good {
+    color: green;
+    background-color: rgba(0, 128, 0, 0.15);
+}
+
+.chip-neutral {
+    color: var(--color-primary);
+    background-color: rgb(71, 118, 228, 0.15);
+}

@@ -9,6 +9,7 @@ import { EditableMarkdownComponent } from '../../components/editable-markdown/ed
 import { CategoryChipComponent } from '../../components/task-chips/category-chip/category-chip.component';
 import { StatusChipComponent } from '../../components/task-chips/status-chip/status-chip.component';
 import { DateChipComponent } from '../../components/task-chips/date-chip/date-chip.component';
+import { PriorityChipComponent } from '../../components/task-chips/priority-chip/priority-chip.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -20,6 +21,7 @@ import { DateChipComponent } from '../../components/task-chips/date-chip/date-ch
     EditableMarkdownComponent,
     CategoryChipComponent,
     StatusChipComponent,
+    PriorityChipComponent,
     DateChipComponent,
   ],
   providers: [provideMarkdown()],
