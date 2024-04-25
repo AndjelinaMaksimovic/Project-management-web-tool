@@ -59,26 +59,16 @@ namespace Codedberries.Services
 
         private bool VerifyPassword(string password, string hashedPassword, byte[] salt)
         {
+            string pass;
             using (var sha256 = SHA256.Create())
             {
-
-                var hashedInputPassword = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string str = BitConverter.ToString(hashedInputPassword).Replace("-", "").ToLower(); ;
-                var hashed2 = sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
-                string str2 = BitConverter.ToString(hashed2).Replace("-", "").ToLower(); ;
-
-
-
-                // Compare the computed hash with the stored hashed password
-
-                if (hashedPassword == str2)
-                {
-                    return true; // wrong password
-                }
-
+                var saltedPassword = Encoding.UTF8.GetBytes(password).Concat(salt).ToArray();
+                var hashedBytes = sha256.ComputeHash(saltedPassword);
+                 pass = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
-
-            return false; // passwords matc
+            if(pass==hashedPassword) return true;
+            else return false;
+            
         }
 
         public bool ValidateSession(string sessionToken)
