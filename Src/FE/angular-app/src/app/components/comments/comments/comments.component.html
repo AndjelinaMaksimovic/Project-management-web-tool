@@ -1,4 +1,7 @@
 <div style="display: flex; flex-direction: column; gap: 10px;">
+    @for (comment of comments; track comment) {
+    <app-comment [comment]="comment"></app-comment>
+    }
     <mat-card>
         <mat-card-content>
             <!-- description -->
@@ -6,7 +9,4 @@
             <button mat-flat-button (click)="postComment()" color="primary">Comment</button>
         </mat-card-content>
     </mat-card>
-    @for (comment of comments; track comment) {
-    <app-comment [comment]="comment"></app-comment>
-    }
 </div>
