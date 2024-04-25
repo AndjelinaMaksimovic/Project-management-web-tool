@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Task, TaskService } from '../../../services/task.service';
 import { MaterialModule } from '../../../material/material.module';
+import { PriorityService } from '../../../services/priority.service';
 
 @Component({
   selector: 'app-priority-chip',
@@ -12,13 +13,16 @@ import { MaterialModule } from '../../../material/material.module';
 export class PriorityChipComponent {
   @Input() task: Task | undefined;
 
-  constructor(private taskService: TaskService) {}
+  constructor(private taskService: TaskService, private priorityService: PriorityService) {}
 
-  priorities = [
-    { name: 'Low', id: 1 },
-    { name: 'Medium', id: 2 },
-    { name: 'High', id: 3 },
-  ];
+  _priorities: {id: number, name: string}[] = []
+  get priorities(){
+    if(this._priorities.length != this.priorityService.getPriorities().map(p => ({id: p.id, name: p.name})).length){
+      this._priorities = this.priorityService.getPriorities().map(p => ({id: p.id, name: p.name}))
+    }
+    return this._priorities;
+  }
+  // priorities = this.priorityService.getPriorities().map(p => ({id: p.id, name: p.name}));
 
   updatePriority(priorityId: string) {
     // console.log(priorityId);
