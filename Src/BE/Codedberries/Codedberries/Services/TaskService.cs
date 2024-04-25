@@ -872,7 +872,7 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
@@ -894,13 +894,11 @@ namespace Codedberries.Services
 
             if (task == null)
             {
-                throw new ArgumentException($"Task with ID {request.TaskId} does not exist.");
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist in database!");
             }
 
-            User currentUser =_databaseContext.Users.FirstOrDefault(r => r.Id == userId);
-
-
-            Models.TaskComment taskComment = new TaskComment(request.Comment, currentUser.Id ,request.TaskId);
+            DateTime currentDate = DateTime.Now;
+            Models.TaskComment taskComment = new TaskComment(request.Comment, user.Id ,request.TaskId, currentDate);
 
             _databaseContext.TaskComments.Add(taskComment);
             await _databaseContext.SaveChangesAsync();
