@@ -1,4 +1,5 @@
-<div [classList]="['chip chip-' + 'warn']" [matMenuTriggerFor]="menu">{{task?.priority === "High" ?
+<div [classList]="['chip chip-' + 'warn']" [matMenuTriggerFor]="menu" [matTooltip]="'click to change'">{{task?.priority
+    === "High" ?
     "🎯︎ "
     + task?.priority :
     task?.priority}}</div>
