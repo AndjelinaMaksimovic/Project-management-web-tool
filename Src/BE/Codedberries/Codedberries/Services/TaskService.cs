@@ -922,7 +922,7 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
-        public List<TaskCommentInfoDTO> GetTasksComments(HttpContext httpContext, TaskIdDTO request)
+        public async Task<List<TaskCommentInfoDTO>> GetTasksComments(HttpContext httpContext, TaskIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -943,12 +943,26 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("Task ID must be greater than zero!");
+            }
+
+            var task = await _databaseContext.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
+            }
+
             System.Linq.IQueryable<Codedberries.Models.TaskComment> query = _databaseContext.TaskComments;
             if (request.TaskId != 0)
             {
                 query = query.Where(t => t.TaskId == request.TaskId);
             }
+
             List<Codedberries.Models.TaskComment> comments = query.ToList();
+            
             List<TaskCommentInfoDTO> commentsDTO = comments.Select(t => new TaskCommentInfoDTO
             {
                 Comment = t.Comment,
@@ -957,6 +971,7 @@ namespace Codedberries.Services
                 UserId = t.UserId
 
             }).ToList();
+            
             return commentsDTO;
         }
 
