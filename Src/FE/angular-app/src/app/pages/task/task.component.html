@@ -13,9 +13,7 @@
                     <span class="tag">Status: <app-status-chip [task]="task"></app-status-chip></span>
                     <div class="tag">
                         Due date:
-                        <div style="font-size: small; font-weight: bold; color: black">📅
-                            {{task?.dueDate?.toDateString()}}
-                        </div>
+                        <app-date-chip [task]="task"></app-date-chip>
                     </div>
 
                     <span class="tag">Assigned to:

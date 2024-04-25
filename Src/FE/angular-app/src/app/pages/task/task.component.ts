@@ -8,6 +8,7 @@ import { CommentsComponent } from '../../components/comments/comments/comments.c
 import { EditableMarkdownComponent } from '../../components/editable-markdown/editable-markdown.component';
 import { CategoryChipComponent } from '../../components/task-chips/category-chip/category-chip.component';
 import { StatusChipComponent } from '../../components/task-chips/status-chip/status-chip.component';
+import { DateChipComponent } from '../../components/task-chips/date-chip/date-chip.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -19,6 +20,7 @@ import { StatusChipComponent } from '../../components/task-chips/status-chip/sta
     EditableMarkdownComponent,
     CategoryChipComponent,
     StatusChipComponent,
+    DateChipComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
