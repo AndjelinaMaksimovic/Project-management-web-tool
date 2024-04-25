@@ -2,7 +2,7 @@
     {{task?.dueDate?.toDateString()}}
 </div>
 <mat-menu #menu="matMenu">
-    <div style="padding: 10px">
+    <div style="padding: 10px" (click)="$event.stopPropagation();">
         <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
             <mat-label>Start date</mat-label>
             <input matInput [matDatepicker]="dp" [formControl]="dueDate" [min]="task?.startDate" [required]="true">
