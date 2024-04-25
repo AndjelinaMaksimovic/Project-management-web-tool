@@ -8,6 +8,7 @@ import { ActivityItemComponent } from '../../components/activity-item/activity-i
 import { Project, ProjectService } from '../../services/project.service';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-project-details',
@@ -25,7 +26,9 @@ export class ProjectDetailsComponent {
   dueDate?: Date = new Date();
   daysLeft : number = 0;
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute) { }
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, public dialog: MatDialog) {
+    this.dialog.closeAll();
+  }
 
   async ngOnInit() {
     this.route.params.subscribe((params) => {

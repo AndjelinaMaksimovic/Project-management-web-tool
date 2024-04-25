@@ -14,12 +14,14 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { NewTaskComponent } from './pages/new-task/new-task.component';
 import { TaskComponent } from './pages/task/task.component';
 import { ArchivedProjectsComponent } from './pages/archived-projects/archived-projects.component';
+import { MembersComponent } from './pages/members/members.component';
 
 export const routes: Routes = [
   { path: '', title: 'Codedberries | Home', component: HomeComponent, canActivate: [LoggedIn] },
   { path: 'login', title: 'Codedberries | Log in', component: LoginComponent, canActivate: [NotLoggedIn] },
   { path: 'register', title: 'Codedberries | Register', component: RegisterComponent },
   { path: 'activate', title: 'Codedberries | Activate', component: ActivateComponent },
+  { path: 'company-members', component: MembersComponent, canActivate: [LoggedIn] },
   // { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/tasks', title: 'Codedberries | Project tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/new-task', title: 'Codedberries | New task', component: NewTaskComponent, canActivate: [LoggedIn] },
