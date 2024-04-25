@@ -10,6 +10,7 @@ import { CategoryChipComponent } from '../../components/task-chips/category-chip
 import { StatusChipComponent } from '../../components/task-chips/status-chip/status-chip.component';
 import { DateChipComponent } from '../../components/task-chips/date-chip/date-chip.component';
 import { PriorityChipComponent } from '../../components/task-chips/priority-chip/priority-chip.component';
+import { UpdatableTitleComponent } from './updatable-title/updatable-title.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -23,6 +24,7 @@ import { PriorityChipComponent } from '../../components/task-chips/priority-chip
     StatusChipComponent,
     PriorityChipComponent,
     DateChipComponent,
+    UpdatableTitleComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',

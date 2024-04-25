@@ -1,6 +1,6 @@
 <app-navbar>
     <div style="padding: 10px;">
-        <h1>{{task?.title}}</h1>
+        <app-updatable-title [task]="task"></app-updatable-title>
         <mat-card>
             <mat-card-content>
                 <!-- <mat-divider></mat-divider> -->
