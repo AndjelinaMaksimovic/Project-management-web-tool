@@ -2,10 +2,7 @@
     <mat-card>
         <mat-card-content>
             <!-- description -->
-            <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
-                <mat-label>Write a comment</mat-label>
-                <textarea matInput [(ngModel)]="newComment" style="height: 100px;"></textarea>
-            </mat-form-field>
+            <app-markdown-editor [(value)]="newComment" label="Write a comment"></app-markdown-editor>
             <button mat-flat-button (click)="postComment()" color="primary">Comment</button>
         </mat-card-content>
     </mat-card>
