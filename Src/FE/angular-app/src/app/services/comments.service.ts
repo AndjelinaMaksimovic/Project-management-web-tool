@@ -11,8 +11,8 @@ export type Comment = {
 }
 function mapComment(apiComment: any) {
   return {
-    author: "John Doe",
-    date: new Date(),
+    author: `${apiComment.firstName} ${apiComment.lastName}`,
+    date: new Date(apiComment.commentDate),
     content: apiComment.comment,
     id: apiComment.commentId,
   };
