@@ -7,11 +7,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { GanttSettingsComponent } from './gantt-settings/gantt-settings.component';
 import { Subscription } from 'rxjs';
 import { helpers } from './helpers';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-gantt',
   standalone: true,
-  imports: [ NgStyle, NgIf, NgClass, GanttDependencyLineComponent ],
+  imports: [ NgStyle, NgIf, NgClass, GanttDependencyLineComponent, RouterModule ],
   templateUrl: './gantt.component.html',
   styleUrl: './gantt.component.css'
 })
@@ -44,6 +45,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
   helpers = helpers
   DraggingType = DraggingType
 
+  priorityToColor = {'Low': '#03fc03', 'Medium': '#fcf803', 'High': '#fc1c03'}
+
   constructor(private dialogue: MatDialog){}
 
   ngOnInit(): void {
@@ -61,6 +64,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       for (; i < this.items.length; i++) {
         this.items[i] = new Item(
           this.tasks[i].id,
+          this.tasks[i].projectId,
           this.tasks[i].title,
           this.tasks[i].description,
           this.tasks[i].category,
@@ -71,17 +75,20 @@ export class GanttComponent implements OnInit, AfterViewInit{
           this.tasks[i].dueDate.valueOf(),
           this.tasks[i].assignedTo,
         )
+        this.items[i].color = this.priorityToColor[this.items[i].priority]
         this.items[i].type = ItemType.task
       }
       for(let j = 0; j < this.milestones.length; j++, i++){
         this.items[i] = new Item(
           this.milestones[i].id,
+          this.milestones[i].projectId,
           this.milestones[i].title,
           this.milestones[i].description,
           this.milestones[i].category,
         )
         this.items[i].startDate = this.milestones[i].startDate.valueOf()
         this.items[i].assignedTo = this.milestones[i].startDate
+        this.items[i].color = this.priorityToColor[this.items[i].priority]
         this.items[i].type = ItemType.milestone
       }
     }
@@ -276,15 +283,16 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.dragging = DraggingType.task
     this.originalItem = this.lastHovered
     this.originalLeft = this.lastHovered.left
-    this.draggedOriginal = {x: event.x, y: event.y}
+    this.draggedOriginal = {x: event.x, y: event.pageY - this.chartRect.top}
     event.stopPropagation();
     return false
   }
 
   @HostListener('mousemove', ['$event'])
-  onMouseMove(event: MouseEvent | {x: number, y: number}){
+  onMouseMove(event: MouseEvent | any){
+    console.log(event.pageY)
     if(this.dragging == DraggingType.dependency && !this.clipLine)
-      this.offset = {x: event.x - this.chartRect.left - this.draggedOriginal.x, y: event.y - this.chartRect.top - this.draggedOriginal.y}
+      this.offset = {x: event.x - this.chartRect.left - this.draggedOriginal.x, y: event.pageY - this.chartRect.top - this.draggedOriginal.y}
 
     if(this.dragging == DraggingType.taskEdgesLeft && this.originalItem){
       this.originalItem.width = this.originalWidth - (event.x - this.draggedOriginal.x)
@@ -384,9 +392,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
     alert("clicked dep")
     event.stopPropagation()
     return false
-  }
-  editTask(item: Item){
-    alert('edit task')
   }
 
   categoryToggle(itemIdx: number){

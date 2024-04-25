@@ -1,5 +1,5 @@
 <app-navbar>
-    <div style="height: 100%; width: auto; background-color: white; padding: 20px;">
+    <div style="height: calc(100% - 40px); width: auto; background-color: white; padding: 20px; display: flex; flex-direction: column;">
         <!-- seearch and create button -->
         <div style="display: flex; gap: 20px; width: 100%; align-items: center; justify-content: center;">
             <app-clearable-input label="search tasks" style="margin-bottom: -1.25em;"></app-clearable-input>
@@ -34,10 +34,10 @@
             </div>
         </div>
         <div style="margin-top: 20px;"></div>
-        <div [ngSwitch]="view">
+        <div [ngSwitch]="view" style="flex-grow: 1;">
             <app-kanban-view *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
             <app-tasks-table *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
-            <app-gantt style="border: 1px solid #5096A4; display: inline-block; width: 100%;" *ngSwitchCase="'gantt'" [tasks]="tasks" [milestones]="milestones"></app-gantt>
+            <app-gantt style="border: 1px solid #5096A4; display: inline-block; width: 100%; height: 100%;" *ngSwitchCase="'gantt'" [tasks]="tasks" [milestones]="milestones"></app-gantt>
         </div>
     </div>
 </app-navbar>

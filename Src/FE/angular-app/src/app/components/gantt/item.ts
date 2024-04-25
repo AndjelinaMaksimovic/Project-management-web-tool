@@ -7,6 +7,7 @@ export class Item {
         // public users: Array<User> = [],
 
         public id: number = 0,
+        public projectId: number = 0,
         public title: string = '',
         public description: string = '',
         public category: string = '',
