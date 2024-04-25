@@ -9,6 +9,7 @@ import { Project, ProjectService } from '../../services/project.service';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { TaskService } from '../../services/task.service';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-project-details',
@@ -31,7 +32,9 @@ export class ProjectDetailsComponent {
   completedTasks : number = 0;
   overdueTasks : number = 0;
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService) { }
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog) {
+    this.dialog.closeAll();
+  }
 
   async ngOnInit() {
     this.route.params.subscribe((params) => {

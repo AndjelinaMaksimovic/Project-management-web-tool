@@ -1,0 +1,43 @@
+<app-topnav></app-topnav>
+
+<div class="container column pt-2 pl-container">
+    <div class="container row">
+        <div class="input-wrapper">
+            <input class="input" placeholder="Search members" [(ngModel)]="search"/>
+            <i class="fa-solid fa-magnifying-glass input-icon"></i>
+        </div>
+        <a class="button pl-15 pr-15 ml-20">
+            <i class="fa-solid fa-plus mr-10"></i>
+            <span>Add new member</span>
+        </a>
+    </div>
+    <div class="container row pl-l pl-r mt-20" style="justify-content: space-between;">
+        <div class="container row align-left">
+        </div>
+        <!-- <div class="filters">
+            <a class="small-button" (click)="openFilters()">
+                <i class="fa-solid fa-filter mr-10"></i>
+                <span>Filter</span>
+            </a>
+            <app-filters *ngIf="isFilterOpen" [title]="'Member Filters'" (fetchMembers)="fetchMembersFromLocalStorage()" [filtersName]="'member_filters'" [allFilters]="filters"></app-filters>
+            <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
+            </div>
+        </div> -->
+    </div>
+    <ng-container *ngFor="let role of roles | keyvalue">
+        <div class="container row align-left pl-l pl-r mt-20">
+            <div class="accordion" [attr.id]="'role_' + role.key">
+                <div class="accordion-item accordion-header" (click)="toggleAccordion(role.key);">
+                    <i *ngIf="role.value.active" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
+                    <i *ngIf="!role.value.active" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
+                    <span>{{role.value.name}}</span>
+                </div>
+                <div class="member-container" *ngIf="role.value.active">
+                    @for (member of role.value.members; track member) {
+                        <app-member-item [name]="member.firstname + ' ' + member.lastname" [desc]="''" [image]="member.image" (click)="openMember(member.id)"></app-member-item>
+                    }
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>
