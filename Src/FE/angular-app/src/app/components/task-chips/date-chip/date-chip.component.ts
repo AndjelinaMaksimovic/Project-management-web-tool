@@ -21,7 +21,9 @@ export class DateChipComponent {
   @Input() task: Task | undefined;
   dueDate = new FormControl(moment());
 
-  constructor(private taskService: TaskService) {}
+  constructor(private taskService: TaskService) {
+    this.dueDate = new FormControl(moment(this.task?.dueDate));
+  }
 
   updateDate() {
     if (!this.task) return;
