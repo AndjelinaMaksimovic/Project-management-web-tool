@@ -922,7 +922,7 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
-        public List<TaskCommentInfoDTO> GetTasksComments(HttpContext httpContext, TaskDeletionDTO filterParams)
+        public List<TaskCommentInfoDTO> GetTasksComments(HttpContext httpContext, TaskIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -930,10 +930,11 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("Invalid session!");
             }
+
             System.Linq.IQueryable<Codedberries.Models.TaskComment> query = _databaseContext.TaskComments;
-            if (filterParams.TaskId != 0)
+            if (request.TaskId != 0)
             {
-                query = query.Where(t => t.TaskId == filterParams.TaskId);
+                query = query.Where(t => t.TaskId == request.TaskId);
             }
             List<Codedberries.Models.TaskComment> comments = query.ToList();
             List<TaskCommentInfoDTO> commentsDTO = comments.Select(t => new TaskCommentInfoDTO
