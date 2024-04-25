@@ -11,6 +11,7 @@ import { StatusChipComponent } from '../../components/task-chips/status-chip/sta
 import { DateChipComponent } from '../../components/task-chips/date-chip/date-chip.component';
 import { PriorityChipComponent } from '../../components/task-chips/priority-chip/priority-chip.component';
 import { UpdatableTitleComponent } from './updatable-title/updatable-title.component';
+import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip/assignee-chip.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -25,6 +26,7 @@ import { UpdatableTitleComponent } from './updatable-title/updatable-title.compo
     PriorityChipComponent,
     DateChipComponent,
     UpdatableTitleComponent,
+    AssigneeChipComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
