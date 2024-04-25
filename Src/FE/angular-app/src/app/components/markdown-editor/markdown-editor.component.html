@@ -1,16 +1,22 @@
-<div>
-    <mat-divider></mat-divider>
-    <mat-form-field [floatLabel]="'always'" appearance="outline" style="width: 100%;" class="dense-2">
-        <mat-label>{{label}}</mat-label>
-        <div style="display: flex; flex-wrap: wrap;">
-            <button mat-icon-button (click)="insertText('**', '**')" matTooltip="Bold"><mat-icon>format_bold</mat-icon></button>
-            <button mat-icon-button (click)="insertText('*', '*')" matTooltip="Italic"><mat-icon>format_italic</mat-icon></button>
-            <!-- <button mat-icon-button (click)="insertText('\n* ', '')"><mat-icon>format_list_bulleted</mat-icon></button> -->
-            <button mat-icon-button (click)="insertText('> ', '')" matTooltip="Quote"><mat-icon>format_quote</mat-icon></button>
-            <button mat-icon-button (click)="insertText('\n```\n', '\n```\n')" matTooltip="Code block"><mat-icon>code</mat-icon></button>
-            <button mat-icon-button (click)="insertText('![Image](url)', '')" matTooltip="Image"><mat-icon>image</mat-icon></button>
-            <button mat-icon-button (click)="insertText('[', '](url)')" matTooltip="Link"><mat-icon>link</mat-icon></button>
-        </div>
-        <textarea #editor matInput [(ngModel)]="value" style="min-height: 180px;" [required]="true" (ngModelChange)="changeValue($event)"></textarea>
-    </mat-form-field>
+<div style="border-style: solid; border-width: 1px; border-radius: 4px; border-color: #DDD; margin-bottom: 20px">
+    <div style="display: flex;">
+        <button mat-icon-button (click)="insertText('**', '**')"
+            matTooltip="Bold"><mat-icon>format_bold</mat-icon></button>
+        <button mat-icon-button (click)="insertText('*', '*')"
+            matTooltip="Italic"><mat-icon>format_italic</mat-icon></button>
+        <button mat-icon-button (click)="insertText('> ', '')"
+            matTooltip="Quote"><mat-icon>format_quote</mat-icon></button>
+        <button mat-icon-button (click)="insertText('\n```\n', '\n```\n')"
+            matTooltip="Code block"><mat-icon>code</mat-icon></button>
+        <button mat-icon-button (click)="insertText('![Image](url)', '')"
+            matTooltip="Image"><mat-icon>image</mat-icon></button>
+        <button mat-icon-button (click)="insertText('[', '](url)')" matTooltip="Link"><mat-icon>link</mat-icon></button>
+    </div>
+    <div style="padding-left: 10px; padding-right: 10px; margin-bottom: -10px;">
+        <mat-form-field [floatLabel]="'always'" appearance="outline" style="width: 100%;" class="dense-2">
+            <mat-label>{{label}}</mat-label>
+            <textarea #editor matInput [(ngModel)]="value" style="min-height: 180px;" [required]="true"
+                (ngModelChange)="changeValue($event)"></textarea>
+        </mat-form-field>
+    </div>
 </div>

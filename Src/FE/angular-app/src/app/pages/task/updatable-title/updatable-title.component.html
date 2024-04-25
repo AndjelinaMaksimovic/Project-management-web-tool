@@ -1,0 +1,14 @@
+<h1>{{task?.title}}&NonBreakingSpace;<button mat-icon-button [matMenuTriggerFor]="menu"
+        class="small-icon-button" [matTooltip]="'edit title'"><mat-icon>edit</mat-icon></button></h1>
+<mat-menu #menu="matMenu">
+    <div style="padding: 10px">
+        <div (click)="$event.stopPropagation();">
+            <mat-form-field appearance="outline" class="dense-2">
+                <mat-label>New Title</mat-label>
+                <input type="text" matInput [(ngModel)]="title" [required]="true">
+            </mat-form-field>
+        </div>
+        <button mat-flat-button (click)="updateTitle()">Save</button>
+        <button mat-flat-button>Cancel</button>
+    </div>
+</mat-menu>

@@ -6,6 +6,7 @@ import { StatusService } from './status.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from './category.service';
 import { LocalStorageService } from './localstorage';
+import { PriorityService } from './priority.service';
 
 /**
  * Task format used within the app
@@ -27,7 +28,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-    constructor(private http: HttpClient, private statusService: StatusService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -103,6 +104,7 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
       await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
@@ -148,6 +150,7 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
       await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
@@ -162,11 +165,20 @@ export class TaskService {
    * this function takes a partial task object and updates the corresponding task accordingly
    * @param task partial task object. Must have Id
    */
-  async updateTask(task: Partial<Task> & Pick<Task, 'id'>) {
+  async updateTask(task: Partial<Task> & Pick<Task, 'id'> & {
+    categoryId?: string | undefined,
+    statusId?: string | undefined,
+    priorityId?: string | undefined,
+    userId?: string | undefined,
+  }) {
     try {
       const request: Record<string, unknown> = { taskId: task.id };
       if (task.status)
         request['statusId'] = this.statusService.nameToId(task.status);
+      if(task.categoryId) request["categoryId"] = task.categoryId;
+      if(task.statusId) request["statusId"] = task.statusId;
+      if(task.priorityId) request["priorityId"] = task.priorityId;
+      if(task.userId) request["userId"] = task.userId;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.dueDate) request['dueDate'] = task.dueDate;

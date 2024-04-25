@@ -1,0 +1,21 @@
+<div [matMenuTriggerFor]="menu" style="display: flex; gap: 10px;">
+    @for (assignee of task?.assignedTo; track assignee) {
+    <span style="display: flex; align-items: center; gap: 10px"
+        [matTooltip]="assignee.firstName + ' ' + assignee.lastName">
+        <span
+            style="width: 24px; height: 24px; border-radius: 100%; background-color: rgb(255, 102, 0); color: white; text-align: center; vertical-align: center; line-height: 24px;">
+            {{assignee.firstName[0]}}</span>
+    </span>
+    }
+    <button mat-icon-button class="small-icon-button" [matTooltip]="'edit assignees'"><mat-icon>edit</mat-icon></button>
+</div>
+<mat-menu #menu="matMenu">
+    <div style="padding: 10px">
+        <div (click)="$event.stopPropagation();">
+            <app-select [options]="users" label="Assignee" (valueChange)="assignee=$event"
+                [required]="true"></app-select>
+        </div>
+        <button mat-flat-button (click)="updateAssignees()">Save</button>
+        <button mat-flat-button>Cancel</button>
+    </div>
+</mat-menu>

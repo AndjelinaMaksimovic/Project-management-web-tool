@@ -124,7 +124,7 @@ export class NewTaskComponent {
     await this.userService.fetchUsers();
     this.users = this.userService
       .getUsers()
-      .map((u) => ({ value: '1', viewValue: `${u.firstName} ${u.lastName}` }));
+      .map((u) => ({ value: u.id.toString(), viewValue: `${u.firstName} ${u.lastName}` }));
   }
 
   async createTask() {

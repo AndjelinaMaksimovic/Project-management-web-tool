@@ -1,0 +1,11 @@
+<div [classList]="['chip chip-' + 'warn']" [matMenuTriggerFor]="menu" [matTooltip]="'click to change'">{{task?.priority
+    === "High" ?
+    "🎯︎ "
+    + task?.priority :
+    task?.priority}}</div>
+
+<mat-menu #menu="matMenu">
+    @for(priority of priorities; track priority){
+    <button mat-menu-item (click)="updatePriority(priority.id.toString())">{{priority.name}}</button>
+    }
+</mat-menu>
