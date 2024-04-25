@@ -162,11 +162,11 @@ namespace Codedberries.Controllers
         }
 
         [HttpGet("TaskComments")]
-        public IActionResult GetTaskComments([FromQuery] TaskIdDTO body)
+        public async Task<IActionResult> GetTaskComments([FromQuery] TaskIdDTO body)
         {
             try
             {
-                var comments = _taskService.GetTasksComments(HttpContext, body);
+                var comments = await _taskService.GetTasksComments(HttpContext, body);
 
                 return Ok(comments);
             }
