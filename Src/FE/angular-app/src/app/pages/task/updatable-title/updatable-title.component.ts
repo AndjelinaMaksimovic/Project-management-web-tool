@@ -20,7 +20,13 @@ import { ClearableInputComponent } from '../../../components/clearable-input/cle
 })
 export class UpdatableTitleComponent {
   @Input() task: Task | undefined = undefined;
-  title: string = "";
+  _title: string | undefined = undefined;
+  get title(){
+    return this._title || this.task?.title || ""
+  }
+  set title(newTitle: string){
+    this._title = newTitle;
+  }
 
   constructor(private taskService: TaskService) {}
 
@@ -28,7 +34,7 @@ export class UpdatableTitleComponent {
     if (!this.task) return;
     this.taskService.updateTask({
       id: this.task.id,
-      title: this.title,
+      title: this._title,
     });
   }
 }
