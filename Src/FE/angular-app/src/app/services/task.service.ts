@@ -144,6 +144,7 @@ export class TaskService {
     categoryId?: string | undefined,
     statusId?: string | undefined,
     priorityId?: string | undefined,
+    userId?: string | undefined,
   }) {
     try {
       const request: Record<string, unknown> = { taskId: task.id };
@@ -152,6 +153,7 @@ export class TaskService {
       if(task.categoryId) request["categoryId"] = task.categoryId;
       if(task.statusId) request["statusId"] = task.statusId;
       if(task.priorityId) request["priorityId"] = task.priorityId;
+      if(task.userId) request["userId"] = task.userId;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.dueDate) request['dueDate'] = task.dueDate;
