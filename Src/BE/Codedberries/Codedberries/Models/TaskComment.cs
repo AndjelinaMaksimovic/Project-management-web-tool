@@ -25,11 +25,15 @@ namespace Codedberries.Models
         [ForeignKey("TaskId")]
         public Task Task { get; set; }
 
-        public TaskComment(string comment, int userId, int taskId)
+        [Required]
+        public DateTime CommentDate { get; set; }
+
+        public TaskComment(string comment, int userId, int taskId, DateTime commentDate)
         {
             Comment = comment;
             UserId = userId;
             TaskId = taskId;
+            CommentDate = commentDate;
         }
     }
 }
