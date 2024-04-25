@@ -17,7 +17,7 @@
                                 {{item.title}}
                             </div>
                             <!-- task column - category display -->
-                            <div class="task" style="padding-left: 5px; margin-right: 5px; user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
+                            <div class="task" style="margin-left: 5px; margin-right: 5px; user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
                                 <span *ngIf="items[itemIdx+1].display">&#9660;</span>
                                 <span *ngIf="!items[itemIdx+1].display">&#9650;</span>
                                 {{item.title}}
@@ -64,7 +64,8 @@
                                 'box-shadow': (item.type == ItemType.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
                                 'height': barHeight+'px',
                                 'cursor': item.type != ItemType.category ? 'move' : ''
-                            }">
+                            }"
+                            [attr.title]="'Priority: ' + item.priority">
                                 <div *ngIf="item.type == ItemType.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
                                 [ngStyle]="{
                                     'background-color': item.color,

@@ -22,7 +22,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() milestones: any[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
   @Input() columns: GanttColumn[] = [GanttColumn.tasks]
-  @Input() colWidths: number[] = [100]
+  @Input() colWidths: number[] = [180]
   @Input() timeScale: TimeScale = TimeScale.day
   
   @Input() hideWeekend: boolean = false
@@ -38,7 +38,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   columnWidth = 60
   taskHeight = 20
-  barHeight = 14
+  barHeight = 16
 
   GanttColumn = GanttColumn // must be declared to be used in html
   ItemType = ItemType // must be declared to be used in html
@@ -389,7 +389,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   dependencyPopUp(item: Item, event: any){
-    alert("clicked dep")
+    alert("In development: *dependency popup here*")
     event.stopPropagation()
     return false
   }
