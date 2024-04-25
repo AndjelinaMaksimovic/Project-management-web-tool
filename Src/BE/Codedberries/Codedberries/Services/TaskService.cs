@@ -964,18 +964,31 @@ namespace Codedberries.Services
                 throw new ArgumentException($"There are no comments for task with ID {request.TaskId}!");
             }
 
-            List<TaskCommentInfoDTO> commentsDTO = comments.Select(t => new TaskCommentInfoDTO
-            {
-                Comment = t.Comment,
-                CommentId = t.CommentId,
-                TaskId = t.TaskId,
-                UserId = t.UserId,
-                FirstName = t.User.Firstname,
-                LastName = t.User.Lastname,
-                CommentDate = t.CommentDate
+            List<TaskCommentInfoDTO> commentsDTO = new List<TaskCommentInfoDTO>();
 
-            }).ToList();
-            
+            foreach (var comment in comments)
+            {
+                var commentUser = await _databaseContext.Users.FindAsync(comment.UserId);
+
+                if (commentUser == null)
+                {
+                    throw new ArgumentException($"User with ID {comment.UserId} not found!");
+                }
+
+                var commentDTO = new TaskCommentInfoDTO
+                {
+                    Comment = comment.Comment,
+                    CommentId = comment.CommentId,
+                    TaskId = comment.TaskId,
+                    UserId = comment.UserId,
+                    FirstName = commentUser.Firstname,
+                    LastName = commentUser.Lastname,
+                    CommentDate = comment.CommentDate
+                };
+
+                commentsDTO.Add(commentDTO);
+            }
+
             return commentsDTO;
         }
 
