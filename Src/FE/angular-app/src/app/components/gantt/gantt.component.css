@@ -54,11 +54,9 @@
     display: flex;
     flex-direction: row-reverse;
     padding-right: 4px;
-    margin-left: 5px;
-    margin-right: 5px;
 }
 .hover {
-    background-color: #F5F5F5;
+    background-color: #e0e0e0;
 }
 .task-title:hover{
     text-decoration: underline;

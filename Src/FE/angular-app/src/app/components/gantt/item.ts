@@ -6,10 +6,11 @@ export class Item {
         // public depends: Items = [],
         // public users: Array<User> = [],
 
-        public id: number,
-        public title: string,
-        public description: string,
-        public category: string,
+        public id: number = 0,
+        public projectId: number = 0,
+        public title: string = '',
+        public description: string = '',
+        public category: string = '',
         public priority: 'Low' | 'Medium' | 'High' = 'Low',
         public status: string = '',
         public startDate: number = Date.now(),
@@ -29,7 +30,8 @@ export class Item {
 }
 export enum GanttColumn {
     tasks = "Tasks",
-    users = "Users"
+    users = "Users",
+    progress = "Progress"
 }
 export enum TimeScale {
     week = 86_400_000 * 7,
@@ -40,6 +42,13 @@ export enum ItemType {
     task,
     milestone,
     category
+}
+export enum DraggingType{
+    dependency,
+    taskEdgesLeft,
+    taskEdgesRight,
+    task,
+    none
 }
 export class User{
     constructor(

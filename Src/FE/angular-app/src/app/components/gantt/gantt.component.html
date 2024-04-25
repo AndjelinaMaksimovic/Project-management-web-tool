@@ -1,33 +1,37 @@
-<div style="white-space: nowrap; overflow: auto; display: flex; background-color: white; height: 600px;">
+<div style="white-space: nowrap; overflow: auto; display: flex; background-color: white; height: 100%;">
     <div class="info">
+        <div style="position: absolute; width: 20px; height: 20px; color: gray; cursor: pointer;" (click)="openSettings()">&#9881;</div>
         @for (col of columns; track col; let idx = $index) {
             <div [style.width]="colWidths[idx]+'px'" style="display: inline-block; overflow: hidden;">
                 <div class="header text-align-center" [style.width]="colWidths[idx]+'px'">
-                    <div class="date-line" [style.left]="colOffset(idx)"></div>
+                    <div class="date-line" [style.left]="helpers.colOffset(idx, colWidths)"></div>
                     <h4 class="column-display">{{col}}</h4>
                 </div>
                 <div [style.width]="colWidths[idx]+'px'">
                     @for (item of items; track item; let itemIdx = $index) {
-                        <div [style.height]="taskHeight+'px'" style="padding-left: 5px; display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
+                        <div [style.height]="taskHeight+'px'" style="display: flex; align-items: center;" *ngIf="item.display" [ngClass]="{'hover':item.hover}" (mouseenter)="itemHover(item)" (mouseleave)="itemUnHover(item)">
                             <!-- tasks column -->
-                            <div class="task task-title" style="width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks && item.type != ItemType.category"
+                            <div class="task task-title" style="padding-left: 5px; width: 100%; overflow: hidden; text-overflow: elipsis;" *ngIf="col == GanttColumn.tasks && item.type != ItemType.category"
                             [attr.title]="item.title"
-                            (click)="editTask(item)">
+                            [routerLink]="'/project/' + item.projectId + '/task/' + item.id">
                                 {{item.title}}
-                            <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
                             </div>
                             <!-- task column - category display -->
-                            <div class="task" style="margin-right: 5px; user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
+                            <div class="task" style="margin-left: 5px; margin-right: 5px; user-select: none; width: 100%; overflow: hidden; text-overflow: elipsis; background-color: #dddddd; border-radius: 10%; cursor: pointer;" *ngIf="col == GanttColumn.tasks && item.type == ItemType.category" (click)="categoryToggle(itemIdx)">
                                 <span *ngIf="items[itemIdx+1].display">&#9660;</span>
                                 <span *ngIf="!items[itemIdx+1].display">&#9650;</span>
                                 {{item.title}}
-                            <!-- <div style="position: absolute; right: 2px; margin: auto 0; top: 0; bottom: 0; cursor: pointer;" *ngIf="item.hover">&#9998;</div> -->
                             </div>
                             <!-- users column -->
-                            <div class="task" *ngIf="col == GanttColumn.users">
+                            <div class="task" *ngIf="col == GanttColumn.users" style="padding-left: 5px;">
                                 @for(user of item.assignedTo; track user; let last = $last){
                                     <span class="">{{user.firstName}}<span *ngIf="!last">, </span></span>
                                 }
+                            </div>
+                            <!-- progress column -->
+                            <div class="task" *ngIf="col == GanttColumn.progress" style="width: 100%; text-align: center;">
+                                <span *ngIf="item.type == ItemType.task">{{item.percentage}}%</span>
+                                <input type="checkbox" *ngIf="item.type == ItemType.milestone">
                             </div>
                         </div>
                     }
@@ -45,8 +49,8 @@
                 }
             </div>
             <div style="position: relative;" #chartView>
-                <ng-template [ngIf]="dragging">
-                    <app-gantt-dependency-line style="position: absolute; z-index: 2;" [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight"></app-gantt-dependency-line>
+                <ng-template [ngIf]="dragging == DraggingType.dependency">
+                    <app-gantt-dependency-line style="position: absolute; z-index: 2;" [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight" [barHeight]="barHeight"></app-gantt-dependency-line>
                 </ng-template>
                 @for (item of items; track item) {
                     <!-- task row -->
@@ -55,20 +59,22 @@
                             'left': item.left + 'px',
                             'width': (item.type == ItemType.milestone) ? taskHeight : item.width + 'px',
                         }">
-                            <div class="task-bar" (mouseenter)="barHover(item)" (mouseleave)="barUnHover(item)" [ngStyle]="{
+                            <div class="task-bar" (mouseenter)="barHover(item)" (mouseleave)="barUnHover(item)" (mousedown)="startTaskDrag($event)" [ngStyle]="{
                                 'background-color': (item.type == ItemType.milestone) ? '' : item.color,
                                 'box-shadow': (item.type == ItemType.milestone) ? '' : 'rgba(0, 0, 0, 0.2) 0px 0px 0px 2px inset',
                                 'height': barHeight+'px',
-                            }">
+                                'cursor': item.type != ItemType.category ? 'move' : ''
+                            }"
+                            [attr.title]="'Priority: ' + item.priority">
                                 <div *ngIf="item.type == ItemType.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
                                 [ngStyle]="{
                                     'background-color': item.color,
                                 }"></div>
                                 <!-- progress bar filter -->
-                                <div *ngIf="item.type != ItemType.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.35); border-radius: 5px; position: absolute; margin-left: 5px; margin-right: 5px; left: 0;">
+                                <div *ngIf="item.type != ItemType.milestone" style="height: 100%; width: 100%; background-color: rgba(255, 255, 255, 0.35); border-radius: 5px; position: absolute; left: 0; overflow: hidden;">
                                     <!-- progress bar -->
                                     <div style="border-radius: 5px; height:100%;" [ngStyle]="{
-                                        'width': 'calc(' + item.percentage + '%' + ' - 10px)',
+                                        'width': item.percentage + '%',
                                         'background-color': item.color,
                                     }"></div>
                                 </div>
@@ -81,23 +87,35 @@
                                         }"> A</div>
                                     }
                                 </ng-template>
+                                <!-- <div *ngIf="item.hover"> -->
+                                <div *ngIf="item.type == ItemType.task && item.hover" (mousedown)="startTaskLeftEdgeDrag($event)" style="z-index: 1; position: absolute; left: 0; height: 100%; width: 5px; cursor: col-resize; user-select: none; width: 10px;"> <!-- hitbox -->
+                                    <div style="width: 2px; height: 65%; background-color: black; left: 5px; top: 0; bottom: 0; margin: auto 0; position: absolute;"></div>
+                                </div>
+                                <div *ngIf="item.type == ItemType.task && item.hover" (mousedown)="startTaskRightEdgeDrag($event)" style="z-index: 1; position: absolute; right: 0; height: 100%; width: 5px; cursor: col-resize; user-select: none; width: 10px;"> <!-- hitbox -->
+                                    <div style="width: 2px; height: 65%; background-color: black; right: 5px; top: 0; bottom: 0; margin: auto 0; position: absolute;"></div>
+                                </div>
     
-                                <!-- Dependenct lines -->
-                                @for (dependant of item.dependant; track dependant){
-                                    <app-gantt-dependency-line
-                                    [from]="{x: item.width - 5, y: barHeight / 2}"
-                                    [offset]="{x: items[idMap[dependant]].left - item.left - item.width + 10, y: (idMap[dependant]-idMap[item.id])*taskHeight}"
-                                    [taskHeight]="taskHeight"
-                                    [hover]="item.hover || items[idMap[dependant]].hover"
-                                    *ngIf="items[idMap[dependant]].display && item.display"></app-gantt-dependency-line>
-                                }
 
                                 <ng-template [ngIf]="item.type != ItemType.category">
-                                    <div title="Click and drag to another taks to create a new dependency" style="position: absolute; right: -15px; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" (click)="dependencyPopUp(item)" (mousedown)="startDependencyDrag($event)" *ngIf="item.hover">&#9737;</div>
-                                    <div title="Edit task" style="position: absolute; right: -33px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;" *ngIf="item.hover"
-                                    (click)="editTask(item)">&#10247;</div>
+                                    <div title="Click and drag to another taks to create a new dependency" style="position: absolute; right: -27px; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;"
+                                    (click)="dependencyPopUp(item, $event)"
+                                    (mousedown)="startDependencyDrag($event)"
+                                    *ngIf="item.hover">&#9737;</div>
+                                    <div title="Edit task" style="position: absolute; right: -47px; font-weight: bold; cursor: pointer; align-self: center; text-align: center; background-color: white; border-radius: 20%; z-index: 1; border: 1px solid grey; width: 15px;"
+                                    *ngIf="item.hover"
+                                    [routerLink]="'/project/' + item.projectId + '/task/' + item.id">&#10247;</div>
                                 </ng-template>
                             </div>
+                            <!-- Dependenct lines -->
+                            @for (dependant of item.dependant; track dependant){
+                                <app-gantt-dependency-line
+                                [from]="{x: item.width, y: barHeight / 2}"
+                                [offset]="{x: items[idMap[dependant]].left - item.left - item.width, y: (idMap[dependant]-idMap[item.id])*taskHeight}"
+                                [taskHeight]="taskHeight"
+                                [barHeight]="barHeight"
+                                [hover]="item.hover || items[idMap[dependant]].hover"
+                                *ngIf="items[idMap[dependant]].display && item.display"></app-gantt-dependency-line>
+                            }
                         </div>
                     </div>
                 }

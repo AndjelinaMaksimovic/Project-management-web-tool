@@ -1,0 +1,13 @@
+<div style="width: 400px; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+    <h1>Settings</h1>
+    <mat-select placeholder="Select" [(value)]="scale" style="width: 200px;">
+        <mat-option *ngFor="let scaleOption of timeScale;" [value]="scaleOption">
+            {{scaleOption}}
+        </mat-option>
+    </mat-select>
+    <mat-checkbox [(ngModel)]="hideWeekend">Hide weekend</mat-checkbox>
+    <div>
+        <button mat-flat-button (click)="cancel()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="submit()" style="margin-right: 5px;">Apply</button>
+    </div>
+</div>
