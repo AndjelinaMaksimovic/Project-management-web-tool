@@ -1,7 +1,6 @@
 <div *ngIf="!isEditing">
-    <markdown ngPreserveWhitespaces [data]="content" (click)="isEditing = true"></markdown>
-    <!-- <button color="primary" mat-flat-button (click)="isEditing = true">Edit description</button> -->
-    <!-- <button mat-icon-button (click)="isEditing = true"><mat-icon>edit</mat-icon></button> -->
+    <markdown ngPreserveWhitespaces [data]="content"></markdown>
+    <button class="dense-2" mat-stroked-button (click)="isEditing = true"><mat-icon>edit</mat-icon>Edit</button>
 </div>
 <div *ngIf="isEditing">
     <div style="margin-top: 20px;">
