@@ -52,6 +52,10 @@ export class ProjectService {
     return this.projectsProgress;
   }
 
+  public getProgress(projectId: number) {
+    return this.projectsProgress.get(projectId);
+  }
+
   public updateProgresses() {
     this.projects.forEach(async (project) => {
       this.projectsProgress.set(project.id, await this.getProjectProgress(project.id));
