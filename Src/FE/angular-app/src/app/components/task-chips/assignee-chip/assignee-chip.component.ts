@@ -2,8 +2,9 @@ import { Component, Input } from '@angular/core';
 import { Task, TaskService } from '../../../services/task.service';
 import { MaterialModule } from '../../../material/material.module';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import moment from 'moment';
 import { CommonModule } from '@angular/common';
+import { SelectComponent } from '../../select/select.component';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-assignee-chip',
@@ -13,23 +14,29 @@ import { CommonModule } from '@angular/common';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
+    SelectComponent,
   ],
   templateUrl: './assignee-chip.component.html',
   styleUrl: './assignee-chip.component.css'
 })
 export class AssigneeChipComponent {
   @Input() task: Task | undefined;
-  dueDate = new FormControl(moment());
+  assignee: string | undefined;
+  users: any
+  constructor(private taskService: TaskService, private userService: UserService) {}
 
-  constructor(private taskService: TaskService) {
-    this.dueDate = new FormControl(moment(this.task?.dueDate));
+  async ngOnInit(){
+    await this.userService.fetchUsers();
+    this.users = this.userService
+    .getUsers()
+    .map((u) => ({ value: u.id, viewValue: `${u.firstName} ${u.lastName}` }));
   }
 
-  updateDate() {
+  updateAssignees() {
     if (!this.task) return;
     this.taskService.updateTask({
       id: this.task.id,
-      dueDate: this.dueDate?.value?.toDate(),
+      userId: this.assignee,
     });
   }
 }
