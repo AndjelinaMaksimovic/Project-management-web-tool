@@ -1,4 +1,4 @@
-<h1>{{task?.title}}<button mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>edit</mat-icon></button></h1>
+<h1>{{task?.title}}&NonBreakingSpace;<button mat-icon-button [matMenuTriggerFor]="menu" class="small-icon-button"><mat-icon>edit</mat-icon></button></h1>
 <mat-menu #menu="matMenu">
     <div style="padding: 10px">
         <div (click)="$event.stopPropagation();">
