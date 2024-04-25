@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Task, TaskService } from '../../../services/task.service';
 import { MaterialModule } from '../../../material/material.module';
-import { CategoryService } from '../../../services/category.service';
 
 @Component({
   selector: 'app-priority-chip',
@@ -13,25 +12,20 @@ import { CategoryService } from '../../../services/category.service';
 export class PriorityChipComponent {
   @Input() task: Task | undefined;
 
-  constructor(
-    private categoryService: CategoryService,
-    private taskService: TaskService
-  ) {}
+  constructor(private taskService: TaskService) {}
 
-  get categorieNames() {
-    return this.categoryService.getCategories().map((c) => c.name);
-  }
+  priorities = [
+    { name: 'Low', id: 1 },
+    { name: 'Medium', id: 2 },
+    { name: 'High', id: 3 },
+  ];
 
-  get categories() {
-    return this.categoryService.getCategories();
-  }
-
-  updateCategory(categoryId: string) {
-    console.log(categoryId);
+  updatePriority(priorityId: string) {
+    // console.log(priorityId);
     if (!this.task) return;
     this.taskService.updateTask({
       id: this.task.id,
-      categoryId: categoryId,
+      priorityId: priorityId,
     });
   }
 }
