@@ -6,6 +6,7 @@ import { StatusService } from './status.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from './category.service';
 import { LocalStorageService } from './localstorage';
+import { PriorityService } from './priority.service';
 
 /**
  * Task format used within the app
@@ -27,7 +28,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-    constructor(private http: HttpClient, private statusService: StatusService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -102,6 +103,7 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
       await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
@@ -126,6 +128,7 @@ export class TaskService {
         )
       );
       await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
       await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
