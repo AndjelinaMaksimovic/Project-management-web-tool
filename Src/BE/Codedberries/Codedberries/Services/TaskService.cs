@@ -880,21 +880,39 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            if (string.IsNullOrEmpty(request.Comment))
-            {
-                throw new ArgumentException("Comment is required!");
-            }
-
             if (request.TaskId <= 0)
             {
                 throw new ArgumentException("Task ID must be greater than zero!");
             }
 
-            var task = _databaseContext.Tasks.Find(request.TaskId);
+            var task = await _databaseContext.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId);
 
             if (task == null)
             {
-                throw new ArgumentException($"Task with ID {request.TaskId} does not exist in database!");
+                throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == task.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {task.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+            // ---------------- //
+
+            if (string.IsNullOrEmpty(request.Comment))
+            {
+                throw new ArgumentException("Comment is required!");
             }
 
             DateTime currentDate = DateTime.Now;
