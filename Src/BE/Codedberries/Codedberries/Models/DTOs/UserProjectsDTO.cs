@@ -1,10 +1,12 @@
 ﻿namespace Codedberries.Models.DTOs
 {
-    public class UserProjectDTO
+    public class UserProjectsDTO
     {
         public int UserId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public int ProjectId { get; set; }
         public int RoleId { get; set; }
         public string RoleName { get; set; }
-        public ProjectInformationDTO Project { get; set; }
     }
 }
