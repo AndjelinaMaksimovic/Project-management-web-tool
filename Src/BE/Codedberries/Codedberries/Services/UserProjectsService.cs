@@ -48,6 +48,15 @@ namespace Codedberries.Services
             }
 
             // --- //
+
+            var userProjects = _databaseContext.UserProjects
+                .Where(up => up.ProjectId == request.ProjectId)
+                .ToList();
+
+            if (!userProjects.Any())
+            {
+                throw new ArgumentException($"There are no users for project with id {request.ProjectId}!");
+            }
         }
     }
 }
