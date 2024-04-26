@@ -1,4 +1,6 @@
-﻿namespace Codedberries.Services
+﻿using Codedberries.Models.DTOs;
+
+namespace Codedberries.Services
 {
     public class UserProjectsService
     {
@@ -9,6 +11,12 @@
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
+        }
+
+        // get all users that are on specific project
+        public async Task<List<UserProjectsDTO>> GetUsersByProjectId(HttpContext httpContext, ProjectIdDTO request)
+        {
+
         }
     }
 }
