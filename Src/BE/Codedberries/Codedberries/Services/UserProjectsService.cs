@@ -57,6 +57,38 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"There are no users for project with id {request.ProjectId}!");
             }
+
+            var userProjectDTOs = new List<UserProjectsDTO>();
+
+            foreach (var userProject in userProjects)
+            {
+                var userOnProject = _databaseContext.Users.FirstOrDefault(u => u.Id == userProject.UserId);
+                var roleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userProject.RoleId);
+
+                if (userOnProject == null)
+                {
+                    throw new ArgumentException($"User with id {userOnProject.Id} does not exist in database!");
+                }
+
+                if (roleOnProject == null)
+                {
+                    throw new ArgumentException($"User with id {userOnProject.Id} does not have a role with id {roleOnProject.Id} in database!");
+                }
+
+                var userProjectDTO = new UserProjectsDTO
+                {
+                    UserId = userOnProject.Id,
+                    FirstName = userOnProject.Firstname,
+                    LastName = userOnProject.Lastname,
+                    ProjectId = userProject.ProjectId,
+                    RoleId = roleOnProject.Id,
+                    RoleName = roleOnProject.Name
+                };
+
+                userProjectDTOs.Add(userProjectDTO);
+            }
+
+            return userProjectDTOs;
         }
     }
 }
