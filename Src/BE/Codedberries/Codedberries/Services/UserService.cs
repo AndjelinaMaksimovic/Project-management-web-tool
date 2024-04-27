@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Security.Cryptography;
@@ -148,16 +149,43 @@ namespace Codedberries.Services
             };
         }
 
-        public bool SetProfilePicture(int userId, string? profilePicture)
+        public async System.Threading.Tasks.Task SetProfilePicture(HttpContext httpContext, ProfilePictureDTO request)
         {
-            User? user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            var userId = this.GetCurrentSessionUser(httpContext);
 
-            if (user == null) return false;
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
 
-            user.ProfilePicture = profilePicture;
-            _databaseContext.SaveChanges();
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
 
-            return true;
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            User? userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+
+            if (userToSetProfilePicture == null)
+            {
+
+            }
+
+            userToSetProfilePicture.ProfilePicture = request.ImageName;
+            await _databaseContext.SaveChangesAsync();
         }
 
         public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, UserFilterDTO body)
