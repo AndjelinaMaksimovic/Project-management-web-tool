@@ -177,14 +177,21 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            User? userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+            var userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
 
             if (userToSetProfilePicture == null)
             {
                 throw new ArgumentException($"User with provided id {request.UserId} does not exist in database!");
             }
 
+            // update profile picture
             userToSetProfilePicture.ProfilePicture = request.ImageName;
+
+            // save image file to folder ProfileImages
+            string imagePath = Path.Combine("ProfileImages", $"{request.ImageName}");
+            await File.WriteAllBytesAsync(imagePath, request.ImageBytes);
+
+            // save changes to database
             await _databaseContext.SaveChangesAsync();
         }
 
