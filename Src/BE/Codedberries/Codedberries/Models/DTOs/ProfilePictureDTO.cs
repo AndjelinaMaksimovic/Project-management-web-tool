@@ -3,6 +3,7 @@
     public class ProfilePictureDTO
     {
         public int UserId { get; set; }
-        public string? ProfilePicture { get; set; }
+        public byte[] ImageBytes { get; set; }
+        public string ImageName { get; set; }
     }
 }
