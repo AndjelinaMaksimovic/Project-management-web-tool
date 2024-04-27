@@ -184,6 +184,18 @@ namespace Codedberries.Services
                 throw new ArgumentException($"User with provided id {request.UserId} does not exist in database!");
             }
 
+            if (string.IsNullOrWhiteSpace(request.ImageName))
+            {
+                throw new ArgumentException("ImageName cannot be empty!");
+            }
+
+            string extension = Path.GetExtension(request.ImageName);
+
+            if (string.IsNullOrEmpty(extension) || !extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("Invalid ImageName file format! Only .jpg files are supported!");
+            }
+
             // update profile picture
             userToSetProfilePicture.ProfilePicture = request.ImageName;
 
