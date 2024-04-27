@@ -50,7 +50,8 @@ namespace Codedberries.Controllers
             try
             {
                 await _userService.SetProfilePicture(HttpContext, body);
-                return Ok(new { resp = "Success" });
+
+                return Ok("Profile picture successfully updated.");
             }
             catch (UnauthorizedAccessException ex)
             {
