@@ -45,16 +45,25 @@ namespace Codedberries.Controllers
         }
 
         [HttpPost("setProfilePicture")]
-        public IActionResult SetProfilePicture(ProfilePictureDTO body)
+        public async Task<IActionResult> SetProfilePicture(ProfilePictureDTO body)
         {
-            bool isSet = _userService.SetProfilePicture(body.UserId, body.ProfilePicture);
-
-            if (isSet == false)
+            try
             {
-                return NotFound(new ErrorMsg("User not found!"));
+                await _userService.SetProfilePicture(HttpContext, body);
+                return Ok(new { resp = "Success" });
             }
-
-            return Ok(new { resp = "Success" });
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred while processing your request: {ex.Message}"));
+            }
         }
 
         [HttpGet("getUsers")]
