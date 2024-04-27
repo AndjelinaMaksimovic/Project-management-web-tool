@@ -177,6 +177,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be grater than 0!");
+            }
+
             var userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
 
             if (userToSetProfilePicture == null)
