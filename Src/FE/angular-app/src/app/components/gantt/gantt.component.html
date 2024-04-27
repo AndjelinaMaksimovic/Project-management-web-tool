@@ -39,8 +39,8 @@
             </div>
         }
     </div>
-    <div class="chart">
-        <div [style.width]="dates.length*columnWidth+'px'">
+    <div class="chart" #chartView>
+        <div [style.width]="dates.length*columnWidth+'px'" (mousemove)="onMouseMove($event)">
 
             <div class="header">
                 @for (date of dates; track date; let idx = $index) {
@@ -48,7 +48,7 @@
                     <span class="text-align-center" [ngClass]="{'current-date': idx == currentDateIndex}" [style.width]="columnWidth+'px'" style="height: 100%; float: left;">{{date}}</span>
                 }
             </div>
-            <div style="position: relative;" #chartView>
+            <div style="position: relative;">
                 <ng-template [ngIf]="dragging == DraggingType.dependency">
                     <app-gantt-dependency-line style="position: absolute; z-index: 2;" [from]="draggedOriginal" [offset]="offset" [taskHeight]="taskHeight" [barHeight]="barHeight"></app-gantt-dependency-line>
                 </ng-template>
@@ -65,7 +65,7 @@
                                 'height': barHeight+'px',
                                 'cursor': item.type != ItemType.category ? 'move' : ''
                             }"
-                            [attr.title]="'Priority: ' + item.priority">
+                            [attr.title]="(item.type != ItemType.category) ? 'Priority: ' + item.priority : ''">
                                 <div *ngIf="item.type == ItemType.milestone" style="margin-left: 20px; width: 15px; height: 15px; transform: rotateZ(45deg);"
                                 [ngStyle]="{
                                     'background-color': item.color,

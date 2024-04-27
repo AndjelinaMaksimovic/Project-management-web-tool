@@ -272,7 +272,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.dragging = DraggingType.taskEdgesRight
     this.originalItem = this.lastHovered
     this.originalWidth = this.lastHovered.width
-    this.draggedOriginal = {x: event.x, y: event.y}
+    this.draggedOriginal = {x: event.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft), y: event.y - (this.chartRect.top - this.chartElem.nativeElement.scrollTop)}
     event.stopPropagation();
     return false
   }
@@ -283,16 +283,17 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.dragging = DraggingType.task
     this.originalItem = this.lastHovered
     this.originalLeft = this.lastHovered.left
-    this.draggedOriginal = {x: event.x, y: event.pageY - this.chartRect.top}
+    this.draggedOriginal = {x: event.x, y: event.y}
     event.stopPropagation();
     return false
   }
 
-  @HostListener('mousemove', ['$event'])
+  // @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent | any){
-    console.log(event.pageY)
+    // if(event.target.style.width == '1980px')
+      // console.log(event.offsetX)
     if(this.dragging == DraggingType.dependency && !this.clipLine)
-      this.offset = {x: event.x - this.chartRect.left - this.draggedOriginal.x, y: event.pageY - this.chartRect.top - this.draggedOriginal.y}
+      this.offset = {x: event.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft) - this.draggedOriginal.x, y: event.y  - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - this.draggedOriginal.y}
 
     if(this.dragging == DraggingType.taskEdgesLeft && this.originalItem){
       this.originalItem.width = this.originalWidth - (event.x - this.draggedOriginal.x)
