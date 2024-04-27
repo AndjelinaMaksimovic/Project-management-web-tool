@@ -93,6 +93,7 @@ namespace Codedberries.Services
                     FirstName = userOnProject.Firstname,
                     LastName = userOnProject.Lastname,
                     ProjectId = userProject.ProjectId,
+                    ProfilePicture = userOnProject.ProfilePicture,
                     RoleId = roleOnProject.Id,
                     RoleName = roleOnProject.Name
                 };
