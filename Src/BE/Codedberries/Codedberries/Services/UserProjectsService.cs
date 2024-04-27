@@ -49,6 +49,18 @@ namespace Codedberries.Services
 
             // --- //
 
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new ArgumentException("User role not found in database!");
+            }
+
+            if (userRole.CanViewProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to view projects!");
+            }
+
             var userProjects = _databaseContext.UserProjects
                 .Where(up => up.ProjectId == request.ProjectId)
                 .ToList();
