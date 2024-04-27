@@ -181,7 +181,7 @@ namespace Codedberries.Services
 
             if (userToSetProfilePicture == null)
             {
-
+                throw new ArgumentException($"User with provided id {request.UserId} does not exist in database!");
             }
 
             userToSetProfilePicture.ProfilePicture = request.ImageName;
