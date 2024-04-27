@@ -201,6 +201,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("Invalid ImageName file format! Only .jpg files are supported!");
             }
 
+            if (request.ImageBytes == null || request.ImageBytes.Length == 0)
+            {
+                throw new ArgumentException("Image bytes cannot be null or empty!");
+            }
+
             // update profile picture
             userToSetProfilePicture.ProfilePicture = request.ImageName;
 
