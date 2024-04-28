@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Security.Cryptography;
@@ -148,16 +149,72 @@ namespace Codedberries.Services
             };
         }
 
-        public bool SetProfilePicture(int userId, string? profilePicture)
+        public async System.Threading.Tasks.Task SetProfilePicture(HttpContext httpContext, ProfilePictureDTO request)
         {
-            User? user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            var userId = this.GetCurrentSessionUser(httpContext);
 
-            if (user == null) return false;
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
 
-            user.ProfilePicture = profilePicture;
-            _databaseContext.SaveChanges();
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
 
-            return true;
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be grater than 0!");
+            }
+
+            var userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+
+            if (userToSetProfilePicture == null)
+            {
+                throw new ArgumentException($"User with provided id {request.UserId} does not exist in database!");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.ImageName))
+            {
+                throw new ArgumentException("ImageName cannot be empty!");
+            }
+
+            string extension = Path.GetExtension(request.ImageName);
+
+            if (string.IsNullOrEmpty(extension) || !extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("Invalid ImageName file format! Only .jpg files are supported!");
+            }
+
+            if (request.ImageBytes == null || request.ImageBytes.Length == 0)
+            {
+                throw new ArgumentException("Image bytes cannot be null or empty!");
+            }
+
+            // update profile picture
+            userToSetProfilePicture.ProfilePicture = request.ImageName;
+
+            // save image file to folder ProfileImages
+            string imagePath = Path.Combine("ProfileImages", $"{request.ImageName}");
+            await File.WriteAllBytesAsync(imagePath, request.ImageBytes);
+
+            // save changes to database
+            await _databaseContext.SaveChangesAsync();
         }
 
         public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, UserFilterDTO body)
