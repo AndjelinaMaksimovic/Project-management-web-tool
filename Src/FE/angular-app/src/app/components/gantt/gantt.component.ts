@@ -292,19 +292,20 @@ export class GanttComponent implements OnInit, AfterViewInit{
   onMouseMove(event: MouseEvent | any){
     // if(event.target.style.width == '1980px')
       // console.log(event.offsetX)
+    const _offset = {x: event.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft) - this.draggedOriginal.x, y: event.y  - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - this.draggedOriginal.y}
     if(this.dragging == DraggingType.dependency && !this.clipLine)
-      this.offset = {x: event.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft) - this.draggedOriginal.x, y: event.y  - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - this.draggedOriginal.y}
+      this.offset = _offset
 
     if(this.dragging == DraggingType.taskEdgesLeft && this.originalItem){
-      this.originalItem.width = this.originalWidth - (event.x - this.draggedOriginal.x)
-      this.originalItem.left = this.originalLeft + (event.x - this.draggedOriginal.x)
+      this.originalItem.width = this.originalWidth - _offset.x
+      this.originalItem.left = this.originalLeft + _offset.x
     }
     if(this.dragging == DraggingType.taskEdgesRight && this.originalItem){
-      this.originalItem.width = this.originalWidth + event.x - this.draggedOriginal.x
+      this.originalItem.width = this.originalWidth + _offset.x
     }
 
     if(this.dragging == DraggingType.task && this.originalItem){
-      this.originalItem.left = this.originalLeft + (event.x - this.draggedOriginal.x)
+      this.originalItem.left = this.originalLeft + _offset.x
     }
     return false
   }
