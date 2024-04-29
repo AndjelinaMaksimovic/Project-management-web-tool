@@ -949,6 +949,16 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be greater than zero!");
+            }
+
             var existingStarredProject = await _databaseContext.Starred
                     .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == request.UserId);
 
