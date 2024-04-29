@@ -43,6 +43,7 @@ export class MyTasksComponent {
   isFilterOpen: boolean = false;
 
   projectId: number = 0;
+  isLoading: boolean = true;
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
@@ -58,12 +59,11 @@ export class MyTasksComponent {
     await this.route.params.subscribe((params) => {
       this.projectId = parseInt(params['id']);
     });
-    this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    this.isLoading = false;
     this.milestoneService.fetchMilestones({ projectId: this.projectId });
     
     this.statusService.setContext({ projectId: this.projectId });
-    await this.statusService.fetchStatuses();
-    await this.priorityService.fetchPriorities();
 
     this.filters = new Map<string, Filter>([
       ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
