@@ -928,8 +928,22 @@ namespace Codedberries.Services
             return progressPercentage;
         }
 
-        public async System.Threading.Tasks.Task ToggleStarredProject(StarredProjectDTO request)
+        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext, StarredProjectDTO request)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
             var existingStarredProject = await _databaseContext.Starred
                     .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == request.UserId);
 
