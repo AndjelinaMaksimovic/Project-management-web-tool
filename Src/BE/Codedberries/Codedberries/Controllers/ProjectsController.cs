@@ -195,5 +195,29 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while calculating the progress: {ex.Message}"));
             }
         }
+
+        // starred/unstarred
+        [HttpPost("toggleStarredProject")]
+        public async Task<IActionResult> ToggleStarredProject([FromBody] StarredProjectDTO request)
+        {
+            try
+            {
+                await _projectService.ToggleStarredProject(HttpContext, request);
+
+                return Ok("Starring/unstarring successful.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while starring/unstarring the project: {ex.Message}"));
+            }
+        }
     }
 }
