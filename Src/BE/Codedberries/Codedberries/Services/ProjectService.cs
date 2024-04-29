@@ -930,6 +930,22 @@ namespace Codedberries.Services
 
         public async System.Threading.Tasks.Task ToggleStarredProject(StarredProjectDTO request)
         {
+            var existingStarredProject = await _databaseContext.Starred
+                    .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == request.UserId);
+
+            // it was already starred
+            if (existingStarredProject != null)
+            {
+                _databaseContext.Starred.Remove(existingStarredProject);
+            }
+            else // new one is starred
+            {
+                var starredProject = new Starred(request.ProjectId, request.UserId);
+
+                _databaseContext.Starred.Add(starredProject);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
         }
     }
