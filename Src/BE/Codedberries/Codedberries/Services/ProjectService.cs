@@ -959,6 +959,20 @@ namespace Codedberries.Services
                 throw new ArgumentException("UserId must be greater than zero!");
             }
 
+            var targetUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+            
+            if (targetUser == null)
+            {
+                throw new ArgumentException($"Provided user with ID {request.UserId} does not exist in database!");
+            }
+
+            var targetProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+            
+            if (targetProject == null)
+            {
+                throw new ArgumentException($"Provided project with ID {request.ProjectId} does not exist in database!");
+            }
+
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
                 .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
