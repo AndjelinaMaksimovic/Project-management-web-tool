@@ -1071,7 +1071,7 @@ namespace Codedberries.Services
 
                 if (project == null)
                 {
-                    continue;
+                    throw new ArgumentException($"Found project with ID {row.ProjectId} does not exist in the database!");
                 }
 
                 var projectDto = new ProjectInformationDTO
