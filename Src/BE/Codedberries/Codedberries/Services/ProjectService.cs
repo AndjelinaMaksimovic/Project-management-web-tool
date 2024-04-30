@@ -1058,6 +1058,11 @@ namespace Codedberries.Services
                 .Where(sp => sp.UserId == request.UserId)
                 .ToListAsync();
 
+            if (starredRows == null || !starredRows.Any())
+            {
+                throw new ArgumentException($"No starred projects found for user with ID {request.UserId}!");
+            }
+
             var starredProjects = new List<ProjectInformationDTO>();
 
             foreach (var row in starredRows)
