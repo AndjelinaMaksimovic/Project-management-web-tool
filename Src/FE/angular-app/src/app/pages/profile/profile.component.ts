@@ -3,6 +3,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { MaterialModule } from '../../material/material.module';
 import { MatDividerModule } from '@angular/material/divider';
 import { User, UserService } from '../../services/user.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -12,12 +13,14 @@ import { User, UserService } from '../../services/user.service';
   styleUrl: './profile.component.css',
 })
 export class ProfileComponent {
+  userId: number = 0;
   user: User | undefined;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private route: ActivatedRoute) {}
   async ngOnInit() {
-    await this.userService.fetchUsers();
-    this.user = this.userService.getUsers()[0];
-    console.log("this.user",this.user)
+    this.route.params.subscribe((params) => {
+      this.userId = parseInt(params['userId']);
+    });
+    this.user = await this.userService.getUser(this.userId);
   }
 }

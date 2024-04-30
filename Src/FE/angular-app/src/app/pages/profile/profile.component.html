@@ -4,6 +4,7 @@
         <div style="display: flex; flex-direction: column; align-items: center;">
             <img class="circle-image" style="outline: solid;" src="/assets/logo.svg">
             <h2>{{user?.firstName}} {{user?.lastName}}</h2>
+            <span class="chip chip-neutral">{{user?.roleName}}</span>
             <div style="display: flex; gap: 20px">
                 <h4 style="font-weight: lighter;">{{user?.email}}</h4>
                 <h4 style="font-weight: lighter;">{{'member since 4.10.2024'}}</h4>
