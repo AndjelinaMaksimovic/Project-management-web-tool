@@ -1022,6 +1022,45 @@ namespace Codedberries.Services
 
             var starredProjects = new List<ProjectInformationDTO>();
 
+            foreach (var row in starredRows)
+            {
+                var project = await _databaseContext.Projects.FindAsync(row.ProjectId);
+
+                if (project == null)
+                {
+                    continue;
+                }
+
+                var projectDto = new ProjectInformationDTO
+                {
+                    Id = project.Id,
+                    Name = project.Name,
+                    Description = project.Description,
+                    StartDate = project.StartDate,
+                    DueDate = project.DueDate,
+                    Archived = project.Archived,
+                    Statuses = project.Statuses.Select(s => new StatusDTO
+                    {
+                        Id = s.Id,
+                        Name = s.Name
+                    }).ToList(),
+                    Categories = project.Categories.Select(c => new CategoryDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }).ToList(),
+                    Users = project.Users.Select(u => new UserDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    }).ToList()
+                };
+
+                starredProjects.Add(projectDto);
+            }
+
             return starredProjects;
         }
     }
