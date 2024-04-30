@@ -1067,41 +1067,44 @@ namespace Codedberries.Services
 
             foreach (var row in starredRows)
             {
-                var project = await _databaseContext.Projects.FindAsync(row.ProjectId);
+                var project = await _databaseContext.Projects
+                    .Where(p => p.Id == row.ProjectId)
+                    .Select(p => new ProjectInformationDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        StartDate = p.StartDate,
+                        DueDate = p.DueDate,
+                        Archived = p.Archived,
+                        Statuses = p.Statuses.Select(s => new StatusDTO
+                        {
+                            Id = s.Id,
+                            Name = s.Name,
+                            ProjectId = s.ProjectId,
+                            Order = s.Order
+                        }).ToList(),
+                        Categories = p.Categories.Select(c => new CategoryDTO
+                        {
+                            Id = c.Id,
+                            Name = c.Name
+                        }).ToList(),
+                        Users = p.Users.Select(u => new UserDTO
+                        {
+                            Id = u.Id,
+                            FirstName = u.Firstname,
+                            LastName = u.Lastname,
+                            ProfilePicture = u.ProfilePicture
+                        }).ToList()
+                    })
+                    .FirstOrDefaultAsync();
 
                 if (project == null)
                 {
                     throw new ArgumentException($"Found project with ID {row.ProjectId} does not exist in the database!");
                 }
 
-                var projectDto = new ProjectInformationDTO
-                {
-                    Id = project.Id,
-                    Name = project.Name,
-                    Description = project.Description,
-                    StartDate = project.StartDate,
-                    DueDate = project.DueDate,
-                    Archived = project.Archived,
-                    Statuses = project.Statuses.Select(s => new StatusDTO
-                    {
-                        Id = s.Id,
-                        Name = s.Name
-                    }).ToList(),
-                    Categories = project.Categories.Select(c => new CategoryDTO
-                    {
-                        Id = c.Id,
-                        Name = c.Name
-                    }).ToList(),
-                    Users = project.Users.Select(u => new UserDTO
-                    {
-                        Id = u.Id,
-                        FirstName = u.Firstname,
-                        LastName = u.Lastname,
-                        ProfilePicture = u.ProfilePicture
-                    }).ToList()
-                };
-
-                starredProjects.Add(projectDto);
+                starredProjects.Add(project);
             }
 
             if (starredProjects.Count == 0)
