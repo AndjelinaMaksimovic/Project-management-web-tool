@@ -1023,6 +1023,13 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Invalid session!");
             }
 
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
             var starredRows = await _databaseContext.Starred
                 .Where(sp => sp.UserId == request.UserId)
                 .ToListAsync();
