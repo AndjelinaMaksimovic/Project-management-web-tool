@@ -1016,6 +1016,13 @@ namespace Codedberries.Services
 
         public async Task<List<ProjectInformationDTO>> GetStarredProjectsByUserId(UserIdDTO request)
         {
+            var starredRows = await _databaseContext.Starred
+                .Where(sp => sp.UserId == request.UserId)
+                .ToListAsync();
+
+            var starredProjects = new List<ProjectInformationDTO>();
+
+            return starredProjects;
         }
     }
 }
