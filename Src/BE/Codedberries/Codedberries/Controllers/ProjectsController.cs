@@ -219,5 +219,21 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while starring/unstarring the project: {ex.Message}"));
             }
         }
+
+        // get starred projects by user
+        [HttpGet("getStarredProjects")]
+        public async Task<IActionResult> GetStarredProjectsByUserId([FromQuery] UserIdDTO body)
+        {
+            try
+            {
+                var starredProjects = await _projectService.GetStarredProjectsByUserId(HttpContext, body);
+
+                return Ok(starredProjects);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while getting Starred projects: {ex.Message}"));
+            }
+        }
     }
 }
