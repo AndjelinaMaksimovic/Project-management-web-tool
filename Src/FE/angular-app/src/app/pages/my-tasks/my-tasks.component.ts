@@ -63,8 +63,6 @@ export class MyTasksComponent {
     this.isLoading = false;
     this.milestoneService.fetchMilestones({ projectId: this.projectId });
     
-    this.statusService.setContext({ projectId: this.projectId });
-
     this.filters = new Map<string, Filter>([
       ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
       ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
