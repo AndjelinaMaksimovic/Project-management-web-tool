@@ -1104,7 +1104,7 @@ namespace Codedberries.Services
                 starredProjects.Add(projectDto);
             }
 
-            if (starredRows == null || starredRows.Count == 0)
+            if (starredProjects.Count == 0)
             {
                 throw new ArgumentException($"No starred projects found for the specified user ID {request.UserId}!");
             }
