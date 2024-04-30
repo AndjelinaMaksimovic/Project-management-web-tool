@@ -1014,8 +1014,15 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task<List<ProjectInformationDTO>> GetStarredProjectsByUserId(UserIdDTO request)
+        public async Task<List<ProjectInformationDTO>> GetStarredProjectsByUserId(HttpContext httpContext, UserIdDTO request)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
             var starredRows = await _databaseContext.Starred
                 .Where(sp => sp.UserId == request.UserId)
                 .ToListAsync();
