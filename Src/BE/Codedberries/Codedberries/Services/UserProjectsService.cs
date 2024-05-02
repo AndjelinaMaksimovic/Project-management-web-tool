@@ -144,6 +144,13 @@ namespace Codedberries.Services
                 throw new ArgumentException("UserId must be greater than zero!");
             }
 
+            var providedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (providedUser == null)
+            {
+                throw new ArgumentException("Provided user not found in database!");
+            }
+
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
             .ToListAsync();
