@@ -143,11 +143,22 @@ namespace Codedberries.Services
                 .Where(up => up.UserId == request.UserId)
             .ToListAsync();
 
+            if (!allUserProjects.Any())
+            {
+                throw new ArgumentException($"There are no projects found for user with id {request.UserId}!");
+            }
+
             var userProjectInformation = new List<UserProjectInformationDTO>();
 
             foreach (var userProject in allUserProjects)
             {
                 var project = _databaseContext.Projects.FirstOrDefault(p => p.Id == userProject.ProjectId);
+
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {userProject.ProjectId} not found in database!");
+                }
+
                 var roleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userProject.RoleId);
 
                 var userProjectInformationDTO = new UserProjectInformationDTO
