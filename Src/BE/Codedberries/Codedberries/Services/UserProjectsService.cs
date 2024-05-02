@@ -103,5 +103,9 @@ namespace Codedberries.Services
 
             return userProjectDTOs;
         }
+
+        public async Task<List<UserProjectInformationDTO>> GetUserProjectsInformation(int userId)
+        {
+        }
     }
 }
