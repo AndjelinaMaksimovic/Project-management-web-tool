@@ -139,6 +139,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to view projects!");
             }
 
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be greater than zero!");
+            }
+
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
             .ToListAsync();
