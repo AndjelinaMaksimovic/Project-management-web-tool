@@ -161,6 +161,11 @@ namespace Codedberries.Services
 
                 var roleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userProject.RoleId);
 
+                if (roleOnProject == null)
+                {
+                    throw new ArgumentException($"Role with ID {userProject.RoleId} not found in database!");
+                }
+
                 var userProjectInformationDTO = new UserProjectInformationDTO
                 {
                     ProjectId = project.Id,
