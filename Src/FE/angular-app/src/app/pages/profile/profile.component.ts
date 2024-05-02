@@ -19,7 +19,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class ProfileComponent {
   userId: number = 0;
-  user: User | undefined;
+  user: any;
 
   
   private httpOptions = {
