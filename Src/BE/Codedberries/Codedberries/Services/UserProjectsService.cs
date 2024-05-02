@@ -122,6 +122,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User not found in database!");
             }
 
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
             .ToListAsync();
