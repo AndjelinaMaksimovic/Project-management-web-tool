@@ -3,8 +3,8 @@
     public class UserProjectInformationDTO
     {
         public int ProjectId { get; set; }
-        public string RoleNameOnProject { get; set; }
         public int RoleIdOnProject { get; set; }
+        public string RoleNameOnProject { get; set; }
         public string ProjectName { get; set; }
         public string ProjectDescription { get; set; }
         public DateTime ProjectStartDate { get; set; }
