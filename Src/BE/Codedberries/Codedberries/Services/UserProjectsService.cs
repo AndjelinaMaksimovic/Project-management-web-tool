@@ -1,4 +1,5 @@
 ﻿using Codedberries.Models.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -104,8 +105,12 @@ namespace Codedberries.Services
             return userProjectDTOs;
         }
 
-        public async Task<List<UserProjectInformationDTO>> GetUserProjectsInformation(int userId)
+        public async Task<List<UserProjectInformationDTO>> GetUserProjectsInformation(HttpContext httpContext, UserIdDTO request)
         {
+            var allUserProjects = await _databaseContext.UserProjects
+                .Where(up => up.UserId == request.UserId)
+                .ToListAsync();
+
         }
     }
 }
