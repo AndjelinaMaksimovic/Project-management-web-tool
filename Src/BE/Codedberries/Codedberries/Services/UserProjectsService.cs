@@ -169,18 +169,18 @@ namespace Codedberries.Services
 
             foreach (var userProject in allUserProjects)
             {
-                var project = _databaseContext.Projects.FirstOrDefault(p => p.Id == userProject.ProjectId);
-
-                if (project == null)
-                {
-                    throw new ArgumentException($"Project with ID {userProject.ProjectId} not found in database!");
-                }
-
                 var roleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userProject.RoleId);
 
                 if (roleOnProject == null)
                 {
                     throw new ArgumentException($"Role with ID {userProject.RoleId} not found in database!");
+                }
+
+                var project = _databaseContext.Projects.FirstOrDefault(p => p.Id == userProject.ProjectId);
+
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {userProject.ProjectId} not found in database!");
                 }
 
                 var userProjectInformationDTO = new UserProjectInformationDTO
