@@ -158,7 +158,7 @@ namespace Codedberries.Services
 
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
-            .ToListAsync();
+                .ToListAsync();
 
             if (!allUserProjects.Any())
             {
@@ -176,7 +176,8 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Role with ID {userProject.RoleId} not found in database!");
                 }
 
-                var project = _databaseContext.Projects.FirstOrDefault(p => p.Id == userProject.ProjectId);
+                var project = await _databaseContext.Projects
+                            .FirstOrDefaultAsync(p => p.Id == userProject.ProjectId);
 
                 if (project == null)
                 {
