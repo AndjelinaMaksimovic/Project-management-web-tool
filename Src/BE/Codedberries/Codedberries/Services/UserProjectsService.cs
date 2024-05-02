@@ -134,6 +134,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("User role not found in database!");
             }
 
+            if (userRole.CanViewProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to view projects!");
+            }
+
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
             .ToListAsync();
