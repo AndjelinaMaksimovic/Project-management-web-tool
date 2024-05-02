@@ -115,6 +115,13 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Invalid session!");
             }
 
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
             .ToListAsync();
