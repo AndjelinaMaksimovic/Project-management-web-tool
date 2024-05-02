@@ -1,4 +1,5 @@
-﻿using Codedberries.Models.DTOs;
+﻿using Codedberries.Models;
+using Codedberries.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
@@ -109,8 +110,48 @@ namespace Codedberries.Services
         {
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
-                .ToListAsync();
+            .ToListAsync();
 
+            var userProjectInformation = new List<UserProjectInformationDTO>();
+
+            foreach (var userProject in allUserProjects)
+            {
+                var project = _databaseContext.Projects.FirstOrDefault(p => p.Id == userProject.ProjectId);
+                var roleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userProject.RoleId);
+
+                var userProjectInformationDTO = new UserProjectInformationDTO
+                {
+                    ProjectId = project.Id,
+                    RoleIdOnProject = roleOnProject.Id,
+                    RoleNameOnProject = roleOnProject.Name,
+                    ProjectName = project.Name,
+                    ProjectDescription = project.Description,
+                    ProjectStartDate = project.StartDate,
+                    ProjectDueDate = project.DueDate,
+                    ProjectArchived = project.Archived,
+                    ProjectStatuses = project.Statuses.Select(s => new StatusDTO
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        ProjectId = project.Id,
+                        Order = s.Order
+                    }).ToList(),
+                    ProjectCategories = project.Categories.Select(c => new CategoryDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }).ToList(),
+                    ProjectUsers = project.Users.Select(u => new UserDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    }).ToList()
+                };
+            }
+
+            return userProjectInformation;
         }
     }
 }
