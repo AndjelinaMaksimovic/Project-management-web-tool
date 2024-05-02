@@ -196,6 +196,8 @@ namespace Codedberries.Services
                         ProfilePicture = u.ProfilePicture
                     }).ToList()
                 };
+
+                userProjectInformation.Add(userProjectInformationDTO);
             }
 
             return userProjectInformation;
