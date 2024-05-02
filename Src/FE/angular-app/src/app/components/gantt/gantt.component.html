@@ -39,8 +39,8 @@
             </div>
         }
     </div>
-    <div class="chart" #chartView>
-        <div [style.width]="dates.length*columnWidth+'px'" (mousemove)="onMouseMove($event)">
+    <div class="chart" #chartView (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()" (mouseup)="onMouseUp()">
+        <div [style.width]="dates.length*columnWidth+'px'">
 
             <div class="header">
                 @for (date of dates; track date; let idx = $index) {

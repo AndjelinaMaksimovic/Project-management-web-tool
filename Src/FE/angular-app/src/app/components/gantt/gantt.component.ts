@@ -242,8 +242,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
   ngAfterViewInit(){
     this.chartRect = this.chartElem.nativeElement.getBoundingClientRect()
   }
-  
-  
+
+
   originalItem?: Item = undefined
   draggedOriginal: any = {x: 0, y: 0}
   offset: any = {x: 0, y: 0}
@@ -261,56 +261,52 @@ export class GanttComponent implements OnInit, AfterViewInit{
   originalLeft = 0
   startTaskLeftEdgeDrag(event: any){
     this.dragging = DraggingType.taskEdgesLeft
-    this.originalItem = this.lastHovered
-    this.originalWidth = this.lastHovered.width
+    this.startEdgeDrag(event)
     this.originalLeft = this.lastHovered.left
-    this.draggedOriginal = {x: event.x, y: event.y}
-    event.stopPropagation();
-    return false
+    return false  // event.preventDefault()
   }
   startTaskRightEdgeDrag(event: any){
     this.dragging = DraggingType.taskEdgesRight
+    this.startEdgeDrag(event)
+    return false  // event.preventDefault()
+  }
+  startEdgeDrag(event: any){
     this.originalItem = this.lastHovered
     this.originalWidth = this.lastHovered.width
-    this.draggedOriginal = {x: event.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft), y: event.y - (this.chartRect.top - this.chartElem.nativeElement.scrollTop)}
+    this.draggedOriginal = {x: event.x, y: event.y}
     event.stopPropagation();
-    return false
   }
 
   startTaskDrag(event: any){
-    if(this.lastHovered.type == ItemType.category)
-      return false
     this.dragging = DraggingType.task
     this.originalItem = this.lastHovered
     this.originalLeft = this.lastHovered.left
     this.draggedOriginal = {x: event.x, y: event.y}
     event.stopPropagation();
-    return false
+    return false  // event.preventDefault()
   }
 
   // @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent | any){
-    // if(event.target.style.width == '1980px')
-      // console.log(event.offsetX)
-    const _offset = {x: event.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft) - this.draggedOriginal.x, y: event.y  - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - this.draggedOriginal.y}
-    if(this.dragging == DraggingType.dependency && !this.clipLine)
-      this.offset = _offset
-
-    if(this.dragging == DraggingType.taskEdgesLeft && this.originalItem){
+    const _offset = {x: event.x - this.draggedOriginal.x, y: event.y - this.draggedOriginal.y}
+    
+    if(this.dragging == DraggingType.dependency && !this.clipLine){
+      this.offset = {x: _offset.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft), y: _offset.y - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - this.taskHeight}
+    }
+    else if(this.dragging == DraggingType.taskEdgesLeft && this.originalItem){
       this.originalItem.width = this.originalWidth - _offset.x
       this.originalItem.left = this.originalLeft + _offset.x
     }
-    if(this.dragging == DraggingType.taskEdgesRight && this.originalItem){
+    else if(this.dragging == DraggingType.taskEdgesRight && this.originalItem){
       this.originalItem.width = this.originalWidth + _offset.x
     }
-
-    if(this.dragging == DraggingType.task && this.originalItem){
+    else if(this.dragging == DraggingType.task && this.originalItem){
       this.originalItem.left = this.originalLeft + _offset.x
     }
-    return false
+    return false  // event.preventDefault()
   }
 
-  @HostListener('mouseup')
+  // @HostListener('mouseup')
   onMouseUp() {
     if(!this.originalItem){
       this.dragging = DraggingType.none // just in case?
@@ -344,16 +340,16 @@ export class GanttComponent implements OnInit, AfterViewInit{
       this.insertCategories()
       this.initItemDisplay()
     }
-    return false
+    return false  // event.preventDefault()
   }
 
-  @HostListener('mouseleave')
+  // @HostListener('mouseleave')
   onMouseLeave() {
     this.dragging = DraggingType.none
     this.lastHovered.hover = false
     if(this.originalItem)
       this.originalItem.hover = false
-    return false
+    return false  // event.preventDefault()
   }
 
   updateItemDates(item: Item){
@@ -366,10 +362,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
     // item.startDate += d
     // item.dueDate += d
     // ------------------
-    var bias = (item.left % this.columnWidth > this.columnWidth / 2) ? 1 : 0
+    var bias = (item.left % this.columnWidth > this.columnWidth / 2 && this.timeScale == TimeScale.day) ? 1 : 0
     item.startDate = this.chartStartDate + (item.left / this.columnWidth + bias) * this.timeScale
     const rem = (item.left + item.width) % this.columnWidth
-    bias = (rem < this.columnWidth / 2 && rem != 0) ? -1 : 0 // possible bug with rem == 0 ?
+    bias = (rem < this.columnWidth / 2 && rem != 0 && this.timeScale == TimeScale.day) ? -1 : 0 // possible bug with rem == 0 ?
     item.dueDate = this.chartStartDate + ((item.width + item.left) / this.columnWidth + bias) * this.timeScale
 
     // item.dependant.forEach(_item => {
