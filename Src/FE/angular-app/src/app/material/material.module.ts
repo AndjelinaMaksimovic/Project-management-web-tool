@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 
@@ -33,7 +34,8 @@ const MaterialComponents = [
   MatDatepickerModule,
   MatTooltipModule,
   MatDividerModule,
-  MatTabsModule
+  MatTabsModule,
+  MatProgressSpinnerModule,
 ];
 const MY_DATE_FORMAT = {
   parse: {
