@@ -86,7 +86,7 @@ namespace Codedberries.Services
 
                 if (roleOnProject == null)
                 {
-                    throw new ArgumentException($"User with id {userProject.RoleId} does not have a role with id {roleOnProject.Id} in database!");
+                    throw new ArgumentException($"User with id {userProject.UserId} does not have a role with id {userProject.RoleId} in database!");
                 }
 
                 var userProjectDTO = new UserProjectsDTO
