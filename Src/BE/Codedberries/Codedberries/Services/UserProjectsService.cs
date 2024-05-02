@@ -108,6 +108,13 @@ namespace Codedberries.Services
 
         public async Task<List<UserProjectInformationDTO>> GetUserProjectsInformation(HttpContext httpContext, UserIdDTO request)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
             var allUserProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == request.UserId)
             .ToListAsync();
