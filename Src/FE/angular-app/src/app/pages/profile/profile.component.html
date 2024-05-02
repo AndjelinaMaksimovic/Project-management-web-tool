@@ -3,6 +3,7 @@
     <div style="padding: 20px;">
         <div style="display: flex; flex-direction: column; align-items: center;">
             <img class="circle-image" style="outline: solid;" src="/assets/logo.svg">
+            <input type="file" class="file-input" accept="image/png, image/jpeg" (change)="onFileSelected($event)">
             <h2>{{user?.firstname}} {{user?.lastname}}</h2>
             <span class="chip chip-neutral">{{user?.roleName}}</span>
             <div style="display: flex; gap: 20px">
@@ -12,7 +13,6 @@
         </div>
         <mat-divider></mat-divider>
         <h3>Activity</h3>
-        <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
         <!-- <div class="file-upload">
             {{fileName || "No file uploaded yet."}}
             <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
