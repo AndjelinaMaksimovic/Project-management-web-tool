@@ -223,19 +223,9 @@ namespace Codedberries.Services
                     ProjectStartDate = project.StartDate,
                     ProjectDueDate = project.DueDate,
                     ProjectArchived = project.Archived,
-                    ProjectStatuses = null,
-                    ProjectCategories = project.Categories.Select(c => new CategoryDTO
-                    {
-                        Id = c.Id,
-                        Name = c.Name
-                    }).ToList(),
-                    ProjectUsers = project.Users.Select(u => new UserDTO
-                    {
-                        Id = u.Id,
-                        FirstName = u.Firstname,
-                        LastName = u.Lastname,
-                        ProfilePicture = u.ProfilePicture
-                    }).ToList()
+                    ProjectStatuses = projectStatuses,
+                    ProjectCategories = projectCategories,
+                    ProjectUsers = projectUsers
                 };
 
                 userProjectInformation.Add(userProjectInformationDTO);
