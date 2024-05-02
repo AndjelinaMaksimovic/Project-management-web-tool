@@ -3,6 +3,7 @@ using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.Data;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -379,6 +380,81 @@ namespace Codedberries.Services
             }
 
             await _databaseContext.SaveChangesAsync();
+        }
+
+        public async Task<StatusDTO> ChangeStatusName(HttpContext httpContext, ChangeStatusNameDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.Id <= 0)
+            {
+                throw new ArgumentException("StatusId must be greater than 0!");
+            }
+
+            var status = await _databaseContext.Statuses
+                .FirstOrDefaultAsync(t => t.Id == request.Id);
+
+            if (status == null)
+            {
+                throw new ArgumentException($"Status with ID {request.Id} not found in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == status.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {status.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task!");
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                status.Name = request.Name;
+            }
+            
+            await _databaseContext.SaveChangesAsync();
+
+            var StatusDTO = new StatusDTO
+            {
+                Id = status.Id,
+                Name = status.Name,
+                ProjectId = status.ProjectId,
+                Order = status.Order
+            };
+            
+            return StatusDTO;
+
         }
     }
 }
