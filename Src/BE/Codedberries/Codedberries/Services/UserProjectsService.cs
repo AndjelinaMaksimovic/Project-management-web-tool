@@ -193,6 +193,15 @@ namespace Codedberries.Services
                     })
                     .ToListAsync();
 
+                var projectCategories = await _databaseContext.Categories
+                    .Where(c => c.ProjectId == project.Id)
+                    .Select(c => new CategoryDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    })
+                    .ToListAsync();
+
                 var userProjectInformationDTO = new UserProjectInformationDTO
                 {
                     ProjectId = project.Id,
