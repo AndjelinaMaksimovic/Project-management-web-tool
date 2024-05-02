@@ -189,7 +189,9 @@ namespace Codedberries.Services
                     .Select(s => new StatusDTO
                     {
                         Id = s.Id,
-                        Name = s.Name
+                        Name = s.Name,
+                        ProjectId = project.Id,
+                        Order = s.Order
                     })
                     .ToListAsync();
 
