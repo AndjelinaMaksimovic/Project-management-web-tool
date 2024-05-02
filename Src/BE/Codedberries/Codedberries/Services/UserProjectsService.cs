@@ -144,7 +144,7 @@ namespace Codedberries.Services
                 throw new ArgumentException("UserId must be greater than zero!");
             }
 
-            var providedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            var providedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
 
             if (providedUser == null)
             {
