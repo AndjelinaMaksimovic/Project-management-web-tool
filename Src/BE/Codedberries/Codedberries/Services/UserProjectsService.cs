@@ -202,6 +202,17 @@ namespace Codedberries.Services
                     })
                     .ToListAsync();
 
+                var projectUsers = await _databaseContext.Users
+                    .Where(u => u.Projects.Any(p => p.Id == project.Id))
+                    .Select(u => new UserDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    })
+                    .ToListAsync();
+
                 var userProjectInformationDTO = new UserProjectInformationDTO
                 {
                     ProjectId = project.Id,
