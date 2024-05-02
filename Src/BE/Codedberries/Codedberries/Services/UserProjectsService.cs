@@ -184,6 +184,15 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Project with ID {userProject.ProjectId} not found in database!");
                 }
 
+                var projectStatuses = await _databaseContext.Statuses
+                    .Where(s => s.ProjectId == project.Id)
+                    .Select(s => new StatusDTO
+                    {
+                        Id = s.Id,
+                        Name = s.Name
+                    })
+                    .ToListAsync();
+
                 var userProjectInformationDTO = new UserProjectInformationDTO
                 {
                     ProjectId = project.Id,
@@ -194,13 +203,7 @@ namespace Codedberries.Services
                     ProjectStartDate = project.StartDate,
                     ProjectDueDate = project.DueDate,
                     ProjectArchived = project.Archived,
-                    ProjectStatuses = project.Statuses.Select(s => new StatusDTO
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        ProjectId = project.Id,
-                        Order = s.Order
-                    }).ToList(),
+                    ProjectStatuses = null,
                     ProjectCategories = project.Categories.Select(c => new CategoryDTO
                     {
                         Id = c.Id,
