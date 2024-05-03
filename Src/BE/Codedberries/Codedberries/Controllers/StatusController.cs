@@ -132,5 +132,28 @@ namespace Codedberries.Controllers
                 return StatusCode(500, $"An error occurred while changing status order: {ex.Message}");
             }
         }
+
+        [HttpPut("ChangeStatusName")]
+        public async Task<IActionResult> ChangeStatusName([FromBody] ChangeStatusNameDTO request)
+        {
+            try
+            {
+                var updatedStatusInfo = await _statusService.ChangeStatusName(HttpContext, request);
+
+                return Ok(updatedStatusInfo);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new ErrorMsg(ex.Message)); // unauthorized
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating the status: {ex.Message}"));
+            }
+        }
     }
 }
