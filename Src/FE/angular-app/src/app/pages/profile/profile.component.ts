@@ -7,13 +7,14 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { EditableNameComponent } from './editable-name/editable-name.component';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [NavbarComponent, MaterialModule, MatDividerModule],
+  imports: [NavbarComponent, MaterialModule, MatDividerModule, EditableNameComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
