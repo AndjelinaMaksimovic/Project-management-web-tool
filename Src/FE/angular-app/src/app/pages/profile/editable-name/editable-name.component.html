@@ -3,12 +3,12 @@
 <mat-menu #menu="matMenu">
 <div style="padding: 10px">
     <div (click)="$event.stopPropagation();">
-        <mat-form-field appearance="outline" class="dense-2">
+        <mat-form-field appearance="outline" class="dense-2" style="width: 100%">
             <mat-label>First name</mat-label>
             <input type="text" matInput [(ngModel)]="title" [required]="true">
         </mat-form-field>
-        <mat-form-field appearance="outline" class="dense-2">
-            <mat-label>last name</mat-label>
+        <mat-form-field appearance="outline" class="dense-2" style="width: 100%">
+            <mat-label>Last name</mat-label>
             <input type="text" matInput [(ngModel)]="title" [required]="true">
         </mat-form-field>
     </div>
