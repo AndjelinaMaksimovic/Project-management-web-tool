@@ -8,9 +8,9 @@
     <h3>Date</h3>
 </div>
 <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-    @for (task of tasks; track task) {
+    @for (task of paginatedTasks; track task) {
     <app-task-card [task]="task"></app-task-card>
     }
 </div>
-<mat-paginator [length]="100" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+<mat-paginator (page)="pageChangeEvent($event)" [length]="100" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
 </mat-paginator>
