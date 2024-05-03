@@ -13,7 +13,9 @@ import { PageEvent } from '@angular/material/paginator';
 })
 export class TasksTableComponent {
   @Input() tasks!: Task[];
-  @Input() paginatedTasks!: Task[];
+  get paginatedTasks(){
+    return this.tasks.slice(this.pageIndex * this.pageSize, this.pageIndex * this.pageSize + this.pageSize)
+  };
 
   pageIndex: number = 0;
   pageSize: number = 10;
@@ -21,9 +23,5 @@ export class TasksTableComponent {
   pageChangeEvent(event: PageEvent){
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    const pageIndex = event.pageIndex;
-    const pageSize = event.pageSize;
-    this.paginatedTasks = this.tasks.slice(pageIndex * pageSize, pageIndex * pageSize + pageSize)
-    // this.getPagedData();
   }
 }
