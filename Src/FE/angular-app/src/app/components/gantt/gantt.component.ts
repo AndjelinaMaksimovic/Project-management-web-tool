@@ -94,12 +94,12 @@ export class GanttComponent implements OnInit, AfterViewInit{
     }
 
     // TODO: test
-    const limit = 50
-    this.items = []
-    for (let i = 0; i < limit; i++) {
-      const item = new Item(i, 1, "Item "+i, "desc", "category 1", "Low", "status 1", Date.now() + TimeScale.day*(i+3), Date.now()+TimeScale.day*(i+3), [{firstName: 'Milan', lastName: 'Milanovic', id: 1, profilePicture: ''}], (i==limit-1) ? [] : [i+1], 100, ItemType.task, '#5096A4')
-      this.items.push(item)
-    }
+    // const limit = 50
+    // this.items = []
+    // for (let i = 0; i < limit; i++) {
+    //   const item = new Item(i, 1, "Item "+i, "desc", "category 1", "Low", "status 1", Date.now() + TimeScale.day*(i+3), Date.now()+TimeScale.day*(i+3), [{firstName: 'Milan', lastName: 'Milanovic', id: 1, profilePicture: ''}], (i==limit-1) ? [] : [i+1], 100, ItemType.task, '#5096A4')
+    //   this.items.push(item)
+    // }
 
     this.insertCategories() // also init idMap
     this.initTimeHeader()
