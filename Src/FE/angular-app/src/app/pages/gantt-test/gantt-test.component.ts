@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GanttComponent } from '../../components/gantt/gantt.component';
-import { Item, GanttColumn, TimeScale, ItemType } from '../../components/gantt/item';
+import { Item, GanttColumn, TimeScale, ItemType, Column } from '../../components/gantt/item';
 
 @Component({
   selector: 'app-gantt-test',
@@ -26,8 +26,9 @@ export class GanttTestComponent{
   //   }
   // }
 
-  columns = [GanttColumn.tasks, GanttColumn.users, GanttColumn.progress]
-  // columns = [GanttColumn.tasks]
-  colWidths = [100, 130, 80]
+  columns: Column[] = [
+    {type: GanttColumn.tasks, width: 100},
+    {type: GanttColumn.users, width: 130},
+    {type: GanttColumn.progress, width: 80}]
   TimeScale = TimeScale
 }

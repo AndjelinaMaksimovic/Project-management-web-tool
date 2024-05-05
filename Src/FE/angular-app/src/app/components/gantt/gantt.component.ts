@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
-import { DraggingType, GanttColumn, Item, ItemType, TimeScale } from './item';
+import { Column, DraggingType, GanttColumn, Item, ItemType, TimeScale } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
@@ -7,12 +7,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { GanttSettingsComponent } from './gantt-settings/gantt-settings.component';
 import { Subscription } from 'rxjs';
 import { helpers } from './helpers';
-import { RouterModule } from '@angular/router';
+import { Route, Router, RouterModule } from '@angular/router';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-gantt',
   standalone: true,
-  imports: [ NgStyle, NgIf, NgClass, GanttDependencyLineComponent, RouterModule ],
+  imports: [ NgStyle, NgIf, NgClass, GanttDependencyLineComponent, RouterModule, CdkDropList, CdkDrag ],
   templateUrl: './gantt.component.html',
   styleUrl: './gantt.component.css'
 })
@@ -21,8 +22,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() tasks: Task[] = []
   @Input() milestones: any[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
-  @Input() columns: GanttColumn[] = [GanttColumn.tasks]
-  @Input() colWidths: number[] = [180]
+  @Input() columns: Column[] = [{type: GanttColumn.tasks, width: 180}]
+  // @Input() colWidths: number[] = [180]
   @Input() timeScale: TimeScale = TimeScale.day
   
   @Input() hideWeekend: boolean = false
@@ -47,7 +48,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   priorityToColor = {'Low': '#03fc03', 'Medium': '#fcf803', 'High': '#fc1c03'}
 
-  constructor(private dialogue: MatDialog){}
+  constructor(private dialogue: MatDialog, private router: Router){}
 
   ngOnInit(): void {
     if(this.items.length == 0){
@@ -122,21 +123,20 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.dates = datesNumber.map((v) => {
         var format: string
         switch (this.timeScale) {
-          case TimeScale.week:
-            format = "d. E"
-            break;
-          case TimeScale.day:
-            format = "d. E"
-            break;
-          case TimeScale.hour:
-            format = "d. HH:00"
-            break;
+          // case TimeScale.week:
+          //   format = "d. E"
+          //   break;
+          // case TimeScale.day:
+          //   format = "d. E"
+          //   break;
+          // case TimeScale.hour:
+          //   format = "d. HH:00"
+          //   break;
           default:
             format = "d. E"
             break;
         }
-        // const format = this.timeScale == TimeScale.day ? "d. E" : "d HH"
-        return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset?
+        return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset in TimeScale.hour?
       })
   }
 
@@ -287,12 +287,14 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   startTaskDrag(event: any){
+    if(this.lastHovered.type == ItemType.category)
+      return
     this.dragging = DraggingType.task
     this.originalItem = this.lastHovered
     this.originalLeft = this.lastHovered.left
     this.draggedOriginal = {x: event.x, y: event.y}
-    event.stopPropagation();
-    return false  // event.preventDefault()
+    // event.stopPropagation();
+    // return false  // event.preventDefault()
   }
 
   // @HostListener('mousemove', ['$event'])
@@ -400,6 +402,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
     event.stopPropagation()
     return false
   }
+  taskDoubleClick(item: Item){
+    this.router.navigate(['/project/' + item.projectId + '/task/' + item.id])
+  }
 
   categoryToggle(itemIdx: number){
     itemIdx+=1
@@ -429,5 +434,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
         }
       }
     })
+  }
+
+  infoColumnDragDrop(event: CdkDragDrop<string[]>){
+    moveItemInArray(this.columns, event.previousIndex, event.currentIndex)
   }
 }

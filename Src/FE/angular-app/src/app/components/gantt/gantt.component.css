@@ -63,3 +63,6 @@
     /* cursor: text; */
     cursor: pointer;
 }
+.cdk-drag-placeholder {
+    background-color: #b4b4b4;
+}

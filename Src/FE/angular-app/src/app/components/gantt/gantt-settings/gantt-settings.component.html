@@ -6,8 +6,23 @@
         </mat-option>
     </mat-select>
     <mat-checkbox [(ngModel)]="hideWeekend">Hide weekend</mat-checkbox>
+    <div cdkDropList (cdkDropListDropped)="colDrop($event)">
+        @for (col of columns; track col) {
+            <div class="example-box" style="cursor: move; display: flex; flex-direction: row; width: 200px;"
+                cdkDrag
+                [cdkDragDisabled]="disableColumnsDrag"
+            >
+                <div style="margin-right: 20px;">{{col.type}}</div>
+                <input style="flex-grow: 1; min-width: 0;" type="number"
+                    [(ngModel)]="col.width"
+                    (mouseenter)="disableColumnsDrag = true"
+                    (mouseleave)="disableColumnsDrag = false"
+                >
+            </div>
+        }
+    </div>      
     <div>
         <button mat-flat-button (click)="cancel()">Cancel</button>
-        <button mat-flat-button color="primary" (click)="submit()" style="margin-right: 5px;">Apply</button>
+        <button mat-flat-button color="primary" (click)="submit()" (keyup.enter)="submit()" style="margin-right: 5px;">Apply</button>
     </div>
 </div>

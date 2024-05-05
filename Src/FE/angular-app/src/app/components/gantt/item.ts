@@ -34,9 +34,11 @@ export enum GanttColumn {
     progress = "Progress"
 }
 export enum TimeScale {
+    quarter = 86_400_000 * 30 * 4,
+    month = 86_400_000 * 30,
     week = 86_400_000 * 7,
     day = 86_400_000,
-    hour = 3_600_000
+    // hour = 3_600_000
 }
 export enum ItemType {
     task,
@@ -56,5 +58,11 @@ export class User{
         public firstName: string = '',
         public lastName: string = '',
         public profilePicture: any = ''
+    ){}
+}
+export class Column{
+    constructor(
+        public type: GanttColumn,
+        public width: number
     ){}
 }
