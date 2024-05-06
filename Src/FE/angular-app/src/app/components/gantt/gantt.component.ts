@@ -22,8 +22,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() tasks: Task[] = []
   @Input() milestones: any[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
-  @Input() columns: Column[] = [{type: GanttColumn.tasks, width: 180}]
-  // @Input() colWidths: number[] = [180]
+  @Input() columns: Column[] = [new Column(GanttColumn.tasks, 180)]
   @Input() timeScale: TimeScale = TimeScale.day
   
   @Input() hideWeekend: boolean = false
@@ -197,7 +196,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   initItemDisplay(){
     this.items.forEach(item => {
-      this.snapDate = this.timeScale != TimeScale.week
+      this.snapDate = this.timeScale == TimeScale.day
       var t: number
 
       if(this.snapDate){
