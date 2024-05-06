@@ -7,6 +7,34 @@
         <div style="position: absolute; width: 20px; height: 20px; color: gray; cursor: pointer;"
             (click)="openSettings()"
         >&#9881;</div>
+
+        <!-- column for moving intems vertically -->
+        <div [style.width]="20+'px'" style="float: left;">
+            <div class="header text-align-center" style="cursor: move;"
+                [style.width]="20+'px'"
+            >
+                <!-- <h4 class="column-display">{{col.type}}</h4> -->
+            </div>
+            <div [style.width]="20+'px'">
+                <!-- <div class="date-line"></div> -->
+                @for (item of items; track item; let itemIdx = $index) {
+                    <div style="display: flex; align-items: center;"
+                        *ngIf="item.display" [ngClass]="{'hover':item.hover}"
+                        (mouseenter)="itemHover(item)"
+                        (mouseleave)="itemUnHover(item)"
+                        [style.height]="taskHeight+'px'"
+                    >
+                        <mat-icon style="cursor: row-resize;"
+                            *ngIf="item.hover"
+                            (mousedown)="startTaskVerticalDrag($event)"
+                        >
+                            swap_vert
+                            <!-- drag_handle -->
+                        </mat-icon>
+                    </div>
+                }
+            </div>
+        </div>
         @for (col of columns; track col; let idx = $index) {
             <div [style.width]="col.width+'px'" style="float: left;">
                 <div class="header text-align-center" style="cursor: move;"
@@ -59,7 +87,12 @@
             </div>
         }
     </div>
-    <div class="chart" #chartView (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()" (mouseup)="onMouseUp()">
+    <div class="chart"
+        #chartView
+        (mousemove)="onMouseMove($event)"
+        (mouseleave)="onMouseLeave()"
+        (mouseup)="onMouseUp()"
+    >
         <div [style.width]="dates.length*columnWidth+'px'">
 
             <div class="header">

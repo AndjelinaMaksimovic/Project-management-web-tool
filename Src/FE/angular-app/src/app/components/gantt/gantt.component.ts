@@ -9,11 +9,31 @@ import { Subscription } from 'rxjs';
 import { helpers } from './helpers';
 import { Route, Router, RouterModule } from '@angular/router';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { MatIconModule } from '@angular/material/icon';
+import { CategoryService } from '../../services/category.service';
+
+class Category {
+  constructor(
+    public name: string,
+    public min: number,
+    public max: number,
+    public idx: number,
+  ){}
+}
 
 @Component({
   selector: 'app-gantt',
   standalone: true,
-  imports: [ NgStyle, NgIf, NgClass, GanttDependencyLineComponent, RouterModule, CdkDropList, CdkDrag ],
+  imports: [
+    NgStyle,
+    NgIf,
+    NgClass,
+    GanttDependencyLineComponent,
+    RouterModule,
+    CdkDropList,
+    CdkDrag,
+    MatIconModule,
+  ],
   templateUrl: './gantt.component.html',
   styleUrl: './gantt.component.css'
 })
@@ -35,6 +55,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   chartStartDate!: number
   idMap: Record<number, number> = [] // id to index
   snapDate!: boolean
+  allCategories: {name: string, idx: number}[] = []
 
   columnWidth = 60
   taskHeight = 20
@@ -47,9 +68,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   priorityToColor = {'Low': '#03fc03', 'Medium': '#fcf803', 'High': '#fc1c03'}
 
-  constructor(private dialogue: MatDialog, private router: Router){}
+  constructor(private dialogue: MatDialog, private router: Router, private categoryService: CategoryService){}
 
-  ngOnInit(): void {
+  async ngOnInit() {
     if(this.items.length == 0){
       
       if(this.tasks.length == 0){ // no tasks or items provided
@@ -65,6 +86,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.items[i] = new Item(
           this.tasks[i].id,
           this.tasks[i].projectId,
+          // this.tasks[i].index,
+          0,
           this.tasks[i].title,
           this.tasks[i].description,
           this.tasks[i].category,
@@ -82,6 +105,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.items[i] = new Item(
           this.milestones[i].id,
           this.milestones[i].projectId,
+          // this.milestones[i].index,
+          0,
           this.milestones[i].title,
           this.milestones[i].description,
           this.milestones[i].category,
@@ -100,6 +125,19 @@ export class GanttComponent implements OnInit, AfterViewInit{
     //   const item = new Item(i, 1, "Item "+i, "desc", "category 1", "Low", "status 1", Date.now() + TimeScale.day*(i+3), Date.now()+TimeScale.day*(i+3), [{firstName: 'Milan', lastName: 'Milanovic', id: 1, profilePicture: ''}], (i==limit-1) ? [] : [i+1], 100, ItemType.task, '#5096A4')
     //   this.items.push(item)
     // }
+
+    
+    // TODO: multiple categories with same name. Include categoryId in item/task object
+    this.allCategories = this.categoryService.getCategories().map(cat => new Category(cat.name, 0, 0, cat.index))
+    if(this.allCategories.length == 0){
+      await this.categoryService.fetchCategories()
+      this.allCategories = this.categoryService.getCategories().map(cat => new Category(cat.name, 0, 0, cat.index))
+    }
+    // TODO: only for testing
+    this.allCategories = [
+      {name: 'category 1', idx: 1},
+      {name: 'category 2', idx: 0},
+    ]
 
     this.insertCategories() // also init idMap
     this.initTimeHeader()
@@ -147,9 +185,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
     )
 
     const newItem = new Item()
-    newItem.title = categories[0][0]
-    newItem.startDate = categories[0][1].min
-    newItem.dueDate = categories[0][1].max
+    newItem.title = categories[0].name
+    newItem.startDate = categories[0].min
+    newItem.dueDate = categories[0].max
     newItem.color = 'grey'
     newItem.type = ItemType.category
 
@@ -158,9 +196,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
     for(let i=2, j=1;i<this.items.length;i++){
       if(this.items[i].category != this.items[i-1].category){
         const newItem = new Item()
-        newItem.title = categories[j][0]
-        newItem.startDate = categories[j][1].min
-        newItem.dueDate = categories[j][1].max
+        newItem.title = categories[j].name
+        newItem.startDate = categories[j].min
+        newItem.dueDate = categories[j].max
         newItem.color = 'grey'
         newItem.type = ItemType.category
         this.items.splice(i, 0, newItem)
@@ -173,7 +211,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
       this.idMap[this.items[i].id] = i
     }
   }
-  makeCategories(){
+  
+  makeCategories(): Category[]{
     const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
       if(!prev[item.category]){
           prev[item.category] = {min: item.startDate, max: item.dueDate}
@@ -185,11 +224,23 @@ export class GanttComponent implements OnInit, AfterViewInit{
           prev[item.category].max = item.dueDate
       return prev
     }, {}))
-    return categories
+
+    return categories.map(cat => new Category(cat[0], cat[1].min, cat[1].max, (this.allCategories.find(allCat => allCat.name == cat[0]) as Category).idx))
   }
-  sortItemsByCategories(categories: any){
-    const order = categories.sort((a: any,b: any)=> a[1].min - b[1].min).map((e: any, i: any)=>e[0])
-    this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
+  sortItemsByCategories(categories: Category[]): Category[]{
+    // Sort by startDate =============================
+
+    // const order = categories.sort((a: any,b: any)=> a.min - b.min).map((e: any, i: any)=>e.name)
+    // this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
+
+    // Sort by index =============================
+
+    // TODO: categories.find error -> object is possibly undefined
+    categories.sort((a, b) => a.idx - b.idx)
+    this.items.sort( (a,b) =>
+      (categories.find(cat => a.category == cat.name) as Category).idx - (categories.find(cat => b.category == cat.name) as Category).idx
+      || a.index - b.index
+    )
 
     return categories
   }
@@ -294,6 +345,13 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.draggedOriginal = {x: event.x, y: event.y}
     // event.stopPropagation();
     // return false  // event.preventDefault()
+  }
+
+  originalIndex = 0
+  startTaskVerticalDrag(event: any){
+    this.originalItem = this.lastHovered
+    this.originalIndex = this.lastHovered.index
+    this.draggedOriginal = {x: event.x, y: event.y}
   }
 
   // @HostListener('mousemove', ['$event'])
