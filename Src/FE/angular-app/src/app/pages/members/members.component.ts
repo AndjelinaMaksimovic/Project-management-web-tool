@@ -23,22 +23,38 @@ class Member {
     this.image = image;
     this.projects = projects;
   }
+
+  getFullName() {
+    return this.firstname + " " + this.lastname;
+  }
 }
 
 class Role {
   name: string;
   id: number;
+  _members: Array<Member>;
   members: Array<Member>;
   active: boolean = true;
 
   constructor(name: string, id: number, members: Array<Member>) {
     this.name = name;
     this.id = id;
-    this.members = members;
+    this._members = members;
+    this.members = this._members;
   }
 
   addMember(member: Member) {
-    this.members.push(member);
+    this._members.push(member);
+  }
+
+  filterMembers(name: string) {
+    this.members = this._members.filter((member) => member.getFullName().toLowerCase().includes(name.toLowerCase()));
+    if(this.members.length == 0) {
+      this.active = false;
+    }
+    else {
+      this.active = true;
+    }
   }
 }
 
@@ -65,8 +81,8 @@ export class MembersComponent {
 
   constructor(private rolesService : RolesService, private userService: UserService, public dialog: MatDialog) {}
 
-  get _roles() {
-    return this.roles;
+  filterRolesByName() {
+    this.roles.forEach((role, key) => role.filterMembers(this.search));
   }
 
   async ngOnInit(){
