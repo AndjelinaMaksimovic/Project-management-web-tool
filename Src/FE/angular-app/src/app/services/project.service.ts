@@ -32,6 +32,7 @@ function mapProject(apiProject: any): Project {
 export class ProjectService {
   /** in-memory project cache */
   private projects: Project[] = [];
+  private starredProjects: Project[] = [];
   private projectsProgress: Map<number, number> = new Map<number, number>();
 
   constructor(private http: HttpClient, private localStorageService : LocalStorageService) {}
@@ -42,6 +43,10 @@ export class ProjectService {
    */
   public getProjects() {
     return this.projects;
+  }
+
+  public getStarredProjects() {
+    return this.starredProjects;
   }
 
   public getProjectWithID(projectId: number) {
@@ -102,6 +107,24 @@ export class ProjectService {
       console.log(e);
     }
     return false;
+  }
+
+  public async fetchStarredProjects(id : number) {
+    // let params = new HttpParams({ fromObject: { UserId: [ id ]} });
+    // try {
+    //   const res = await firstValueFrom(
+    //     this.http.get<any>(
+    //       environment.apiUrl + '/Projects/getStarredProjects',
+    //       { ...environment.httpOptions, params: params }
+    //     )
+    //   );
+    //   this.projects = res.body.map((project: any) => {
+    //     return mapProject(project);
+    //   });
+    // } catch (e) {
+    //   console.log(e);
+    // }
+    // return false;
   }
 
   public async fetchProjectsLocalStorage(filterName : string) {
@@ -216,6 +239,29 @@ export class ProjectService {
         )
       );
       await this.fetchProjects();
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  async toggleStarred(id: number) : Promise<boolean> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/toggleStarredProject`,
+            {
+              projectId: id
+            },
+            {
+              ...environment.httpOptions,
+              responseType: "text" as "json"
+            }
+        )
+      );
+      if (!res.ok) return false;
       return true;
     } catch (e) {
       console.log(e);
