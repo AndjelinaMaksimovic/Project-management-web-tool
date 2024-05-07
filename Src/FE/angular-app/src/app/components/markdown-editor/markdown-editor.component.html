@@ -18,7 +18,7 @@
             <div style="padding-left: 10px; padding-right: 10px; margin-bottom: -10px;">
                 <mat-form-field [floatLabel]="'always'" appearance="outline" style="width: 100%;" class="dense-2">
                     <mat-label>{{label}}</mat-label>
-                    <textarea #editor matInput [(ngModel)]="value" style="min-height: 180px;" [required]="true"
+                    <textarea #editor matInput [(ngModel)]="value" style="min-height: 180px;"
                         (ngModelChange)="changeValue($event)"></textarea>
                 </mat-form-field>
             </div>
