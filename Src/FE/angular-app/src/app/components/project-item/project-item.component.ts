@@ -27,8 +27,11 @@ export class ProjectItemComponent {
 
     @Input() isArchived: boolean = false;
 
-    toggleStarred() {
-        this.starred = !this.starred;
+    async toggleStarred() {
+        let response = await this.projectService.toggleStarred(this.id);
+        if(response) {
+            this.starred = !this.starred;
+        }
     }
 
     archiveProject() {
