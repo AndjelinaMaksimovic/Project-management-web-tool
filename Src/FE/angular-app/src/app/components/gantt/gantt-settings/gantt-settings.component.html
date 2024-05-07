@@ -5,11 +5,19 @@
     </button>
 
     <h1>Settings</h1>
+    <p>Zoom</p>
     <mat-select placeholder="Select" [(value)]="scale" style="width: 200px;">
         <mat-option *ngFor="let scaleOption of timeScale;" [value]="scaleOption">
             {{scaleOption}}
         </mat-option>
     </mat-select>
+    <p>Sorting</p>
+    <mat-select placeholder="Sorting" [(value)]="itemSort" style="width: 200px;">
+        <mat-option *ngFor="let itemSortOption of itemSortArray;" [value]="itemSortOption">
+            {{itemSortOption}}
+        </mat-option>
+    </mat-select>
+    <mat-checkbox [(ngModel)]="groupByCategory">Group by category</mat-checkbox>
     <mat-checkbox [(ngModel)]="hideWeekend">Hide weekend</mat-checkbox>
     <div cdkDropList (cdkDropListDropped)="colDrop($event)">
         @for (col of columns; track col) {

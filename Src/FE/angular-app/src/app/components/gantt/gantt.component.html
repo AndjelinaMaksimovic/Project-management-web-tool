@@ -25,7 +25,7 @@
                         [style.height]="taskHeight+'px'"
                     >
                         <mat-icon style="cursor: row-resize;"
-                            *ngIf="item.hover"
+                            *ngIf="item.hover && itemSort == ItemSort.custom"
                             (mousedown)="startTaskVerticalDrag($event)"
                         >
                             swap_vert

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
-import { Column, DraggingType, GanttColumn, Item, ItemType, TimeScale } from './item';
+import { Column, DraggingType, GanttColumn, Item, ItemType, TimeScale, ItemSort } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task } from '../../services/task.service';
 import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
@@ -44,6 +44,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
   @Input() columns: Column[] = [new Column(GanttColumn.tasks, 180)]
   @Input() timeScale: TimeScale = TimeScale.day
+  itemSort: ItemSort = ItemSort.custom
+  categories: Category[] = []
+  groupByCategory: boolean = true
   
   @Input() hideWeekend: boolean = false
   @Input() holidays: Date[] = []
@@ -65,6 +68,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   ItemType = ItemType // must be declared to be used in html
   helpers = helpers
   DraggingType = DraggingType
+  ItemSort = ItemSort
 
   priorityToColor = {'Low': '#03fc03', 'Medium': '#fcf803', 'High': '#fc1c03'}
 
@@ -139,6 +143,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       {name: 'category 2', idx: 0},
     ]
 
+    this.initCategories()
     this.insertCategories() // also init idMap
     this.initTimeHeader()
     // this.holidays.forEach(date => {
@@ -178,16 +183,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   insertCategories(){
-    this.items = this.items.filter(a => a.type != ItemType.category)
-
-    const categories = this.sortItemsByCategories(
-      this.makeCategories()
-    )
-
     const newItem = new Item()
-    newItem.title = categories[0].name
-    newItem.startDate = categories[0].min
-    newItem.dueDate = categories[0].max
+    newItem.title = this.categories[0].name
+    newItem.startDate = this.categories[0].min
+    newItem.dueDate = this.categories[0].max
     newItem.color = 'grey'
     newItem.type = ItemType.category
 
@@ -196,9 +195,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
     for(let i=2, j=1;i<this.items.length;i++){
       if(this.items[i].category != this.items[i-1].category){
         const newItem = new Item()
-        newItem.title = categories[j].name
-        newItem.startDate = categories[j].min
-        newItem.dueDate = categories[j].max
+        newItem.title = this.categories[j].name
+        newItem.startDate = this.categories[j].min
+        newItem.dueDate = this.categories[j].max
         newItem.color = 'grey'
         newItem.type = ItemType.category
         this.items.splice(i, 0, newItem)
@@ -206,12 +205,22 @@ export class GanttComponent implements OnInit, AfterViewInit{
         i+=1
       }
     }
-
+    this.updateIdMap()
+  }
+  removeCategories(){
+    this.items = this.items.filter(a => a.type != ItemType.category)
+  }
+  updateIdMap(){
     for (let i = 0; i < this.items.length; i++) { // init after sorting by categories
       this.idMap[this.items[i].id] = i
     }
   }
-  
+  initCategories(){
+    this.removeCategories()
+    this.categories = this.sortItemsByCategories(
+      this.makeCategories()
+    )
+  }
   makeCategories(): Category[]{
     const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
       if(!prev[item.category]){
@@ -225,24 +234,40 @@ export class GanttComponent implements OnInit, AfterViewInit{
       return prev
     }, {}))
 
-    return categories.map(cat => new Category(cat[0], cat[1].min, cat[1].max, (this.allCategories.find(allCat => allCat.name == cat[0]) as Category).idx))
+    return categories.map(cat => {
+      let allCat = this.allCategories.find(allCat => allCat.name == cat[0])
+      if(allCat == undefined)
+        throw "Item category not found in allCategories"
+      return new Category(cat[0], cat[1].min, cat[1].max, allCat.idx)
+      }
+    )
   }
   sortItemsByCategories(categories: Category[]): Category[]{
-    // Sort by startDate =============================
-
-    // const order = categories.sort((a: any,b: any)=> a.min - b.min).map((e: any, i: any)=>e.name)
-    // this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
-
-    // Sort by index =============================
-
-    // TODO: categories.find error -> object is possibly undefined
-    categories.sort((a, b) => a.idx - b.idx)
-    this.items.sort( (a,b) =>
-      (categories.find(cat => a.category == cat.name) as Category).idx - (categories.find(cat => b.category == cat.name) as Category).idx
-      || a.index - b.index
-    )
+    if(this.itemSort == ItemSort.custom){
+      categories.sort((a, b) => a.idx - b.idx)
+      this.items.sort( (a,b) =>
+        // TODO: categories.find error -> object is possibly undefined
+        (categories.find(cat => a.category == cat.name) as Category).idx - (categories.find(cat => b.category == cat.name) as Category).idx
+        || a.index - b.index
+      )
+    } else if(this.itemSort == ItemSort.startDate){
+      var order = categories.sort((a: any,b: any)=> a.min - b.min).map((e: any, i: any)=>e.name)
+      this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
+    } else if(this.itemSort == ItemSort.endDate){
+      const order = categories.sort((a: any,b: any)=> a.max - b.max).map((e: any, i: any)=>e.name)
+      this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.dueDate - b.dueDate)
+    }
 
     return categories
+  }
+  sortItems(){
+    if(this.itemSort == ItemSort.custom){
+      this.items.sort( (a,b) => a.index - b.index)
+    } else if(this.itemSort == ItemSort.startDate){
+      this.items.sort( (a,b) => a.startDate - b.startDate)
+    } else if(this.itemSort == ItemSort.endDate){
+      this.items.sort( (a,b) => a.dueDate - b.dueDate)
+    }
   }
 
   initItemDisplay(){
@@ -397,7 +422,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
       this.dragging = DraggingType.none
       
-      this.insertCategories()
+      if(this.groupByCategory){
+        this.initCategories()
+        this.insertCategories()
+      }
       this.initItemDisplay()
     }
     if(this.dragging == DraggingType.task){
@@ -405,7 +433,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
       this.dragging = DraggingType.none
       
-      this.insertCategories()
+      if(this.groupByCategory){
+        this.initCategories()
+        this.insertCategories()
+      }
       this.initItemDisplay()
     }
     return false  // event.preventDefault()
@@ -474,7 +505,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
   openSettings(){
     const ref = this.dialogue.open(GanttSettingsComponent, { autoFocus: false, data: {
       scale: this.timeScale,
+      itemSort: this.itemSort,
       hideWeekend: this.hideWeekend,
+      groupByCategory: this.groupByCategory,
       holidays: this.holidays,
       columns: this.columns
     } })
@@ -482,6 +515,30 @@ export class GanttComponent implements OnInit, AfterViewInit{
     ref.beforeClosed().subscribe((data: any)=>{
       if(data){
         this.columns = data.columns
+        if(this.itemSort != data.itemSort){
+          this.itemSort = data.itemSort
+          if(this.groupByCategory){
+            this.initCategories() // can be more efficient by only sorting and updating idMap again
+            this.insertCategories()
+          }
+          else{
+            this.sortItems()
+            this.updateIdMap()
+          }
+          this.initItemDisplay() // update category item position and width
+        }
+        if(this.groupByCategory != data.groupByCategory){
+          this.groupByCategory = data.groupByCategory
+          if(this.groupByCategory){
+            this.initCategories()
+            this.insertCategories()
+            this.initItemDisplay() // update category item position and width
+        }else{
+            this.removeCategories()
+            this.updateIdMap()
+          }
+          this.initItemDisplay()
+        }
         if(this.timeScale != data.scale || this.hideWeekend != data.hideWeekend || this.holidays != data.holidays){
           this.timeScale = data.scale
           this.hideWeekend = data.hideWeekend

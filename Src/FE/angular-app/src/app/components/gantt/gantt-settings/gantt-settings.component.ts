@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, Inject, OnInit, Output } from '@angular/core';
 import { MatSelectModule } from '@angular/material/select';
-import { Column, GanttColumn, TimeScale } from '../item';
+import { Column, GanttColumn, ItemSort, TimeScale } from '../item';
 import { FormsModule } from '@angular/forms';
 import { KeyValuePipe, NgFor } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -32,20 +32,25 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class GanttSettingsComponent{
   scale: string
+  itemSort: ItemSort
   hideWeekend: boolean
+  groupByCategory: boolean
   holidays: Date[]
   columns: Column[]
   disableColumnsDrag: boolean = false
 
   // Object.keys on enum returns [..values, ..keys]. Why typescript?????
   timeScale = Object.values(TimeScale).filter(key => isNaN(Number(key)))
+  itemSortArray = Object.values(ItemSort)
   hiddenColumns: Column[] = []
 
   //TODO: changing week to month -> infinite loop?
 
   constructor(@Inject(MAT_DIALOG_DATA) private data: any, private dialogRef: MatDialogRef<GanttSettingsComponent>){
     this.scale = TimeScale[this.data.scale]
+    this.itemSort = this.data.itemSort
     this.hideWeekend = this.data.hideWeekend
+    this.groupByCategory = this.data.groupByCategory
     this.holidays = this.data.holidays
     this.columns = this.data.columns.map((col: Column) => ({...col})) // copy array
     this.hiddenColumns = 
@@ -73,6 +78,8 @@ export class GanttSettingsComponent{
   submit(){
     this.dialogRef.close({
       scale: (TimeScale as any)[this.scale],
+      itemSort: this.itemSort,
+      groupByCategory: this.groupByCategory,
       hideWeekend: this.hideWeekend,
       holidays: this.holidays,
       columns: this.columns,

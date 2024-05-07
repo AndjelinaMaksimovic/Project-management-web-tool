@@ -68,3 +68,9 @@ export class Column{
         public width: number
     ){}
 }
+
+export enum ItemSort{
+    custom = 'Custom',
+    startDate = 'Task start date',
+    endDate = 'Task due date',
+}
