@@ -90,9 +90,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
       for (; i < this.items.length; i++) {
         this.items[i] = new Item(
           this.tasks[i].id,
-          this.tasks[i].projectId,
           // this.tasks[i].index,
           0,
+          this.tasks[i].projectId,
           this.tasks[i].title,
           this.tasks[i].description,
           this.tasks[i].category,
@@ -109,9 +109,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
       for(let j = 0; j < this.milestones.length; j++, i++){
         this.items[i] = new Item(
           this.milestones[i].id,
-          this.milestones[i].projectId,
           // this.milestones[i].index,
           0,
+          this.milestones[i].projectId,
           this.milestones[i].title,
           this.milestones[i].description,
           this.milestones[i].category,
@@ -139,10 +139,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
       this.allCategories = this.categoryService.getCategories().map(cat => {return {name: cat.name, idx: cat.index}})
     }
     // TODO: only for testing
-    this.allCategories = [
-      {name: 'category 1', idx: 1},
-      {name: 'category 2', idx: 0},
-    ]
+    // this.allCategories = [
+    //   {name: 'category 1', idx: 1},
+    //   {name: 'category 2', idx: 0},
+    // ]
 
     this.initCategories()
     this.insertCategories() // also init idMap
