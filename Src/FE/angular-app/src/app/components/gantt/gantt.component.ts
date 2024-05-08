@@ -18,6 +18,7 @@ class Category {
     public min: number,
     public max: number,
     public idx: number,
+    public count: number, // for snapping when dragging a task vertically
   ){}
 }
 
@@ -132,10 +133,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
     
     // TODO: multiple categories with same name. Include categoryId in item/task object
-    this.allCategories = this.categoryService.getCategories().map(cat => new Category(cat.name, 0, 0, cat.index))
+    this.allCategories = this.categoryService.getCategories().map(cat => {return {name: cat.name, idx: cat.index}})
     if(this.allCategories.length == 0){
       await this.categoryService.fetchCategories()
-      this.allCategories = this.categoryService.getCategories().map(cat => new Category(cat.name, 0, 0, cat.index))
+      this.allCategories = this.categoryService.getCategories().map(cat => {return {name: cat.name, idx: cat.index}})
     }
     // TODO: only for testing
     this.allCategories = [
@@ -222,11 +223,12 @@ export class GanttComponent implements OnInit, AfterViewInit{
     )
   }
   makeCategories(): Category[]{
-    const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number}>>((prev, item) => {
+    const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number, count: number}>>((prev, item) => {
       if(!prev[item.category]){
-          prev[item.category] = {min: item.startDate, max: item.dueDate}
+          prev[item.category] = {min: item.startDate, max: item.dueDate, count: 1}
           return prev
       }
+      prev[item.category].count += 1
       if(prev[item.category].min > item.startDate)
           prev[item.category].min = item.startDate
       if(prev[item.category].max < item.dueDate)
@@ -238,7 +240,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       let allCat = this.allCategories.find(allCat => allCat.name == cat[0])
       if(allCat == undefined)
         throw "Item category not found in allCategories"
-      return new Category(cat[0], cat[1].min, cat[1].max, allCat.idx)
+      return new Category(cat[0], cat[1].min, cat[1].max, allCat.idx, cat[1].count)
       }
     )
   }
@@ -377,6 +379,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.originalItem = this.lastHovered
     this.originalIndex = this.lastHovered.index
     this.draggedOriginal = {x: event.x, y: event.y}
+    this.dragging = DraggingType.taskVertical
   }
 
   // @HostListener('mousemove', ['$event'])
@@ -399,8 +402,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
     return false  // event.preventDefault()
   }
 
-  // @HostListener('mouseup')
-  onMouseUp() {
+  @HostListener('mouseup', ['$event'])
+  onMouseUp(event: any) {
     if(!this.originalItem){
       this.dragging = DraggingType.none // just in case?
       return
@@ -438,6 +441,35 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.insertCategories()
       }
       this.initItemDisplay()
+    }
+    if(this.dragging == DraggingType.taskVertical){
+      if(this.lastHovered.type == ItemType.category)
+        return false
+
+      // let offset = event.y - this.draggedOriginal.y
+      // const newIndex = this.originalIndex + Math.floor(offset / this.taskHeight)
+
+      let newIndex = this.lastHovered.index
+
+      if(this.lastHovered.category != this.originalItem.category){
+        const otherCat = this.categories.find(cat => cat.name == this.lastHovered.category)
+        const originalCat = this.categories.find(cat => this.originalItem && cat.name == this.originalItem.category)
+        if(otherCat && originalCat && otherCat.idx > originalCat.idx)
+          newIndex = 0
+        else if(originalCat)
+          newIndex = originalCat.count
+      }
+
+      console.log(this.originalIndex)
+      console.log(newIndex)
+
+      this.items[newIndex].index = this.originalIndex
+      this.originalItem.index = newIndex
+      moveItemInArray(this.items, this.originalIndex, newIndex)
+
+      this.updateIdMap()
+
+      this.dragging = DraggingType.none
     }
     return false  // event.preventDefault()
   }
@@ -535,6 +567,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
             this.initItemDisplay() // update category item position and width
         }else{
             this.removeCategories()
+            if(this.itemSort == ItemSort.custom)
+              this.sortItems()
             this.updateIdMap()
           }
           this.initItemDisplay()
