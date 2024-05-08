@@ -89,7 +89,6 @@
     </div>
     <div class="chart"
         #chartView
-        (mousemove)="onMouseMove($event)"
         (mouseleave)="onMouseLeave()"
     >
         <div [style.width]="dates.length*columnWidth+'px'">
