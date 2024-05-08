@@ -20,8 +20,10 @@ export type Task = Readonly<{
   startDate: Date;
   dueDate: Date;
   id: number;
+  index: number;
   projectId?: number | undefined;
   assignedTo: any;
+  dependentTasks: number[];
 }>;
 
 @Injectable({
@@ -47,10 +49,12 @@ export class TaskService {
       status: apiTask.statusName,
       category: apiTask.categoryName,
       id: apiTask.taskId,
+      index: apiTask.index,
       projectId: this.context.projectId,
       startDate: new Date(Date.parse(apiTask.startDate)),
       dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
+      dependentTasks: apiTask.dependentTasks,
     };
   }
 
@@ -175,13 +179,16 @@ export class TaskService {
       const request: Record<string, unknown> = { taskId: task.id };
       if (task.status)
         request['statusId'] = this.statusService.nameToId(task.status);
+      if(task.index) request["index"] = task.index;
       if(task.categoryId) request["categoryId"] = task.categoryId;
       if(task.statusId) request["statusId"] = task.statusId;
       if(task.priorityId) request["priorityId"] = task.priorityId;
       if(task.userId) request["userId"] = task.userId;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
+      if (task.startDate) request['startDate'] = task.startDate;
       if (task.dueDate) request['dueDate'] = task.dueDate;
+      if (task.dependentTasks) request['dependentTasks'] = task.dependentTasks;
       // update cache
       const index = this.tasks.findIndex((t) => t.id === task.id);
       this.tasks[index] = {...this.tasks[index], ...task};

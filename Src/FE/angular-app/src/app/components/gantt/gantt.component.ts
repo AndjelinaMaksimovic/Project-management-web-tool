@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
 import { Column, DraggingType, GanttColumn, Item, ItemType, TimeScale, ItemSort } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
-import { Task } from '../../services/task.service';
+import { Task, TaskService } from '../../services/task.service';
 import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
 import { MatDialog } from '@angular/material/dialog';
 import { GanttSettingsComponent } from './gantt-settings/gantt-settings.component';
@@ -53,7 +53,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() holidays: Date[] = []
 
   // list of dates in the header
-  dates!: string[]
+  dates: string[] = []
   // marks the current date in the header
   currentDateIndex!: number
   chartStartDate!: number
@@ -73,7 +73,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   priorityToColor = {'Low': '#03fc03', 'Medium': '#fcf803', 'High': '#fc1c03'}
 
-  constructor(private dialogue: MatDialog, private router: Router, private categoryService: CategoryService){}
+  constructor(private dialogue: MatDialog, private router: Router, private categoryService: CategoryService, private taskService: TaskService){}
 
   async ngOnInit() {
     if(this.items.length == 0){
@@ -139,10 +139,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
       this.allCategories = this.categoryService.getCategories().map(cat => {return {name: cat.name, idx: cat.index}})
     }
     // TODO: only for testing
-    // this.allCategories = [
-    //   {name: 'category 1', idx: 1},
-    //   {name: 'category 2', idx: 0},
-    // ]
+    this.allCategories = [
+      {name: 'category 1', idx: 1},
+      {name: 'category 2', idx: 0},
+    ]
 
     this.initCategories()
     this.insertCategories() // also init idMap
@@ -349,12 +349,12 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.dragging = DraggingType.taskEdgesLeft
     this.startEdgeDrag(event)
     this.originalLeft = this.lastHovered.left
-    return false  // event.preventDefault()
+    return false  // event.preventDefault() // disable text select
   }
   startTaskRightEdgeDrag(event: any){
     this.dragging = DraggingType.taskEdgesRight
     this.startEdgeDrag(event)
-    return false  // event.preventDefault()
+    return false
   }
   startEdgeDrag(event: any){
     this.originalItem = this.lastHovered
@@ -371,7 +371,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.originalLeft = this.lastHovered.left
     this.draggedOriginal = {x: event.x, y: event.y}
     // event.stopPropagation();
-    // return false  // event.preventDefault()
+    return false
   }
 
   originalIndex = 0
@@ -380,6 +380,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     this.originalIndex = this.lastHovered.index
     this.draggedOriginal = {x: event.x, y: event.y}
     this.dragging = DraggingType.taskVertical
+    return false
   }
 
   // @HostListener('mousemove', ['$event'])
@@ -414,10 +415,11 @@ export class GanttComponent implements OnInit, AfterViewInit{
         && !this.lastHovered.dependant.includes(this.originalItem.id) // last doesnt already contain it
         && !this.originalItem.dependant.includes(this.lastHovered.id)){ // current isn't dependant on it
         this.originalItem.dependant.push(this.lastHovered.id)
+        this.updateTaskDependency(this.originalItem)
       }
       this.dragging = DraggingType.none
     }
-    if(this.originalItem && this.originalItem != this.lastHovered)
+    if(this.originalItem && this.originalItem != this.lastHovered)  //TODO: State?
       this.originalItem.hover = false
 
     if((this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight)){
@@ -465,6 +467,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
       this.items[newIndex].index = this.originalIndex
       this.originalItem.index = newIndex
+      this.updateTaskIndex(this.originalItem)
+      this.updateTaskIndex(this.items[newIndex])
       moveItemInArray(this.items, this.originalIndex, newIndex)
 
       this.updateIdMap()
@@ -502,7 +506,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
     // item.dependant.forEach(_item => {
     //   this.updateItemDates(this.items[this.idMap[_item]])
     // });
-    this.updateDependencies(item)
+      this.updateTaskDates(item)
+      this.updateDependencies(item)
   }
   updateDependencies(item: Item, limit = 50){
     //TODO: dragging left egde offsets deps by 1 to the right???
@@ -512,6 +517,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
        // TODO: timescale
       next.dueDate += prev.dueDate - next.startDate + TimeScale.day
       next.startDate = prev.dueDate + TimeScale.day
+      this.updateTaskDates(next)
       next.dependant.forEach(next2 => updateDependency(next, this.items[this.idMap[next2]], limit - 1))
     }
     item.dependant.forEach(_item => updateDependency(item, this.items[this.idMap[_item]], limit - 1))
@@ -586,5 +592,16 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   infoColumnDragDrop(event: CdkDragDrop<string[]>){
     moveItemInArray(this.columns, event.previousIndex, event.currentIndex)
+  }
+
+  // TODO: check if its a milestone
+  updateTaskDates(item: Item){
+    this.taskService.updateTask({id: item.id, startDate: new Date(item.startDate), dueDate: new Date(item.dueDate)})
+  }
+  updateTaskIndex(item: Item){
+    this.taskService.updateTask({id: item.id, index: item.index})
+  }
+  updateTaskDependency(item: Item){
+    this.taskService.updateTask({id: item.id, dependentTasks: item.dependant})
   }
 }
