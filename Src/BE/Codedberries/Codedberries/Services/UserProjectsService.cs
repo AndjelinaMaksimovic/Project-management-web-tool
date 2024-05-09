@@ -1,4 +1,6 @@
-﻿using Codedberries.Models.DTOs;
+﻿using Codedberries.Models;
+using Codedberries.Models.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -79,12 +81,12 @@ namespace Codedberries.Services
 
                 if (userOnProject == null)
                 {
-                    throw new ArgumentException($"User with id {userOnProject.Id} does not exist in database!");
+                    throw new ArgumentException($"User with id {userProject.UserId} does not exist in database!");
                 }
 
                 if (roleOnProject == null)
                 {
-                    throw new ArgumentException($"User with id {userOnProject.Id} does not have a role with id {roleOnProject.Id} in database!");
+                    throw new ArgumentException($"User with id {userProject.UserId} does not have a role with id {userProject.RoleId} in database!");
                 }
 
                 var userProjectDTO = new UserProjectsDTO
@@ -102,6 +104,136 @@ namespace Codedberries.Services
             }
 
             return userProjectDTOs;
+        }
+
+        public async Task<List<UserProjectInformationDTO>> GetUserProjectsInformation(HttpContext httpContext, UserIdDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new ArgumentException("User role not found in database!");
+            }
+
+            if (userRole.CanViewProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to view projects!");
+            }
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be greater than zero!");
+            }
+
+            var providedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+
+            if (providedUser == null)
+            {
+                throw new ArgumentException($"Provided user with ID {request.UserId} not found in database!");
+            }
+
+            if (providedUser.RoleId == null)
+            {
+                throw new ArgumentException($"Provided user with ID {request.UserId} does not have any role assigned!");
+            }
+
+            var allUserProjects = await _databaseContext.UserProjects
+                .Where(up => up.UserId == request.UserId)
+                .ToListAsync();
+
+            if (!allUserProjects.Any())
+            {
+                throw new ArgumentException($"There are no projects found for user with id {request.UserId}!");
+            }
+
+            var userProjectInformation = new List<UserProjectInformationDTO>();
+
+            foreach (var userProject in allUserProjects)
+            {
+                var roleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userProject.RoleId);
+
+                if (roleOnProject == null)
+                {
+                    throw new ArgumentException($"Role with ID {userProject.RoleId} not found in database!");
+                }
+
+                var project = await _databaseContext.Projects
+                            .FirstOrDefaultAsync(p => p.Id == userProject.ProjectId);
+
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {userProject.ProjectId} not found in database!");
+                }
+
+                var projectStatuses = await _databaseContext.Statuses
+                    .Where(s => s.ProjectId == project.Id)
+                    .Select(s => new StatusDTO
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        ProjectId = project.Id,
+                        Order = s.Order
+                    })
+                    .ToListAsync();
+
+                var projectCategories = await _databaseContext.Categories
+                    .Where(c => c.ProjectId == project.Id)
+                    .Select(c => new CategoryDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    })
+                    .ToListAsync();
+
+                var projectUsers = await _databaseContext.Users
+                    .Where(u => u.Projects.Any(p => p.Id == project.Id))
+                    .Select(u => new UserDTO
+                    {
+                        Id = u.Id,
+                        FirstName = u.Firstname,
+                        LastName = u.Lastname,
+                        ProfilePicture = u.ProfilePicture
+                    })
+                    .ToListAsync();
+
+                var userProjectInformationDTO = new UserProjectInformationDTO
+                {
+                    ProjectId = project.Id,
+                    RoleIdOnProject = roleOnProject.Id,
+                    RoleNameOnProject = roleOnProject.Name,
+                    ProjectName = project.Name,
+                    ProjectDescription = project.Description,
+                    ProjectStartDate = project.StartDate,
+                    ProjectDueDate = project.DueDate,
+                    ProjectArchived = project.Archived,
+                    ProjectStatuses = projectStatuses,
+                    ProjectCategories = projectCategories,
+                    ProjectUsers = projectUsers
+                };
+
+                userProjectInformation.Add(userProjectInformationDTO);
+            }
+
+            return userProjectInformation;
         }
     }
 }

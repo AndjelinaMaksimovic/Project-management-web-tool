@@ -42,5 +42,28 @@ namespace Codedberries.Controllers
             }
         }
 
+        // get all projects that user is on by its id
+        [HttpGet("userProjects")]
+        public async Task<IActionResult> GetUserProjects([FromQuery] UserIdDTO request)
+        {
+            try
+            {
+                var userProjectsInformation = await _userProjectService.GetUserProjectsInformation(HttpContext, request);
+                
+                return Ok(userProjectsInformation);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while fetching user projects: {ex.Message}"));
+            }
+        }
     }
 }
