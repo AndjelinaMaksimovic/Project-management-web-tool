@@ -71,6 +71,11 @@ export class MyTasksComponent {
       ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})]
     ]);
   }
+
+  get activeFilters() {
+    return Object.keys(this.localStorageService.getData("task_filters")).length;
+  }
+
   get tasks() {
     return this.taskService.getTasks();
   }
