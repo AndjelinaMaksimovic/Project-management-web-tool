@@ -384,32 +384,42 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   // originalIndex = 0
+  verticalDragLinePos = 0
   startTaskVerticalDrag(event: any){
     this.originalItem = this.lastHovered
     // this.originalIndex = this.lastHovered.index
     this.draggedOriginal = {x: event.x, y: event.y}
     this.dragging = DraggingType.taskVertical
+    this.onMouseMove(event)
     return false
   }
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent | any){
+    if(!this.originalItem)
+      return false
+
     const _offset = {x: event.x - this.draggedOriginal.x, y: event.y - this.draggedOriginal.y}
     
     if(this.dragging == DraggingType.dependency && !this.clipLine){
       this.offset = {x: _offset.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft), y: _offset.y - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - this.taskHeight}
     }
-    else if(this.dragging == DraggingType.taskEdgesLeft && this.originalItem){
+    else if(this.dragging == DraggingType.taskEdgesLeft){
       this.originalItem.width = this.originalWidth - _offset.x
       this.originalItem.left = this.originalLeft + _offset.x
     }
-    else if(this.dragging == DraggingType.taskEdgesRight && this.originalItem){
+    else if(this.dragging == DraggingType.taskEdgesRight){
       this.originalItem.width = this.originalWidth + _offset.x
     }
-    else if(this.dragging == DraggingType.task && this.originalItem){
+    else if(this.dragging == DraggingType.task){
       this.originalItem.left = this.originalLeft + _offset.x
     }
-    return false  // event.preventDefault()
+    else if(this.dragging == DraggingType.taskVertical){
+      const idx = this.items.indexOf(this.originalItem)
+      const newIdx = this.items.indexOf(this.lastHovered)
+      this.verticalDragLinePos = (newIdx + ((newIdx > idx) ? 1 : 0)) * this.taskHeight
+    }
+    return false
   }
 
   @HostListener('mouseup', ['$event'])

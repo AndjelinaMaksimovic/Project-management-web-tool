@@ -1,4 +1,8 @@
 <div style="white-space: nowrap; overflow: auto; display: flex; background-color: white; height: 100%;">
+    <div style="width: 100%; height: 2px; position: absolute; background-color: black;"
+        [style.top]="20 + verticalDragLinePos + 'px'"
+        *ngIf="dragging == DraggingType.taskVertical"
+    ></div>
     <div class="info" style="display: flex;"
         cdkDropList
         cdkDropListOrientation="horizontal"
