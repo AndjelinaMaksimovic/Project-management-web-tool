@@ -16,7 +16,7 @@
 
             <!-- filter window -->
             <div *ngIf="isFilterOpen" class="filters-container">
-                <app-filters [title]="'Task Filters'" (fetchProjects)="fetchTasksFromLocalStorage()" [filtersName]="'task_filters'" [allFilters]="filters"></app-filters>
+                <app-filters (filterOpenEvent)="onFilterChange($event)" [title]="'Task Filters'" (fetchProjects)="fetchTasksFromLocalStorage()" [filtersName]="'task_filters'" [allFilters]="filters"></app-filters>
             </div>
             <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
             </div>

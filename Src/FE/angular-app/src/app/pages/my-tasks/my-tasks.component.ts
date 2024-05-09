@@ -106,4 +106,8 @@ export class MyTasksComponent {
   openFilters() {
     this.isFilterOpen = !this.isFilterOpen;
   }
+
+  onFilterChange(data: boolean) {
+    this.isFilterOpen = data;
+  }
 }
