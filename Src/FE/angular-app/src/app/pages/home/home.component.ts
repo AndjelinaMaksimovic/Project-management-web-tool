@@ -91,4 +91,8 @@ export class HomeComponent {
   newProjectPopUp(){
     this.dialogue.open(NewProjectModalComponent, { autoFocus: false })
   }
+
+  onFilterChange(data: boolean) {
+    this.isFilterOpen = data;
+  }
 }
