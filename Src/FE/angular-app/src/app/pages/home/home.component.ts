@@ -1,18 +1,19 @@
 import { Component, Input } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectItemComponent } from '../../components/project-item/project-item.component';
-import { NgIf } from '@angular/common';
+import { NgClass, NgIf } from '@angular/common';
 import { ProjectService, Project } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewProjectModalComponent } from '../../components/new-project-modal/new-project-modal.component';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
+import { LocalStorageService } from '../../services/localstorage';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule ],
+  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule, NgClass ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -28,7 +29,11 @@ export class HomeComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private projectService: ProjectService, private dialogue: MatDialog) {}
+  get activeFilters() {
+    return Object.keys(this.localStorageService.getData("project_filters")).length;
+  }
+
+  constructor(private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService) {}
 
   get projects(){
     return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
