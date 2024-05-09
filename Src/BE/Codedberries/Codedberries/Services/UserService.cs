@@ -194,11 +194,14 @@ namespace Codedberries.Services
                 throw new ArgumentException("Image bytes cannot be null or empty!");
             }
 
+            // generate picture name based on user id
+            string imageName = $"{request.UserId}.jpg";
+
             // update profile picture
-            userToSetProfilePicture.ProfilePicture = request.ImageName;
+            userToSetProfilePicture.ProfilePicture = imageName;
 
             // save image file to folder ProfileImages
-            string imagePath = Path.Combine("ProfileImages", $"{request.ImageName}");
+            string imagePath = Path.Combine("ProfileImages", $"{imageName}");
             await File.WriteAllBytesAsync(imagePath, request.ImageBytes);
 
             // save changes to database
