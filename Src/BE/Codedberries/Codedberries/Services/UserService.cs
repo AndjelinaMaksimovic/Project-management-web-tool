@@ -517,6 +517,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            if (imageUserId <= 0)
+            {
+                throw new ArgumentException("UserId for image must be greater than zero!");
+            }
+
             var imagePath = $"ProfileImages/{imageUserId}.jpg";
 
             if (!File.Exists(imagePath))
