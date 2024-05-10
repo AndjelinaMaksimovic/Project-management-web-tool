@@ -505,6 +505,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User not found in database!");
             }
 
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
             var imagePath = $"ProfileImages/{imageUserId}.jpg";
 
             if (!File.Exists(imagePath))
