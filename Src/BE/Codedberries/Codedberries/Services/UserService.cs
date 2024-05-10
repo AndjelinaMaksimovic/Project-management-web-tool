@@ -487,5 +487,17 @@ namespace Codedberries.Services
 
             return currentSessionUserDTO;
         }
+
+        public string GetUserImagePath(int userId)
+        {
+            var imagePath = $"ProfileImages/{userId}.jpg";
+
+            if (!File.Exists(imagePath))
+            {
+                return null;
+            }
+
+            return imagePath;
+        }
     }
 }
