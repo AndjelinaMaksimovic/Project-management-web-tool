@@ -149,14 +149,26 @@ namespace Codedberries.Controllers
 
                 if (imagePath == null)
                 {
-                    return NotFound($"Image for user with ID {userId} not found!");
+                    return NotFound(new ErrorMsg($"Image for user with ID {userId} not found!"));
                 }
 
                 return PhysicalFile(imagePath, "image/jpeg");
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(401, new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}.");
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
             }
         }
     }
