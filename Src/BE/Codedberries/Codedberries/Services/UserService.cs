@@ -3,6 +3,7 @@ using Codedberries.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -534,7 +535,8 @@ namespace Codedberries.Services
                 throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
             }
 
-            var imagePath = $"ProfileImages/{imageUserId}.jpg";
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", $"{imageUserId}.jpg");
+            // Console.WriteLine($"Image path: {imagePath}");
 
             if (!File.Exists(imagePath))
             {
