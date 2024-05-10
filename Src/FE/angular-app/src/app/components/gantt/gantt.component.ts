@@ -18,7 +18,8 @@ class Category {
     public min: number,
     public max: number,
     public idx: number,
-    public count: number, // for snapping when dragging a task vertically
+    public count: number,         //
+    public startIdx: number = 0,  // for snapping when dragging a task vertically
   ){}
 }
 
@@ -47,7 +48,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() timeScale: TimeScale = TimeScale.day
   itemSort: ItemSort = ItemSort.custom
   categories: Category[] = []
-  groupByCategory: boolean = false
+  groupByCategory: boolean = true
   
   @Input() hideWeekend: boolean = false
   @Input() holidays: Date[] = []
@@ -91,6 +92,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.items[i] = new Item(
           this.tasks[i].id,
           // this.tasks[i].index,
+          // this.tasks[i].indexInCategory,
+          0,
           0,
           this.tasks[i].projectId,
           this.tasks[i].title,
@@ -110,6 +113,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.items[i] = new Item(
           this.milestones[i].id,
           // this.milestones[i].index,
+          // this.tasks[i].indexInCategory,
+          0,
           0,
           this.milestones[i].projectId,
           this.milestones[i].title,
@@ -141,8 +146,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
     // TODO: only for testing
     if(this.allCategories.length == 0)
       this.allCategories = [
-        {name: 'category 1', idx: 1},
-        {name: 'category 2', idx: 0},
+        {name: 'category 1', idx: 0},
+        {name: 'category 2', idx: 1},
       ]
 
     if(this.groupByCategory){
@@ -191,9 +196,13 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   insertCategories(){
+    this.categories[0].startIdx = 0
+
     const newItem = new Item()
     newItem.title = this.categories[0].name
+    newItem.category = this.categories[0].name
     newItem.index = this.categories[0].idx
+    newItem.id = -1
     newItem.startDate = this.categories[0].min
     newItem.dueDate = this.categories[0].max
     newItem.color = 'grey'
@@ -203,8 +212,12 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
     for(let i=2, j=1;i<this.items.length;i++){
       if(this.items[i].category != this.items[i-1].category){
+        this.categories[j].startIdx = i
+
         const newItem = new Item()
         newItem.title = this.categories[j].name
+        newItem.category = this.categories[j].name
+        newItem.id = -1
         newItem.index = this.categories[j].idx
         newItem.startDate = this.categories[j].min
         newItem.dueDate = this.categories[j].max
@@ -259,7 +272,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       this.items.sort( (a,b) =>
         // TODO: categories.find error -> object is possibly undefined
         (categories.find(cat => a.category == cat.name) as Category).idx - (categories.find(cat => b.category == cat.name) as Category).idx
-        || a.index - b.index
+        || a.indexInCategory - b.indexInCategory
       )
     } else if(this.itemSort == ItemSort.startDate){
       var order = categories.sort((a: any,b: any)=> a.min - b.min).map((e: any, i: any)=>e.name)
@@ -416,7 +429,15 @@ export class GanttComponent implements OnInit, AfterViewInit{
     }
     else if(this.dragging == DraggingType.taskVertical){
       const idx = this.items.indexOf(this.originalItem)
-      const newIdx = this.items.indexOf(this.lastHovered)
+      let newIdx = this.items.indexOf(this.lastHovered)
+      if(this.groupByCategory){
+        if(this.originalItem.type != ItemType.category){
+          if(this.originalItem.category != this.lastHovered.category || this.lastHovered.type == ItemType.category)
+            newIdx = this.clampToCategory(this.originalItem, this.lastHovered)
+        }else{
+          newIdx = this.clampCategory(this.originalItem, this.lastHovered)
+        }
+      }
       this.verticalDragLinePos = (newIdx + ((newIdx > idx) ? 1 : 0)) * this.taskHeight
     }
     return false
@@ -443,8 +464,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
     if((this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight)){
       this.updateItemDates(this.originalItem)
-
-      this.dragging = DraggingType.none
       
       if(this.groupByCategory){
         this.initCategories()
@@ -454,8 +473,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
     }
     if(this.dragging == DraggingType.task){
       this.updateItemDates(this.originalItem)
-
-      this.dragging = DraggingType.none
       
       if(this.groupByCategory){
         this.initCategories()
@@ -464,66 +481,126 @@ export class GanttComponent implements OnInit, AfterViewInit{
       this.initItemDisplay()
     }
     if(this.dragging == DraggingType.taskVertical){
-      if(this.lastHovered.type == ItemType.category)
+      if(this.originalItem == this.lastHovered){
+        this.dragging = DraggingType.none
         return false
-
-      // let offset = event.y - this.draggedOriginal.y
-      // const newIndex = this.originalIndex + Math.floor(offset / this.taskHeight)
-
-      let newIndex = this.lastHovered.index
-
-      // if(this.lastHovered.category != this.originalItem.category){
-      //   const otherCat = this.categories.find(cat => cat.name == this.lastHovered.category)
-      //   const originalCat = this.categories.find(cat => this.originalItem && cat.name == this.originalItem.category)
-      //   if(otherCat && originalCat && otherCat.idx > originalCat.idx)
-      //     newIndex = 0
-      //   else if(originalCat)
-      //     newIndex = originalCat.count
-      // }
-
-      /*
-        --- Item
-        --- New
-        --- Item
-      */
-
-      // moveItemInArray(this.items, this.originalItem.index, this.lastHovered.index)
-      if(newIndex > this.originalItem.index){
-        let original: Item = this.originalItem
-        let i = original.index+1
-        for(; i <= newIndex; i++){
-          this.items[i-1] = this.items[i]
-          this.items[i-1].index -= 1
-        }
-        this.items[newIndex] = original
-        this.items[newIndex].index = newIndex
-      } else if (newIndex < this.originalItem.index){
-        let original: Item = this.originalItem
-        let i = original.index-1
-        for(; i >= newIndex; i--){
-          this.items[i+1] = this.items[i]
-          this.items[i+1].index += 1
-        }
-        this.items[newIndex] = original
-        this.items[newIndex].index = newIndex
       }
 
+      if(this.groupByCategory){
+        this.moveItemInArrayAndUpdateCategoryIndex(this.originalItem, this.lastHovered)
+      } else{
+        this.moveItemInArrayAndUpdateIndex(this.originalItem, this.lastHovered)
+      }
       // this.updateTaskIndex(this.originalItem)
       // this.updateTaskIndex(this.items[newIndex])
       this.updateIdMap()
-
-      this.dragging = DraggingType.none
     }
+    this.dragging = DraggingType.none
     return false  // event.preventDefault()
   }
+  moveItemInArrayAndUpdateIndex(original: Item, newItem: Item){
+    let newIndex = this.items.indexOf(newItem)
+    let originalIdx = this.items.indexOf(original)
 
-  // @HostListener('mouseleave')
+    if(newIndex > originalIdx){
+      for(let i = originalIdx+1; i <= newIndex; i++){
+        this.items[i].index = this.items[i-1].index
+        this.items[i-1] = this.items[i]
+      }
+      this.items[newIndex] = original
+      this.items[newIndex].index = newItem.index
+    } else{
+      for(let i = originalIdx-1; i >= newIndex; i--){
+        this.items[i].index = this.items[i+1].index
+        this.items[i+1] = this.items[i]
+      }
+      this.items[newIndex] = original
+      this.items[newIndex].index = newItem.index
+    }
+  }
+  moveItemInArrayAndUpdateCategoryIndex(original: Item, newItem: Item){
+    let originalIdx = this.items.indexOf(original)
+    // let newIndex = 0
+    let newItemIndex = this.items.indexOf(newItem)
+    if(original.type == ItemType.category){
+
+      // newIndex = this.clampCategory(original, newItem)
+      // let newIndex = 0
+      const cat = (this.categories.find(cat => cat.name == original.category)) as Category
+      let newIdxStart = 0
+      if(newIdxStart < originalIdx){
+        newIdxStart = cat.startIdx + 1
+      }
+      else{
+        newIdxStart = cat.startIdx + cat.count
+      }
+
+      if(newItemIndex > originalIdx){
+        for(let i = originalIdx+1; i <= newItemIndex; i++){
+          this.items[i].indexInCategory = this.items[i-1].indexInCategory
+          this.items[i-1] = this.items[i]
+        }
+        this.items[newItemIndex] = original
+        this.items[newItemIndex].indexInCategory = newItem.indexInCategory
+      } else{
+        for(let i = originalIdx-1; i >= newItemIndex; i--){
+          this.items[i].indexInCategory = this.items[i+1].indexInCategory
+          this.items[i+1] = this.items[i]
+        }
+        this.items[newItemIndex] = original
+        this.items[newItemIndex].indexInCategory = newItem.indexInCategory
+      }
+      
+    }
+    else{
+      newItemIndex = this.clampToCategory(original, newItem)
+      if(newItemIndex > originalIdx){
+        for(let i = originalIdx+1; i <= newItemIndex; i++){
+          this.items[i].indexInCategory = this.items[i-1].indexInCategory
+          this.items[i-1] = this.items[i]
+        }
+        this.items[newItemIndex] = original
+        this.items[newItemIndex].indexInCategory = newItem.indexInCategory
+      } else{
+        for(let i = originalIdx-1; i >= newItemIndex; i--){
+          this.items[i].indexInCategory = this.items[i+1].indexInCategory
+          this.items[i+1] = this.items[i]
+        }
+        this.items[newItemIndex] = original
+        this.items[newItemIndex].indexInCategory = newItem.indexInCategory
+      }
+    }
+  }
+
+  @HostListener('mouseleave')
   onMouseLeave() {
     this.dragging = DraggingType.none
     this.lastHovered.hover = false
     if(this.originalItem)
       this.originalItem.hover = false
     return false  // event.preventDefault()
+  }
+
+  clampToCategory(original: Item, newItem: Item): number{
+    if(original.category != newItem.category || newItem.type == ItemType.category){
+      const cat = (this.categories.find(cat => cat.name == original.category)) as Category
+      if(this.items.indexOf(newItem) < this.items.indexOf(original))
+        return cat.startIdx + 1
+      else
+        return cat.startIdx + cat.count
+    }
+
+    return this.items.indexOf(newItem)
+  }
+  clampCategory(original: Item, newItem: Item): number{
+    const originalCat = (this.categories.find(cat => cat.name == original.category)) as Category
+    if(original.category == newItem.category)
+      return originalCat.startIdx
+    const newCat = (this.categories.find(cat => cat.name == newItem.category)) as Category
+    if(this.items.indexOf(newItem) < this.items.indexOf(original))
+      return newCat.startIdx
+    else
+      return newCat.startIdx + newCat.count
   }
 
   updateItemDates(item: Item){

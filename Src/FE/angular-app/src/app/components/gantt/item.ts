@@ -8,6 +8,7 @@ export class Item {
 
         public id: number = 0,
         public index: number = 0,
+        public indexInCategory: number = 0,
         public projectId: number = 0,
         public title: string = '',
         public description: string = '',

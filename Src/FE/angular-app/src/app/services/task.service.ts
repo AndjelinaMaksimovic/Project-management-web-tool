@@ -21,6 +21,7 @@ export type Task = Readonly<{
   dueDate: Date;
   id: number;
   index: number;
+  indexInCategory: number;
   projectId?: number | undefined;
   assignedTo: any;
   dependentTasks: number[];
@@ -50,6 +51,7 @@ export class TaskService {
       category: apiTask.categoryName,
       id: apiTask.taskId,
       index: apiTask.index,
+      indexInCategory: apiTask.indexInCategory,
       projectId: this.context.projectId,
       startDate: new Date(Date.parse(apiTask.startDate)),
       dueDate: new Date(Date.parse(apiTask.dueDate)),
