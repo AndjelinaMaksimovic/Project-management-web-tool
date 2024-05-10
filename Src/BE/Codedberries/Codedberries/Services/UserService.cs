@@ -522,6 +522,13 @@ namespace Codedberries.Services
                 throw new ArgumentException("UserId for image must be greater than zero!");
             }
 
+            var userToGetPicture = _databaseContext.Users.FirstOrDefault(u => u.Id == imageUserId);
+
+            if (userToGetPicture == null)
+            {
+                throw new ArgumentException($"User with provided id {imageUserId} does not exist in database!");
+            }
+
             var imagePath = $"ProfileImages/{imageUserId}.jpg";
 
             if (!File.Exists(imagePath))
