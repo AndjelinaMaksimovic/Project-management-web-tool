@@ -538,7 +538,7 @@ namespace Codedberries.Services
 
             if (!File.Exists(imagePath))
             {
-                return null;
+                throw new FileNotFoundException($"Image file for user with ID {imageUserId} not found in directory ProfileImages!", imagePath);
             }
 
             return imagePath;
