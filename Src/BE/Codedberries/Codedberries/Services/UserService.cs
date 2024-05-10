@@ -529,6 +529,11 @@ namespace Codedberries.Services
                 throw new ArgumentException($"User with provided id {imageUserId} does not exist in database!");
             }
 
+            if(userToGetPicture.ProfilePicture == null)
+            {
+                throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
+            }
+
             var imagePath = $"ProfileImages/{imageUserId}.jpg";
 
             if (!File.Exists(imagePath))
