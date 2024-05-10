@@ -139,5 +139,25 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
+
+        [HttpGet("users/avatars/{userId}")]
+        public IActionResult GetUserImage(int userId)
+        {
+            try
+            {
+                var imagePath = _userService.GetUserImagePath(HttpContext, userId);
+
+                if (imagePath == null)
+                {
+                    return NotFound($"Image for user with ID {userId} not found!");
+                }
+
+                return PhysicalFile(imagePath, "image/jpeg");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}.");
+            }
+        }
     }
 }
