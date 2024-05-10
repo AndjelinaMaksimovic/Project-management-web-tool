@@ -3,6 +3,7 @@ using Codedberries.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -488,9 +489,16 @@ namespace Codedberries.Services
             return currentSessionUserDTO;
         }
 
-        public string GetUserImagePath(int userId)
+        public string GetUserImagePath(HttpContext httpContext, int imageUserId)
         {
-            var imagePath = $"ProfileImages/{userId}.jpg";
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var imagePath = $"ProfileImages/{imageUserId}.jpg";
 
             if (!File.Exists(imagePath))
             {
