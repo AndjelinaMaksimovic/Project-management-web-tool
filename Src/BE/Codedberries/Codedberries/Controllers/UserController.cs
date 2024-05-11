@@ -181,6 +181,14 @@ namespace Codedberries.Controllers
 
                 return Ok("User name updated successfully.");
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while updating user name: {ex.Message}"));
