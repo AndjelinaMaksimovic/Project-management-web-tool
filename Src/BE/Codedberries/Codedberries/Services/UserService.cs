@@ -545,5 +545,21 @@ namespace Codedberries.Services
 
             return imagePath;
         }
+
+        public async System.Threading.Tasks.Task UpdateUserName(UpdateUserNameDTO request)
+        {
+ 
+            var user = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (user == null)
+            {
+                throw new ArgumentException($"User with ID {request.UserId} not found in databbase!");
+            }
+
+            user.Firstname = request.FirstName;
+            user.Lastname = request.LastName;
+
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }
