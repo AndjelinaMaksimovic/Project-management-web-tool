@@ -35,6 +35,31 @@
         </div>
     </div>
 
+    <div class="main-container">
+        <div class="container w-100 margin-15 left-container">
+            <div class="w-100">
+                <div style="display: flex; justify-content: space-between;">
+                    <p class="title">Project statuses:</p>
+                    <i class="fa-solid fa-plus add-icon" (click)="createStatus()"></i>
+                </div>
+                <div *ngFor="let status of statuses">
+                    <p>{{status}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="container w-100 margin-15 inherit-height">
+            <div class="w-100">
+                <div style="display: flex; justify-content: space-between;">
+                    <p class="title">Project categories:</p>
+                    <i class="fa-solid fa-plus add-icon" (click)="createCategory()"></i>
+                </div>
+                <div *ngFor="let category of categories">
+                    <p>{{category}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="margin-15">
         <p class="title">Activities:</p>
         <!-- <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
