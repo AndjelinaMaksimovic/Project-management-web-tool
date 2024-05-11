@@ -171,5 +171,20 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
             }
         }
+
+        [HttpPost("changeUserName")]
+        public async Task<IActionResult> ChangeUserName([FromBody] UpdateUserNameDTO request)
+        {
+            try
+            {
+                await _userService.UpdateUserName(HttpContext, request);
+
+                return Ok("User name updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating user name: {ex.Message}"));
+            }
+        }
     }
 }
