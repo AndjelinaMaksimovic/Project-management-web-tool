@@ -546,18 +546,25 @@ namespace Codedberries.Services
             return imagePath;
         }
 
-        public async System.Threading.Tasks.Task UpdateUserName(UpdateUserNameDTO request)
+        public async System.Threading.Tasks.Task UpdateUserName(HttpContext httpContext, UpdateUserNameDTO request)
         {
- 
-            var user = await _databaseContext.Users.FindAsync(request.UserId);
+            var userId = this.GetCurrentSessionUser(httpContext);
 
-            if (user == null)
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+
+            var userToChange = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (userToChange == null)
             {
                 throw new ArgumentException($"User with ID {request.UserId} not found in databbase!");
             }
 
-            user.Firstname = request.FirstName;
-            user.Lastname = request.LastName;
+            userToChange.Firstname = request.FirstName;
+            userToChange.Lastname = request.LastName;
 
             await _databaseContext.SaveChangesAsync();
         }
