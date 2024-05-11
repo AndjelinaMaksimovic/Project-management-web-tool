@@ -574,6 +574,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be greater than zero!");
+            }
+
             var userToChange = await _databaseContext.Users.FindAsync(request.UserId);
 
             if (userToChange == null)
