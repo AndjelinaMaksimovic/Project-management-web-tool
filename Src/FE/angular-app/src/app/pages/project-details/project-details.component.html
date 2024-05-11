@@ -43,7 +43,7 @@
                     <i class="fa-solid fa-plus add-icon" (click)="createStatus()"></i>
                 </div>
                 <div *ngFor="let status of statuses">
-                    <p>{{status}}</p>
+                    <p>{{status.order}}. {{status.name}}</p>
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@
                     <i class="fa-solid fa-plus add-icon" (click)="createCategory()"></i>
                 </div>
                 <div *ngFor="let category of categories">
-                    <p>{{category}}</p>
+                    <p>{{category.name}}</p>
                 </div>
             </div>
         </div>

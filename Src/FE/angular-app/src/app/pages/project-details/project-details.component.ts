@@ -12,6 +12,8 @@ import { TaskService } from '../../services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
+import { CategoryService } from '../../services/category.service';
+import { StatusService } from '../../services/status.service';
 
 @Component({
   selector: 'app-project-details',
@@ -34,11 +36,16 @@ export class ProjectDetailsComponent {
   completedTasks : number = 0;
   overdueTasks : number = 0;
 
-  statuses : Array<any> = [];
-  categories : Array<any> = [];
-
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog) {
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog, private categoryService : CategoryService, private statusService : StatusService) {
     this.dialog.closeAll();
+  }
+
+  get statuses() {
+    return this.statusService.getStatuses();
+  }
+
+  get categories() {
+    return this.categoryService.getCategories();
   }
 
   async ngOnInit() {
@@ -71,7 +78,7 @@ export class ProjectDetailsComponent {
   createStatus() {
     this.dialog.open(CreateStatusModalComponent);
   }
-  
+
   createCategory() {
     this.dialog.open(CreateCategoryModalComponent);
   }
