@@ -18,6 +18,7 @@ namespace Codedberries
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Starred> Starred { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }
+        public DbSet<TypeOfTaskDependency> TypesOfTaskDependency { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -84,6 +85,10 @@ namespace Codedberries
                 .HasOne(tc => tc.Task)
                 .WithMany()
                 .HasForeignKey(tc => tc.TaskId);
+
+            modelBuilder.Entity<TypeOfTaskDependency>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
 
         }
 
