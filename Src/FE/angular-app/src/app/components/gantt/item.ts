@@ -75,3 +75,13 @@ export enum ItemSort{
     startDate = 'Task start date',
     endDate = 'Task due date',
 }
+export class Category {
+    constructor(
+      public name: string = '',
+      public idx: number = 0,
+      public min: number = 0,
+      public max: number = 0,
+      public count: number = 0,      //
+      public startIdx: number = 0,  // for snapping when dragging a task vertically
+    ){}
+  }

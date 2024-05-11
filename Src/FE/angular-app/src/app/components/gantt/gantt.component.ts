@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
-import { Column, DraggingType, GanttColumn, Item, ItemType, TimeScale, ItemSort } from './item';
+import { Column, DraggingType, GanttColumn, Item, ItemType, TimeScale, ItemSort, Category } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task, TaskService } from '../../services/task.service';
 import { GanttDependencyLineComponent } from './gantt-dependency-line/gantt-dependency-line.component';
@@ -11,17 +11,6 @@ import { Route, Router, RouterModule } from '@angular/router';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
 import { CategoryService } from '../../services/category.service';
-
-class Category {
-  constructor(
-    public name: string,
-    public min: number,
-    public max: number,
-    public idx: number,
-    public count: number,         //
-    public startIdx: number = 0,  // for snapping when dragging a task vertically
-  ){}
-}
 
 @Component({
   selector: 'app-gantt',
@@ -60,7 +49,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   chartStartDate!: number
   idMap: Record<number, number> = [] // id to index
   snapDate!: boolean
-  allCategories: {name: string, idx: number}[] = []
+  // allCategories: {name: string, idx: number}[] = []
 
   columnWidth = 60
   taskHeight = 20
@@ -136,18 +125,19 @@ export class GanttComponent implements OnInit, AfterViewInit{
     //   this.items.push(item)
     // }
 
-    
+
     // TODO: multiple categories with same name. Include categoryId in item/task object
     // this.allCategories = this.categoryService.getCategories().map(cat => {return {name: cat.name, idx: cat.index}})
     // if(this.allCategories.length == 0){
       await this.categoryService.fetchCategories()
-      this.allCategories = this.categoryService.getCategories().map(cat => {return {name: cat.name, idx: cat.index}})
+      this.categories = this.categoryService.getCategories().map(cat => new Category(cat.name, undefined, undefined, cat.index))
     // }
     // TODO: only for testing
-    if(this.allCategories.length == 0)
-      this.allCategories = [
-        {name: 'category 1', idx: 0},
-        {name: 'category 2', idx: 1},
+    if(this.categories.length == 0)
+      this.categories = [
+        new Category("category 1", 0),
+        new Category("category 2", 1),
+        new Category("category 3", 2),
       ]
 
     if(this.groupByCategory){
@@ -230,6 +220,12 @@ export class GanttComponent implements OnInit, AfterViewInit{
     }
     this.updateIdMap()
   }
+  getCategory(name: string): Category{
+    const cat = this.categories.find(cat => cat.name == name)
+    if(cat === undefined)
+      throw "Category doesn't exist"
+    return cat
+  }
   removeCategories(){
     this.items = this.items.filter(a => a.type != ItemType.category)
   }
@@ -240,11 +236,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
   initCategories(){
     this.removeCategories()
-    this.categories = this.sortItemsByCategories(
-      this.makeCategories()
-    )
+    this.makeCategories()
+    this.sortItemsByCategories()
   }
-  makeCategories(): Category[]{
+  makeCategories(){
     const categories = Object.entries(this.items.reduce<Record<string, {min: number, max: number, count: number}>>((prev, item) => {
       if(!prev[item.category]){
           prev[item.category] = {min: item.startDate, max: item.dueDate, count: 1}
@@ -257,32 +252,28 @@ export class GanttComponent implements OnInit, AfterViewInit{
           prev[item.category].max = item.dueDate
       return prev
     }, {}))
-
-    return categories.map(cat => {
-      let allCat = this.allCategories.find(allCat => allCat.name == cat[0])
-      if(allCat == undefined)
-        throw "Item category not found in allCategories"
-      return new Category(cat[0], cat[1].min, cat[1].max, allCat.idx, cat[1].count)
-      }
-    )
+    categories.forEach(cat => {
+      const c = this.getCategory(cat[0])
+      c.min = cat[1].min
+      c.max = cat[1].max
+      c.count = cat[1].count
+    });
   }
-  sortItemsByCategories(categories: Category[]): Category[]{
+  sortItemsByCategories(){
     if(this.itemSort == ItemSort.custom){
-      categories.sort((a, b) => a.idx - b.idx)
+      this.categories.sort((a, b) => a.idx - b.idx)
       this.items.sort( (a,b) =>
         // TODO: categories.find error -> object is possibly undefined
-        (categories.find(cat => a.category == cat.name) as Category).idx - (categories.find(cat => b.category == cat.name) as Category).idx
+        this.getCategory(a.category).idx - this.getCategory(b.category).idx
         || a.indexInCategory - b.indexInCategory
       )
     } else if(this.itemSort == ItemSort.startDate){
-      var order = categories.sort((a: any,b: any)=> a.min - b.min).map((e: any, i: any)=>e.name)
+      var order = this.categories.sort((a: any,b: any)=> a.min - b.min).map((e: any, i: any)=>e.name)
       this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.startDate - b.startDate)
     } else if(this.itemSort == ItemSort.endDate){
-      const order = categories.sort((a: any,b: any)=> a.max - b.max).map((e: any, i: any)=>e.name)
+      const order = this.categories.sort((a: any,b: any)=> a.max - b.max).map((e: any, i: any)=>e.name)
       this.items.sort((a,b)=> order.indexOf(a.category) - order.indexOf(b.category) || a.dueDate - b.dueDate)
     }
-
-    return categories
   }
   sortItems(){
     if(this.itemSort == ItemSort.custom){
@@ -519,40 +510,50 @@ export class GanttComponent implements OnInit, AfterViewInit{
     }
   }
   moveItemInArrayAndUpdateCategoryIndex(original: Item, newItem: Item){
-    let originalIdx = this.items.indexOf(original)
-    // let newIndex = 0
-    let newItemIndex = this.items.indexOf(newItem)
     if(original.type == ItemType.category){
+      const originalCat = this.getCategory(original.category)
+      const newCat = this.getCategory(newItem.category)
 
-      // newIndex = this.clampCategory(original, newItem)
-      // let newIndex = 0
-      const cat = (this.categories.find(cat => cat.name == original.category)) as Category
-      let newIdxStart = 0
-      if(newIdxStart < originalIdx){
-        newIdxStart = cat.startIdx + 1
-      }
-      else{
-        newIdxStart = cat.startIdx + cat.count
-      }
+      const originalIdx = this.categories.findIndex(cat => cat.name == original.category)
+      const newItemIndex = this.categories.findIndex(cat => cat.name == newItem.category)
 
-      if(newItemIndex > originalIdx){
+      // if(newItemIndex > originalIdx){
+      //   for(let i = originalIdx+1; i <= newItemIndex; i++){
+      //     this.items[i].indexInCategory = this.items[i-1].indexInCategory
+      //     this.items[i-1] = this.items[i]
+      //   }
+      //   this.items[newItemIndex] = original
+      //   this.items[newItemIndex].indexInCategory = newItem.indexInCategory
+      // } else{
+      //   for(let i = originalIdx-1; i >= newItemIndex; i--){
+      //     this.items[i].indexInCategory = this.items[i+1].indexInCategory
+      //     this.items[i+1] = this.items[i]
+      //   }
+      //   this.items[newItemIndex] = original
+      //   this.items[newItemIndex].indexInCategory = newItem.indexInCategory
+      // }
+      if(newCat.startIdx > originalCat.startIdx){
+        // console.log("Original idx: " + originalCat.startIdx + "; Count: "+ originalCat.count)
+        // console.log("New idx: " + newCat.startIdx + "; Count: "+ newCat.count)
+        console.log(this.categories)
+        
+        const currentCat = this.items.slice(originalCat.startIdx, originalCat.startIdx + originalCat.count+1)
+        const other = this.items.slice(originalCat.startIdx + originalCat.count+1, newCat.startIdx + newCat.count+1)
+        this.items.splice(originalCat.startIdx, newCat.startIdx + newCat.count+1, ...other, ...currentCat)
+
+
         for(let i = originalIdx+1; i <= newItemIndex; i++){
-          this.items[i].indexInCategory = this.items[i-1].indexInCategory
-          this.items[i-1] = this.items[i]
+          this.categories[i].idx = this.categories[i-1].idx
+          this.categories[i-1] = this.categories[i]
         }
-        this.items[newItemIndex] = original
-        this.items[newItemIndex].indexInCategory = newItem.indexInCategory
-      } else{
-        for(let i = originalIdx-1; i >= newItemIndex; i--){
-          this.items[i].indexInCategory = this.items[i+1].indexInCategory
-          this.items[i+1] = this.items[i]
-        }
-        this.items[newItemIndex] = original
-        this.items[newItemIndex].indexInCategory = newItem.indexInCategory
+        this.categories[newItemIndex] = originalCat
+        this.categories[newItemIndex].idx = newCat.idx
+        console.log(this.categories)
       }
-      
     }
     else{
+      let originalIdx = this.items.indexOf(original)
+      let newItemIndex = this.items.indexOf(newItem)
       newItemIndex = this.clampToCategory(original, newItem)
       if(newItemIndex > originalIdx){
         for(let i = originalIdx+1; i <= newItemIndex; i++){
@@ -583,7 +584,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   clampToCategory(original: Item, newItem: Item): number{
     if(original.category != newItem.category || newItem.type == ItemType.category){
-      const cat = (this.categories.find(cat => cat.name == original.category)) as Category
+      const cat = this.getCategory(original.category)
       if(this.items.indexOf(newItem) < this.items.indexOf(original))
         return cat.startIdx + 1
       else
@@ -593,10 +594,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
     return this.items.indexOf(newItem)
   }
   clampCategory(original: Item, newItem: Item): number{
-    const originalCat = (this.categories.find(cat => cat.name == original.category)) as Category
+    const originalCat = this.getCategory(original.category)
     if(original.category == newItem.category)
       return originalCat.startIdx
-    const newCat = (this.categories.find(cat => cat.name == newItem.category)) as Category
+    const newCat = this.getCategory(newItem.category)
     if(this.items.indexOf(newItem) < this.items.indexOf(original))
       return newCat.startIdx
     else
