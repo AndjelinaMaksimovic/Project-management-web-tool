@@ -579,11 +579,21 @@ namespace Codedberries.Services
                 throw new ArgumentException("UserId must be greater than zero!");
             }
 
+            if (string.IsNullOrWhiteSpace(request.FirstName))
+            {
+                throw new ArgumentException("First name must not be empty!");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.LastName))
+            {
+                throw new ArgumentException("Last name must not be empty!");
+            }
+
             var userToChange = await _databaseContext.Users.FindAsync(request.UserId);
 
             if (userToChange == null)
             {
-                throw new ArgumentException($"User with ID {request.UserId} not found in databbase!");
+                throw new ArgumentException($"Provided user with ID {request.UserId} not found in database!");
             }
 
             userToChange.Firstname = request.FirstName;
