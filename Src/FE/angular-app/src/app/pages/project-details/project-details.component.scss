@@ -69,3 +69,22 @@
     cursor: pointer;
     color: #5096A4;
 }
+
+.icons {
+    display: none;
+    z-index: 1;
+}
+
+.hover:hover .icon {
+    display: block;
+}
+
+.hover {
+    display: flex;
+}
+
+.icon {
+    display: none;
+    margin-top: auto;
+    margin-bottom: auto;
+}

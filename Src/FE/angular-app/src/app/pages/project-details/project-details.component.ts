@@ -14,11 +14,12 @@ import { CreateStatusModalComponent } from '../../components/create-status-modal
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
 import { CategoryService } from '../../services/category.service';
 import { StatusService } from '../../services/status.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-project-details',
   standalone: true,
-  imports: [ NavbarComponent, ProjectItemComponent, NgIf, StatusItemComponent, ProgressbarComponent, ActivityItemComponent, DatePipe, NgFor ],
+  imports: [ NavbarComponent, ProjectItemComponent, NgIf, StatusItemComponent, ProgressbarComponent, ActivityItemComponent, DatePipe, NgFor, MatTooltipModule ],
   templateUrl: './project-details.component.html',
   styleUrl: './project-details.component.scss'
 })
@@ -81,5 +82,9 @@ export class ProjectDetailsComponent {
 
   createCategory() {
     this.dialog.open(CreateCategoryModalComponent);
+  }
+
+  deleteStatus(status: string) {
+    this.statusService.deleteStatus(status);
   }
 }

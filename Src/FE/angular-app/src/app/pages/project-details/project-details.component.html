@@ -42,8 +42,9 @@
                     <p class="title">Project statuses:</p>
                     <i class="fa-solid fa-plus add-icon" (click)="createStatus()"></i>
                 </div>
-                <div *ngFor="let status of statuses">
+                <div *ngFor="let status of statuses" class="hover">
                     <p>{{status.order}}. {{status.name}}</p>
+                    <i class="fa-solid fa-trash icon ml-10" (click)="deleteStatus(status.name)" matTooltip="Delete"></i>
                 </div>
             </div>
         </div>
