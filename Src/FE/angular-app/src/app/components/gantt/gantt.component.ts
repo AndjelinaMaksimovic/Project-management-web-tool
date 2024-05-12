@@ -490,66 +490,68 @@ export class GanttComponent implements OnInit, AfterViewInit{
     return false  // event.preventDefault()
   }
   moveItemInArrayAndUpdateIndex(original: Item, newItem: Item){
-    let newIndex = this.items.indexOf(newItem)
-    let originalIdx = this.items.indexOf(original)
+    const newIndex = this.items.indexOf(newItem)
+    const originalIndex = this.items.indexOf(original)
+    let idx = this.items[originalIndex].index
+    let last = idx
+    let direction = 1
+    
+    if(newIndex < idx)
+      direction = -1
 
-    if(newIndex > originalIdx){
-      for(let i = originalIdx+1; i <= newIndex; i++){
-        this.items[i].index = this.items[i-1].index
-        this.items[i-1] = this.items[i]
-      }
-      this.items[newIndex] = original
-      this.items[newIndex].index = newItem.index
-    } else{
-      for(let i = originalIdx-1; i >= newIndex; i--){
-        this.items[i].index = this.items[i+1].index
-        this.items[i+1] = this.items[i]
-      }
-      this.items[newIndex] = original
-      this.items[newIndex].index = newItem.index
+    // range(from: original, to: newIndex, step: direction)
+    for(let i = originalIndex+direction; i != newIndex+direction; i+=direction){
+      last = this.items[i].index
+      this.items[i].index = idx
+      idx = last
+      this.items[i-direction] = this.items[i]
     }
+    this.items[newIndex] = original
+    this.items[newIndex].index = last
   }
   moveItemInArrayAndUpdateCategoryIndex(original: Item, newItem: Item){
     if(original.type == ItemType.category){
+      const newIndex = this.categories.findIndex(cat => cat.name == newItem.category)
+      const originalIndex = this.categories.findIndex(cat => cat.name == original.category)
+      let idx = this.categories[originalIndex].idx
+      let last = idx
+      let direction = 1
+      
       const originalCat = this.getCategory(original.category)
       const newCat = this.getCategory(newItem.category)
 
-      const originalIdx = this.categories.findIndex(cat => cat.name == original.category)
-      const newItemIndex = this.categories.findIndex(cat => cat.name == newItem.category)
-
-      // if(newItemIndex > originalIdx){
-      //   for(let i = originalIdx+1; i <= newItemIndex; i++){
-      //     this.items[i].indexInCategory = this.items[i-1].indexInCategory
-      //     this.items[i-1] = this.items[i]
-      //   }
-      //   this.items[newItemIndex] = original
-      //   this.items[newItemIndex].indexInCategory = newItem.indexInCategory
-      // } else{
-      //   for(let i = originalIdx-1; i >= newItemIndex; i--){
-      //     this.items[i].indexInCategory = this.items[i+1].indexInCategory
-      //     this.items[i+1] = this.items[i]
-      //   }
-      //   this.items[newItemIndex] = original
-      //   this.items[newItemIndex].indexInCategory = newItem.indexInCategory
-      // }
-      if(newCat.startIdx > originalCat.startIdx){
-        // console.log("Original idx: " + originalCat.startIdx + "; Count: "+ originalCat.count)
-        // console.log("New idx: " + newCat.startIdx + "; Count: "+ newCat.count)
-        console.log(this.categories)
         
-        const currentCat = this.items.slice(originalCat.startIdx, originalCat.startIdx + originalCat.count+1)
-        const other = this.items.slice(originalCat.startIdx + originalCat.count+1, newCat.startIdx + newCat.count+1)
+      console.log("Before switch")
+      this.categories.forEach(cat => console.log(cat))
+
+      const currentCat = this.items.slice(originalCat.startIdx, originalCat.startIdx + originalCat.count+1)
+      if(newIndex < originalIndex){
+        direction = -1
+        const other = this.items.slice(newCat.startIdx, originalCat.startIdx)
+        this.items.splice(newCat.startIdx, originalCat.startIdx + originalCat.count+1, ...currentCat, ...other)
+      } else{
+        const other = this.items.slice(originalCat.startIdx + originalCat.count+1, newCat.startIdx + newCat.count+1)  
         this.items.splice(originalCat.startIdx, newCat.startIdx + newCat.count+1, ...other, ...currentCat)
-
-
-        for(let i = originalIdx+1; i <= newItemIndex; i++){
-          this.categories[i].idx = this.categories[i-1].idx
-          this.categories[i-1] = this.categories[i]
-        }
-        this.categories[newItemIndex] = originalCat
-        this.categories[newItemIndex].idx = newCat.idx
-        console.log(this.categories)
       }
+
+      // range(from: originalIndex, to: newIndex, step: direction)
+      let i = originalIndex+direction
+      for(; i != newIndex+direction; i+=direction){
+        last = this.categories[i].idx
+        this.categories[i].idx = idx
+        idx = last
+        this.categories[i].startIdx -= direction*(originalCat.count + 1)
+        this.categories[i-direction] = this.categories[i]
+      }
+      this.categories[newIndex] = originalCat
+      this.categories[newIndex].idx = last
+      if(direction == 1)
+        this.categories[newIndex].startIdx = this.categories[i-2*direction].startIdx + this.categories[i-2*direction].count + 1
+      else
+        this.categories[newIndex].startIdx = this.categories[i-2*direction].startIdx - this.categories[newIndex].count - 1
+
+      console.log("After switch")
+      this.categories.forEach(cat => console.log(cat))
     }
     else{
       let originalIdx = this.items.indexOf(original)
