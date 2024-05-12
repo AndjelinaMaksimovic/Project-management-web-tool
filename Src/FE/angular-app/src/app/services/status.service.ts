@@ -142,10 +142,11 @@ export class StatusService {
     }
     await this.fetchStatuses();
   }
-  public async renameStatus(statusId: number, name: string) {
+  public async renameStatus(status: string | number, name: string) {
+    const statusId = typeof status === "string" ? this.nameToId(status) : status;
     try {
       const res = await firstValueFrom(
-        this.http.post<any>(environment.apiUrl + `/Status/ChangeStatusName`, 
+        this.http.put<any>(environment.apiUrl + `/Status/ChangeStatusName`, 
         { id: statusId, name: name },
         this.httpOptions
         )
