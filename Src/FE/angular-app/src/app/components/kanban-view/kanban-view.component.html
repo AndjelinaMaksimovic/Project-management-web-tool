@@ -7,8 +7,18 @@
                 {{status}}
             </h3>
             <div>
-                <button (click)="deleteStatus(status)" mat-icon-button
-                    class="small-icon-button"><mat-icon>delete_outlined</mat-icon></button>
+                <button mat-icon-button [matMenuTriggerFor]="menu"
+                    class="small-icon-button"><mat-icon>more_vert</mat-icon></button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="deleteStatus(status)">
+                        <mat-icon>delete_outlined</mat-icon>
+                        <span>Delete</span>
+                    </button>
+                    <button mat-menu-item (click)="renameStatus(status)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Edit</span>
+                    </button>
+                </mat-menu>
             </div>
         </div>
         <div [id]="status" [cdkDropListConnectedTo]="statuses" cdkDropList cdkDropListOrientation="vertical"
