@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
@@ -9,8 +9,8 @@ import { EmailFieldComponent } from '../../components/email-field/email-field.co
 import { SelectComponent } from '../../components/select/select.component';
 import { RolesService } from '../../services/roles.service';
 import { Task, TaskService } from '../../services/task.service';
-import { MatDialogRef } from '@angular/material/dialog';
-import { StatusService } from '../../services/status.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Status, StatusService } from '../../services/status.service';
 
 @Component({
   selector: 'app-status-rename-modal',
@@ -34,7 +34,8 @@ export class StatusRenameModalComponent {
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
-    public dialogRef: MatDialogRef<StatusRenameModalComponent>
+    public dialogRef: MatDialogRef<StatusRenameModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public status: Status,
   ) {}
 
   async createTask() {
@@ -44,7 +45,7 @@ export class StatusRenameModalComponent {
       this.errorMessage = 'Please provide all required fields';
       return;
     }
-    await this.statusService.createStatus(this.name);
+    await this.statusService.renameStatus(this.status.id, this.name);
     this.dialogRef.close();
   }
 }
