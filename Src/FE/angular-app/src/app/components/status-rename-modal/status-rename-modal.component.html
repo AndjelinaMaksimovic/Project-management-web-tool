@@ -4,7 +4,7 @@
         <mat-icon>close</mat-icon>
     </button>
     <div class="centered-content">
-        <div class="stack-container" style="width: 300px;">
+        <div class="stack-container" style="width: 300px;" (keyup.enter)="renameTask()">
             <h3 style="font-weight: normal; text-align: center;">Rename status</h3>
             <app-clearable-input data={{data}} type="text" label="Status Name" (valueChange)="name=$event"></app-clearable-input>
             <button style="width: 80%; margin: auto" (click)="renameTask()" class="button-rounded" color="primary"
