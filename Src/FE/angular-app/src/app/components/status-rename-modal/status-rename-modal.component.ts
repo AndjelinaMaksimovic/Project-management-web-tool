@@ -29,23 +29,23 @@ import { Status, StatusService } from '../../services/status.service';
 })
 export class StatusRenameModalComponent {
   errorMessage: string | null = null;
-  name: string | null = null;
+  name: string | null = this.data;
 
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
     public dialogRef: MatDialogRef<StatusRenameModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public status: Status,
+    @Inject(MAT_DIALOG_DATA) public data: string,
   ) {}
 
-  async createTask() {
+  async renameTask() {
     if (
       !this.name
     ) {
       this.errorMessage = 'Please provide all required fields';
       return;
     }
-    await this.statusService.renameStatus(this.status.id, this.name);
+    await this.statusService.renameStatus(this.data, this.name);
     this.dialogRef.close();
   }
 }
