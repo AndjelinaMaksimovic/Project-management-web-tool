@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 using Codedberries.Helpers;
 using Codedberries.Services;
+using Microsoft.Extensions.FileProviders;
 
 
 namespace Codedberries
@@ -64,6 +65,13 @@ namespace Codedberries
             app.MapControllers();
 
             app.UseCors("AllowAnyOrigin");
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages")),
+                RequestPath = "/ProfileImages"
+            });
 
             //app.UseMvc();
 
