@@ -20,7 +20,7 @@ export class ClearableInputComponent {
   get data(){
     return this._data;
   }
-  set data(value: string){
+  @Input() set data(value: string){
     this._data = value;
     this.valueChange.emit(this.data);
   }
