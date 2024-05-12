@@ -7,7 +7,7 @@
                 {{status}}
             </h3>
             <div>
-                <button mat-icon-button [matMenuTriggerFor]="menu"
+                <button *ngIf="status != 'Done'" mat-icon-button [matMenuTriggerFor]="menu"
                     class="small-icon-button"><mat-icon>more_vert</mat-icon></button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="deleteStatus(status)">
