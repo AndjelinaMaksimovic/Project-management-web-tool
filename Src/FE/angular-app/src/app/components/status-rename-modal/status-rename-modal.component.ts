@@ -46,6 +46,7 @@ export class StatusRenameModalComponent {
       return;
     }
     await this.statusService.renameStatus(this.data, this.name);
+    await this.taskService.fetchTasks();
     this.dialogRef.close();
   }
 }
