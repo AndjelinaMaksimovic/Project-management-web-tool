@@ -1031,12 +1031,12 @@ namespace Codedberries.Services
             }
 
             var starredRows = await _databaseContext.Starred
-                .Where(sp => sp.UserId == request.UserId)
+                .Where(sp => sp.UserId == user.Id)
                 .ToListAsync();
 
             if (starredRows == null || !starredRows.Any())
             {
-                throw new ArgumentException($"No starred projects found for user with ID {request.UserId}!");
+                throw new ArgumentException($"No starred projects found for user with ID {user.Id}!");
             }
 
             var starredProjects = new List<ProjectInformationDTO>();
@@ -1085,7 +1085,7 @@ namespace Codedberries.Services
 
             if (starredProjects.Count == 0)
             {
-                throw new ArgumentException($"No starred projects found for the specified user ID {request.UserId}!");
+                throw new ArgumentException($"No starred projects found for the specified user ID {user.Id}!");
             }
 
             return starredProjects;
