@@ -98,6 +98,11 @@
         <div [style.width]="dates.length*columnWidth+'px'">
 
             <div class="header">
+                @for (dateContext of dateContexts; track dateContext;){
+                    <span class="text-align-center" style="height: 100%; float: left;"
+                        [style.width]="columnWidth*dateContext.len+'px'"
+                    >{{dateContext.value}}</span>
+                }
                 @for (date of dates; track date; let idx = $index) {
                     <div class="date-line"
                         [ngClass]="{'date-line-active': idx == currentDateIndex}"

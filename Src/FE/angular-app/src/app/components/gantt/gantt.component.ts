@@ -43,6 +43,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() holidays: Date[] = []
 
   // list of dates in the header
+  dateContexts: {value: string, len: number}[] = []
   dates: string[] = []
   // marks the current date in the header
   currentDateIndex!: number
@@ -717,7 +718,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   updateTaskDates(item: Item){
     this.taskService.updateTask({id: item.id, startDate: new Date(item.startDate), dueDate: new Date(item.dueDate)})
   }
-  updateTaskIndex(item: Item){
+  updateTaskIndexes(item: Item){
     this.taskService.updateTask({id: item.id, index: item.index})
   }
   updateTaskDependency(item: Item){
