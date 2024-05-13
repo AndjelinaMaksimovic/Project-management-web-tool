@@ -1030,13 +1030,6 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to view Project!");
             }
 
-            var targetUser = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == request.UserId);
-
-            if (targetUser == null)
-            {
-                throw new ArgumentException($"Provided User with ID {request.UserId} does not exist in the database!");
-            }
-
             var starredRows = await _databaseContext.Starred
                 .Where(sp => sp.UserId == request.UserId)
                 .ToListAsync();
