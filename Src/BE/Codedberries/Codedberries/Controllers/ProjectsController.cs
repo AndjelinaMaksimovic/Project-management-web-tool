@@ -222,7 +222,7 @@ namespace Codedberries.Controllers
 
         // get starred projects by current session user
         [HttpGet("getStarredProjects")]
-        public async Task<IActionResult> GetStarredProjectsByUserId([FromQuery] UserIdDTO body)
+        public async Task<IActionResult> GetStarredProjects()
         {
             try
             {
