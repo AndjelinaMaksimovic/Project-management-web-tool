@@ -949,6 +949,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            var targetProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (targetProject == null)
+            {
+                throw new ArgumentException($"Provided project with ID {request.ProjectId} does not exist in database!");
+            }
+
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
                 .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
