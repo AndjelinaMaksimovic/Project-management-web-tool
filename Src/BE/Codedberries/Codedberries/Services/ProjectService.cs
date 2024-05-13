@@ -928,7 +928,7 @@ namespace Codedberries.Services
             return progressPercentage;
         }
 
-        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext)
+        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext, ProjectIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -973,7 +973,7 @@ namespace Codedberries.Services
             // ---------------- //
 
             var existingStarredProject = await _databaseContext.Starred
-                    .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == request.UserId);
+                    .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == userId);
 
             // it was already starred
             if (existingStarredProject != null)
@@ -982,7 +982,7 @@ namespace Codedberries.Services
             }
             else // new one is starred
             {
-                var starredProject = new Starred(request.ProjectId, request.UserId);
+                var starredProject = new Starred(request.ProjectId, user.Id);
 
                 _databaseContext.Starred.Add(starredProject);
             }
