@@ -928,7 +928,7 @@ namespace Codedberries.Services
             return progressPercentage;
         }
 
-        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext, StarredProjectDTO request)
+        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -947,30 +947,6 @@ namespace Codedberries.Services
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
-            }
-
-            if (request.ProjectId <= 0)
-            {
-                throw new ArgumentException("ProjectId must be greater than 0!");
-            }
-
-            if (request.UserId <= 0)
-            {
-                throw new ArgumentException("UserId must be greater than zero!");
-            }
-
-            var targetUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
-
-            if (targetUser == null)
-            {
-                throw new ArgumentException($"Provided user with ID {request.UserId} does not exist in database!");
-            }
-
-            var targetProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
-
-            if (targetProject == null)
-            {
-                throw new ArgumentException($"Provided project with ID {request.ProjectId} does not exist in database!");
             }
 
             // UserProjects --- //
