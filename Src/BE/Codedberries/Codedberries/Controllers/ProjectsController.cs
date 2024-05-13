@@ -198,7 +198,7 @@ namespace Codedberries.Controllers
 
         // starred/unstarred
         [HttpPost("toggleStarredProject")]
-        public async Task<IActionResult> ToggleStarredProject([FromBody] StarredProjectDTO request)
+        public async Task<IActionResult> ToggleStarredProject([FromBody] ProjectIdDTO request)
         {
             try
             {
