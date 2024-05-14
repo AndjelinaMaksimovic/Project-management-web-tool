@@ -43,7 +43,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() holidays: Date[] = []
 
   // list of dates in the header
-  dateContexts: {value: string, len: number}[] = []
+  secondaryDates: {value: string, len: number}[] = []
   dates: string[] = []
   // marks the current date in the header
   currentDateIndex!: number
@@ -53,6 +53,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   // allCategories: {name: string, idx: number}[] = []
 
   columnWidth = 60
+  minColumnWidth = 60
   taskHeight = 20
   barHeight = 16
 
@@ -157,6 +158,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   initTimeHeader(){
+    // moment
     const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
     const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
     this.chartStartDate = min - min % this.timeScale /* for display ->*/ - this.timeScale * 1
@@ -430,7 +432,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
           newIdx = this.clampCategory(this.originalItem, this.lastHovered)
         }
       }
-      this.verticalDragLinePos = (newIdx + ((newIdx > idx) ? 1 : 0)) * this.taskHeight
+      this.verticalDragLinePos = (newIdx + ((newIdx > idx) ? 1 : 0)) * this.taskHeight + 20 // 20 = header height in css - this.taskHeight
     }
     return false
   }
@@ -583,6 +585,24 @@ export class GanttComponent implements OnInit, AfterViewInit{
     if(this.originalItem)
       this.originalItem.hover = false
     return false  // event.preventDefault()
+  }
+
+  @HostListener('wheel', ['$event'])
+  onScroll(event: WheelEvent){
+    let incAmount = 5
+
+    if(!event.ctrlKey)
+      return
+    if(event.deltaY < 0){      
+      if(this.columnWidth - incAmount < this.minColumnWidth)
+        return false
+      incAmount = -incAmount
+    }
+
+    this.columnWidth += incAmount
+    this.initItemDisplay()
+    // event.stopPropagation()
+    return false
   }
 
   clampToCategory(original: Item, newItem: Item): number{
