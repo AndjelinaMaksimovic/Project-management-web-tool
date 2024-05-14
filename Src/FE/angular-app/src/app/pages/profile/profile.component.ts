@@ -23,7 +23,7 @@ export class ProfileComponent {
   user: any;
   
   getProfileImagePath(){
-    return environment.apiUrl + '/User/users/avatars/' + this.userId
+    return environment.apiUrl + '/User/users/avatars/' + this.userId + `?timestamp=${Date.now()}`
   }
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
