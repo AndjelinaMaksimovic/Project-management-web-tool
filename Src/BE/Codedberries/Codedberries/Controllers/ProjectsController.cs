@@ -198,7 +198,7 @@ namespace Codedberries.Controllers
 
         // starred/unstarred
         [HttpPost("toggleStarredProject")]
-        public async Task<IActionResult> ToggleStarredProject([FromBody] StarredProjectDTO request)
+        public async Task<IActionResult> ToggleStarredProject([FromBody] ProjectIdDTO request)
         {
             try
             {
@@ -220,13 +220,13 @@ namespace Codedberries.Controllers
             }
         }
 
-        // get starred projects by user
+        // get starred projects by current session user
         [HttpGet("getStarredProjects")]
-        public async Task<IActionResult> GetStarredProjectsByUserId([FromQuery] UserIdDTO body)
+        public async Task<IActionResult> GetStarredProjects()
         {
             try
             {
-                var starredProjects = await _projectService.GetStarredProjectsByUserId(HttpContext, body);
+                var starredProjects = await _projectService.GetStarredProjectsByUserId(HttpContext);
 
                 return Ok(starredProjects);
             }
