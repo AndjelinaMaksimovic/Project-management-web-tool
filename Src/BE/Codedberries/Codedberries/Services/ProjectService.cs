@@ -140,7 +140,11 @@ namespace Codedberries.Services
                     }
                 }
 
-                
+                if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+                {
+                    throw new UnauthorizedAccessException("User does not have permission to create status, user can't create new project!");
+                }
+
 
                 await transaction.CommitAsync();
             }
