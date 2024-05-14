@@ -15,7 +15,7 @@ namespace Codedberries.Services
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, StatusService statusService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
