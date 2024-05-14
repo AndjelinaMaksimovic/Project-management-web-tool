@@ -3,6 +3,8 @@
         <p class="title">{{title}}</p>
         <p class="title c-pointer" (click)="save()">Save</p>
     </div>
+    <p *ngIf="currentFilters.size == 0" class="nofilter">No filters applied</p>
+
     <div class="flex item-container">
         <div class="flex item" *ngFor="let filter of currentFilters | keyvalue">
             <div class="flex flex-value">
@@ -16,7 +18,6 @@
                 </mat-option>
             </mat-select>
             <i class="fa-solid fa-x m-auto lightgray c-pointer" (click)="removeFilter(filter.key)"></i>
-
             <mat-menu #selectMenu>
                 <input type="text" class="input ml-20 mr-20" (click)="$event.stopPropagation()">
                 <ng-container *ngFor="let filter of allFilters | keyvalue;">
@@ -32,6 +33,10 @@
         <i class="fa-solid fa-plus fa-xs"></i>
         Add filter
         <i class="fa-solid fa-chevron-down fa-xs"></i>
+    </button>
+    <button class="button lightgray mt-20" (click)="clearAllFilters()">
+        <i class="fa-regular fa-trash-can fa-xs"></i>
+        Clear all filters
     </button>
     <mat-menu #menu="matMenu">
         <ng-container *ngFor="let filter of allFilters | keyvalue;">

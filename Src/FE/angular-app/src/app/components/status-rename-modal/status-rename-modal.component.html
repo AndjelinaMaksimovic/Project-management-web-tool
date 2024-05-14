@@ -1,0 +1,17 @@
+<div style="padding: 40px;">
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close
+        style="position: absolute; right: 5px; top: 5px;">
+        <mat-icon>close</mat-icon>
+    </button>
+    <div class="centered-content">
+        <div class="stack-container" style="width: 300px;" (keyup.enter)="renameTask()">
+            <h3 style="font-weight: normal; text-align: center;">Rename status '{{data}}'</h3>
+            <app-clearable-input data={{data}} type="text" label="New status Name" (valueChange)="name=$event"></app-clearable-input>
+            <button style="width: 80%; margin: auto" (click)="renameTask()" class="button-rounded" color="primary"
+                mat-flat-button>Save</button>
+            <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+            </div>
+        </div>
+    </div>
+</div>

@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-type Status = {
+export type Status = {
   name: string;
   id: number;
   projectId: number;
@@ -134,6 +134,20 @@ export class StatusService {
       const res = await firstValueFrom(
         this.http.post<any>(environment.apiUrl + `/Status/createStatus`, 
         { name, projectId: this.context.projectId },
+        this.httpOptions
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchStatuses();
+  }
+  public async renameStatus(status: string | number, name: string) {
+    const statusId = typeof status === "string" ? this.nameToId(status) : status;
+    try {
+      const res = await firstValueFrom(
+        this.http.put<any>(environment.apiUrl + `/Status/ChangeStatusName`, 
+        { id: statusId, name: name },
         this.httpOptions
         )
       );

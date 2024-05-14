@@ -37,6 +37,7 @@ export class FiltersComponent {
   @Input() filtersName: string = "";
   @Input() title: string = "";
   @Output() fetchProjects: EventEmitter<any> = new EventEmitter();
+  @Output() filterOpenEvent = new EventEmitter<boolean>();
 
   currentFilters: Map<string, boolean> = new Map();
 
@@ -76,6 +77,14 @@ export class FiltersComponent {
     }
   }
 
+  clearAllFilters() {
+    this.currentFilters.clear();
+    this.allFilters.forEach((filter, key) => {
+      filter.enabled = true;
+      filter.value = "";
+    });
+  }
+
   save() {
     let newFilters: Map<string, string> = new Map<string, string>();
     for(let [key, value] of this.currentFilters) {
@@ -85,5 +94,11 @@ export class FiltersComponent {
     this.localStorageService.saveData(this.filtersName, obj);
 
     this.fetchProjects.emit();
+
+    this.closeFilter();
+  }
+
+  closeFilter() {
+    this.filterOpenEvent.emit(false);
   }
 }

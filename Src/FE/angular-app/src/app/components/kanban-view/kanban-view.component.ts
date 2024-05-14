@@ -10,6 +10,8 @@ import { Task, TaskService } from '../../services/task.service';
 import { CommonModule } from '@angular/common';
 import { StatusService } from '../../services/status.service';
 import { MaterialModule } from '../../material/material.module';
+import { StatusRenameModalComponent } from '../status-rename-modal/status-rename-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-kanban-view',
@@ -19,7 +21,7 @@ import { MaterialModule } from '../../material/material.module';
   styleUrl: './kanban-view.component.css',
 })
 export class KanbanViewComponent {
-  constructor(private taskService: TaskService, private statusService: StatusService){}
+  constructor(private taskService: TaskService, private statusService: StatusService, private dialog: MatDialog){}
   mobile: boolean = false;
   ngOnInit() {}
   @HostListener('window:resize', ['$event'])
@@ -61,6 +63,13 @@ export class KanbanViewComponent {
 
   async deleteStatus(status: string){
     this.statusService.deleteStatus(status);
+  }
+
+  async renameStatus(status: string){
+    this.dialog.open(StatusRenameModalComponent, {
+      autoFocus: false,
+      data: status,
+    });
   }
 
   async reorderStatus(event: CdkDragDrop<string[]>){
