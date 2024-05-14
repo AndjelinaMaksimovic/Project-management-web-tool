@@ -21,8 +21,10 @@ import { EditableNameComponent } from './editable-name/editable-name.component';
 export class ProfileComponent {
   userId: number = 0;
   user: any;
-
   
+  getProfileImagePath(){
+    return environment.apiUrl + '/User/users/avatars/' + this.userId
+  }
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     withCredentials: true,
