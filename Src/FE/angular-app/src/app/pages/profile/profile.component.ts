@@ -22,8 +22,9 @@ export class ProfileComponent {
   userId: number = 0;
   user: any;
   
+  timestamp: number | undefined;
   getProfileImagePath(){
-    return environment.apiUrl + '/User/users/avatars/' + this.userId + `?timestamp=${Date.now()}`
+    return `${environment.apiUrl}/User/users/avatars/${this.userId}?timestamp=${this.timestamp}`
   }
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -61,7 +62,12 @@ export class ProfileComponent {
       imageBytes: base64String,
       imageName: imageName
     };
-    await this.sendDataToServer(data);
+    try{
+      await this.sendDataToServer(data);
+    } catch(e: unknown){
+      console.log(e);
+    }
+    this.timestamp = Date.now();
   }
 
   onFileSelected(event: any) {
