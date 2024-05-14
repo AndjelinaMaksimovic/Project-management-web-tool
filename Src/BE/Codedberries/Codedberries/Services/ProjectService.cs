@@ -14,14 +14,12 @@ namespace Codedberries.Services
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
-        private readonly StatusService _statusService;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, StatusService statusService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _taskService = taskService;
-            _statusService = statusService;
         }
 
         public async System.Threading.Tasks.Task CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
@@ -140,10 +138,28 @@ namespace Codedberries.Services
                     }
                 }
 
-                // the one creating it needs to be on that project also so he could create default statuses
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
+                if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+                {
+                    throw new UnauthorizedAccessException("User does not have permission to create status, user can't create new project!");
+                }
+
+                // default statuses
+                var projectStatuses = new List<string> { "New", "In Progress", "Done" };
+
+                foreach (var statusName in projectStatuses)
+                {
+                    var existingStatuses = _databaseContext.Statuses
+                        .Where(s => s.ProjectId == project.Id)
+                        .OrderBy(s => s.Order)
+                        .ToList();
+
+                    int newStatusOrder = existingStatuses.Any() ? existingStatuses.Last().Order + 1 : 1;
+                    var newStatus = new Models.Status(statusName, project.Id, newStatusOrder);
+
+                    _databaseContext.Statuses.Add(newStatus);
+
+                    await _databaseContext.SaveChangesAsync();
+                }
 
                 await transaction.CommitAsync();
             }
@@ -928,7 +944,7 @@ namespace Codedberries.Services
             return progressPercentage;
         }
 
-        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext, StarredProjectDTO request)
+        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext, ProjectIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -952,18 +968,6 @@ namespace Codedberries.Services
             if (request.ProjectId <= 0)
             {
                 throw new ArgumentException("ProjectId must be greater than 0!");
-            }
-
-            if (request.UserId <= 0)
-            {
-                throw new ArgumentException("UserId must be greater than zero!");
-            }
-
-            var targetUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
-
-            if (targetUser == null)
-            {
-                throw new ArgumentException($"Provided user with ID {request.UserId} does not exist in database!");
             }
 
             var targetProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
@@ -997,7 +1001,7 @@ namespace Codedberries.Services
             // ---------------- //
 
             var existingStarredProject = await _databaseContext.Starred
-                    .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == request.UserId);
+                    .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == userId);
 
             // it was already starred
             if (existingStarredProject != null)
@@ -1006,7 +1010,7 @@ namespace Codedberries.Services
             }
             else // new one is starred
             {
-                var starredProject = new Starred(request.ProjectId, request.UserId);
+                var starredProject = new Starred(request.ProjectId, user.Id);
 
                 _databaseContext.Starred.Add(starredProject);
             }
@@ -1014,7 +1018,7 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task<List<ProjectInformationDTO>> GetStarredProjectsByUserId(HttpContext httpContext, UserIdDTO request)
+        public async Task<List<ProjectInformationDTO>> GetStarredProjectsByUserId(HttpContext httpContext)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -1042,25 +1046,13 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to view Project!");
             }
 
-            if (request.UserId <= 0)
-            {
-                throw new ArgumentException("UserId must be greater than zero!");
-            }
-
-            var targetUser = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == request.UserId);
-
-            if (targetUser == null)
-            {
-                throw new ArgumentException($"Provided User with ID {request.UserId} does not exist in the database!");
-            }
-
             var starredRows = await _databaseContext.Starred
-                .Where(sp => sp.UserId == request.UserId)
+                .Where(sp => sp.UserId == user.Id)
                 .ToListAsync();
 
             if (starredRows == null || !starredRows.Any())
             {
-                throw new ArgumentException($"No starred projects found for user with ID {request.UserId}!");
+                throw new ArgumentException($"No starred projects found for user with ID {user.Id}!");
             }
 
             var starredProjects = new List<ProjectInformationDTO>();
@@ -1109,7 +1101,7 @@ namespace Codedberries.Services
 
             if (starredProjects.Count == 0)
             {
-                throw new ArgumentException($"No starred projects found for the specified user ID {request.UserId}!");
+                throw new ArgumentException($"No starred projects found for the specified user ID {user.Id}!");
             }
 
             return starredProjects;
