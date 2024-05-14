@@ -145,6 +145,23 @@ namespace Codedberries.Services
                     throw new UnauthorizedAccessException("User does not have permission to create status, user can't create new project!");
                 }
 
+                // default statuses
+                var projectStatuses = new List<string> { "New", "In Progress", "Done" };
+
+                foreach (var statusName in projectStatuses)
+                {
+                    var existingStatuses = _databaseContext.Statuses
+                        .Where(s => s.ProjectId == project.Id)
+                        .OrderBy(s => s.Order)
+                        .ToList();
+
+                    int newStatusOrder = existingStatuses.Any() ? existingStatuses.Last().Order + 1 : 1;
+                    var newStatus = new Models.Status(statusName, project.Id, newStatusOrder);
+
+                    _databaseContext.Statuses.Add(newStatus);
+
+                    await _databaseContext.SaveChangesAsync();
+                }
 
                 await transaction.CommitAsync();
             }
