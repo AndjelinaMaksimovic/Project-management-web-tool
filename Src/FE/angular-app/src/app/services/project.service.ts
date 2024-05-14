@@ -110,21 +110,21 @@ export class ProjectService {
   }
 
   public async fetchStarredProjects(id : number) {
-    // let params = new HttpParams({ fromObject: { UserId: [ id ]} });
-    // try {
-    //   const res = await firstValueFrom(
-    //     this.http.get<any>(
-    //       environment.apiUrl + '/Projects/getStarredProjects',
-    //       { ...environment.httpOptions, params: params }
-    //     )
-    //   );
-    //   this.projects = res.body.map((project: any) => {
-    //     return mapProject(project);
-    //   });
-    // } catch (e) {
-    //   console.log(e);
-    // }
-    // return false;
+    let params = new HttpParams({ fromObject: { UserId: id } });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Projects/getStarredProjects',
+          { ...environment.httpOptions, params: params }
+        )
+      );
+      this.projects = res.body.map((project: any) => {
+        return mapProject(project);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
   }
 
   public async fetchProjectsLocalStorage(filterName : string) {
@@ -253,7 +253,8 @@ export class ProjectService {
           environment.apiUrl +
             `/Projects/toggleStarredProject`,
             {
-              projectId: id
+              projectId: id,
+              userId: 1
             },
             {
               ...environment.httpOptions,
