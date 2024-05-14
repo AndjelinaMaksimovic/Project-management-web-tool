@@ -25,6 +25,13 @@
     background-color: #5096A4;
     top: 0;
 }
+.date-line-chart{
+    position: absolute;
+    height: calc(100% - 20px);
+    top: 20px;
+    width: 1px;
+    background-color: #5096A4;
+}
 .date-line-active{
     background-color: #FF5733;
 }

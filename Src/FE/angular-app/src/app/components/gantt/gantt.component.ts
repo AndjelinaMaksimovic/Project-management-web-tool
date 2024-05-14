@@ -11,6 +11,7 @@ import { Route, Router, RouterModule } from '@angular/router';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatIconModule } from '@angular/material/icon';
 import { CategoryService } from '../../services/category.service';
+import moment, { unitOfTime } from 'moment';
 
 @Component({
   selector: 'app-gantt',
@@ -52,8 +53,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
   snapDate!: boolean
   // allCategories: {name: string, idx: number}[] = []
 
-  columnWidth = 60
-  minColumnWidth = 60
+  columnWidth = 25
+  minColumnWidth = 20
   taskHeight = 20
   barHeight = 16
 
@@ -158,34 +159,53 @@ export class GanttComponent implements OnInit, AfterViewInit{
   }
 
   initTimeHeader(){
-    // moment
-    const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
-    const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
-    this.chartStartDate = min - min % this.timeScale /* for display ->*/ - this.timeScale * 1
-    const datesNumber = helpers.range(this.chartStartDate, max /* for display ->*/ + this.timeScale * 20, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
-    // this.dates = helpers.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
-      .filter((v, i) => {
-        return helpers.includeDay(v, this.hideWeekend, this.holidays) // remove weekend and holiday
-      })
-    this.currentDateIndex = datesNumber.indexOf(Date.now() - Date.now() % this.timeScale)
-    this.dates = datesNumber.map((v) => {
-        var format: string
-        switch (this.timeScale) {
-          // case TimeScale.week:
-          //   format = "d. E"
-          //   break;
-          // case TimeScale.day:
-          //   format = "d. E"
-          //   break;
-          // case TimeScale.hour:
-          //   format = "d. HH:00"
-          //   break;
-          default:
-            format = "d. E"
-            break;
-        }
-        return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset in TimeScale.hour?
-      })
+    // const max = this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate
+    // const min = this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate
+    // this.chartStartDate = min - min % this.timeScale /* for display ->*/ - this.timeScale * 1
+    // const datesNumber = helpers.range(this.chartStartDate, max /* for display ->*/ + this.timeScale * 20, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
+    // // this.dates = helpers.range(this.chartStartDate, max, this.timeScale) // example: max is friday 5 pm, adds friday 00:00 so no need to round up
+    //   .filter((v, i) => {
+    //     return helpers.includeDay(v, this.hideWeekend, this.holidays) // remove weekend and holiday
+    //   })
+    // this.currentDateIndex = datesNumber.indexOf(Date.now() - Date.now() % this.timeScale)
+    // this.dates = datesNumber.map((v) => {
+    //     var format: string
+    //     switch (this.timeScale) {
+    //       // case TimeScale.week:
+    //       //   format = "d. E"
+    //       //   break;
+    //       // case TimeScale.day:
+    //       //   format = "d. E"
+    //       //   break;
+    //       // case TimeScale.hour:
+    //       //   format = "d. HH:00"
+    //       //   break;
+    //       default:
+    //         format = "d. E"
+    //         break;
+    //     }
+    //     return formatDate(v, format, "en-US") // day starts at UTC but displays in local timezone, could cause weird offset in TimeScale.hour?
+    //   })
+    this.dates = []
+    this.secondaryDates = []
+    const max = moment(this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate).add(40, 'days')
+    const min = moment(this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate).subtract(1, 'day')
+    const timeScale: unitOfTime.Base = 'day'
+    const secondaryTimeScale: unitOfTime.Base = 'week'
+    let duration = moment.duration(1, timeScale)
+    let startDate = min.startOf(timeScale)
+    this.chartStartDate = startDate.valueOf()
+    while(startDate.isBefore(max)){
+      startDate.add(duration)
+      if(helpers.includeDay(startDate.valueOf(), this.hideWeekend, this.holidays))
+        this.dates.push(startDate.format('DD'))
+    }
+    startDate = moment(this.chartStartDate.valueOf())
+    duration = moment.duration(1, secondaryTimeScale)
+    while(startDate.isBefore(max)){
+      startDate.add(duration)
+      this.secondaryDates.push({len: 7, value: startDate.format('Wo') + ' week of ' + startDate.year()})
+    }
   }
 
   insertCategories(){
@@ -523,10 +543,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
       const originalCat = this.getCategory(original.category)
       const newCat = this.getCategory(newItem.category)
 
-        
-      console.log("Before switch")
-      this.categories.forEach(cat => console.log(cat))
-
       const currentCat = this.items.slice(originalCat.startIdx, originalCat.startIdx + originalCat.count+1)
       if(newIndex < originalIndex){
         direction = -1
@@ -552,9 +568,6 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.categories[newIndex].startIdx = this.categories[i-2*direction].startIdx + this.categories[i-2*direction].count + 1
       else
         this.categories[newIndex].startIdx = this.categories[i-2*direction].startIdx - this.categories[newIndex].count - 1
-
-      console.log("After switch")
-      this.categories.forEach(cat => console.log(cat))
     }
     else{
       let originalIdx = this.items.indexOf(original)
@@ -589,7 +602,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   @HostListener('wheel', ['$event'])
   onScroll(event: WheelEvent){
-    let incAmount = 5
+    let incAmount = Math.floor(this.columnWidth / 10)
 
     if(!event.ctrlKey)
       return
