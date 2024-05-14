@@ -140,10 +140,7 @@ namespace Codedberries.Services
                     }
                 }
 
-                // the one creating it needs to be on that project also so he could create default statuses
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
+                
 
                 await transaction.CommitAsync();
             }
