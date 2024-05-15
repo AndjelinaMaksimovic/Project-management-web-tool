@@ -55,7 +55,7 @@ export class HomeComponent {
 
   async ngOnInit(){
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
-    await this.projectService.fetchStarredProjects();
+    // await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
 
     if(this.starredProjects.length == 0) {

@@ -22,7 +22,7 @@ function mapProject(apiProject: any): Project {
     dueDate: new Date(Date.parse(apiProject.dueDate)),
     startDate: new Date(Date.parse(apiProject.startDate)),
     archived: apiProject.archived,
-    starred: apiProject.starred,
+    starred: apiProject.isStarred,
   };
 }
 
@@ -32,7 +32,6 @@ function mapProject(apiProject: any): Project {
 export class ProjectService {
   /** in-memory project cache */
   private projects: Project[] = [];
-  private starredProjects: Project[] = [];
   private projectsProgress: Map<number, number> = new Map<number, number>();
 
   constructor(private http: HttpClient, private localStorageService : LocalStorageService) {}
@@ -46,7 +45,7 @@ export class ProjectService {
   }
 
   public getStarredProjects() {
-    return this.starredProjects;
+    return this.projects.filter(project => project.starred);
   }
 
   public getProjectWithID(projectId: number) {
@@ -104,25 +103,6 @@ export class ProjectService {
         return mapProject(project);
       });
     } catch (e) {
-      console.log(e);
-    }
-    return false;
-  }
-
-  public async fetchStarredProjects() {
-    try {
-      const res = await firstValueFrom(
-        this.http.get<any>(
-          environment.apiUrl + '/Projects/getStarredProjects',
-          environment.httpOptions
-        )
-      );
-      this.starredProjects = res.body.map((project: any) => {
-        project.starred = true;
-        return mapProject(project);
-      });
-    } catch (e) {
-      this.starredProjects = [];
       console.log(e);
     }
     return false;
@@ -262,8 +242,7 @@ export class ProjectService {
             }
         )
       );
-      if (!res.ok) return false;
-      await this.fetchStarredProjects();
+      await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);
