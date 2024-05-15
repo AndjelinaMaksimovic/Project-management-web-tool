@@ -25,7 +25,7 @@ export class ProfileComponent {
   
   timestamp: number | undefined;
   getProfileImagePath(){
-    return `${environment.apiUrl}/User/users/avatars/${this.userId}?timestamp=${this.timestamp}`
+    return `${environment.apiUrl}/User/users/avatars/${this.user.id}?timestamp=${this.timestamp}`
   }
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -57,7 +57,7 @@ export class ProfileComponent {
     ));
   }
   async uploadImage(base64String: string, imageName: string) {
-    const userId = "1"; // Replace with actual user ID
+    const userId = this.user.id; // Replace with actual user ID
     const data = {
       userId: userId,
       imageBytes: base64String,
