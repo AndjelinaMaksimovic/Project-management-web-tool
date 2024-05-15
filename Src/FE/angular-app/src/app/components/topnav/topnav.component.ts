@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
-
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-topnav',
   standalone: true,
@@ -16,7 +16,13 @@ import { Router, RouterLink } from '@angular/router';
 
 export class TopnavComponent {
   constructor(private authService: AuthService, private router: Router){ }
-
+  loggedInUserId: number | undefined; 
+  async ngOnInit(){
+    this.loggedInUserId = await this.authService.getMyId();
+  }
+  getProfileImagePath(){
+    return `${environment.apiUrl}/User/users/avatars/${this.loggedInUserId}`
+  }
   async logOut(){
     await this.authService.logout()
   }
