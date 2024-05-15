@@ -60,9 +60,9 @@ export class NewTaskComponent {
   users: { value: string; viewValue: string }[] = [];
 
   priorities = [
-    { value: '1', viewValue: 'Low' },
-    { value: '2', viewValue: 'Medium' },
     { value: '3', viewValue: 'High' },
+    { value: '2', viewValue: 'Medium' },
+    { value: '1', viewValue: 'Low' },
   ];
   // hack fix
   // we change _categories when `categoryService.getCategories().length` does not match the `_categories.length`

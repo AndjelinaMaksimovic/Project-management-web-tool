@@ -43,6 +43,7 @@ export class MyTasksComponent {
   isFilterOpen: boolean = false;
 
   projectId: number = 0;
+  isLoading: boolean = true;
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
@@ -58,13 +59,10 @@ export class MyTasksComponent {
     await this.route.params.subscribe((params) => {
       this.projectId = parseInt(params['id']);
     });
-    this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    this.isLoading = false;
     this.milestoneService.fetchMilestones({ projectId: this.projectId });
     
-    this.statusService.setContext({ projectId: this.projectId });
-    await this.statusService.fetchStatuses();
-    await this.priorityService.fetchPriorities();
-
     this.filters = new Map<string, Filter>([
       ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
       ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
@@ -73,6 +71,11 @@ export class MyTasksComponent {
       ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})]
     ]);
   }
+
+  get activeFilters() {
+    return Object.keys(this.localStorageService.getData("task_filters")).length;
+  }
+
   get tasks() {
     return this.taskService.getTasks();
   }
@@ -107,5 +110,9 @@ export class MyTasksComponent {
 
   openFilters() {
     this.isFilterOpen = !this.isFilterOpen;
+  }
+
+  onFilterChange(data: boolean) {
+    this.isFilterOpen = data;
   }
 }

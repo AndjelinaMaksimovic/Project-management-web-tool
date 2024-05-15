@@ -1,7 +1,10 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
+using System.Diagnostics;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -59,26 +62,16 @@ namespace Codedberries.Services
 
         private bool VerifyPassword(string password, string hashedPassword, byte[] salt)
         {
+            string pass;
             using (var sha256 = SHA256.Create())
             {
-
-                var hashedInputPassword = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string str = BitConverter.ToString(hashedInputPassword).Replace("-", "").ToLower(); ;
-                var hashed2 = sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
-                string str2 = BitConverter.ToString(hashed2).Replace("-", "").ToLower(); ;
-
-
-
-                // Compare the computed hash with the stored hashed password
-
-                if (hashedPassword == str2)
-                {
-                    return true; // wrong password
-                }
-
+                var saltedPassword = Encoding.UTF8.GetBytes(password).Concat(salt).ToArray();
+                var hashedBytes = sha256.ComputeHash(saltedPassword);
+                 pass = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
-
-            return false; // passwords matc
+            if(pass==hashedPassword) return true;
+            else return false;
+            
         }
 
         public bool ValidateSession(string sessionToken)
@@ -158,16 +151,63 @@ namespace Codedberries.Services
             };
         }
 
-        public bool SetProfilePicture(int userId, string? profilePicture)
+        public async System.Threading.Tasks.Task SetProfilePicture(HttpContext httpContext, ProfilePictureDTO request)
         {
-            User? user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            var userId = this.GetCurrentSessionUser(httpContext);
 
-            if (user == null) return false;
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
 
-            user.ProfilePicture = profilePicture;
-            _databaseContext.SaveChanges();
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
 
-            return true;
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be grater than 0!");
+            }
+
+            var userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+
+            if (userToSetProfilePicture == null)
+            {
+                throw new ArgumentException($"User with provided id {request.UserId} does not exist in database!");
+            }
+
+            if (request.ImageBytes == null || request.ImageBytes.Length == 0)
+            {
+                throw new ArgumentException("Image bytes cannot be null or empty!");
+            }
+
+            // generate picture name based on user id
+            string imageName = $"{request.UserId}.jpg";
+
+            // update profile picture
+            userToSetProfilePicture.ProfilePicture = imageName;
+
+            // save image file to folder ProfileImages
+            string imagePath = Path.Combine("ProfileImages", $"{imageName}");
+            await File.WriteAllBytesAsync(imagePath, request.ImageBytes);
+
+            // save changes to database
+            await _databaseContext.SaveChangesAsync();
         }
 
         public async Task<List<UserInformationDTO>> GetUsers(HttpContext httpContext, UserFilterDTO body)
@@ -448,6 +488,118 @@ namespace Codedberries.Services
             };
 
             return currentSessionUserDTO;
+        }
+
+        public string GetUserImagePath(HttpContext httpContext, int imageUserId)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (imageUserId <= 0)
+            {
+                throw new ArgumentException("UserId for image must be greater than zero!");
+            }
+
+            var userToGetPicture = _databaseContext.Users.FirstOrDefault(u => u.Id == imageUserId);
+
+            if (userToGetPicture == null)
+            {
+                throw new ArgumentException($"User with provided id {imageUserId} does not exist in database!");
+            }
+
+            if(userToGetPicture.ProfilePicture == null)
+            {
+                throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
+            }
+
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", $"{imageUserId}.jpg");
+            // Console.WriteLine($"Image path: {imagePath}");
+
+            if (!File.Exists(imagePath))
+            {
+                throw new FileNotFoundException($"Image file for user with ID {imageUserId} not found in directory ProfileImages!", imagePath);
+            }
+
+            return imagePath;
+        }
+
+        public async System.Threading.Tasks.Task UpdateUserName(HttpContext httpContext, UpdateUserNameDTO request)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("UserId must be greater than zero!");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.FirstName))
+            {
+                throw new ArgumentException("First name must not be empty!");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.LastName))
+            {
+                throw new ArgumentException("Last name must not be empty!");
+            }
+
+            var userToChange = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (userToChange == null)
+            {
+                throw new ArgumentException($"Provided user with ID {request.UserId} not found in database!");
+            }
+
+            userToChange.Firstname = request.FirstName;
+            userToChange.Lastname = request.LastName;
+
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }

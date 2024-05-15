@@ -91,3 +91,8 @@
     width: 100%;
     height: 1.2rem;
 }
+
+.nofilter {
+    color: #C1C1C1;
+    font-size: small;
+}

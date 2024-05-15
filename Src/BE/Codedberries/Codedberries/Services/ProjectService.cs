@@ -14,14 +14,12 @@ namespace Codedberries.Services
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
-        private readonly StatusService _statusService;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, StatusService statusService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _taskService = taskService;
-            _statusService = statusService;
         }
 
         public async System.Threading.Tasks.Task CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
@@ -140,17 +138,35 @@ namespace Codedberries.Services
                     }
                 }
 
-                // the one creating it needs to be on that project also so he could create default statuses
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "New", ProjectId = project.Id });
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "In Progress", ProjectId = project.Id });
-                await _statusService.CreateStatus(httpContext, new StatusCreationDTO { Name = "Done", ProjectId = project.Id });
+                if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+                {
+                    throw new UnauthorizedAccessException("User does not have permission to create status, user can't create new project!");
+                }
+
+                // default statuses
+                var projectStatuses = new List<string> { "New", "In Progress", "Done" };
+
+                foreach (var statusName in projectStatuses)
+                {
+                    var existingStatuses = _databaseContext.Statuses
+                        .Where(s => s.ProjectId == project.Id)
+                        .OrderBy(s => s.Order)
+                        .ToList();
+
+                    int newStatusOrder = existingStatuses.Any() ? existingStatuses.Last().Order + 1 : 1;
+                    var newStatus = new Models.Status(statusName, project.Id, newStatusOrder);
+
+                    _databaseContext.Statuses.Add(newStatus);
+
+                    await _databaseContext.SaveChangesAsync();
+                }
 
                 await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw new Exception($"{ ex.Message }");
+                throw new Exception($"{ex.Message}");
             }
         }
 
@@ -404,7 +420,7 @@ namespace Codedberries.Services
                     }
 
                     var existingProject = _databaseContext.Projects.Any(p => p.Id == filter.ProjectId);
-                    
+
                     if (!existingProject)
                     {
                         throw new ArgumentException($"Project with ID {filter.ProjectId} does not exist in the database!");
@@ -416,7 +432,7 @@ namespace Codedberries.Services
                 if (filter.AssignedTo != null && filter.AssignedTo.Any())
                 {
                     var validUsers = _databaseContext.Users.Any(u => filter.AssignedTo.Contains(u.Id));
-                    
+
                     if (!validUsers)
                     {
                         throw new ArgumentException("One or more users in the AssignedTo list are not valid!");
@@ -463,7 +479,7 @@ namespace Codedberries.Services
                 if (filter.StatusId.HasValue)
                 {
                     var validStatus = _databaseContext.Statuses.Any(s => s.Id == filter.StatusId);
-                    
+
                     if (!validStatus)
                     {
                         throw new ArgumentException($"Status with ID {filter.StatusId} does not exist in database!");
@@ -475,7 +491,7 @@ namespace Codedberries.Services
                 if (filter.CategoryId.HasValue)
                 {
                     var validCategory = _databaseContext.Categories.Any(c => c.Id == filter.CategoryId);
-                    
+
                     if (!validCategory)
                     {
                         throw new ArgumentException($"Category with ID {filter.CategoryId} does not exist in database!");
@@ -547,19 +563,19 @@ namespace Codedberries.Services
         public async System.Threading.Tasks.Task UpdateProject(HttpContext httpContext, ProjectUpdateRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
-            
+
             if (userId == null)
             {
                 throw new UnauthorizedAccessException("Invalid session!");
             }
-            
+
             var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
-            
+
             if (user == null)
             {
                 throw new UnauthorizedAccessException("User not found!");
             }
-            
+
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
@@ -599,12 +615,12 @@ namespace Codedberries.Services
             }
 
             var project = await _databaseContext.Projects.FirstOrDefaultAsync(t => t.Id == request.ProjectId);
-            
+
             if (project == null)
             {
                 throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
             }
-            
+
             if (!string.IsNullOrEmpty(request.Name))
             {
                 var existingProjectWithName = _databaseContext.Projects
@@ -617,12 +633,12 @@ namespace Codedberries.Services
 
                 project.Name = request.Name;
             }
-            
+
             if (!string.IsNullOrEmpty(request.Description))
             {
                 project.Description = request.Description;
             }
-            
+
             // replaces current list of assigned users with new list that is provided?
             if (request.Users != null && request.Users.Any())
             {
@@ -632,12 +648,12 @@ namespace Codedberries.Services
                 }
 
                 var invalidUsers = request.Users.Except(_databaseContext.Users.Select(u => u.Id));
-                
+
                 if (invalidUsers.Any())
                 {
                     throw new ArgumentException($"One or more users provided do not exist in the database!");
                 }
-                
+
                 var userProjectsToRemove = _databaseContext.UserProjects.Where(up => up.ProjectId == request.ProjectId);
                 _databaseContext.UserProjects.RemoveRange(userProjectsToRemove);
 
@@ -649,7 +665,7 @@ namespace Codedberries.Services
 
                     if (userToAdd != null)
                     {
-                        if(userToAdd.RoleId == null)
+                        if (userToAdd.RoleId == null)
                         {
                             throw new ArgumentException($"User with id {userToAdd.Id} does not have any roles assigned!");
                         }
@@ -783,14 +799,14 @@ namespace Codedberries.Services
             }
             // ---------------- //
 
-            var project =  _databaseContext.Projects.Find(projectId);
+            var project = _databaseContext.Projects.Find(projectId);
 
             if (project == null)
             {
                 throw new ArgumentException($"Project with ID {projectId} not found in database!");
             }
 
-           
+
             // archive/active
             project.Archived = !project.Archived;
 
@@ -875,7 +891,7 @@ namespace Codedberries.Services
             // if all tasks on the project are completed
             bool allTasksCompleted = _databaseContext.Tasks
                 .All(t => t.ProjectId == projectId && t.Status.Name == "Done");
-                        // !!!!!! can default statuses be deleted? if "Done" is not existing it won't work
+            // !!!!!! can default statuses be deleted? if "Done" is not existing it won't work
 
             // if DueDate of the project has passed
             bool projectDueDatePassed = project.DueDate < DateTime.Now;
@@ -906,7 +922,7 @@ namespace Codedberries.Services
             // priority
             double priorityFactor = 1.0; // default factor
             var highPriorityTasksCount = _databaseContext.Tasks.Count(t => t.ProjectId == projectId && t.Priority.Name == "High" && !t.Archived);
-            
+
             if (highPriorityTasksCount > 0)
             {
                 // increase progress percentage if there are high priority tasks
@@ -916,7 +932,7 @@ namespace Codedberries.Services
             // task dependencies
             // progress is increased by 5% for each completed dependent task
             var dependentTasksCount = _databaseContext.Tasks.Count(t => t.ProjectId == projectId && t.Dependencies.Any(d => d.Status.Name == "Done"));
-            
+
 
             // calculating progres percentage
             double progressPercentage = (double)completedTasksCount / totalTasksCount * 100;
@@ -926,6 +942,169 @@ namespace Codedberries.Services
             progressPercentage = Math.Min(progressPercentage, 100);
 
             return progressPercentage;
+        }
+
+        public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext, ProjectIdDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            var targetProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (targetProject == null)
+            {
+                throw new ArgumentException($"Provided project with ID {request.ProjectId} does not exist in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Project!");
+            }
+            // ---------------- //
+
+            var existingStarredProject = await _databaseContext.Starred
+                    .FirstOrDefaultAsync(sp => sp.ProjectId == request.ProjectId && sp.UserId == userId);
+
+            // it was already starred
+            if (existingStarredProject != null)
+            {
+                _databaseContext.Starred.Remove(existingStarredProject);
+            }
+            else // new one is starred
+            {
+                var starredProject = new Starred(request.ProjectId, user.Id);
+
+                _databaseContext.Starred.Add(starredProject);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async Task<List<ProjectInformationDTO>> GetStarredProjectsByUserId(HttpContext httpContext)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole != null && userRole.CanViewProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to view Project!");
+            }
+
+            var starredRows = await _databaseContext.Starred
+                .Where(sp => sp.UserId == user.Id)
+                .ToListAsync();
+
+            if (starredRows == null || !starredRows.Any())
+            {
+                throw new ArgumentException($"No starred projects found for user with ID {user.Id}!");
+            }
+
+            var starredProjects = new List<ProjectInformationDTO>();
+
+            foreach (var row in starredRows)
+            {
+                var project = await _databaseContext.Projects
+                    .Where(p => p.Id == row.ProjectId)
+                    .Select(p => new ProjectInformationDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        StartDate = p.StartDate,
+                        DueDate = p.DueDate,
+                        Archived = p.Archived,
+                        Statuses = p.Statuses.Select(s => new StatusDTO
+                        {
+                            Id = s.Id,
+                            Name = s.Name,
+                            ProjectId = s.ProjectId,
+                            Order = s.Order
+                        }).ToList(),
+                        Categories = p.Categories.Select(c => new CategoryDTO
+                        {
+                            Id = c.Id,
+                            Name = c.Name
+                        }).ToList(),
+                        Users = p.Users.Select(u => new UserDTO
+                        {
+                            Id = u.Id,
+                            FirstName = u.Firstname,
+                            LastName = u.Lastname,
+                            ProfilePicture = u.ProfilePicture
+                        }).ToList()
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (project == null)
+                {
+                    throw new ArgumentException($"Found project with ID {row.ProjectId} does not exist in the database!");
+                }
+
+                starredProjects.Add(project);
+            }
+
+            if (starredProjects.Count == 0)
+            {
+                throw new ArgumentException($"No starred projects found for the specified user ID {user.Id}!");
+            }
+
+            return starredProjects;
         }
     }
 }

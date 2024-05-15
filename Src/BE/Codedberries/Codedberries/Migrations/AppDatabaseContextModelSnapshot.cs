@@ -311,6 +311,9 @@ namespace Codedberries.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CommentDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("TaskId")
                         .HasColumnType("INTEGER");
 

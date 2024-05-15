@@ -1,8 +1,8 @@
 ﻿namespace Codedberries.Models.DTOs
 {
-    public class ProfilePictureDTO
+    public class StarredProjectDTO
     {
+        public int ProjectId { get; set; }
         public int UserId { get; set; }
-        public byte[] ImageBytes { get; set; }
     }
 }

@@ -41,3 +41,7 @@ mat-button-toggle-group {
     height: 100%;
     z-index: 99; /* osigurava da bude iznad drugih elemenata */
 }
+
+.active {
+    color: #5096A4;
+}

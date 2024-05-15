@@ -162,11 +162,11 @@ namespace Codedberries.Controllers
         }
 
         [HttpGet("TaskComments")]
-        public IActionResult GetTaskComments([FromQuery] TaskDeletionDTO filterParams)
+        public async Task<IActionResult> GetTaskComments([FromQuery] TaskIdDTO body)
         {
             try
             {
-                var comments = _taskService.GetTasksComments(HttpContext, filterParams);
+                var comments = await _taskService.GetTasksComments(HttpContext, body);
 
                 return Ok(comments);
             }
@@ -178,9 +178,9 @@ namespace Codedberries.Controllers
             {
                 return BadRequest(new ErrorMsg(ex.Message));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg("An error occurred while processing your request."));
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred while processing your request: {ex.Message}"));
             }
         }
     }

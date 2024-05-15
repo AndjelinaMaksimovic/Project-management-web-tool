@@ -872,7 +872,7 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
@@ -880,33 +880,49 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            if (string.IsNullOrEmpty(request.Comment))
-            {
-                throw new ArgumentException("Comment is required!");
-            }
-
             if (request.TaskId <= 0)
             {
                 throw new ArgumentException("Task ID must be greater than zero!");
             }
 
-            var task = _databaseContext.Tasks.Find(request.TaskId);
+            var task = await _databaseContext.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId);
 
             if (task == null)
             {
-                throw new ArgumentException($"Task with ID {request.TaskId} does not exist.");
+                throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
 
-            User currentUser =_databaseContext.Users.FirstOrDefault(r => r.Id == userId);
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == task.ProjectId);
 
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {task.ProjectId} in UserProjects table!");
+            }
 
-            Models.TaskComment taskComment = new TaskComment(request.Comment, currentUser.Id ,request.TaskId);
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+            // ---------------- //
+
+            if (string.IsNullOrEmpty(request.Comment))
+            {
+                throw new ArgumentException("Comment is required!");
+            }
+
+            DateTime currentDate = DateTime.Now;
+            Models.TaskComment taskComment = new TaskComment(request.Comment, user.Id ,request.TaskId, currentDate);
 
             _databaseContext.TaskComments.Add(taskComment);
             await _databaseContext.SaveChangesAsync();
         }
 
-        public List<TaskCommentInfoDTO> GetTasksComments(HttpContext httpContext, TaskDeletionDTO filterParams)
+        public async Task<List<TaskCommentInfoDTO>> GetTasksComments(HttpContext httpContext, TaskIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -914,20 +930,65 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("Invalid session!");
             }
-            System.Linq.IQueryable<Codedberries.Models.TaskComment> query = _databaseContext.TaskComments;
-            if (filterParams.TaskId != 0)
-            {
-                query = query.Where(t => t.TaskId == filterParams.TaskId);
-            }
-            List<Codedberries.Models.TaskComment> comments = query.ToList();
-            List<TaskCommentInfoDTO> commentsDTO = comments.Select(t => new TaskCommentInfoDTO
-            {
-                Comment = t.Comment,
-                CommentId = t.CommentId,
-                TaskId = t.TaskId,
-                UserId = t.UserId
 
-            }).ToList();
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("Task ID must be greater than zero!");
+            }
+
+            var task = await _databaseContext.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
+            }
+
+            var comments = await _databaseContext.TaskComments
+                .Where(tc => tc.TaskId == request.TaskId)
+                .ToListAsync();
+
+            if (!comments.Any())
+            {
+                throw new ArgumentException($"There are no comments for task with ID {request.TaskId}!");
+            }
+
+            List<TaskCommentInfoDTO> commentsDTO = new List<TaskCommentInfoDTO>();
+
+            foreach (var comment in comments)
+            {
+                var commentUser = await _databaseContext.Users.FindAsync(comment.UserId);
+
+                if (commentUser == null)
+                {
+                    throw new ArgumentException($"User with ID {comment.UserId} not found!");
+                }
+
+                var commentDTO = new TaskCommentInfoDTO
+                {
+                    Comment = comment.Comment,
+                    CommentId = comment.CommentId,
+                    TaskId = comment.TaskId,
+                    UserId = comment.UserId,
+                    FirstName = commentUser.Firstname,
+                    LastName = commentUser.Lastname,
+                    CommentDate = comment.CommentDate
+                };
+
+                commentsDTO.Add(commentDTO);
+            }
+
             return commentsDTO;
         }
 

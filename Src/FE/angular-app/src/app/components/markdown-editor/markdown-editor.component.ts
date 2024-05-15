@@ -34,5 +34,7 @@ export class MarkdownEditorComponent {
      textarea.selectionStart = start + before.length;
      textarea.selectionEnd = end + before.length;
      this.changeValue(textarea.value);
+    //  (mousedown)="$event.preventDefault()" on button element also works
+     this.editor.nativeElement.focus();
   }
 }
