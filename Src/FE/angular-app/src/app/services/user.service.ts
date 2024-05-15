@@ -102,7 +102,7 @@ export class UserService {
           this.httpOptions
         )
       );
-      return res.body[0];
+      return res.body;
     } catch (e) {
       console.log(e);
     }
