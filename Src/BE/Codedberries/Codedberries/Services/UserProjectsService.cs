@@ -225,6 +225,7 @@ namespace Codedberries.Services
                     ProjectStartDate = project.StartDate,
                     ProjectDueDate = project.DueDate,
                     ProjectArchived = project.Archived,
+                    ProjectIsStarred = _databaseContext.Starred.Any(s => s.ProjectId == project.Id && s.UserId == userId),
                     ProjectStatuses = projectStatuses,
                     ProjectCategories = projectCategories,
                     ProjectUsers = projectUsers
