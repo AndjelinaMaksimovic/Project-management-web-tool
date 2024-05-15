@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
 import { EditableNameComponent } from './editable-name/editable-name.component';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 // import { environment } from '../../environments/environment';
 
 
@@ -21,6 +22,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ProfileComponent {
   userId: string = "me";
+  loggedInUser: number | undefined;
   user: any;
   
   timestamp: number | undefined;
@@ -35,12 +37,14 @@ export class ProfileComponent {
   constructor(
     private userService: UserService,
     private route: ActivatedRoute,
+    private authService: AuthService,
     private http: HttpClient
   ) {}
   async ngOnInit() {
     this.route.params.subscribe((params) => {
       this.userId = params['userId'];
     });
+    this.loggedInUser = await this.authService.getMyId();
     this.user = this.userId === "me" ? await this.userService.getMe() : await this.userService.getUser(parseInt(this.userId));
   }
 

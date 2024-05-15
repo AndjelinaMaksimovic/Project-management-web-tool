@@ -4,7 +4,7 @@
         <div style="display: flex; flex-direction: column; align-items: center;">
             <img class="circle-image" style="outline: solid; width: 128px;" [src]="getProfileImagePath()" onerror="this.src='/assets/logo.svg'">
             <input #fileUpload hidden="true" type="file" class="file-input" accept="image/png, image/jpeg" (change)="onFileSelected($event)">
-            <button *ngIf="userId === 'me'" mat-flat-button style="margin-top: 20px;" color="primary" class="dense-3" (click)="fileUpload.click()">Set profile picture</button>
+            <button *ngIf="loggedInUser === user.id" mat-flat-button style="margin-top: 20px;" color="primary" class="dense-3" (click)="fileUpload.click()">Set profile picture</button>
             <!-- <h2>{{user?.firstname}} {{user?.lastname}}</h2> -->
             <h2>{{user?.firstname}} {{user?.lastname}}</h2>
             <span class="chip chip-neutral">{{user?.roleName}}</span>
