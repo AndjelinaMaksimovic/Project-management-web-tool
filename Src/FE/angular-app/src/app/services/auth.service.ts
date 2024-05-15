@@ -39,6 +39,8 @@ export class AuthService {
     var r = false
     try {
       r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/login', {email: email, password: password}, environment.httpOptions))).ok
+      // clear current user id cache on logout
+      this._myId = undefined;
     } catch (e) {
       console.log(e)
     }
@@ -78,12 +80,30 @@ export class AuthService {
     return false;
   }
 
+  // we cache current logged in users id value
+  _myId: number | undefined;
+  public async getMyId() {
+    if(this._myId !== undefined) return this._myId;
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + `/User/getMyData`,
+          environment.httpOptions
+        )
+      );
+      this._myId = res.body.id;
+    } catch (e) {
+      console.log(e);
+    }
+    return this._myId;
+  }
   async logout() {
-
     var r = false
     try {
       r = (await firstValueFrom(this.http.post<any>(environment.apiUrl + '/Authentication/logout', {}, environment.httpOptions))).ok
-      this.router.navigate(['login'])
+      this.router.navigate(['login']);
+      // clear current user id cache on logout
+      this._myId = undefined;
     } catch (e) {
       console.log(e)
     }
