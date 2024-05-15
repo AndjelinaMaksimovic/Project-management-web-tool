@@ -1096,6 +1096,7 @@ namespace Codedberries.Services
                         StartDate = p.StartDate,
                         DueDate = p.DueDate,
                         Archived = p.Archived,
+                        IsStarred = _databaseContext.Starred.Any(s => s.ProjectId == p.Id),
                         Statuses = p.Statuses.Select(s => new StatusDTO
                         {
                             Id = s.Id,
