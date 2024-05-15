@@ -824,7 +824,7 @@ export class GanttComponent implements OnInit, AfterViewInit, OnChanges{
 
   // TODO: check if its a milestone
   updateTaskDates(item: Item){
-    // this.taskService.updateTask({id: item.id, startDate: new Date(item.startDate), dueDate: new Date(item.dueDate)})
+    this.taskService.updateTask({id: item.id, startDate: new Date(item.startDate), dueDate: new Date(item.dueDate)})
   }
   updateTaskIndexes(item: Item){
     // this.taskService.updateTask({id: item.id, index: item.index})
