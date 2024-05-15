@@ -10,6 +10,7 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import moment from 'moment';
 
 @Component({
   selector: 'app-gantt-settings',
@@ -31,7 +32,7 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './gantt-settings.component.css'
 })
 export class GanttSettingsComponent{
-  scale: string
+  scale: moment.unitOfTime.DurationConstructor
   itemSort: ItemSort
   hideWeekend: boolean
   groupByCategory: boolean
@@ -40,14 +41,19 @@ export class GanttSettingsComponent{
   disableColumnsDrag: boolean = false
 
   // Object.keys on enum returns [..values, ..keys]. Why typescript?????
-  timeScale = Object.values(TimeScale).filter(key => isNaN(Number(key)))
+  timeScale = [
+    {viewVal: 'Days', val: 'day'},
+    {viewVal: 'Weeks', val: 'week'},
+    {viewVal: 'Months', val: 'month'},
+    {viewVal: 'Quarters', val: 'quarter'},
+  ]
   itemSortArray = Object.values(ItemSort)
   hiddenColumns: Column[] = []
 
   //TODO: changing week to month -> infinite loop?
 
   constructor(@Inject(MAT_DIALOG_DATA) private data: any, private dialogRef: MatDialogRef<GanttSettingsComponent>){
-    this.scale = TimeScale[this.data.scale]
+    this.scale = this.data.scale
     this.itemSort = this.data.itemSort
     this.hideWeekend = this.data.hideWeekend
     this.groupByCategory = this.data.groupByCategory
@@ -77,7 +83,7 @@ export class GanttSettingsComponent{
   }
   submit(){
     this.dialogRef.close({
-      scale: (TimeScale as any)[this.scale],
+      scale: this.scale,
       itemSort: this.itemSort,
       groupByCategory: this.groupByCategory,
       hideWeekend: this.hideWeekend,

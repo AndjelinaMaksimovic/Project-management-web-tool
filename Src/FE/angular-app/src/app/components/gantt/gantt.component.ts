@@ -35,7 +35,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   @Input() milestones: any[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
   @Input() columns: Column[] = [new Column(GanttColumn.tasks, 180)]
-  @Input() timeScale: TimeScale = TimeScale.day
+  @Input() timeScale: moment.unitOfTime.DurationConstructor = 'day'
   itemSort: ItemSort = ItemSort.custom
   categories: Category[] = []
   groupByCategory: boolean = true
@@ -50,7 +50,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   currentDateIndex!: number
   chartStartDate!: number
   idMap: Record<number, number> = [] // id to index
-  snapDate!: boolean
+  snapDate: boolean = true
   // allCategories: {name: string, idx: number}[] = []
 
   columnWidth = 25
@@ -188,23 +188,81 @@ export class GanttComponent implements OnInit, AfterViewInit{
     //   })
     this.dates = []
     this.secondaryDates = []
-    const max = moment(this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate).add(40, 'days')
+    const max = moment(this.items.reduce((a, b)=>{return a.dueDate > b.dueDate ? a : b}).dueDate).add(200, 'days')
     const min = moment(this.items.reduce((a, b)=>{return a.startDate < b.startDate ? a : b}).startDate).subtract(1, 'day')
-    const timeScale: unitOfTime.Base = 'day'
-    const secondaryTimeScale: unitOfTime.Base = 'week'
-    let duration = moment.duration(1, timeScale)
-    let startDate = min.startOf(timeScale)
+    
+    let secondaryTimeScale: unitOfTime.DurationConstructor
+    let format: (date: moment.Moment) => string
+    let secondaryFormat: (date: moment.Moment) => string
+    switch (this.timeScale) {
+      default:
+      case 'day':
+        this.columnWidth = 30
+        this.minColumnWidth = 30
+        // secondaryTimeScale = 'week'
+        // format = (date: moment.Moment) => date.format('DD')
+        // secondaryFormat = (startDate: moment.Moment) => startDate.format('MMM YYYY, Wo') + ' week'
+        secondaryTimeScale = 'month'
+        format = (date: moment.Moment) => date.format('DD')
+        secondaryFormat = (startDate: moment.Moment) => startDate.format('MMM YYYY')
+        break;
+      case 'week':
+        this.columnWidth = 60
+        this.minColumnWidth = 60
+        secondaryTimeScale = 'month'
+        format = (date: moment.Moment) => date.format('Wo')
+        secondaryFormat = (startDate: moment.Moment) => startDate.format('MMM YYYY')
+        break;
+      case 'month':
+        this.columnWidth = 40
+        this.minColumnWidth = 40
+        secondaryTimeScale = 'quarter'
+        format = (date: moment.Moment) => date.format('MMM')
+        secondaryFormat = (date: moment.Moment) => 'Q'+date.format('Q YYYY')
+        break;
+      case 'quarter':
+        this.columnWidth = 30
+        this.minColumnWidth = 30
+        secondaryTimeScale = 'year'
+        format = (date: moment.Moment) => 'Q'+date.format('Q')
+        secondaryFormat = (date: moment.Moment) => date.format('YYYY')
+        break;
+    }
+    
+    const duration = moment.duration(1, this.timeScale)
+    let startDate = min.startOf(this.timeScale)
     this.chartStartDate = startDate.valueOf()
     while(startDate.isBefore(max)){
-      startDate.add(duration)
       if(helpers.includeDay(startDate.valueOf(), this.hideWeekend, this.holidays))
-        this.dates.push(startDate.format('DD'))
-    }
-    startDate = moment(this.chartStartDate.valueOf())
-    duration = moment.duration(1, secondaryTimeScale)
-    while(startDate.isBefore(max)){
+        this.dates.push(format(startDate))
       startDate.add(duration)
-      this.secondaryDates.push({len: 7, value: startDate.format('Wo') + ' week of ' + startDate.year()})
+    }
+
+    // secondary date strip -- TODO: Can be initialized in previous while, optimization for later
+    startDate = moment(this.chartStartDate.valueOf())
+    const secondaryDuration = moment.duration(1, secondaryTimeScale)
+    while(startDate.isBefore(max)){
+      // const month = startDate.format('MMM')
+
+      // const tmp = startDate.clone()
+      // let counter = 0
+      // const obj = {len: 0, value: secondaryFormat(startDate)}
+      // startDate.add(secondaryDuration).startOf(secondaryTimeScale)
+      // while(tmp.isBefore(startDate)){
+      //   if(helpers.includeDay(tmp.valueOf(), this.hideWeekend, this.holidays))
+      //     counter += 1
+      //   tmp.add(duration)
+      // }
+      // obj.len = counter
+      const tmp = startDate.clone()
+      startDate.add(secondaryDuration).startOf(secondaryTimeScale)
+      const len = startDate.diff(tmp, this.timeScale, true)
+      this.secondaryDates.push({len: len, value: secondaryFormat(startDate)})
+
+        // if(month != startDate.format('MMM'))
+      //   this.secondaryDates[this.secondaryDates.length-1].value = startDate.format('MMM/')+month + this.secondaryDates[this.secondaryDates.length-1].value
+      // else
+      //   this.secondaryDates[this.secondaryDates.length-1].value = month + this.secondaryDates[this.secondaryDates.length-1].value
     }
   }
 
@@ -310,25 +368,19 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   initItemDisplay(){
     this.items.forEach(item => {
-      this.snapDate = this.timeScale == TimeScale.day
-      var t: number
+      this.snapDate = this.timeScale == 'day'
 
       if(this.snapDate){
-        t = Math.floor((item.startDate - this.chartStartDate) / this.timeScale)
-        t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
-        item.left = t*this.columnWidth
-        t = item.startDate - item.startDate % this.timeScale  // normalize start
-        t = (Math.ceil((item.dueDate - t) / this.timeScale))
-        t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
-        item.width = t*this.columnWidth
+        item.left = moment(item.startDate).startOf(this.timeScale).diff(this.chartStartDate, this.timeScale) * this.columnWidth
+
+        if(moment(item.dueDate) == moment(item.dueDate).startOf(this.timeScale)){
+          item.width = moment(item.dueDate).diff(moment(item.startDate).startOf(this.timeScale), this.timeScale) * this.columnWidth
+        } else
+          item.width = (moment(item.dueDate).startOf(this.timeScale).diff(moment(item.startDate).startOf(this.timeScale), this.timeScale)+1) * this.columnWidth
       }
       else{
-        t = ((item.startDate - this.chartStartDate) / this.timeScale) * this.columnWidth
-        t = t - helpers.range(this.chartStartDate, item.startDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
-        item.left = t
-        t = ((item.dueDate - item.startDate) / this.timeScale) * this.columnWidth
-        t = t - helpers.range(item.startDate, item.dueDate, this.timeScale).reduce((prev, curr) => helpers.includeDay(curr, this.hideWeekend, this.holidays) ? prev : prev + 1, 0)
-        item.width = t
+        item.left = moment(item.startDate).diff(this.chartStartDate, this.timeScale, true) * this.columnWidth
+        item.width = moment(item.dueDate).diff(item.startDate, this.timeScale, true) * this.columnWidth
       }
     });
   }
@@ -642,25 +694,18 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   updateItemDates(item: Item){
     //TODO: weekend bug?
-    // ------------------
     // problems snapping because start / due date aren't rounded to day
-    // var d: number = event.x - this.draggedOriginal.x
-    // d = d / this.columnWidth + ((d % this.columnWidth > this.columnWidth / 2) ? -1 : 0)  // when d % col_width = 0 ???
-    // d *= this.timeScale
-    // item.startDate += d
-    // item.dueDate += d
-    // ------------------
-    var bias = (item.left % this.columnWidth > this.columnWidth / 2 && this.timeScale == TimeScale.day) ? 1 : 0
-    item.startDate = this.chartStartDate + (item.left / this.columnWidth + bias) * this.timeScale
-    const rem = (item.left + item.width) % this.columnWidth
-    bias = (rem < this.columnWidth / 2 && rem != 0 && this.timeScale == TimeScale.day) ? -1 : 0 // possible bug with rem == 0 ?
-    item.dueDate = this.chartStartDate + ((item.width + item.left) / this.columnWidth + bias) * this.timeScale
 
-    // item.dependant.forEach(_item => {
-    //   this.updateItemDates(this.items[this.idMap[_item]])
-    // });
-      this.updateTaskDates(item)
-      this.updateDependencies(item)
+    var bias = (item.left % this.columnWidth > this.columnWidth / 2 && this.snapDate) ? 1 : 0
+    item.startDate = this.chartStartDate + (item.left / this.columnWidth + bias) * moment.duration(1, this.timeScale).asMilliseconds()
+    // item.startDate = moment(this.chartStartDate).add(moment.duration((item.left / this.columnWidth + bias), this.timeScale)).valueOf()
+    const rem = (item.left + item.width) % this.columnWidth
+    bias = (rem < this.columnWidth / 2 && rem != 0 && this.snapDate) ? -1 : 0 // possible bug with rem == 0 ?
+    item.dueDate = this.chartStartDate + ((item.width + item.left) / this.columnWidth + bias) * moment.duration(1, this.timeScale).asMilliseconds()
+    // item.dueDate = moment(this.chartStartDate).add(moment.duration(((item.width + item.left) / this.columnWidth + bias), this.timeScale)).valueOf()
+
+    this.updateTaskDates(item)
+    this.updateDependencies(item)
   }
   updateDependencies(item: Item, limit = 50){
     //TODO: dragging left egde offsets deps by 1 to the right???

@@ -7,8 +7,8 @@
     <h1>Settings</h1>
     <p>Zoom</p>
     <mat-select placeholder="Select" [(value)]="scale" style="width: 200px;">
-        <mat-option *ngFor="let scaleOption of timeScale;" [value]="scaleOption">
-            {{scaleOption}}
+        <mat-option *ngFor="let scaleOption of timeScale;" [value]="scaleOption.val">
+            {{scaleOption.viewVal}}
         </mat-option>
     </mat-select>
     <p>Sorting</p>

@@ -35,6 +35,7 @@ export enum GanttColumn {
     users = "Users",
     progress = "Progress"
 }
+// export type TimeScalee = moment.unitOfTime.DurationConstructor
 export enum TimeScale {
     quarter = 86_400_000 * 30 * 4,
     month = 86_400_000 * 30,

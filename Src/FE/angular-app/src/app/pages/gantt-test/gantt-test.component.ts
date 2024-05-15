@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { GanttComponent } from '../../components/gantt/gantt.component';
 import { Item, GanttColumn, TimeScale, ItemType, Column } from '../../components/gantt/item';
+import moment from 'moment';
 
 @Component({
   selector: 'app-gantt-test',
@@ -31,5 +32,5 @@ export class GanttTestComponent{
     {type: GanttColumn.tasks, width: 130},
     {type: GanttColumn.users, width: 130},
     {type: GanttColumn.progress, width: 80}]
-  TimeScale = TimeScale
+  timeScale = 'day'
 }
