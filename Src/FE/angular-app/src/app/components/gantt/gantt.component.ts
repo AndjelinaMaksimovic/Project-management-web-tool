@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { Column, DraggingType, GanttColumn, Item, ItemType, TimeScale, ItemSort, Category } from './item';
 import { formatDate, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Task, TaskService } from '../../services/task.service';
@@ -30,7 +30,7 @@ import moment, { unitOfTime } from 'moment';
   styleUrl: './gantt.component.css'
 })
 
-export class GanttComponent implements OnInit, AfterViewInit{
+export class GanttComponent implements OnInit, AfterViewInit, OnChanges{
   @Input() tasks: Task[] = []
   @Input() milestones: any[] = []
   @Input() items: Item[] = [] // only because task is readonly and missing gantt parameters like color
@@ -68,11 +68,16 @@ export class GanttComponent implements OnInit, AfterViewInit{
   priorityToColor = {'Low': '#03fc03', 'Medium': '#fcf803', 'High': '#fc1c03'}
 
   constructor(private dialogue: MatDialog, private router: Router, private categoryService: CategoryService, private taskService: TaskService){}
+  
+  ngOnChanges(): void {
+    this.ngOnInit()
+  }
 
   async ngOnInit() {
     if(this.items.length == 0){
       
       if(this.tasks.length == 0){ // no tasks or items provided
+        console.log("No items provided")
         this.dates = []
         this.idMap = []
         this.chartStartDate = Date.now()
@@ -123,9 +128,10 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
     // TODO: test
     // const limit = 50
-    // this.items = []
-    // for (let i = 0; i < limit; i++) {
-    //   const item = new Item(i, 1, "Item "+i, "desc", "category 1", "Low", "status 1", Date.now() + TimeScale.day*(i+3), Date.now()+TimeScale.day*(i+3), [{firstName: 'Milan', lastName: 'Milanovic', id: 1, profilePicture: ''}], (i==limit-1) ? [] : [i+1], 100, ItemType.task, '#5096A4')
+    // // this.items = []
+    // for (let i = 10; i < limit+10; i++) {
+    //   const item = new Item(i, i, i, 1, "Item "+i, "desc", "Development", "Low", "status 1", Date.now() + TimeScale.day*(i+3), Date.now()+TimeScale.day*(i+3), [{firstName: 'Milan', lastName: 'Milanovic', id: 1, profilePicture: ''}], (i==limit-1) ? [] : [i+1], 100, ItemType.task, '#5096A4')
+    //   // new Item(i, i, i, 1, "Item "+i, "desc", "category 1", "Low", "status 1", Date.now(), Date.now() + TimeScale.day * 10, [{firstName: 'Milan', lastName: 'Milanovic', id: 1, profilePicture: ''}], [], 50, ItemType.task, '#c24e4e'),
     //   this.items.push(item)
     // }
 
@@ -267,9 +273,11 @@ export class GanttComponent implements OnInit, AfterViewInit{
             if(!helpers.includeDay(tmp.valueOf(), this.hideWeekend, this.holidays))
               len -= 1
           tmp.add(duration)
-        } 
+        }
       }
       this.secondaryDates.push({len: len, value: secondaryFormat(startDate)})
+      if(this.timeScale == 'week' && len < 3)
+        this.secondaryDates[this.secondaryDates.length-1].value =  ''
 
         // if(month != startDate.format('MMM'))
       //   this.secondaryDates[this.secondaryDates.length-1].value = startDate.format('MMM/')+month + this.secondaryDates[this.secondaryDates.length-1].value
@@ -435,6 +443,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   offset: any = {x: 0, y: 0}
 
   startDependencyDrag(event: any) {
+    this.chartRect = this.chartElem.nativeElement.getBoundingClientRect() // because 
     this.dragging = DraggingType.dependency
     this.originalItem = this.lastHovered
     this.draggedOriginal = {x: this.lastHovered.left + this.lastHovered.width, y: this.idMap[this.lastHovered.id] * this.taskHeight + this.taskHeight / 2}
@@ -535,9 +544,8 @@ export class GanttComponent implements OnInit, AfterViewInit{
         this.originalItem.dependant.push(this.lastHovered.id)
         this.updateTaskDependency(this.originalItem)
       }
-      this.dragging = DraggingType.none
     }
-    if(this.originalItem && this.originalItem != this.lastHovered)  //TODO: State?
+    // if(this.originalItem && this.originalItem != this.lastHovered)  //TODO: State?
       this.originalItem.hover = false
 
     if((this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight) && event.x != this.draggedOriginal.x){

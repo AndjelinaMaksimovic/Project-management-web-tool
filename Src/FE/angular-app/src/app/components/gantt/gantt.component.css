@@ -5,11 +5,15 @@
 
 .info{
     position: relative;
+    /* min-height: 100%;
+    height: fit-content; */
 }
 .chart{
     position: relative; /* contains date-lines because of position: absolute */
     overflow: auto;
     display: inline-block;
+    /* min-height: 100%;
+    height: fit-content; */
     /* flex-grow: 1; */
 }
 .header{

@@ -62,7 +62,7 @@ export class GanttSettingsComponent{
     this.hiddenColumns = 
       Object.values(GanttColumn)
       .filter(ent => !this.columns.find(col => col.type == ent))
-      .map(obj => new Column(obj, 150))
+      .map(obj => new Column(obj, 120))
   }
 
   colDrop(event: CdkDragDrop<string[]>){
