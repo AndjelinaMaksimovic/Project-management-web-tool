@@ -5,16 +5,20 @@
 
 .info{
     position: relative;
+    /* min-height: 100%;
+    height: fit-content; */
 }
 .chart{
     position: relative; /* contains date-lines because of position: absolute */
     overflow: auto;
     display: inline-block;
+    /* min-height: 100%;
+    height: fit-content; */
     /* flex-grow: 1; */
 }
 .header{
     border-bottom: 1px solid #5096A4;
-    height: 20px;
+    height: 40px;
     /* overflow: auto; */
     /* display: inline-block; */
 }
@@ -24,6 +28,13 @@
     width: 1px;
     background-color: #5096A4;
     top: 0;
+}
+.date-line-chart{
+    position: absolute;
+    height: calc(100% - 20px);
+    top: 20px;
+    width: 1px;
+    background-color: #5096A4;
 }
 .date-line-active{
     background-color: #FF5733;
@@ -62,4 +73,8 @@
     text-decoration: underline;
     /* cursor: text; */
     cursor: pointer;
+}
+.cdk-drag-placeholder {
+    /* background-color: #b4b4b4; */
+    opacity: 0;
 }

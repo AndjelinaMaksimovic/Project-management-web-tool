@@ -6,11 +6,13 @@ import { environment } from '../../environments/environment';
 type Category = {
   name: string;
   id: number;
+  index: number;
 };
 function mapCategory(apiCategory: any) {
   return {
     name: apiCategory.name,
     id: apiCategory.id,
+    index: apiCategory.index | 0, // 0 for testing
   };
 }
 

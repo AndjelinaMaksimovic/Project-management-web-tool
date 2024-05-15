@@ -1,0 +1,18 @@
+<h2>{{user?.firstname}} {{user?.lastname}}&NonBreakingSpace;<button mat-icon-button [matMenuTriggerFor]="menu"
+    class="small-icon-button" [matTooltip]="'update name'"><mat-icon>edit</mat-icon></button></h2>
+<mat-menu #menu="matMenu">
+<div style="padding: 10px">
+    <div (click)="$event.stopPropagation();">
+        <mat-form-field appearance="outline" class="dense-2" style="width: 100%">
+            <mat-label>First name</mat-label>
+            <input type="text" matInput [(ngModel)]="title" [required]="true">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="dense-2" style="width: 100%">
+            <mat-label>Last name</mat-label>
+            <input type="text" matInput [(ngModel)]="title" [required]="true">
+        </mat-form-field>
+    </div>
+    <button mat-flat-button>Save</button>
+    <button mat-flat-button>Cancel</button>
+</div>
+</mat-menu>

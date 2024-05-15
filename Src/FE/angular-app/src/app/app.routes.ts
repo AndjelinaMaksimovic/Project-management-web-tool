@@ -26,7 +26,7 @@ export const routes: Routes = [
   { path: 'project/:id/tasks', title: 'Codedberries | Project tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/new-task', title: 'Codedberries | New task', component: NewTaskComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/details', title: 'Codedberries | Project details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
-  { path: 'profile', title: 'Codedberries | Profile', component: ProfileComponent, canActivate: [LoggedIn] },
+  { path: 'profile/:userId', title: 'Codedberries | Profile', component: ProfileComponent, canActivate: [LoggedIn] },
   { path: 'project/:id/task/:taskId', title: 'Codedberries | Task', component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'archived-projects', component: ArchivedProjectsComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },

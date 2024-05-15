@@ -7,6 +7,8 @@ export class Item {
         // public users: Array<User> = [],
 
         public id: number = 0,
+        public index: number = 0,
+        public indexInCategory: number = 0,
         public projectId: number = 0,
         public title: string = '',
         public description: string = '',
@@ -33,10 +35,13 @@ export enum GanttColumn {
     users = "Users",
     progress = "Progress"
 }
+// export type TimeScalee = moment.unitOfTime.DurationConstructor
 export enum TimeScale {
+    quarter = 86_400_000 * 30 * 4,
+    month = 86_400_000 * 30,
     week = 86_400_000 * 7,
     day = 86_400_000,
-    hour = 3_600_000
+    // hour = 3_600_000
 }
 export enum ItemType {
     task,
@@ -48,6 +53,7 @@ export enum DraggingType{
     taskEdgesLeft,
     taskEdgesRight,
     task,
+    taskVertical,
     none
 }
 export class User{
@@ -58,3 +64,25 @@ export class User{
         public profilePicture: any = ''
     ){}
 }
+export class Column{
+    constructor(
+        public type: GanttColumn,
+        public width: number
+    ){}
+}
+
+export enum ItemSort{
+    custom = 'Custom',
+    startDate = 'Task start date',
+    endDate = 'Task due date',
+}
+export class Category {
+    constructor(
+      public name: string = '',
+      public idx: number = 0,
+      public min: number = 0,
+      public max: number = 0,
+      public count: number = 0,      //
+      public startIdx: number = 0,  // for snapping when dragging a task vertically
+    ){}
+  }

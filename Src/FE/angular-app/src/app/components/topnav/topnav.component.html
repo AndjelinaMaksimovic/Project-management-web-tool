@@ -1,6 +1,6 @@
 <div class="container">
     <div class="sub-container left ml-10">
-        <img class="circle-image" src="/assets/logo.svg">
+        <img [routerLink]="'/profile/me'" class="profile-picture" style="cursor: pointer;" src="/assets/logo.svg">
         <a mat-button class="dropdown-button ml-10 white" [routerLink]="'/'">
             Projects
         </a>

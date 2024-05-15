@@ -215,6 +215,7 @@ namespace Codedberries.Services
                     StartDate = p.StartDate,
                     DueDate = p.DueDate,
                     Archived = p.Archived,
+                    IsStarred = _databaseContext.Starred.Any(s => s.ProjectId == p.Id && s.UserId == userId),
                     Statuses = p.Statuses.Select(s => new StatusDTO
                     {
                         Id = s.Id,
@@ -287,6 +288,7 @@ namespace Codedberries.Services
                     StartDate = p.StartDate,
                     DueDate = p.DueDate,
                     Archived = p.Archived,
+                    IsStarred = _databaseContext.Starred.Any(s => s.ProjectId == p.Id && s.UserId == userId),
                     Statuses = p.Statuses.Select(s => new StatusDTO
                     {
                         Id = s.Id,
@@ -476,6 +478,30 @@ namespace Codedberries.Services
                     query = query.Where(p => p.Archived == filter.IsArchived);
                 }
 
+                if (filter.IsStarred.HasValue)
+                {
+                    if (filter.IsStarred == true)
+                    {
+                        // ones that are starred for current user
+                        var starredProjectIds = _databaseContext.Starred
+                            .Where(s => s.UserId == userId)
+                            .Select(s => s.ProjectId)
+                            .ToList();
+
+                        query = query.Where(p => starredProjectIds.Contains(p.Id));
+                    }
+                    else
+                    {
+                        // ones that are not starred for current user
+                        var starredProjectIds = _databaseContext.Starred
+                            .Where(s => s.UserId == userId)
+                            .Select(s => s.ProjectId)
+                            .ToList();
+
+                        query = query.Where(p => !starredProjectIds.Contains(p.Id));
+                    }
+                }
+
                 if (filter.StatusId.HasValue)
                 {
                     var validStatus = _databaseContext.Statuses.Any(s => s.Id == filter.StatusId);
@@ -520,6 +546,7 @@ namespace Codedberries.Services
                 DueDate = p.DueDate,
                 StartDate = p.StartDate,
                 Archived = p.Archived,
+                IsStarred = _databaseContext.Starred.Any(s => s.ProjectId == p.Id),
                 Statuses = p.Statuses.Select(s => new StatusDTO
                 {
                     Id = s.Id,
@@ -1069,6 +1096,7 @@ namespace Codedberries.Services
                         StartDate = p.StartDate,
                         DueDate = p.DueDate,
                         Archived = p.Archived,
+                        IsStarred = _databaseContext.Starred.Any(s => s.ProjectId == p.Id && s.UserId == userId),
                         Statuses = p.Statuses.Select(s => new StatusDTO
                         {
                             Id = s.Id,

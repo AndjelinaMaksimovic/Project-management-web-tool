@@ -10,6 +10,7 @@
         public DateTime ProjectStartDate { get; set; }
         public DateTime ProjectDueDate { get; set; }
         public bool ProjectArchived { get; set; }
+        public bool ProjectIsStarred { get; set; }
         public List<StatusDTO> ProjectStatuses { get; set; }
         public List<CategoryDTO> ProjectCategories { get; set; }
         public List<UserDTO> ProjectUsers { get; set; }
