@@ -63,6 +63,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
   helpers = helpers
   DraggingType = DraggingType
   ItemSort = ItemSort
+  moment = moment
 
   priorityToColor = {'Low': '#03fc03', 'Medium': '#fcf803', 'High': '#fc1c03'}
 
@@ -233,8 +234,12 @@ export class GanttComponent implements OnInit, AfterViewInit{
     let startDate = min.startOf(this.timeScale)
     this.chartStartDate = startDate.valueOf()
     while(startDate.isBefore(max)){
-      if(helpers.includeDay(startDate.valueOf(), this.hideWeekend, this.holidays))
+      if(this.timeScale != 'day')
         this.dates.push(format(startDate))
+      else{
+        if(helpers.includeDay(startDate.valueOf(), this.hideWeekend, this.holidays))
+          this.dates.push(format(startDate))
+      }
       startDate.add(duration)
     }
 
@@ -256,7 +261,14 @@ export class GanttComponent implements OnInit, AfterViewInit{
       // obj.len = counter
       const tmp = startDate.clone()
       startDate.add(secondaryDuration).startOf(secondaryTimeScale)
-      const len = startDate.diff(tmp, this.timeScale, true)
+      let len = startDate.diff(tmp, this.timeScale, true)
+      if(this.timeScale == 'day'){
+        while(tmp.isBefore(startDate)){
+            if(!helpers.includeDay(tmp.valueOf(), this.hideWeekend, this.holidays))
+              len -= 1
+          tmp.add(duration)
+        } 
+      }
       this.secondaryDates.push({len: len, value: secondaryFormat(startDate)})
 
         // if(month != startDate.format('MMM'))
@@ -373,7 +385,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       if(this.snapDate){
         item.left = moment(item.startDate).startOf(this.timeScale).diff(this.chartStartDate, this.timeScale) * this.columnWidth
 
-        if(moment(item.dueDate) == moment(item.dueDate).startOf(this.timeScale)){
+        if(moment(item.dueDate).valueOf() == moment(item.dueDate).startOf(this.timeScale).valueOf()){
           item.width = moment(item.dueDate).diff(moment(item.startDate).startOf(this.timeScale), this.timeScale) * this.columnWidth
         } else
           item.width = (moment(item.dueDate).startOf(this.timeScale).diff(moment(item.startDate).startOf(this.timeScale), this.timeScale)+1) * this.columnWidth
@@ -479,9 +491,9 @@ export class GanttComponent implements OnInit, AfterViewInit{
       return false
 
     const _offset = {x: event.x - this.draggedOriginal.x, y: event.y - this.draggedOriginal.y}
-    
+
     if(this.dragging == DraggingType.dependency && !this.clipLine){
-      this.offset = {x: _offset.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft), y: _offset.y - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - this.taskHeight}
+      this.offset = {x: _offset.x - (this.chartRect.left - this.chartElem.nativeElement.scrollLeft), y: _offset.y - (this.chartRect.top - this.chartElem.nativeElement.scrollTop) - 40} // - header height
     }
     else if(this.dragging == DraggingType.taskEdgesLeft){
       this.originalItem.width = this.originalWidth - _offset.x
@@ -511,7 +523,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   @HostListener('mouseup', ['$event'])
   onMouseUp(event: MouseEvent | any) {
-    if(!this.originalItem){
+    if(!this.originalItem || (event.x == this.draggedOriginal.x && event.y == this.draggedOriginal.y)){
       this.dragging = DraggingType.none // just in case?
       return
     }
@@ -528,7 +540,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
     if(this.originalItem && this.originalItem != this.lastHovered)  //TODO: State?
       this.originalItem.hover = false
 
-    if((this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight)){
+    if((this.dragging == DraggingType.taskEdgesLeft || this.dragging == DraggingType.taskEdgesRight) && event.x != this.draggedOriginal.x){
       this.updateItemDates(this.originalItem)
       
       if(this.groupByCategory){
@@ -537,7 +549,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       }
       this.initItemDisplay()
     }
-    if(this.dragging == DraggingType.task){
+    if(this.dragging == DraggingType.task && event.x != this.draggedOriginal.x){
       this.updateItemDates(this.originalItem)
       
       if(this.groupByCategory){
@@ -546,7 +558,7 @@ export class GanttComponent implements OnInit, AfterViewInit{
       }
       this.initItemDisplay()
     }
-    if(this.dragging == DraggingType.taskVertical){
+    if(this.dragging == DraggingType.taskVertical && event.y != this.draggedOriginal.y){
       if(this.originalItem == this.lastHovered){
         this.dragging = DraggingType.none
         return false
@@ -700,10 +712,15 @@ export class GanttComponent implements OnInit, AfterViewInit{
     item.startDate = this.chartStartDate + (item.left / this.columnWidth + bias) * moment.duration(1, this.timeScale).asMilliseconds()
     // item.startDate = moment(this.chartStartDate).add(moment.duration((item.left / this.columnWidth + bias), this.timeScale)).valueOf()
     const rem = (item.left + item.width) % this.columnWidth
-    bias = (rem < this.columnWidth / 2 && rem != 0 && this.snapDate) ? -1 : 0 // possible bug with rem == 0 ?
+    bias = (rem < this.columnWidth / 2 && rem != 0 && this.snapDate) ? -1 : 0
     item.dueDate = this.chartStartDate + ((item.width + item.left) / this.columnWidth + bias) * moment.duration(1, this.timeScale).asMilliseconds()
     // item.dueDate = moment(this.chartStartDate).add(moment.duration(((item.width + item.left) / this.columnWidth + bias), this.timeScale)).valueOf()
-
+    
+    // if(this.snapDate){
+    //   item.startDate = moment(this.chartStartDate + (item.left / this.columnWidth) * moment.duration(1, 'day').asMilliseconds()).startOf('day').valueOf()
+    //   if(item.dueDate != moment(item.dueDate).endOf('day').valueOf())
+    //   item.dueDate = moment(this.chartStartDate + ((item.left + item.width) / this.columnWidth) * moment.duration(1, 'day').asMilliseconds()).endOf('day').valueOf()
+    // }
     this.updateTaskDates(item)
     this.updateDependencies(item)
   }
@@ -712,9 +729,14 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
     const updateDependency = (prev: Item, next: Item, limit: number) => {
       if(limit == 0) return
-       // TODO: timescale
       next.dueDate += prev.dueDate - next.startDate + TimeScale.day
       next.startDate = prev.dueDate + TimeScale.day
+      // if(next.id == 3){
+      //   console.log(new Date(prev.dueDate))
+      //   console.log(new Date(next.startDate))
+      // }
+      // if(moment(next.startDate).valueOf() == moment(next.startDate).startOf('day').valueOf())
+      //   next.startDate -= TimeScale.day
       this.updateTaskDates(next)
       next.dependant.forEach(next2 => updateDependency(next, this.items[this.idMap[next2]], limit - 1))
     }
@@ -794,12 +816,12 @@ export class GanttComponent implements OnInit, AfterViewInit{
 
   // TODO: check if its a milestone
   updateTaskDates(item: Item){
-    this.taskService.updateTask({id: item.id, startDate: new Date(item.startDate), dueDate: new Date(item.dueDate)})
+    // this.taskService.updateTask({id: item.id, startDate: new Date(item.startDate), dueDate: new Date(item.dueDate)})
   }
   updateTaskIndexes(item: Item){
-    this.taskService.updateTask({id: item.id, index: item.index})
+    // this.taskService.updateTask({id: item.id, index: item.index})
   }
   updateTaskDependency(item: Item){
-    this.taskService.updateTask({id: item.id, dependentTasks: item.dependant})
+    // this.taskService.updateTask({id: item.id, dependentTasks: item.dependant})
   }
 }

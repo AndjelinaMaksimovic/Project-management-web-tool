@@ -150,7 +150,7 @@
                                     'height': barHeight+'px',
                                     'cursor': item.type != ItemType.category ? 'move' : ''
                                 }"
-                                [attr.title]="(item.type != ItemType.category) ? 'Priority: ' + item.priority : ''"
+                                [attr.title]="(item.type != ItemType.category) ? moment(item.startDate).format('ddd HH:MM, MMM DD, YYYY')+' to '+moment(item.dueDate).format('ddd HH:MM, MMM DD, YYYY')+'; Priority: ' + item.priority : ''"
                             >
                                 <!-- milestone icon -->
                                 <div style="margin-left: 3px; width: 15px; height: 15px; transform: rotateZ(45deg);"
