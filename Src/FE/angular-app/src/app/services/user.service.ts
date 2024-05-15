@@ -93,4 +93,19 @@ export class UserService {
     }
     return false;
   }
+
+  public async getMe() {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + `/User/getMyData`,
+          this.httpOptions
+        )
+      );
+      return res.body[0];
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
 }
