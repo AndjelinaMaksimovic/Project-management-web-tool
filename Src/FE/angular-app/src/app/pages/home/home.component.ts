@@ -46,7 +46,7 @@ export class HomeComponent {
   }
 
   get starredProjects(){
-    return this.projectService.getStarredProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => project.archived);
+    return this.projectService.getStarredProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
   }
 
   get projectProgress() {
@@ -55,7 +55,7 @@ export class HomeComponent {
 
   async ngOnInit(){
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
-    // await this.projectService.fetchStarredProjects(this.userId);
+    await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
 
     if(this.starredProjects.length == 0) {

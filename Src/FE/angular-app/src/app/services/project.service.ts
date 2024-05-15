@@ -109,19 +109,20 @@ export class ProjectService {
     return false;
   }
 
-  public async fetchStarredProjects(id : number) {
-    let params = new HttpParams({ fromObject: { UserId: id } });
+  public async fetchStarredProjects() {
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl + '/Projects/getStarredProjects',
-          { ...environment.httpOptions, params: params }
+          environment.httpOptions
         )
       );
-      this.projects = res.body.map((project: any) => {
+      this.starredProjects = res.body.map((project: any) => {
+        project.starred = true;
         return mapProject(project);
       });
     } catch (e) {
+      this.starredProjects = [];
       console.log(e);
     }
     return false;
@@ -246,7 +247,7 @@ export class ProjectService {
     return false;
   }
 
-  async toggleStarred(id: number) : Promise<boolean> {
+  async toggleStarred(id: number) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -254,7 +255,6 @@ export class ProjectService {
             `/Projects/toggleStarredProject`,
             {
               projectId: id,
-              userId: 1
             },
             {
               ...environment.httpOptions,
@@ -263,6 +263,7 @@ export class ProjectService {
         )
       );
       if (!res.ok) return false;
+      await this.fetchStarredProjects();
       return true;
     } catch (e) {
       console.log(e);
