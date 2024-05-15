@@ -8,8 +8,8 @@
     <!-- up / down -->
     <div class="line normal defaultWidth" [ngClass]="{'hover': hover}"
     [style.left]="from.x + firstOffset + 'px'"
-    [style.height]="abs(offset.y) + ((offset.x < firstOffset) ? - (barHeight / 2) : 0 ) + 'px'"
-    [style.top]="from.y + ((offset.y < 0)? offset.y : 0) + 'px'"></div>
+    [style.height]="abs(offset.y) + 3 + ((offset.x < firstOffset) ? - (barHeight / 2) : 0 ) + 'px'"
+    [style.top]="from.y + ((offset.y < 0)? offset.y + ((offset.x < firstOffset) ? barHeight / 2 : 0) : 0) + 'px'"></div>
     <!-- left / right to task -->
     <div class="line normal defaultHeight" [ngClass]="{'hover': hover}"
     [style.left]="from.x + firstOffset + 'px'"
