@@ -19,7 +19,7 @@ import { EditableNameComponent } from './editable-name/editable-name.component';
   styleUrl: './profile.component.css',
 })
 export class ProfileComponent {
-  userId: number = 0;
+  userId: string = "me";
   user: any;
   
   timestamp: number | undefined;
@@ -38,9 +38,9 @@ export class ProfileComponent {
   ) {}
   async ngOnInit() {
     this.route.params.subscribe((params) => {
-      this.userId = parseInt(params['userId']);
+      this.userId = params['userId'];
     });
-    this.user = await this.userService.getUser(this.userId);
+    this.user = this.userId === "me" ? await this.userService.getMe() : await this.userService.getUser(parseInt(this.userId));
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){
