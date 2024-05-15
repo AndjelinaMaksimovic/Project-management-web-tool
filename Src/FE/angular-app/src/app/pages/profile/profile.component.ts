@@ -8,13 +8,14 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
 import { EditableNameComponent } from './editable-name/editable-name.component';
+import { CommonModule } from '@angular/common';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [NavbarComponent, MaterialModule, MatDividerModule, EditableNameComponent],
+  imports: [NavbarComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
