@@ -299,7 +299,9 @@ namespace Codedberries.Services
                         Statuses = p.Statuses.Select(s => new StatusDTO
                         {
                             Id = s.Id,
-                            Name = s.Name
+                            Name = s.Name,
+                            ProjectId = s.ProjectId,
+                            Order = s.Order
                         }).ToList(),
                         Categories = p.Categories.Select(c => new CategoryDTO
                         {
