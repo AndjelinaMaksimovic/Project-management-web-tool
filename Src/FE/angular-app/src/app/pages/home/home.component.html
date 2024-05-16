@@ -74,7 +74,7 @@
             </div>
             <div *ngIf="staredProjectsAccordionVisible">
                 @for (project of starredProjects; track project) {
-                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="projectProgress.get(project.id)!" [progressBarColor]="'#FFCF32'"></app-project-item>
                 }
                 @if (starredProjects.length == 0) {
                     <p>No starred projects!</p>

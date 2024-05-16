@@ -21,6 +21,8 @@ import { LocalStorageService } from '../../services/localstorage';
 export class HomeComponent {
   search: string = "";
 
+  // userId: number;
+
   filters: Map<string, Filter> = new Map<string, Filter>([
     ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
     ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
@@ -44,8 +46,7 @@ export class HomeComponent {
   }
 
   get starredProjects(){
-    let projects: Project[] = [];
-    return projects;
+    return this.projectService.getStarredProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
   }
 
   get projectProgress() {
@@ -54,6 +55,7 @@ export class HomeComponent {
 
   async ngOnInit(){
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
+    // await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
 
     if(this.starredProjects.length == 0) {

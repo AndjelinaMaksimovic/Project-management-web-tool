@@ -22,7 +22,7 @@ function mapProject(apiProject: any): Project {
     dueDate: new Date(Date.parse(apiProject.dueDate)),
     startDate: new Date(Date.parse(apiProject.startDate)),
     archived: apiProject.archived,
-    starred: apiProject.starred,
+    starred: apiProject.isStarred,
   };
 }
 
@@ -42,6 +42,10 @@ export class ProjectService {
    */
   public getProjects() {
     return this.projects;
+  }
+
+  public getStarredProjects() {
+    return this.projects.filter(project => project.starred);
   }
 
   public getProjectWithID(projectId: number) {
@@ -213,6 +217,29 @@ export class ProjectService {
           {
             ...environment.httpOptions, body: {projectId: id}
           }
+        )
+      );
+      await this.fetchProjects();
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  async toggleStarred(id: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/toggleStarredProject`,
+            {
+              projectId: id,
+            },
+            {
+              ...environment.httpOptions,
+              responseType: "text" as "json"
+            }
         )
       );
       await this.fetchProjects();
