@@ -60,11 +60,13 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to create project!");
             }
 
-
+            // users won't be added at this service
+            /*
             if (userRole.CanAddUserToProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to add users to project!");
             }
+            */
 
             if (string.IsNullOrEmpty(request.Name))
             {
