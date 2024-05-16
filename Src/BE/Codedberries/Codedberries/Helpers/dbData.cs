@@ -141,6 +141,13 @@ namespace Codedberries.Helpers
                 new UserProject { UserId = 6, ProjectId = 3, RoleId = 5 }
             );
 
+            context.TypesOfTaskDependency.AddRange(
+                new TypeOfTaskDependency("start to start"),
+                new TypeOfTaskDependency("start to end"),
+                new TypeOfTaskDependency("end to start"),
+                new TypeOfTaskDependency("end to end")
+                );
+
 
             context.SaveChanges();
 
@@ -281,6 +288,13 @@ namespace Codedberries.Helpers
                 new UserProject { UserId = 5, ProjectId = 3, RoleId = 2 },
                 new UserProject { UserId = 6, ProjectId = 3, RoleId = 5 }
             );
+
+            context.TypesOfTaskDependency.AddRange(
+                new TypeOfTaskDependency("start to start"),
+                new TypeOfTaskDependency("start to end"),
+                new TypeOfTaskDependency("end to start"),
+                new TypeOfTaskDependency("end to end")
+                );
 
             context.SaveChanges();
 
