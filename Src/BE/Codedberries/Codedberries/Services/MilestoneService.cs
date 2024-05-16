@@ -73,11 +73,7 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException(" name is required!");
             }
-
-            if (request.Date==null)
-            {
-                throw new ArgumentException("Date must not be empty!");
-            }
+            
 
             Models.Milestone milestone = new Models.Milestone(request.Name, request.ProjectId, request.Date);
 

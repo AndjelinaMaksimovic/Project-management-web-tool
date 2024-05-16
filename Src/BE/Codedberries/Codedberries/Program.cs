@@ -32,6 +32,7 @@ namespace Codedberries
             builder.Services.AddScoped<CategoryService>();
             builder.Services.AddScoped<PriorityService>();
             builder.Services.AddScoped <UserProjectsService>();
+            builder.Services.AddScoped<MilestoneService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
