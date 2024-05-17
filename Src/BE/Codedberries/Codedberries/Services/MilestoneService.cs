@@ -125,5 +125,85 @@ namespace Codedberries.Services
 
             return Milestones;
         }
+
+        public async Task<UpdatedMilestoneInfoDTO> UpdateMilestone(HttpContext httpContext, MilestoneUpdateRequestDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.IsEmpty())
+            {
+                throw new ArgumentException("Not enough parameters for Milestone update!");
+            }
+
+            if (request.Id <= 0)
+            {
+                throw new ArgumentException("MilestoneId must be greater than 0!");
+            }
+
+            var milestone = await _databaseContext.Milestones
+                .FirstOrDefaultAsync(t => t.MilestoneId == request.Id);
+
+            if (milestone == null)
+            {
+                throw new ArgumentException($"Milestone with ID {request.Id} not found in database!");
+            }
+
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == milestone.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {milestone.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Milestone!");
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                milestone.Name = request.Name;
+            }
+
+            if(request.Date.HasValue)
+            {
+                milestone.Date = request.Date.Value;
+            }
+            
+            await _databaseContext.SaveChangesAsync();
+
+            var updatedMilestoneInfo = new UpdatedMilestoneInfoDTO
+            {
+                MilestoneId = milestone.MilestoneId,
+                Date=milestone.Date
+            };
+            return updatedMilestoneInfo;
+        }
     }
 }
