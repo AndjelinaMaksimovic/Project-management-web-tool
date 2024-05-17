@@ -1,5 +1,6 @@
 ﻿using Codedberries.Helpers;
 using Codedberries.Models.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
 {
@@ -82,6 +83,47 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
             
             
+        }
+
+        public async Task<List<MilestoneDTO>> GetAllMylestonesByProjects(HttpContext httpContext, ProjectIdDTO dto)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            var Milestones = await _databaseContext.Milestones
+                .Where(c => c.ProjectId == dto.ProjectId)
+                .Select(c => new MilestoneDTO { Id = c.MilestoneId, Name = c.Name, Date=c.Date})
+                .ToListAsync();
+
+            if (Milestones == null || !Milestones.Any())
+            {
+                throw new InvalidOperationException("No milestones found for the specified project.");
+            }
+
+            return Milestones;
         }
     }
 }
