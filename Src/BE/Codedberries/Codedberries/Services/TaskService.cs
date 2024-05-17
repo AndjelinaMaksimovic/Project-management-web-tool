@@ -466,7 +466,9 @@ namespace Codedberries.Services
                     CategoryName = task.CategoryId != null ? _databaseContext.Categories.FirstOrDefault(c => c.Id == task.CategoryId).Name : null,
                     PriorityName = task.PriorityId != null ? _databaseContext.Priorities.FirstOrDefault(p => p.Id == task.PriorityId).Name : null,
                     StatusName = task.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == task.StatusId).Name : null,
+                    StartDate = task.StartDate,
                     DueDate = task.DueDate,
+                    FinishedDate = task.FinishedDate != null ? task.FinishedDate : null,
                     AssignedTo = _databaseContext.Users
                         .Where(u => u.Id == task.UserId)
                         .Select(u => new TaskUserInfoDTO
