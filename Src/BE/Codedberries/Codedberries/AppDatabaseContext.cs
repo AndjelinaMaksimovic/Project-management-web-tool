@@ -47,6 +47,11 @@ namespace Codedberries
             modelBuilder.Entity<TaskDependency>()
                 .HasKey(e => new { e.TaskId, e.DependentTaskId });
 
+            modelBuilder.Entity<TaskDependency>()
+                .HasOne(td => td.TypeOfDependency)
+                .WithMany()
+                .HasForeignKey(td => td.TypeOfDependencyId);
+
             modelBuilder.Entity<Category>()
                 .HasIndex(c => new { c.Name, c.ProjectId })
                 .IsUnique();
