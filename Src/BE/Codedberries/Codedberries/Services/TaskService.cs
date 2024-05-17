@@ -205,7 +205,11 @@ namespace Codedberries.Services
 
             try
             {
-                _databaseContext.Tasks.Add(task);
+                foreach (var task in tasks)
+                {
+                    _databaseContext.Tasks.Add(task);
+                }
+
                 await _databaseContext.SaveChangesAsync();
 
                 // adding dependencies to TaskDependency
