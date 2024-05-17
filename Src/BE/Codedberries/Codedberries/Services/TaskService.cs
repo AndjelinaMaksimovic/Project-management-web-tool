@@ -442,6 +442,11 @@ namespace Codedberries.Services
 
                     query = query.Where(t => t.CategoryId == filterParams.CategoryId);
                 }
+
+                if (!string.IsNullOrEmpty(filterParams.TaskName))
+                {
+                    query = query.Where(t => t.Name.Contains(filterParams.TaskName));
+                }
             }
 
             List<Codedberries.Models.Task> tasks = query.ToList();
