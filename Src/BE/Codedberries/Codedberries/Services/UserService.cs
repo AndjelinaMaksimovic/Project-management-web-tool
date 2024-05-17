@@ -538,7 +538,21 @@ namespace Codedberries.Services
 
             if(userToGetPicture.ProfilePicture == null)
             {
-                throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
+                string defaultImageName = "defaultProfilePicture.jpg";
+                string defaultImagePath = Path.Combine("ProfileImages", $"{defaultImageName}");
+                byte[] defaultImageBytes = File.ReadAllBytes(defaultImagePath);
+
+                // generate picture name based on user id
+                string imageName = $"{imageUserId}.jpg";
+
+                // update profile picture
+                userToGetPicture.ProfilePicture = imageName;
+
+                // save image file to folder ProfileImages
+                string imagePathToSet = Path.Combine("ProfileImages", $"{imageName}");
+                File.WriteAllBytesAsync(imagePathToSet, defaultImageBytes);
+
+                // throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
             }
 
             var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", $"{imageUserId}.jpg");
