@@ -1201,6 +1201,26 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Creating dependency for {request.TaskId} and {request.DependentTaskId} would result in a circular dependency!");
             }
 
+            if (task.StartDate > dependentTask.StartDate)
+            {
+                throw new ArgumentException($"Task with ID {task.Id} starts after dependent task {dependentTask.Id}!");
+            }
+
+            if (dependentTask.StartDate <= task.StartDate)
+            {
+                throw new ArgumentException($"Task with ID {request.DependentTaskId} cannot start before or at the same time as the task it depends on (Task {request.TaskId})!");
+            }
+
+            if (dependentTask.DueDate <= task.StartDate)
+            {
+                throw new ArgumentException($"Task with ID {request.DependentTaskId} cannot finish before or at the same time as the task it depends on (Task {request.TaskId})!");
+            }
+
+            if (dependentTask.FinishedDate != null)
+            {
+                throw new ArgumentException($"Task {dependentTask.Id} is already finished!");
+            }
+
             var taskDependency = new TaskDependency
             {
                 TaskId = request.TaskId,
