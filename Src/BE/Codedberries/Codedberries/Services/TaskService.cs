@@ -1149,6 +1149,11 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Task with ID {request.DependentTaskId} does not exist in the database!");
             }
 
+            if (request.TaskId == request.DependentTaskId)
+            {
+                throw new ArgumentException("Both provided tasks IDs are the same!");
+            }
+
             if (task.ProjectId != dependentTask.ProjectId)
             {
                 throw new ArgumentException("Both tasks must belong to the same project!");
