@@ -13,7 +13,7 @@
         public string StatusName { get; set; } 
         public DateTime StartDate {  get; set; }
         public DateTime DueDate { get; set; }
-        public DateTime FinishedDate { get; set; }
+        public DateTime? FinishedDate { get; set; }
         public int DifficultyLevel { get; set; }
         public List<TaskUserInfoDTO> AssignedTo { get; set; }
         public List<int> DependentTasks { get; set; }
