@@ -184,6 +184,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("UserId must be grater than 0!");
             }
 
+            if (userId != request.UserId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to change another user's profile picture!");
+            }
+
             var userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
 
             if (userToSetProfilePicture == null)
