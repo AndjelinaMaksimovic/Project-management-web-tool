@@ -65,5 +65,28 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
+
+        [HttpPut("updateMilestone")]
+        public async Task<IActionResult> UpdateTask([FromBody] MilestoneUpdateRequestDTO request)
+        {
+            try
+            {
+                var updatedMilestoneInfo = await _milestoneService.UpdateMilestone(HttpContext, request);
+
+                return Ok(updatedMilestoneInfo);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new ErrorMsg(ex.Message)); // unauthorized
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating the milestone: {ex.Message}"));
+            }
+        }
     }
 }

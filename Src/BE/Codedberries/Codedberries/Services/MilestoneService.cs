@@ -201,8 +201,11 @@ namespace Codedberries.Services
             var updatedMilestoneInfo = new UpdatedMilestoneInfoDTO
             {
                 MilestoneId = milestone.MilestoneId,
-                Date=milestone.Date
+                Name = milestone.Name,
+                Date=milestone.Date,
+                ProjectId=milestone.ProjectId
             };
+            
             return updatedMilestoneInfo;
         }
     }
