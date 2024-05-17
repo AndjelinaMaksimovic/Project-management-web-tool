@@ -18,7 +18,11 @@ namespace Codedberries
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Starred> Starred { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }
+<<<<<<< HEAD
         public DbSet<TypeOfTaskDependency> TypesOfTaskDependency { get; set; }
+=======
+        public DbSet<Milestone> Milestones { get; set; }
+>>>>>>> ab399e19 (#201 dodat milestonecreation u milestoneService)
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
