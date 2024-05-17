@@ -1110,6 +1110,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.TypeOfDependencyId <= 0)
+            {
+                throw new ArgumentException("Type Of Dependency ID must be greater than zero!");
+            }
+
             var typeOfDependencyExists = await _databaseContext.TypesOfTaskDependency
                 .AnyAsync(t => t.Id == request.TypeOfDependencyId);
 
@@ -1176,11 +1181,11 @@ namespace Codedberries.Services
 
             // does dependency already exist
             var existingDependency = await _databaseContext.Set<TaskDependency>()
-                .AnyAsync(td => td.TaskId == request.TaskId && td.DependentTaskId == request.DependentTaskId && td.TypeOfDependencyId == request.TypeOfDependencyId);
+                .AnyAsync(td => td.TaskId == request.TaskId && td.DependentTaskId == request.DependentTaskId);
 
             if (existingDependency)
             {
-                throw new InvalidOperationException("A dependency between these two tasks with the same type already exists!");
+                throw new InvalidOperationException("A dependency between these two tasks already exists!");
             }
 
             var cyclicDependencyDetected = DetectCyclicDependency(request.TaskId, request.DependentTaskId);
