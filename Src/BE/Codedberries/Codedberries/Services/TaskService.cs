@@ -215,29 +215,32 @@ namespace Codedberries.Services
                 // adding dependencies to TaskDependency
                 if (request.DependencyIds != null && request.DependencyIds.Any())
                 {
-                    foreach (int dependency_id in request.DependencyIds)
+                    foreach (var task in tasks)
                     {
-                        var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
-
-                        if (taskDependency == null)
+                        foreach (int dependency_id in request.DependencyIds)
                         {
-                            throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                            var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+
+                            if (taskDependency == null)
+                            {
+                                throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                            }
+
+                            var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
+
+                            if (cyclicDependencyDetected)
+                            {
+                                throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                            }
+
+                            TaskDependency newDependency = new TaskDependency
+                            {
+                                TaskId = taskDependency.Id,
+                                DependentTaskId = task.Id
+                            };
+
+                            _databaseContext.Set<TaskDependency>().Add(newDependency);
                         }
-
-                        var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
-
-                        if (cyclicDependencyDetected)
-                        {
-                            throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
-                        }
-
-                        TaskDependency newDependency = new TaskDependency
-                        {
-                            TaskId = taskDependency.Id,
-                            DependentTaskId = task.Id
-                        };
-
-                        _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
 
