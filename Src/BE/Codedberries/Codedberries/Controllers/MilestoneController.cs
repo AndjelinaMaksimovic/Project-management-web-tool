@@ -42,5 +42,28 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while creating new Milestone: {ex.Message}"));
             }
         }
+
+        [HttpPost("allProjectMilestones")]
+        public async Task<IActionResult> GetAllProjectMilestones([FromBody] ProjectIdDTO request)
+        {
+            try
+            {
+                var milestones = await _milestoneService.GetAllMylestonesByProjects(HttpContext, request);
+
+                return Ok(milestones);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
     }
 }
