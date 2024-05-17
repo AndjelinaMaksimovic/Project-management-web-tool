@@ -551,6 +551,7 @@ namespace Codedberries.Services
                 // save image file to folder ProfileImages
                 string imagePathToSet = Path.Combine("ProfileImages", $"{imageName}");
                 File.WriteAllBytesAsync(imagePathToSet, defaultImageBytes);
+                _databaseContext.SaveChangesAsync();
 
                 // throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
             }
