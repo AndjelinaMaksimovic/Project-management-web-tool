@@ -130,6 +130,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("Invalid difficulty level!");
             }
 
+            if (request.UserIds == null || !request.UserIds.Any())
+            {
+                throw new ArgumentException("At least one user ID must be provided!");
+            }
+
             if (request.UserId <= 0)
             {
                 throw new ArgumentException("User ID must be greater than zero!");
