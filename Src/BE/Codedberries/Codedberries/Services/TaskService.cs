@@ -1290,7 +1290,7 @@ namespace Codedberries.Services
 
             if (userRole.CanEditTask == false)
             {
-                throw new UnauthorizedAccessException("User does not have permission to edit Task dependency!");
+                throw new UnauthorizedAccessException("User does not have permission to delete Task dependency!");
             }
             // ---------------- //
 
@@ -1299,7 +1299,7 @@ namespace Codedberries.Services
 
             if (dependencyToDelete == null)
             {
-                throw new InvalidOperationException("A dependency between these two tasks doesn't exists!");
+                throw new InvalidOperationException("A dependency between these two tasks doesn't exists in database!");
             }
 
             _databaseContext.Set<TaskDependency>().RemoveRange(dependencyToDelete);
