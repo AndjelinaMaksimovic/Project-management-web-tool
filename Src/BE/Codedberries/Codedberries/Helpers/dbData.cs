@@ -74,12 +74,12 @@ namespace Codedberries.Helpers
 
             context.Users.AddRange(
 
-             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", 1),
-             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", null),
-             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null),
-             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3),
-             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", 2),
-             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 4)
+             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", 1, "1.jpg"),
+             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", null, "2.jpg"),
+             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null, "3.jpg"),
+             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3, "4.jpg"),
+             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", 2, "5.jpg"),
+             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 4, "6.jpg")
              );
             
             context.SaveChanges();
@@ -223,12 +223,12 @@ namespace Codedberries.Helpers
 
             context.Users.AddRange(
 
-             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", null),
-             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", 1),
-             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null),
-             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3),
-             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", null),
-             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 5)
+             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", null, "1.jpg"),
+             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", 1, "2.jpg"),
+             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null, "3.jpg"),
+             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3, "4.jpg"),
+             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", null, "5.jpg"),
+             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 5, "6.jpg")
              );
 
             context.SaveChanges();
