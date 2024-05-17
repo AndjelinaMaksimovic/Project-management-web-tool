@@ -174,8 +174,19 @@ namespace Codedberries.Services
                 }
             }
 
-            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
-            
+            var tasks = new List<Models.Task>();
+
+            foreach (var providedUserId in request.UserIds)
+            {
+                Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate, providedUserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+                tasks.Add(task);
+            }
+
+            if (!tasks.Any())
+            {
+                throw new InvalidOperationException("No tasks were created. The task list is empty!");
+            }
+
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
