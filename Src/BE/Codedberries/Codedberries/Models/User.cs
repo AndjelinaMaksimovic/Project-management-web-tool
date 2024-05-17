@@ -64,7 +64,7 @@ namespace Codedberries.Models
             PasswordSalt= salt;
         }
 
-        public User(string email, string password, string firstname, string lastname, int? roleId)
+        public User(string email, string password, string firstname, string lastname, int? roleId, string? profilePicture)
         {
             Email = email;
             GenerateSalt(); 
@@ -73,7 +73,8 @@ namespace Codedberries.Models
             RoleId = roleId;
             Activated = false;
             ActivationToken = null;
-            if(password.Length<64) { HashPassword(password,PasswordSalt); }
+            ProfilePicture = profilePicture;
+            if (password.Length<64) { HashPassword(password,PasswordSalt); }
             else Password = password;
         }
     }
