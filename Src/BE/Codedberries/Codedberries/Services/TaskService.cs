@@ -200,6 +200,25 @@ namespace Codedberries.Services
                 }
             }
 
+            if (request.DependencyIds != null && request.DependencyIds.Count != request.TypeOfDependencyIds.Count)
+            {
+                throw new ArgumentException("The number of DependencyIds must match the number of TypeOfDependencyIds!");
+            }
+
+            if (request.DependencyIds != null && request.TypeOfDependencyIds != null)
+            {
+                foreach (var typeOfDependencyId in request.TypeOfDependencyIds)
+                {
+                    var typeOfDependencyExists = await _databaseContext.TypesOfTaskDependency
+                        .AnyAsync(t => t.Id == typeOfDependencyId);
+
+                    if (!typeOfDependencyExists)
+                    {
+                        throw new ArgumentException($"TypeOfTaskDependency with ID {typeOfDependencyId} does not exist in the database!");
+                    }
+                }
+            }
+
             // if there is circual dependency, task won't be created
             using var transaction = await _databaseContext.Database.BeginTransactionAsync();
 
@@ -217,9 +236,12 @@ namespace Codedberries.Services
                 {
                     foreach (var task in tasks)
                     {
+                        var i = 0;
+
                         foreach (int dependency_id in request.DependencyIds)
                         {
                             var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+                            var typeOfDependencyId = request.TypeOfDependencyIds[i];
 
                             if (taskDependency == null)
                             {
@@ -230,14 +252,17 @@ namespace Codedberries.Services
 
                             if (cyclicDependencyDetected)
                             {
-                                throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                                 throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
                             }
 
                             TaskDependency newDependency = new TaskDependency
                             {
                                 TaskId = taskDependency.Id,
-                                DependentTaskId = task.Id
-                            };
+                                DependentTaskId = task.Id,
+                                TypeOfDependencyId = typeOfDependencyId
+                             };
+
+                            i++;
 
                             _databaseContext.Set<TaskDependency>().Add(newDependency);
                         }
