@@ -164,11 +164,14 @@ namespace Codedberries.Services
                 }
             }
 
-            var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
-
-            if (existingTask != null)
+            foreach (var providedUserId in request.UserIds)
             {
-                throw new ArgumentException($"Task with name '{request.Name}' already exists in the database for the specified project!");
+                var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId && t.UserId == providedUserId);
+
+                if (existingTask != null)
+                {
+                    throw new ArgumentException($"Provided user {providedUserId} is already on Task with name '{request.Name}' in the database for the specified project {request.ProjectId}!");
+                }
             }
 
             Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
