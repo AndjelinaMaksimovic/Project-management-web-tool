@@ -130,41 +130,63 @@ namespace Codedberries.Services
                 throw new ArgumentException("Invalid difficulty level!");
             }
 
-            if (request.UserId <= 0)
+            if (request.UserIds == null || !request.UserIds.Any())
             {
-                throw new ArgumentException("User ID must be greater than zero!");
+                throw new ArgumentException("At least one user ID must be provided!");
             }
 
-            var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
-
-            if (requestedUser == null)
+            foreach (var providedUserId in request.UserIds)
             {
-                throw new ArgumentException("User with the provided ID does not exist in database!");
+                if (providedUserId <= 0)
+                {
+                    throw new ArgumentException("Provided user ID must be greater than zero!");
+                }
+
+                var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
+
+                if (requestedUser == null)
+                {
+                    throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                }
+
+                if (requestedUser.RoleId == null)
+                {
+                    throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                }
+
+                // is provided user assigned on project where new task is being created?
+                var userOnTask = _databaseContext.UserProjects
+                    .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == request.ProjectId);
+
+                if (userOnTask == null)
+                {
+                    throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {request.ProjectId} in UserProjects table!");
+                }
             }
 
-            if (requestedUser.RoleId == null)
+            foreach (var providedUserId in request.UserIds)
             {
-                throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId && t.UserId == providedUserId);
+
+                if (existingTask != null)
+                {
+                    throw new ArgumentException($"Provided user {providedUserId} is already on Task with name '{request.Name}' in the database for the specified project {request.ProjectId}!");
+                }
             }
 
-            // is provided user assigned on project where new task is being created?
-            var userOnTask = _databaseContext.UserProjects
-                .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == request.ProjectId);
+            var tasks = new List<Models.Task>();
 
-            if (userOnTask == null)
+            foreach (var providedUserId in request.UserIds)
             {
-                throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {request.ProjectId} in UserProjects table!");
+                Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate, providedUserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+                tasks.Add(task);
             }
 
-            var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
-
-            if (existingTask != null)
+            if (!tasks.Any())
             {
-                throw new ArgumentException($"Task with name '{request.Name}' already exists in the database for the specified project!");
+                throw new InvalidOperationException("No tasks were created. The task list is empty!");
             }
 
-            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
-            
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
@@ -183,35 +205,42 @@ namespace Codedberries.Services
 
             try
             {
-                _databaseContext.Tasks.Add(task);
+                foreach (var task in tasks)
+                {
+                    _databaseContext.Tasks.Add(task);
+                }
+
                 await _databaseContext.SaveChangesAsync();
 
                 // adding dependencies to TaskDependency
                 if (request.DependencyIds != null && request.DependencyIds.Any())
                 {
-                    foreach (int dependency_id in request.DependencyIds)
+                    foreach (var task in tasks)
                     {
-                        var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
-
-                        if (taskDependency == null)
+                        foreach (int dependency_id in request.DependencyIds)
                         {
-                            throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                            var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+
+                            if (taskDependency == null)
+                            {
+                                throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                            }
+
+                            var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
+
+                            if (cyclicDependencyDetected)
+                            {
+                                throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                            }
+
+                            TaskDependency newDependency = new TaskDependency
+                            {
+                                TaskId = taskDependency.Id,
+                                DependentTaskId = task.Id
+                            };
+
+                            _databaseContext.Set<TaskDependency>().Add(newDependency);
                         }
-
-                        var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
-
-                        if (cyclicDependencyDetected)
-                        {
-                            throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
-                        }
-
-                        TaskDependency newDependency = new TaskDependency
-                        {
-                            TaskId = taskDependency.Id,
-                            DependentTaskId = task.Id
-                        };
-
-                        _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
 
@@ -413,6 +442,11 @@ namespace Codedberries.Services
 
                     query = query.Where(t => t.CategoryId == filterParams.CategoryId);
                 }
+
+                if (!string.IsNullOrEmpty(filterParams.TaskName))
+                {
+                    query = query.Where(t => t.Name.Contains(filterParams.TaskName));
+                }
             }
 
             List<Codedberries.Models.Task> tasks = query.ToList();
@@ -437,7 +471,9 @@ namespace Codedberries.Services
                     CategoryName = task.CategoryId != null ? _databaseContext.Categories.FirstOrDefault(c => c.Id == task.CategoryId).Name : null,
                     PriorityName = task.PriorityId != null ? _databaseContext.Priorities.FirstOrDefault(p => p.Id == task.PriorityId).Name : null,
                     StatusName = task.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == task.StatusId).Name : null,
+                    StartDate = task.StartDate,
                     DueDate = task.DueDate,
+                    FinishedDate = task.FinishedDate != null ? task.FinishedDate : null,
                     AssignedTo = _databaseContext.Users
                         .Where(u => u.Id == task.UserId)
                         .Select(u => new TaskUserInfoDTO
