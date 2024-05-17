@@ -18,6 +18,11 @@ import {
     NgxGanttComponent,
     NgxGanttModule
 } from '@worktile/gantt';
+import { TaskService } from '../../services/task.service';
+import { StatusService } from '../../services/status.service';
+import { PriorityService } from '../../services/priority.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { LocalStorageService } from '../../services/localstorage';
 
 @Component({
   selector: 'app-ngxgantt-test',
@@ -28,6 +33,36 @@ import {
 })
 
 export class NgxganttTestComponent {
+  mapTask(task: any): GanttItem {
+    return {
+      id: task.id,
+      title: task.title,
+
+      start: task.startDate,
+      end: task.dueDate
+      // group_id: string;
+      // links?: (GanttLink | string)[];
+      // draggable?: boolean;
+      // itemDraggable?: boolean;
+      // linkable?: boolean;
+      // expandable?: boolean;
+      // expanded?: boolean;
+      // children?: GanttItem[];
+      // color?: string;
+      // barStyle?: Partial<CSSStyleDeclaration>;
+      // origin?: T;
+      // type?: GanttItemType;
+      // progress?: number;
+    };
+  }
+
+  convertTasksToNgx(tasks: any) : GanttItem[] {
+    let newTasks = tasks.map((task: any) => {
+      return this.mapTask(task);
+    });
+    return newTasks;
+  }
+
   views = [
       {
           name: 'h',
@@ -106,8 +141,25 @@ export class NgxganttTestComponent {
       return true;
   };
 
-  ngOnInit(): void {
-      console.log(this.items);
+  constructor(
+    private taskService: TaskService,
+    private statusService: StatusService,
+    private priorityService: PriorityService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private localStorageService: LocalStorageService,
+  ) {}
+
+  projectId: number = 0;
+
+  async ngOnInit() {
+    console.log(this.items);
+
+    await this.route.params.subscribe((params) => {
+      this.projectId = parseInt(params['id']);
+    });
+    await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    this.items = this.convertTasksToNgx(this.taskService.getTasks()); 
   }
 
   ngAfterViewInit() {

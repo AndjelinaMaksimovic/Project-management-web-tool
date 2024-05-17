@@ -31,6 +31,6 @@ export const routes: Routes = [
   { path: 'project/:id/task/:taskId', title: 'Codedberries | Task', component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'archived-projects', component: ArchivedProjectsComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
-  { path: 'ngxgantt-test', title: 'Codedberries | Gantt', component: NgxganttTestComponent, canActivate: [LoggedIn] },
+  { path: 'ngxgantt-test/:id', title: 'Codedberries | Gantt', component: NgxganttTestComponent, canActivate: [LoggedIn] },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];
