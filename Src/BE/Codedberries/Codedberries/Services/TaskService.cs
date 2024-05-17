@@ -135,30 +135,33 @@ namespace Codedberries.Services
                 throw new ArgumentException("At least one user ID must be provided!");
             }
 
-            if (request.UserId <= 0)
+            foreach (var providedUserId in request.UserIds)
             {
-                throw new ArgumentException("User ID must be greater than zero!");
-            }
+                if (providedUserId <= 0)
+                {
+                    throw new ArgumentException("Provided user ID must be greater than zero!");
+                }
 
-            var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+                var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
 
-            if (requestedUser == null)
-            {
-                throw new ArgumentException("User with the provided ID does not exist in database!");
-            }
+                if (requestedUser == null)
+                {
+                    throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                }
 
-            if (requestedUser.RoleId == null)
-            {
-                throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
-            }
+                if (requestedUser.RoleId == null)
+                {
+                    throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                }
 
-            // is provided user assigned on project where new task is being created?
-            var userOnTask = _databaseContext.UserProjects
-                .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == request.ProjectId);
+                // is provided user assigned on project where new task is being created?
+                var userOnTask = _databaseContext.UserProjects
+                    .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == request.ProjectId);
 
-            if (userOnTask == null)
-            {
-                throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {request.ProjectId} in UserProjects table!");
+                if (userOnTask == null)
+                {
+                    throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {request.ProjectId} in UserProjects table!");
+                }
             }
 
             var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
