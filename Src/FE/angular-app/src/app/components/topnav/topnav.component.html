@@ -18,6 +18,7 @@
             <i class="fa-solid fa-chevron-down fa-sm ml-10 center" style="margin-top: 0.75rem;"></i>
         </button>
         <mat-menu #profileDropdown="matMenu" xPosition="before">
+            <button mat-menu-item [routerLink]="'/profile/me'">View profile</button>
             <button mat-menu-item (click)="logOut()">Log out</button>
         </mat-menu>
     </div>
