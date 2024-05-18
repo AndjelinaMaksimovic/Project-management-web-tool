@@ -6,12 +6,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 export type Comment = {
   author: string,
+  authorId: string,
   date: Date,
   content: string,
 }
 function mapComment(apiComment: any) {
   return {
     author: `${apiComment.firstName} ${apiComment.lastName}`,
+    authorId: apiComment.userId,
     date: new Date(apiComment.commentDate),
     content: apiComment.comment,
     id: apiComment.commentId,

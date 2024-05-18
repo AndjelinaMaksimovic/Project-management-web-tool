@@ -22,6 +22,6 @@
             <div style="font-size: smaller;">📅 {{task.dueDate.toDateString()}}</div>
         </div>
         <!-- avatar -->
-        <div style="width: 32px; height: 32px; border-radius: 100%; background-color: rgb(255, 102, 0); color: white; text-align: center; vertical-align: center; line-height: 32px;">A</div>
+        <app-avatar-stack [userIds]="asigneeIds"></app-avatar-stack>
     </div>
 </div>
