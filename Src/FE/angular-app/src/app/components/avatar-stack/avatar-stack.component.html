@@ -1,5 +1,17 @@
-<div class="avatar-stack">
+<div *ngIf="avatarUrls.length <= 3" class="avatar-stack">
     <div *ngFor="let avatarUrl of avatarUrls" class="avatar">
         <img [src]="avatarUrl" alt="Avatar">
+    </div>
+</div>
+<div *ngIf="avatarUrls.length > 3" class="avatar-stack">
+    <div class="avatar">
+        <img [src]="avatarUrls[0]" alt="Avatar">
+    </div>
+    <div class="avatar">
+        <img [src]="avatarUrls[2]" alt="Avatar">
+    </div>
+    <div class="avatar"
+        style="background-color: rgb(225, 225, 225); color: rgb(180, 180, 180); text-align: center; vertical-align: center; line-height: 32px;">
+        +{{avatarUrls.length - 2}}
     </div>
 </div>

@@ -6,7 +6,7 @@
     /* Adjust based on your needs */
 
     display: flex;
-    padding: 12px;
+    padding: 10px;
 }
 
 .avatar {
@@ -20,7 +20,7 @@
     /* Fallback color */
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     /* Optional shadow for depth */
-    margin: -12px;
+    margin: -10px;
     /* Space between avatars */
 }
 
