@@ -1,17 +1,18 @@
-<img *ngIf="avatarUrls.length == 1" style="width: 32px; height: 32px; border-radius: 100%;" [src]="avatarUrls[0]">
+<img *ngIf="avatarUrls.length == 1" [style]="'width: '+size+'px; height: '+size+'px; border-radius: 100%;'"
+    [src]="avatarUrls[0]">
 <div *ngIf="avatarUrls.length > 1 && avatarUrls.length <= 3" class="avatar-stack">
-    <div *ngFor="let avatarUrl of avatarUrls" class="avatar">
+    <div *ngFor="let avatarUrl of avatarUrls" class="avatar" [style]="'width: '+size+'px; height: '+size+'px;'">
         <img [src]="avatarUrl" alt="Avatar">
     </div>
 </div>
 <div *ngIf="avatarUrls.length > 3" class="avatar-stack">
-    <div class="avatar">
+    <div class="avatar" [style]="'width: '+size+'px; height: '+size+'px;'">
         <img [src]="avatarUrls[0]" alt="Avatar">
     </div>
-    <div class="avatar">
+    <div class="avatar" [style]="'width: '+size+'px; height: '+size+'px;'">
         <img [src]="avatarUrls[2]" alt="Avatar">
     </div>
-    <div class="avatar"
+    <div class="avatar" [style]="'width: '+size+'px; height: '+size+'px;'"
         style="background-color: rgb(225, 225, 225); color: rgb(180, 180, 180); text-align: center; vertical-align: center; line-height: 32px;">
         +{{avatarUrls.length - 2}}
     </div>

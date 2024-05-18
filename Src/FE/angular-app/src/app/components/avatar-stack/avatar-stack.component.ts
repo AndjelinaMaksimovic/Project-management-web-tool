@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AvatarStackComponent {
   @Input() userIds: (string | number)[] = [];
+  @Input() size: number = 32;
   get avatarUrls(){
     return this.userIds.map(id => this.avatarService.getProfileImagePath(id));
   }
