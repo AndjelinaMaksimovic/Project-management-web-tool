@@ -14,7 +14,7 @@
             <i class="fa-regular fa-bell fa-lg"></i>
         </button>
         <button mat-button class="dropdown-button ml-10 white" [matMenuTriggerFor]="profileDropdown">
-            <img class="profile-picture center" src="/assets/logo.svg">
+            <img class="profile-picture center" [src]="getProfileImagePath()">
             <i class="fa-solid fa-chevron-down fa-sm ml-10 center" style="margin-top: 0.75rem;"></i>
         </button>
         <mat-menu #profileDropdown="matMenu" xPosition="before">
