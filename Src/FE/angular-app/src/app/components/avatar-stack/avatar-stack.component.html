@@ -1,4 +1,5 @@
-<div *ngIf="avatarUrls.length <= 3" class="avatar-stack">
+<img *ngIf="avatarUrls.length == 1" style="width: 32px; height: 32px; border-radius: 100%;" [src]="avatarUrls[0]">
+<div *ngIf="avatarUrls.length > 1 && avatarUrls.length <= 3" class="avatar-stack">
     <div *ngFor="let avatarUrl of avatarUrls" class="avatar">
         <img [src]="avatarUrl" alt="Avatar">
     </div>
