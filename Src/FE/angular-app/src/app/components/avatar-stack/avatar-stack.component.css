@@ -1,0 +1,31 @@
+.avatar-stack {
+    position: relative;
+    /* width: 120px; */
+    /* Adjust based on your needs */
+    /* height: 120px; */
+    /* Adjust based on your needs */
+
+    display: flex;
+    padding: 12px;
+}
+
+.avatar {
+    /* position: absolute; */
+    width: 32px;
+    /* Half of the stack size */
+    height: 32px;
+    /* Half of the stack size */
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    /* Fallback color */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    /* Optional shadow for depth */
+    margin: -12px;
+    /* Space between avatars */
+}
+
+.avatar img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+}
