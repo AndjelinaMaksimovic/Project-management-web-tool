@@ -1,20 +1,10 @@
 .avatar-stack {
     position: relative;
-    /* width: 120px; */
-    /* Adjust based on your needs */
-    /* height: 120px; */
-    /* Adjust based on your needs */
-
     display: flex;
     padding: 10px;
 }
 
 .avatar {
-    /* position: absolute; */
-    width: 32px;
-    /* Half of the stack size */
-    height: 32px;
-    /* Half of the stack size */
     border-radius: 50%;
     background-color: #f0f0f0;
     /* Fallback color */
