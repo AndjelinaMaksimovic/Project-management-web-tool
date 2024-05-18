@@ -25,7 +25,7 @@ export class ProfileComponent {
   loggedInUser: number | undefined;
   user: any;
   
-  timestamp: number | undefined;
+  timestamp: number = Date.now();
   getProfileImagePath(){
     return `${environment.apiUrl}/User/users/avatars/${this.user.id}?timestamp=${this.timestamp}`
   }
