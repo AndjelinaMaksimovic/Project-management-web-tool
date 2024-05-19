@@ -339,7 +339,12 @@ namespace Codedberries.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(2);
 
+                    b.Property<int>("TypeOfDependencyId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TaskId", "DependentTaskId");
+
+                    b.HasIndex("TypeOfDependencyId");
 
                     b.ToTable("TaskDependency");
                 });
@@ -545,6 +550,14 @@ namespace Codedberries.Migrations
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Codedberries.Models.TypeOfTaskDependency", "TypeOfDependency")
+                        .WithMany()
+                        .HasForeignKey("TypeOfDependencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TypeOfDependency");
                 });
 
             modelBuilder.Entity("Codedberries.Models.User", b =>

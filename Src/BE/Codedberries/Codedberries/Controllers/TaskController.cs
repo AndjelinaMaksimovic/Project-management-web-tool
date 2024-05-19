@@ -183,5 +183,59 @@ namespace Codedberries.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred while processing your request: {ex.Message}"));
             }
         }
+
+        [HttpPost("createTaskDependency")]
+        public async Task<IActionResult> CreateTaskDependency([FromBody] TaskDependencyRequestDTO request)
+        {
+            try
+            {
+                await _taskService.CreateTaskDependency(HttpContext, request);
+
+                return Ok("Task dependency created successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpDelete("deleteTaskDependency")]
+        public async Task<IActionResult> DeleteTaskDependencies([FromBody] TaskDependencyDeletionDTO request)
+        {
+            try
+            {
+                await _taskService.DeleteTaskDependencies(HttpContext, request);
+
+                return Ok("Task dependency deleted successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
     }
 }
