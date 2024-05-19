@@ -171,12 +171,13 @@ export class TaskService {
    * this function takes a partial task object and updates the corresponding task accordingly
    * @param task partial task object. Must have Id
    */
-  async updateTask(task: Partial<Task> & Pick<Task, 'id'> & {
-    categoryId?: string | undefined,
-    statusId?: string | undefined,
-    priorityId?: string | undefined,
-    userId?: string | undefined,
-  }) {
+  // async updateTask(task: Partial<Task> & Pick<Task, 'id'> & {
+  //   categoryId?: string | undefined,
+  //   statusId?: string | undefined,
+  //   priorityId?: string | undefined,
+  //   userId?: string | undefined,
+  // }) {
+  async updateTask(task: any) {
     try {
       const request: Record<string, unknown> = { taskId: task.id };
       if (task.status)

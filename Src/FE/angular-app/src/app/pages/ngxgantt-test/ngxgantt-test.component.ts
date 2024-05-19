@@ -159,7 +159,8 @@ export class NgxganttTestComponent {
       this.projectId = parseInt(params['id']);
     });
     await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
-    this.items = this.convertTasksToNgx(this.taskService.getTasks()); 
+    this.items = this.convertTasksToNgx(this.taskService.getTasks());
+    console.log(this.taskService.getTasks());
   }
 
   ngAfterViewInit() {
@@ -179,6 +180,16 @@ export class NgxganttTestComponent {
   dragEnded(event: GanttDragEvent) {
       console.log('Event: dragEnded', `[${event.item.title}]`);
       this.items = [...this.items];
+
+      console.log(event.item);
+
+      console.log((new Date(event.item.start! * 1000)));
+
+      this.taskService.updateTask({
+        id: parseInt(event.item.id),
+        startDate: (new Date(event.item.start! * 1000)),
+        dueDate: (new Date(event.item.end! * 1000))
+      })
   }
 
   selectedChange(event: GanttSelectedEvent) {
