@@ -1225,24 +1225,25 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Creating dependency for {request.TaskId} and {request.DependentTaskId} would result in a circular dependency!");
             }
 
-            if (task.StartDate > dependentTask.StartDate)
+            if (!CheckDependencyCondition(task, dependentTask, request.TypeOfDependencyId))
             {
-                throw new ArgumentException($"Task with ID {task.Id} starts after dependent task {dependentTask.Id}!");
-            }
+                switch (request.TypeOfDependencyId)
+                {
+                    case 1: // Start to Start Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot start before the dependent task {dependentTask.Id}!");
 
-            if (dependentTask.StartDate <= task.StartDate)
-            {
-                throw new ArgumentException($"Task with ID {request.DependentTaskId} cannot start before or at the same time as the task it depends on (Task {request.TaskId})!");
-            }
+                    case 2: // Start to End Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot start before the dependent task {dependentTask.Id} ends!");
 
-            if (dependentTask.DueDate <= task.StartDate)
-            {
-                throw new ArgumentException($"Task with ID {request.DependentTaskId} cannot finish before or at the same time as the task it depends on (Task {request.TaskId})!");
-            }
+                    case 3: // End to Start Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot end after the dependent task {dependentTask.Id} starts!");
 
-            if (dependentTask.FinishedDate != null)
-            {
-                throw new ArgumentException($"Task {dependentTask.Id} is already finished!");
+                    case 4: // End to End Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot end before the dependent task {dependentTask.Id} ends!");
+
+                    default:
+                        throw new ArgumentException("Invalid type of dependency");
+                }
             }
 
             var taskDependency = new TaskDependency
