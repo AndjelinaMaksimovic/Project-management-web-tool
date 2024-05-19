@@ -1381,7 +1381,14 @@ namespace Codedberries.Services
 
                 bool conditionMet;
                 string dependencyTypeMessage;
-                int typeOfDependency = dependency.TypeOfDependency.Id;
+
+                var validTypeOfDependencyIds = new HashSet<int> { 1, 2, 3, 4 };
+                int typeOfDependency = dependency.TypeOfDependencyId;
+
+                if (!validTypeOfDependencyIds.Contains(typeOfDependency))
+                {
+                    throw new InvalidOperationException($"Dependency {dependency.TaskId} - {dependency.DependentTaskId} does not have a valid TypeOfDependency!");
+                }
 
                 switch (typeOfDependency)
                 {
