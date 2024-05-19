@@ -784,7 +784,9 @@ namespace Codedberries.Services
                     }
                 }
 
-                task.StartDate = request.StartDate.Value;
+                bool forceDateChange = request.ForceDateChange ?? false;
+
+                await UpdateTaskDate(task.Id, request.StartDate.Value, forceDateChange);
             }
 
             if (request.DueDate.HasValue)
@@ -802,7 +804,9 @@ namespace Codedberries.Services
                     }
                 }
 
-                task.DueDate = request.DueDate.Value;
+                bool forceDateChange = request.ForceDateChange ?? false;
+
+                await UpdateTaskDate(task.Id, request.DueDate.Value, forceDateChange);
             }
 
             if (request.UserId.HasValue)
