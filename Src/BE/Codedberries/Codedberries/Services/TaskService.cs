@@ -1325,5 +1325,26 @@ namespace Codedberries.Services
             _databaseContext.Set<TaskDependency>().RemoveRange(dependencyToDelete);
             await _databaseContext.SaveChangesAsync();
         }
+
+        public bool CheckDependencyCondition(Codedberries.Models.Task taskOne, Codedberries.Models.Task taskTwo, int typeOfDependency)
+        {
+            switch (typeOfDependency)
+            {
+                case 1: // Start to Start Dependency
+                    return taskOne.StartDate >= taskTwo.StartDate;
+
+                case 2: // Start to End Dependency
+                    return taskOne.StartDate >= taskTwo.DueDate;
+
+                case 3: // End to Start Dependency
+                    return taskTwo.StartDate >= taskOne.DueDate;
+
+                case 4: // End to End Dependency
+                    return taskOne.DueDate >= taskTwo.DueDate;
+
+                default:
+                    throw new ArgumentException("Invalid type of dependency");
+            }
+        }
     }
 }
