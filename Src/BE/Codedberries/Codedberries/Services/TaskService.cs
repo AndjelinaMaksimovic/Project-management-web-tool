@@ -647,6 +647,55 @@ namespace Codedberries.Services
                 .Where(t => t.Name == taskProvided.Name && t.ProjectId == taskProvided.ProjectId)
                 .ToListAsync();
 
+            if (request.StartDate.HasValue && request.DueDate.HasValue)
+            {
+                if (Helper.IsDateRangeValid(request.StartDate.Value, request.DueDate.Value) == false)
+                {
+                    throw new ArgumentException("Invalid StartDate and DueDate range!");
+                }
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
+                {
+                    throw new ArgumentException("StartDate must be a valid date!");
+                }
+
+                if (request.StartDate > taskProvided.DueDate)
+                {
+                    if (!request.DueDate.HasValue)
+                    {
+                        throw new ArgumentException("StartDate cannot be after DueDate!");
+                    }
+                }
+
+                bool forceDateChange = request.ForceDateChange ?? false;
+
+                await UpdateTaskDate(taskProvided.Id, request.StartDate.Value, forceDateChange);
+            }
+
+            if (request.DueDate.HasValue)
+            {
+                if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
+                {
+                    throw new ArgumentException("DueDate must be a valid date!");
+                }
+
+                if (request.DueDate < taskProvided.StartDate)
+                {
+                    if (!request.StartDate.HasValue)
+                    {
+                        throw new ArgumentException("DueDate cannot be before StartDate!");
+                    }
+                }
+
+                bool forceDateChange = request.ForceDateChange ?? false;
+
+                await UpdateTaskDate(taskProvided.Id, request.DueDate.Value, forceDateChange);
+            }
+
+            // update all tasks for different users that are on it too
             foreach (var task in tasks)
             {
 
@@ -769,52 +818,14 @@ namespace Codedberries.Services
                     task.StatusId = request.StatusId.Value;
                 }
 
-                if (request.StartDate.HasValue && request.DueDate.HasValue)
-                {
-                    if (Helper.IsDateRangeValid(request.StartDate.Value, request.DueDate.Value) == false)
-                    {
-                        throw new ArgumentException("Invalid StartDate and DueDate range!");
-                    }
-                }
-
                 if (request.StartDate.HasValue)
                 {
-                    if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
-                    {
-                        throw new ArgumentException("StartDate must be a valid date!");
-                    }
-
-                    if (request.StartDate > task.DueDate)
-                    {
-                        if (!request.DueDate.HasValue)
-                        {
-                            throw new ArgumentException("StartDate cannot be after DueDate!");
-                        }
-                    }
-
-                    bool forceDateChange = request.ForceDateChange ?? false;
-
-                    await UpdateTaskDate(task.Id, request.StartDate.Value, forceDateChange);
+                    task.StartDate = request.StartDate.Value;
                 }
 
                 if (request.DueDate.HasValue)
                 {
-                    if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
-                    {
-                        throw new ArgumentException("DueDate must be a valid date!");
-                    }
-
-                    if (request.DueDate < task.StartDate)
-                    {
-                        if (!request.StartDate.HasValue)
-                        {
-                            throw new ArgumentException("DueDate cannot be before StartDate!");
-                        }
-                    }
-
-                    bool forceDateChange = request.ForceDateChange ?? false;
-
-                    await UpdateTaskDate(task.Id, request.DueDate.Value, forceDateChange);
+                    task.DueDate = request.DueDate.Value;
                 }
 
                 if (request.DifficultyLevel.HasValue)
