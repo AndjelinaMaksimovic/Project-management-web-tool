@@ -1347,7 +1347,7 @@ namespace Codedberries.Services
             }
         }
 
-        public async System.Threading.Tasks.Task UpdateTaskDate(int taskId, DateTime newDate, int typeOfDependency, bool forceDateChange)
+        public async System.Threading.Tasks.Task UpdateTaskDate(int taskId, DateTime newDate, bool forceDateChange)
         {
             var task = await _databaseContext.Tasks.FindAsync(taskId);
             if (task == null)
@@ -1377,6 +1377,7 @@ namespace Codedberries.Services
 
                 bool conditionMet;
                 string dependencyTypeMessage;
+                int typeOfDependency = dependency.TypeOfDependency.Id;
 
                 switch (typeOfDependency)
                 {
