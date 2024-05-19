@@ -1347,7 +1347,7 @@ namespace Codedberries.Services
                     return taskOne.DueDate >= taskTwo.DueDate;
 
                 default:
-                    throw new ArgumentException("Invalid type of dependency");
+                    throw new ArgumentException("Invalid type of dependency! Doesn't exist in database!");
             }
         }
 
@@ -1406,7 +1406,7 @@ namespace Codedberries.Services
                         break;
 
                     default:
-                        throw new ArgumentException("Invalid type of dependency");
+                        throw new ArgumentException("Invalid type of dependency! Doesn't exist in database!");
                 }
 
                 if (!conditionMet)
@@ -1442,7 +1442,7 @@ namespace Codedberries.Services
                         // notify about the affected tasks
                         var affectedTasks = dependencies.Select(d => d.DependentTaskId == taskId ? taskDictionary[d.TaskId] : taskDictionary[d.DependentTaskId]).ToList();
                         string affectedTasksMessage = string.Join(", ", affectedTasks.Select(t => $"Task ID: {t.Id}"));
-                        throw new ArgumentException($"Changing the date violates the {dependencyTypeMessage} dependency condition. Affected tasks: {affectedTasksMessage}");
+                        throw new ArgumentException($"Changing the date violates the {dependencyTypeMessage} dependency condition. Affected tasks: {affectedTasksMessage}!");
                     }
                 }
                 else
