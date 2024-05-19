@@ -18,6 +18,7 @@
     (lineClick)="lineClick($event)"
     (dragMoved)="dragMoved($event)"
     (dragEnded)="dragEnded($event)"
+    [linkOptions]="linkOptions"
     (selectedChange)="selectedChange($event)"
     (linkDragEnded)="linkDragEnded($event)">
     <ngx-gantt-table

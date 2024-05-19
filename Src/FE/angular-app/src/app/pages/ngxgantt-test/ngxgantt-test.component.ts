@@ -7,6 +7,8 @@ import {
     GanttItem,
     GanttLineClickEvent,
     GanttLinkDragEvent,
+    GanttLinkLineType,
+    GanttLinkType,
     GanttSelectedEvent,
     GanttTableDragDroppedEvent,
     GanttTableDragEndedEvent,
@@ -39,13 +41,15 @@ export class NgxganttTestComponent {
       title: task.title,
 
       start: task.startDate,
-      end: task.dueDate
+      end: task.dueDate,
+    //   itemDraggable: false
+
+    //   expandable: false,
       // group_id: string;
       // links?: (GanttLink | string)[];
       // draggable?: boolean;
       // itemDraggable?: boolean;
       // linkable?: boolean;
-      // expandable?: boolean;
       // expanded?: boolean;
       // children?: GanttItem[];
       // color?: string;
@@ -127,9 +131,15 @@ export class NgxganttTestComponent {
       yearQuarter: 'yyyy QQQ'
     },
   };
+
+  linkOptions = {
+    dependencyTypes: [GanttLinkType.ff, GanttLinkType.fs, GanttLinkType.sf, GanttLinkType.ss],
+    showArrow: true,
+    lineType: GanttLinkLineType.curve
+  };
   
   styles = {
-    lineHeight: 33,
+    lineHeight: 44,
     barHeight: 22
   };
 
@@ -183,11 +193,11 @@ export class NgxganttTestComponent {
 
       console.log(event.item);
 
-      console.log((new Date(event.item.start! * 1000)));
+      console.log((new Date(event.item.start! * 1000 + 6 * 3600 * 1000))); // fix
 
       this.taskService.updateTask({
         id: parseInt(event.item.id),
-        startDate: (new Date(event.item.start! * 1000)),
+        startDate: (new Date(event.item.start! * 1000 + 6 * 3600 * 1000)), // fix
         dueDate: (new Date(event.item.end! * 1000))
       })
   }
@@ -221,18 +231,18 @@ export class NgxganttTestComponent {
   }
 
   onDragDropped(event: GanttTableDragDroppedEvent) {
-      const sourceItems = event.sourceParent?.children || this.items;
-      sourceItems.splice(sourceItems.indexOf(event.source), 1);
-      if (event.dropPosition === 'inside') {
-          event.target.children = [...(event.target.children || []), event.source];
-      } else {
-          const targetItems = event.targetParent?.children || this.items;
-          if (event.dropPosition === 'before') {
-              targetItems.splice(targetItems.indexOf(event.target), 0, event.source);
-          } else {
-              targetItems.splice(targetItems.indexOf(event.target) + 1, 0, event.source);
-          }
-      }
+    //   const sourceItems = event.sourceParent?.children || this.items;
+    //   sourceItems.splice(sourceItems.indexOf(event.source), 1);
+    //   if (event.dropPosition === 'inside') {
+    //       event.target.children = [...(event.target.children || []), event.source];
+    //   } else {
+    //       const targetItems = event.targetParent?.children || this.items;
+    //       if (event.dropPosition === 'before') {
+    //           targetItems.splice(targetItems.indexOf(event.target), 0, event.source);
+    //       } else {
+    //           targetItems.splice(targetItems.indexOf(event.target) + 1, 0, event.source);
+    //       }
+    //   }
       this.items = [...this.items];
   }
 
