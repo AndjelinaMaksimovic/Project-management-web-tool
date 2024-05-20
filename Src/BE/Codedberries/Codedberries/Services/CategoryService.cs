@@ -152,12 +152,35 @@ namespace Codedberries.Services
                 throw new ArgumentException("CategoryId must be greater than 0!");
             }
 
-            var categoryExists = _databaseContext.Categories.Any(c => c.Id == request.Id);
+            var categoryExists = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.Id);
 
-            if (!categoryExists)
+            if (categoryExists == null)
             {
                 throw new ArgumentException($"Category with ID {request.Id} does not exist in database!");
             }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == categoryExists.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {categoryExists.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRoleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRoleOnProject == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRoleOnProject.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Project! Cannot delete category!");
+            }
+            // ---------------- //
 
             var categoryToDelete = await _databaseContext.Categories.FindAsync(request.Id);
 
