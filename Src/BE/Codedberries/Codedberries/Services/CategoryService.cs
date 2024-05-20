@@ -144,7 +144,7 @@ namespace Codedberries.Services
             return categories;
         }
 
-        public async System.Threading.Tasks.Task DeleteCategory(HttpContext httpContext, CategoryDTO request)
+        public async System.Threading.Tasks.Task DeleteCategory(HttpContext httpContext, CategoryIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -177,20 +177,20 @@ namespace Codedberries.Services
                 throw new ArgumentException("CategoryId must be greater than 0!");
             }
 
-            var categoryExists = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.Id);
+            var providedCategory = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.Id);
 
-            if (categoryExists == null)
+            if (providedCategory == null)
             {
-                throw new ArgumentException($"Category with ID {request.Id} does not exist in database!");
+                throw new ArgumentException($"Provided Category with ID {request.Id} does not exist in database!");
             }
 
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
-                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == categoryExists.ProjectId);
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == providedCategory.ProjectId);
 
             if (userProject == null)
             {
-                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {categoryExists.ProjectId} in UserProjects table!");
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {providedCategory.ProjectId} in UserProjects table!");
             }
 
             var userRoleId = userProject.RoleId;
@@ -215,14 +215,7 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Category with ID {request.Id} is already assigned to a task and cannot be deleted!");
             }
 
-            var categoryToDelete = await _databaseContext.Categories.FindAsync(request.Id);
-
-            if (categoryToDelete == null)
-            {
-                throw new InvalidOperationException($"Category with ID {request.Id} not found in the database!");
-            }
-
-            _databaseContext.Categories.Remove(categoryToDelete);
+            _databaseContext.Categories.Remove(providedCategory);
             await _databaseContext.SaveChangesAsync();
         }
 
