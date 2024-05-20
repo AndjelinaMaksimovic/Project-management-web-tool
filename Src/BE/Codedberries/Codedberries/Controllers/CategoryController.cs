@@ -62,5 +62,32 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
+
+        [HttpDelete("deleteCategory")]
+        public async Task<IActionResult> DeleteCategory([FromBody] CategoryDTO request)
+        {
+            try
+            {
+                await _categoryService.DeleteCategory(HttpContext, request);
+
+                return Ok("Category successfully deleted.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg(ex.Message));
+            }
+        }
     }
 }
