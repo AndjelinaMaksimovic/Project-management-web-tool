@@ -19,6 +19,9 @@ namespace Codedberries
         public DbSet<Starred> Starred { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }
         public DbSet<TypeOfTaskDependency> TypesOfTaskDependency { get; set; }
+        public DbSet<Milestone> Milestones { get; set; }
+
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
