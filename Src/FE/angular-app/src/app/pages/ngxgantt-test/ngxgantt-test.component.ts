@@ -1,5 +1,5 @@
-import { DatePipe } from '@angular/common';
-import { AfterViewInit, Component, HostBinding, OnInit, ViewChild } from '@angular/core';
+import { DatePipe, NgFor } from '@angular/common';
+import { AfterViewInit, Component, HostBinding, OnInit, ViewChild, NgModule } from '@angular/core';
 import {
     GanttBarClickEvent,
     GanttBaselineItem,
@@ -25,11 +25,15 @@ import { StatusService } from '../../services/status.service';
 import { PriorityService } from '../../services/priority.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LocalStorageService } from '../../services/localstorage';
+import { ThyButtonModule } from 'ngx-tethys/button';
+import { ThyLayoutModule } from 'ngx-tethys/layout';
+import { ThySwitchModule } from 'ngx-tethys/switch';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ngxgantt-test',
   standalone: true,
-  imports: [ NgxGanttModule, DatePipe ],
+  imports: [ NgxGanttModule, DatePipe, ThyButtonModule, ThyLayoutModule, ThySwitchModule, FormsModule, NgFor ],
   templateUrl: './ngxgantt-test.component.html',
   styleUrl: './ngxgantt-test.component.scss'
 })
@@ -68,10 +72,10 @@ export class NgxganttTestComponent {
   }
 
   views = [
-      {
-          name: 'h',
-          value: GanttViewType.hour
-      },
+      // {
+      //     name: 'h',
+      //     value: GanttViewType.hour
+      // },
       {
           name: 'day',
           value: GanttViewType.day
