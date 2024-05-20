@@ -30,7 +30,7 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
@@ -45,15 +45,40 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found!");
             }
 
-            if (userRole.CanCreateProject == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to create new category!");
-            }
-
             if (categoryDTO.ProjectId <= 0)
             {
                 throw new ArgumentException("ProjectId must be greater than 0!");
             }
+
+            var project = await _databaseContext.Projects.FirstOrDefaultAsync(p => p.Id == categoryDTO.ProjectId);
+           
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {categoryDTO.ProjectId} does not exist in the database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == categoryDTO.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {categoryDTO.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRoleOnProject = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRoleOnProject == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRoleOnProject.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Project! Cannot create category!");
+            }
+            // ---------------- //
 
             if (string.IsNullOrWhiteSpace(categoryDTO.CategoryName))
             {
