@@ -182,6 +182,14 @@ namespace Codedberries.Services
             }
             // ---------------- //
 
+            // check if any task has this category
+            var categoryAssignedToTask = _databaseContext.Tasks.Any(t => t.CategoryId == request.Id);
+
+            if (categoryAssignedToTask)
+            {
+                throw new ArgumentException($"Category with ID {request.Id} is already assigned to a task and cannot be deleted!");
+            }
+
             var categoryToDelete = await _databaseContext.Categories.FindAsync(request.Id);
 
             if (categoryToDelete == null)
