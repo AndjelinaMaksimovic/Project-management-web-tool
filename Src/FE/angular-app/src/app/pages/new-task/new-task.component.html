@@ -39,6 +39,9 @@
         
         <app-markdown-editor [label]="'Description'" [(value)]="description"></app-markdown-editor>
         <div style="display: flex; width: 100%; gap: 10px">
+            <span style="flex-grow: 0.5;">
+                <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event" [required]="true"></app-select>
+            </span>
             <div style="display: flex; flex-grow: 0.5; gap: 10px; align-items: button;">
                 <span style="width: 100%; gap: 10px;">
                     <app-select [options]="statuses" [(value)]="status" label="Status"
@@ -46,13 +49,6 @@
                 </span>
                 <button matTooltip="new status" mat-icon-button color="primary"
                     (click)="createStatus()"><mat-icon>add</mat-icon></button>
-            </div>
-            <div style="display: flex; flex-grow: 0.5; gap: 10px; align-items: button;">
-                <span style="width: 100%; gap: 10px;">
-                    <app-select [options]="categories" label="Category" (valueChange)="category=$event" [required]="true"></app-select>
-                </span>
-                <button matTooltip="new category" mat-icon-button color="primary"
-                    (click)="createCategory()"><mat-icon>add</mat-icon></button>
             </div>
         </div>
         <!-- task dependencies -->
@@ -66,11 +62,9 @@
         </mat-form-field> -->
         <div style="display: flex; width: 100%; gap: 10px">
 
-            <span style="flex-grow: 0.5;">
-                <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event" [required]="true"></app-select>
-            </span>
+            
             <!-- asignee -->
-            <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+            <mat-form-field appearance="outline" style="flex-grow: 0.5;" class="dense-2">
                 <mat-label>Assignee</mat-label>
                 <mat-select [multiple]="true" [(ngModel)]="assignees">
                     @for (user of users; track user) {
@@ -82,6 +76,13 @@
                     }
                 </mat-select>
             </mat-form-field>
+            <div style="display: flex; flex-grow: 0.5; gap: 10px; align-items: button;">
+                <span style="width: 100%; gap: 10px;">
+                    <app-select [options]="categories" label="Category" (valueChange)="category=$event" [required]="true"></app-select>
+                </span>
+                <button matTooltip="new category" mat-icon-button color="primary"
+                    (click)="createCategory()"><mat-icon>add</mat-icon></button>
+            </div>
             <!-- <span style="flex-grow: 0.5;">
                 <app-select [options]="users" label="Assignee" (valueChange)="assignee=$event" [required]="true"></app-select>
             </span> -->
