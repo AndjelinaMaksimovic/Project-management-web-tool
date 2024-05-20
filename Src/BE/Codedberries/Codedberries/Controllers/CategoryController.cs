@@ -64,7 +64,7 @@ namespace Codedberries.Controllers
         }
 
         [HttpDelete("deleteCategory")]
-        public async Task<IActionResult> DeleteCategory([FromBody] CategoryDTO request)
+        public async Task<IActionResult> DeleteCategory([FromBody] CategoryIdDTO request)
         {
             try
             {
