@@ -258,9 +258,10 @@ export class TaskService {
             priorityId: task.priority,
             difficultyLevel: 1,
             categoryId: task.category,
-            dependencyIds: task.dependencies,
+            dependencyIds: [0],
+            typeOfDependencyIds: [0],
             projectId: this.context.projectId,
-            userId: task.assignedTo,
+            userIds: task.assignedTo,
           },
           {
             ...this.httpOptions,
