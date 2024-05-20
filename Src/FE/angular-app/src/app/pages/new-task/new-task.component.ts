@@ -124,7 +124,7 @@ export class NewTaskComponent {
       .map((t) => ({ value: t.id.toString(), viewValue: t.title }));
     await this.userService.fetchUsers();
     this.users = this.userService
-      .getUsers()
+      .getUsers().filter((u: any) => u.projects.some((p: any) => p.id === this.projectId))
       .map((u) => ({ value: u.id.toString(), viewValue: `${u.firstName} ${u.lastName}` }));
   }
 
