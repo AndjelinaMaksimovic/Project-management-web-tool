@@ -54,8 +54,9 @@
                     <p class="title">Project categories:</p>
                     <i class="fa-solid fa-plus add-icon" (click)="createCategory()"></i>
                 </div>
-                <div *ngFor="let category of categories">
+                <div *ngFor="let category of categories"  class="hover">
                     <p>{{category.name}}</p>
+                    <i class="fa-solid fa-trash icon ml-10" (click)="deleteCategory(category.id)" matTooltip="Delete"></i>
                 </div>
             </div>
         </div>
