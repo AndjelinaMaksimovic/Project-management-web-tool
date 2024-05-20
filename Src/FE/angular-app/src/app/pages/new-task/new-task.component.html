@@ -70,9 +70,17 @@
                 <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event" [required]="true"></app-select>
             </span>
             <!-- asignee -->
-            <span style="flex-grow: 0.5;">
+            <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+                <mat-label>Assignee</mat-label>
+                <mat-select [multiple]="true" [(ngModel)]="assignees">
+                    @for (user of users; track user) {
+                    <mat-option [value]="user.value">{{user.viewValue}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <!-- <span style="flex-grow: 0.5;">
                 <app-select [options]="users" label="Assignee" (valueChange)="assignee=$event" [required]="true"></app-select>
-            </span>
+            </span> -->
         </div>
         <button style="width: 80%; margin: auto" (click)="createTask()" class="button-rounded" color="primary"
             mat-flat-button>Create Task</button>
