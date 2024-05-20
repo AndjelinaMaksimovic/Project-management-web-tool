@@ -48,13 +48,14 @@ export class NewTaskComponent {
   description: string | null = null;
   // date: string | null = null;
   // startDate: string | null = null;
-  dueDate = new FormControl(moment());
-  startDate = new FormControl(moment());
+  currentDate = moment();
+  dueDate = new FormControl(this.currentDate);
+  startDate = new FormControl(this.currentDate);
   priority: string | null = null;
   status: string = this.statusService.getStatuses()[0]?.id?.toString() || "";
   category: string | null = null;
   dependencies: string[] = [];
-  assignee: string | undefined;
+  assignees: string[] = [];
 
   tasks: { value: string; viewValue: string }[] = [];
   users: { value: string; viewValue: string }[] = [];
@@ -145,6 +146,10 @@ export class NewTaskComponent {
       this.errorMessage = 'Please enter valid start/due dates';
       return;
     }
+    if (this.assignees.length === 0) {
+      this.errorMessage = 'Please enter at least one asignee';
+      return;
+    }
     await this.taskService.createTask(
       {
         title: this.title,
@@ -155,7 +160,7 @@ export class NewTaskComponent {
         category: this.category,
         priority: this.priority,
         status: this.status,
-        assignedTo: this.assignee,
+        assignedTo: this.assignees,
         dependencies: this.dependencies,
       },
       1
