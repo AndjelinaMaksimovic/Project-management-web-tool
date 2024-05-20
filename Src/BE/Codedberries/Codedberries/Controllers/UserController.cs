@@ -194,5 +194,18 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while updating user name: {ex.Message}"));
             }
         }
+
+        [HttpGet("currentUserRole")]
+        public IActionResult GetCurrentUserRole()
+        {
+            RolePermissionDTO userRole = _userService.GetCurrentUserRole(HttpContext);
+
+            if (userRole == null)
+            {
+                return NotFound(new ErrorMsg("User role not found!"));
+            }
+
+            return Ok(userRole);
+        }
     }
 }
