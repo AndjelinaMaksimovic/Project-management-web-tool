@@ -22,6 +22,7 @@ import { StatusService } from '../../services/status.service';
 import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
 import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
 import moment from "moment";
+import { AvatarService } from '../../services/avatar.service';
 
 @Component({
   selector: 'app-new-task',
@@ -104,7 +105,8 @@ export class NewTaskComponent {
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public avatarService: AvatarService,
   ) {}
 
   async ngOnInit() {

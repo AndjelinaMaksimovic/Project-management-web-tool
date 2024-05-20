@@ -74,7 +74,11 @@
                 <mat-label>Assignee</mat-label>
                 <mat-select [multiple]="true" [(ngModel)]="assignees">
                     @for (user of users; track user) {
-                    <mat-option [value]="user.value">{{user.viewValue}}</mat-option>
+                    <mat-option [value]="user.value">
+                        <span style="display: flex; align-items: center; gap: 10px">
+                            <img style="width: 24px; border-radius: 50%" [src]="avatarService.getProfileImagePath(user.value)">{{user.viewValue}}
+                        </span>
+                    </mat-option>
                     }
                 </mat-select>
             </mat-form-field>
