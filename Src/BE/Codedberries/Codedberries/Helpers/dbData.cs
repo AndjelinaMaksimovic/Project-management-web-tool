@@ -271,6 +271,7 @@ namespace Codedberries.Helpers
 
             context.SaveChanges();
 
+            /*
             context.Tasks.AddRange(
                 new Models.Task("Market Research", "Conduct market research to analyze competitors' platforms.", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 3, 3),
                 new Models.Task("Design Wireframes", "Create wireframes and mockups for the user interface.", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 2, 2),
@@ -279,6 +280,7 @@ namespace Codedberries.Helpers
                 new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility.", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 2, 2),
                 new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels.", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 3, 3)
             );
+            */
 
             context.UserProjects.AddRange(
                 new UserProject { UserId = 1, ProjectId = 1, RoleId = 1 },

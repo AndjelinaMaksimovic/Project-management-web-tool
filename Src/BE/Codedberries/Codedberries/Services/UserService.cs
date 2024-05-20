@@ -421,6 +421,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            /*
             var tasks = await _databaseContext.Tasks
                 .Where(t => t.UserId == userId)
                 .Select(t => new TaskInformationDTO
@@ -439,7 +440,7 @@ namespace Codedberries.Services
                     DifficultyLevel = t.DifficultyLevel,
                     Archived = t.Archived
                 })
-                .ToListAsync();
+                .ToListAsync(); */
 
             var userProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == userId)
@@ -490,7 +491,7 @@ namespace Codedberries.Services
                 RoleId = user.RoleId,
                 RoleName = userRole.Name,
                 Projects = projects,
-                Tasks = tasks
+                //Tasks = tasks
             };
 
             return currentSessionUserDTO;

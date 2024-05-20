@@ -167,7 +167,7 @@ namespace Codedberries.Services
 
             foreach (var providedUserId in request.UserIds)
             {
-                var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId && t.UserId == providedUserId);
+                var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
 
                 if (existingTask != null)
                 {
@@ -349,7 +349,7 @@ namespace Codedberries.Services
                         throw new ArgumentException($"User with ID {assignedToUserId} does not exist in the database!");
                     }
 
-                    query = query.Where(t => t.UserId == filterParams.AssignedTo);
+                    //query = query.Where(t => t.UserId == filterParams.AssignedTo);
                 }
 
                 if (filterParams.StatusId.HasValue)
@@ -500,7 +500,7 @@ namespace Codedberries.Services
                     StartDate = task.StartDate,
                     DueDate = task.DueDate,
                     FinishedDate = task.FinishedDate != null ? task.FinishedDate : null,
-                    AssignedTo = _databaseContext.Users
+                    /*AssignedTo = _databaseContext.Users
                         .Where(u => u.Id == task.UserId)
                         .Select(u => new TaskUserInfoDTO
                         {
@@ -509,7 +509,7 @@ namespace Codedberries.Services
                             LastName = u.Lastname,
                             ProfilePicture = u.ProfilePicture
                         })
-                        .ToList(),
+                        .ToList(),  */
                     DependentTasks = dependentTaskIds,
                     DifficultyLevel = task.DifficultyLevel
                 };
@@ -858,7 +858,7 @@ namespace Codedberries.Services
                     throw new InvalidOperationException($"User with ID {request.UserId} does not have a role assigned!");
                 }
 
-                taskProvided.UserId = request.UserId.Value;
+                // taskProvided.UserId = request.UserId.Value;
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -881,12 +881,12 @@ namespace Codedberries.Services
             var tasksWithSameNameAndProjectId = await _databaseContext.Tasks
                 .Where(t => t.Name == taskProvided.Name && t.ProjectId == taskProvided.ProjectId)
                 .ToListAsync();
-
+            /*
             var userIds = tasksWithSameNameAndProjectId
                 .SelectMany(t => new[] { t.UserId })
                 .Distinct()
-                .ToList();
-
+                .ToList();  */
+            /*
             var assignedUsers = await _databaseContext.Users
                 .Where(u => userIds.Contains(u.Id))
                 .ToListAsync();
@@ -899,7 +899,7 @@ namespace Codedberries.Services
                 ProfilePicture = u.ProfilePicture
             }).ToList();
 
-            updatedTaskInfo.AssignedUsers = userDTOs;
+            updatedTaskInfo.AssignedUsers = userDTOs;   */
 
             return updatedTaskInfo;
         }
