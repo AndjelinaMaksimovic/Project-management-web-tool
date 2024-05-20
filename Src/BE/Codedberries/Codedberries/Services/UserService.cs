@@ -128,7 +128,7 @@ namespace Codedberries.Services
             };
         }
 
-        public UserRoleDTO GetUserRole(int userId)
+        public UserRoleDTO GetUserRole(int userId)//////////////////////////////////////
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
 
@@ -622,6 +622,41 @@ namespace Codedberries.Services
             userToChange.Lastname = request.LastName;
 
             await _databaseContext.SaveChangesAsync();
+        }
+
+        public RolePermissionDTO GetCurrentUserRole(HttpContext httpContext)
+        {
+            var userId=this.GetCurrentSessionUser(httpContext);
+            User user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            Role userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                return null;
+            }
+
+            return new RolePermissionDTO
+            {
+                RoleName = userRole.Name,
+                RoleId = userRole.Id,
+                CanAddNewUser = userRole.CanAddNewUser,
+                CanAddUserToProject=userRole.CanAddUserToProject,
+                CanRemoveUserFromProject=userRole.CanRemoveUserFromProject,
+                CanCreateProject = userRole.CanCreateProject,
+                CanDeleteProject = userRole.CanDeleteProject,
+                CanEditProject= userRole.CanEditProject,
+                CanViewProject= userRole.CanViewProject,
+                CanAddTaskToUser= userRole.CanAddTaskToUser,
+                CanCreateTask= userRole.CanCreateTask,
+                CanRemoveTask=userRole.CanRemoveTask,
+                CanEditTask=userRole.CanEditTask
+            };
         }
     }
 }
