@@ -611,21 +611,21 @@ namespace Codedberries.Services
                 throw new ArgumentException("TaskId must be greater than 0!");
             }
 
-            var taskProvided = await _databaseContext.Tasks
+            var task = await _databaseContext.Tasks
                 .FirstOrDefaultAsync(t => t.Id == request.TaskId);
 
-            if (taskProvided == null)
+            if (task == null)
             {
                 throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
 
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
-                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == taskProvided.ProjectId);
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == task.ProjectId);
 
             if (userProject == null)
             {
-                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {taskProvided.ProjectId} in UserProjects table!");
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {task.ProjectId} in UserProjects table!");
             }
 
             var userRoleId = userProject.RoleId;
@@ -642,10 +642,124 @@ namespace Codedberries.Services
             }
             // ---------------- //
 
-            // find all tasks with the same name and project ID - more than one users can be on task therefore they have to be updated too
-            var tasks = await _databaseContext.Tasks
-                .Where(t => t.Name == taskProvided.Name && t.ProjectId == taskProvided.ProjectId)
-                .ToListAsync();
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                task.Name = request.Name;
+            }
+
+            if (!string.IsNullOrEmpty(request.Description))
+            {
+                task.Description = request.Description;
+            }
+
+            if (request.ProjectId.HasValue)
+            {
+                if (request.ProjectId <= 0)
+                {
+                    throw new ArgumentException("ProjectId must be greater than 0!");
+                }
+
+                var project = await _databaseContext.Projects.FindAsync(request.ProjectId.Value);
+
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
+                }
+
+                if (!request.CategoryId.HasValue || request.CategoryId <= 0)
+                {
+                    throw new ArgumentException("CategoryId must be provided and greater than 0 when ProjectId is specified and getting changed!");
+                }
+
+                if (!request.StatusId.HasValue || request.StatusId <= 0)
+                {
+                    throw new ArgumentException("StatusId must be provided and greater than 0 when ProjectId is specified and getting changed!");
+                }
+
+                task.ProjectId = request.ProjectId.Value;
+            }
+
+            if (request.CategoryId.HasValue)
+            {
+                if (request.CategoryId <= 0)
+                {
+                    throw new ArgumentException("CategoryId must be greater than 0!");
+                }
+
+                var category = await _databaseContext.Categories.FindAsync(request.CategoryId.Value);
+
+                if (category == null)
+                {
+                    throw new ArgumentException($"Category with ID {request.CategoryId} not found in database!");
+                }
+
+                if (category.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Category with ID {request.CategoryId} does not belong to the same project as the task!");
+                }
+
+                task.CategoryId = request.CategoryId.Value;
+            }
+
+            if (request.PriorityId.HasValue)
+            {
+                if (request.PriorityId <= 0)
+                {
+                    throw new ArgumentException("PriorityId must be greater than 0!");
+                }
+
+                var priority = await _databaseContext.Priorities.FindAsync(request.PriorityId.Value);
+
+                if (priority == null)
+                {
+                    throw new ArgumentException($"Priority with ID {request.PriorityId} not found in database!!");
+                }
+
+                task.PriorityId = request.PriorityId.Value;
+            }
+
+            if (request.StatusId.HasValue)
+            {
+                if (request.StatusId <= 0)
+                {
+                    throw new ArgumentException("StatusId must be greater than 0!");
+                }
+
+                var status = await _databaseContext.Statuses.FindAsync(request.StatusId.Value);
+
+                if (status == null)
+                {
+                    throw new ArgumentException($"Status with ID {request.StatusId} not found in database!");
+                }
+
+                if (status.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Status with ID {request.StatusId} does not match the project of the task!");
+                }
+
+                var currentStatus = await _databaseContext.Statuses.FindAsync(task.StatusId);
+
+                if (currentStatus == null)
+                {
+                    throw new ArgumentException($"Current status with ID {task.StatusId} not found in database!");
+                }
+
+                if (currentStatus.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Current status with ID {currentStatus.Id} and {currentStatus.ProjectId} does not match the project of the task {task.Project}!");
+                }
+
+                if (currentStatus.Name == "Done" && status.Name != "Done")
+                {
+                    task.FinishedDate = null; // from Done to other
+                }
+                else if (currentStatus.Name != "Done" && status.Name == "Done")
+                {
+                    task.FinishedDate = DateTime.UtcNow; // from other to Done
+                }
+
+                task.StatusId = request.StatusId.Value;
+            }
 
             if (request.StartDate.HasValue && request.DueDate.HasValue)
             {
@@ -662,7 +776,7 @@ namespace Codedberries.Services
                     throw new ArgumentException("StartDate must be a valid date!");
                 }
 
-                if (request.StartDate > taskProvided.DueDate)
+                if (request.StartDate > task.DueDate)
                 {
                     if (!request.DueDate.HasValue)
                     {
@@ -672,7 +786,19 @@ namespace Codedberries.Services
 
                 bool forceDateChange = request.ForceDateChange ?? false;
 
-                await UpdateTaskDate(taskProvided.Id, request.StartDate.Value, forceDateChange);
+                var dependencies = await _databaseContext.Set<TaskDependency>()
+                    .Where(td => td.TaskId == task.Id || td.DependentTaskId == task.Id)
+                    .ToListAsync();
+
+                if (!dependencies.Any())
+                {
+                    // no dependencies, update the task start date directly
+                    task.StartDate = request.StartDate.Value;
+                }
+                else
+                {
+                    await UpdateTaskDate(task.Id, request.StartDate.Value, forceDateChange);
+                }
             }
 
             if (request.DueDate.HasValue)
@@ -682,7 +808,7 @@ namespace Codedberries.Services
                     throw new ArgumentException("DueDate must be a valid date!");
                 }
 
-                if (request.DueDate < taskProvided.StartDate)
+                if (request.DueDate < task.StartDate)
                 {
                     if (!request.StartDate.HasValue)
                     {
@@ -692,151 +818,29 @@ namespace Codedberries.Services
 
                 bool forceDateChange = request.ForceDateChange ?? false;
 
-                await UpdateTaskDate(taskProvided.Id, request.DueDate.Value, forceDateChange);
-            }
+                var dependencies = await _databaseContext.Set<TaskDependency>()
+                    .Where(td => td.TaskId == task.Id || td.DependentTaskId == task.Id)
+                    .ToListAsync();
 
-            // update all tasks for different users that are on it too
-            foreach (var task in tasks)
-            {
-
-                if (!string.IsNullOrEmpty(request.Name))
+                if (!dependencies.Any())
                 {
-                    task.Name = request.Name;
-                }
-
-                if (!string.IsNullOrEmpty(request.Description))
-                {
-                    task.Description = request.Description;
-                }
-
-                if (request.ProjectId.HasValue)
-                {
-                    if (request.ProjectId <= 0)
-                    {
-                        throw new ArgumentException("ProjectId must be greater than 0!");
-                    }
-
-                    var project = await _databaseContext.Projects.FindAsync(request.ProjectId.Value);
-
-                    if (project == null)
-                    {
-                        throw new ArgumentException($"Project with ID {request.ProjectId} not found in database!");
-                    }
-
-                    if (!request.CategoryId.HasValue || request.CategoryId <= 0)
-                    {
-                        throw new ArgumentException("CategoryId must be provided and greater than 0 when ProjectId is specified and getting changed!");
-                    }
-
-                    if (!request.StatusId.HasValue || request.StatusId <= 0)
-                    {
-                        throw new ArgumentException("StatusId must be provided and greater than 0 when ProjectId is specified and getting changed!");
-                    }
-
-                    task.ProjectId = request.ProjectId.Value;
-                }
-
-                if (request.CategoryId.HasValue)
-                {
-                    if (request.CategoryId <= 0)
-                    {
-                        throw new ArgumentException("CategoryId must be greater than 0!");
-                    }
-
-                    var category = await _databaseContext.Categories.FindAsync(request.CategoryId.Value);
-
-                    if (category == null)
-                    {
-                        throw new ArgumentException($"Category with ID {request.CategoryId} not found in database!");
-                    }
-
-                    if (category.ProjectId != task.ProjectId)
-                    {
-                        throw new ArgumentException($"Category with ID {request.CategoryId} does not belong to the same project as the task!");
-                    }
-
-                    task.CategoryId = request.CategoryId.Value;
-                }
-
-                if (request.PriorityId.HasValue)
-                {
-                    if (request.PriorityId <= 0)
-                    {
-                        throw new ArgumentException("PriorityId must be greater than 0!");
-                    }
-
-                    var priority = await _databaseContext.Priorities.FindAsync(request.PriorityId.Value);
-
-                    if (priority == null)
-                    {
-                        throw new ArgumentException($"Priority with ID {request.PriorityId} not found in database!!");
-                    }
-
-                    task.PriorityId = request.PriorityId.Value;
-                }
-
-                if (request.StatusId.HasValue)
-                {
-                    if (request.StatusId <= 0)
-                    {
-                        throw new ArgumentException("StatusId must be greater than 0!");
-                    }
-
-                    var status = await _databaseContext.Statuses.FindAsync(request.StatusId.Value);
-
-                    if (status == null)
-                    {
-                        throw new ArgumentException($"Status with ID {request.StatusId} not found in database!");
-                    }
-
-                    if (status.ProjectId != task.ProjectId)
-                    {
-                        throw new ArgumentException($"Status with ID {request.StatusId} does not match the project of the task!");
-                    }
-
-                    var currentStatus = await _databaseContext.Statuses.FindAsync(task.StatusId);
-
-                    if (currentStatus == null)
-                    {
-                        throw new ArgumentException($"Current status with ID {task.StatusId} not found in database!");
-                    }
-
-                    if (currentStatus.ProjectId != task.ProjectId)
-                    {
-                        throw new ArgumentException($"Current status with ID {currentStatus.Id} and {currentStatus.ProjectId} does not match the project of the task {task.Project}!");
-                    }
-
-                    if (currentStatus.Name == "Done" && status.Name != "Done")
-                    {
-                        task.FinishedDate = null; // from Done to other
-                    }
-                    else if (currentStatus.Name != "Done" && status.Name == "Done")
-                    {
-                        task.FinishedDate = DateTime.UtcNow; // from other to Done
-                    }
-
-                    task.StatusId = request.StatusId.Value;
-                }
-
-                if (request.StartDate.HasValue)
-                {
-                    task.StartDate = request.StartDate.Value;
-                }
-
-                if (request.DueDate.HasValue)
-                {
+                    // no dependencies, update the task due date directly
                     task.DueDate = request.DueDate.Value;
                 }
-
-                if (request.DifficultyLevel.HasValue)
+                else
                 {
-                    if (request.DifficultyLevel <= 0)
-                    {
-                        throw new ArgumentException("DifficultyLevel must be greater than 0!");
-                    }
-
-                    task.DifficultyLevel = request.DifficultyLevel.Value;
+                    await UpdateTaskDate(task.Id, request.DueDate.Value, forceDateChange);
                 }
+            }
+
+            if (request.DifficultyLevel.HasValue)
+            {
+                if (request.DifficultyLevel <= 0)
+                {
+                    throw new ArgumentException("DifficultyLevel must be greater than 0!");
+                }
+
+                task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
             if (request.UserId.HasValue)
@@ -858,48 +862,54 @@ namespace Codedberries.Services
                     throw new InvalidOperationException($"User with ID {request.UserId} does not have a role assigned!");
                 }
 
-                // taskProvided.UserId = request.UserId.Value;
+                var existingTaskUser = await _databaseContext.TaskUsers
+                    .FirstOrDefaultAsync(tu => tu.TaskId == task.Id && tu.UserId == request.UserId.Value);
+
+                if (existingTaskUser == null)
+                {
+                    // if the user is not already assigned to the task, add them
+                    var newTaskUser = new TaskUser
+                    {
+                        TaskId = task.Id,
+                        UserId = request.UserId.Value
+                    };
+
+                    _databaseContext.TaskUsers.Add(newTaskUser);
+                }
+                else
+                {
+                    throw new ArgumentException($"User with ID {request.UserId.Value} is already assigned to task with ID {task.Id}!");
+                }
             }
 
             await _databaseContext.SaveChangesAsync();
 
+            var assignedUsers = _databaseContext.TaskUsers
+                .Where(tu => tu.TaskId == task.Id)
+                .Select(tu => new UserDTO
+                {
+                    Id = tu.User.Id,
+                    FirstName = tu.User.Firstname,
+                    LastName = tu.User.Lastname,
+                    ProfilePicture = tu.User.ProfilePicture
+                })
+                .ToList();
+
             var updatedTaskInfo = new UpdatedTaskInfoDTO
             {
-                Id = taskProvided.Id,
-                Name = taskProvided.Name,
-                Description = taskProvided.Description,
-                CategoryId = taskProvided.CategoryId,
-                PriorityId = taskProvided.PriorityId,
-                StatusId = taskProvided.StatusId,
-                StartDate = taskProvided.StartDate,
-                DueDate = taskProvided.DueDate,
-                FinishedDate = taskProvided.FinishedDate,
-                DifficultyLevel = taskProvided.DifficultyLevel,
-                ProjectId = taskProvided.ProjectId 
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                CategoryId = task.CategoryId,
+                PriorityId = task.PriorityId,
+                StatusId = task.StatusId,
+                StartDate = task.StartDate,
+                DueDate = task.DueDate,
+                FinishedDate = task.FinishedDate,
+                DifficultyLevel = task.DifficultyLevel,
+                ProjectId = task.ProjectId,
+                AssignedUsers = assignedUsers
             };
-
-            var tasksWithSameNameAndProjectId = await _databaseContext.Tasks
-                .Where(t => t.Name == taskProvided.Name && t.ProjectId == taskProvided.ProjectId)
-                .ToListAsync();
-            /*
-            var userIds = tasksWithSameNameAndProjectId
-                .SelectMany(t => new[] { t.UserId })
-                .Distinct()
-                .ToList();  */
-            /*
-            var assignedUsers = await _databaseContext.Users
-                .Where(u => userIds.Contains(u.Id))
-                .ToListAsync();
-
-            var userDTOs = assignedUsers.Select(u => new UserDTO
-            {
-                Id = u.Id,
-                FirstName = u.Firstname,
-                LastName = u.Lastname,
-                ProfilePicture = u.ProfilePicture
-            }).ToList();
-
-            updatedTaskInfo.AssignedUsers = userDTOs;   */
 
             return updatedTaskInfo;
         }
