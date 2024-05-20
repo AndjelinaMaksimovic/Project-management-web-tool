@@ -12,5 +12,11 @@ namespace Codedberries.Models
         [Key]
         [Column(Order = 2)]
         public int DependentTaskId { get; set; }
+
+        [Required]
+        public int TypeOfDependencyId { get; set; }
+
+        [ForeignKey("TypeOfDependencyId")]
+        public TypeOfTaskDependency TypeOfDependency { get; set; }
     }
 }

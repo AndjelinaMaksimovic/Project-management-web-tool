@@ -74,12 +74,12 @@ namespace Codedberries.Helpers
 
             context.Users.AddRange(
 
-             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", 1),
-             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", null),
-             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null),
-             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3),
-             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", 2),
-             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 4)
+             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", 1, "1.jpg"),
+             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", null, "2.jpg"),
+             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null, "3.jpg"),
+             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3, "4.jpg"),
+             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", 2, "5.jpg"),
+             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 4, "6.jpg")
              );
             
             context.SaveChanges();
@@ -223,12 +223,12 @@ namespace Codedberries.Helpers
 
             context.Users.AddRange(
 
-             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", null),
-             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", 1),
-             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null),
-             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3),
-             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", null),
-             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 5)
+             new Models.User("petar.simic@gmail.com", "password1", "Petar", "Simic", null, "1.jpg"),
+             new Models.User("aleksa.ilic@gmail.com", "password2", "Aleksa", "Ilic", 1, "2.jpg"),
+             new Models.User("zoran.gajic@gmail.com", "password3", "Zoran", "Gajic", null, "3.jpg"),
+             new Models.User("lazar.milojevic@gmail.com", "password3", "Lazar", "Milojevic", 3, "4.jpg"),
+             new Models.User("ana.dacic@gmail.com", "password3", "Ana", "Dacic", null, "5.jpg"),
+             new Models.User("mina.markovic@gmail.com", "password3", "Mina", "Markovic", 5, "6.jpg")
              );
 
             context.SaveChanges();
@@ -271,15 +271,6 @@ namespace Codedberries.Helpers
 
             context.SaveChanges();
 
-            context.Tasks.AddRange(
-                new Models.Task("Market Research", "Conduct market research to analyze competitors' platforms.", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 3, 3),
-                new Models.Task("Design Wireframes", "Create wireframes and mockups for the user interface.", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 2, 2),
-                new Models.Task("Develop Frontend", "Develop frontend components using HTML, CSS, and JavaScript.", DateTime.Today.AddDays(6), DateTime.Today, 5, 4, 3, 1, 1, 1),
-                new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication.", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
-                new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility.", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 2, 2),
-                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels.", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 3, 3)
-            );
-
             context.UserProjects.AddRange(
                 new UserProject { UserId = 1, ProjectId = 1, RoleId = 1 },
                 new UserProject { UserId = 2, ProjectId = 1, RoleId = 2 },
@@ -288,6 +279,8 @@ namespace Codedberries.Helpers
                 new UserProject { UserId = 5, ProjectId = 3, RoleId = 2 },
                 new UserProject { UserId = 6, ProjectId = 3, RoleId = 5 }
             );
+
+            context.SaveChanges();
 
             context.TypesOfTaskDependency.AddRange(
                 new TypeOfTaskDependency("start to start"),
@@ -299,6 +292,17 @@ namespace Codedberries.Helpers
             context.SaveChanges();
 
             Console.WriteLine("Sample data added successfully.");
+
+            /*
+            context.Tasks.AddRange(
+                new Models.Task("Market Research", "Conduct market research to analyze competitors' platforms.", DateTime.Today.AddDays(1), DateTime.Today, 3, 4, 1, 1, 3, 3),
+                new Models.Task("Design Wireframes", "Create wireframes and mockups for the user interface.", DateTime.Today.AddDays(2), DateTime.Today, 2, 2, 2, 1, 2, 2),
+                new Models.Task("Develop Frontend", "Develop frontend components using HTML, CSS, and JavaScript.", DateTime.Today.AddDays(6), DateTime.Today, 5, 4, 3, 1, 1, 1),
+                new Models.Task("Implement Backend Functionality", "Develop backend functionality to support user authentication.", DateTime.Today.AddDays(5), DateTime.Today, 6, 2, 2, 1, 1, 1),
+                new Models.Task("Optimize SEO", "Implement search engine optimization (SEO) best practices to improve visibility.", DateTime.Today.AddDays(4), DateTime.Today, 1, 8, 1, 1, 2, 2),
+                new Models.Task("Execute marketing campaign", "Execute the marketing campaign across chosen channels.", DateTime.Today.AddDays(2), DateTime.Today, 1, 2, 2, 1, 3, 3)
+            );
+            */
         }
 
     }

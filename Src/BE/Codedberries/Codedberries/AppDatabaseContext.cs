@@ -19,6 +19,9 @@ namespace Codedberries
         public DbSet<Starred> Starred { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }
         public DbSet<TypeOfTaskDependency> TypesOfTaskDependency { get; set; }
+        public DbSet<Milestone> Milestones { get; set; }
+        public DbSet<TaskUser> TaskUsers { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -46,6 +49,11 @@ namespace Codedberries
 
             modelBuilder.Entity<TaskDependency>()
                 .HasKey(e => new { e.TaskId, e.DependentTaskId });
+
+            modelBuilder.Entity<TaskDependency>()
+                .HasOne(td => td.TypeOfDependency)
+                .WithMany()
+                .HasForeignKey(td => td.TypeOfDependencyId);
 
             modelBuilder.Entity<Category>()
                 .HasIndex(c => new { c.Name, c.ProjectId })
@@ -90,6 +98,18 @@ namespace Codedberries
                 .HasIndex(c => c.Name)
                 .IsUnique();
 
+            modelBuilder.Entity<TaskUser>()
+            .HasKey(tu => new { tu.TaskId, tu.UserId });
+
+            modelBuilder.Entity<TaskUser>()
+                .HasOne(tu => tu.Task)
+                .WithMany() 
+                .HasForeignKey(tu => tu.TaskId);
+
+            modelBuilder.Entity<TaskUser>()
+                .HasOne(tu => tu.User)
+                .WithMany()
+                .HasForeignKey(tu => tu.UserId);
         }
 
         public void ApplyMigrations()

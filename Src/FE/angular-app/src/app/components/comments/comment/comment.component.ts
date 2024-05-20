@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Comment } from '../../../services/comments.service';
 import { MaterialModule } from '../../../material/material.module';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
+import { AvatarService } from '../../../services/avatar.service';
 
 @Component({
   selector: 'app-comment',
@@ -14,4 +15,6 @@ import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 export class CommentComponent {
   @Input()
   comment: Comment | undefined;
+  
+  constructor(public avatarService: AvatarService) {}
 }

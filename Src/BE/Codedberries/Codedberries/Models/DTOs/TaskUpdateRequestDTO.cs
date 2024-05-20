@@ -13,6 +13,7 @@
         public int? UserId { get; set; }
         public int? DifficultyLevel { get; set; }
         public int? ProjectId { get; set; }
+        public bool? ForceDateChange { get; set; }
 
         public bool IsEmpty()
         {

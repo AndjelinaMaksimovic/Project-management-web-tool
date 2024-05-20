@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -182,6 +183,11 @@ namespace Codedberries.Services
             if (request.UserId <= 0)
             {
                 throw new ArgumentException("UserId must be grater than 0!");
+            }
+
+            if (userId != request.UserId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to change another user's profile picture!");
             }
 
             var userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
@@ -416,8 +422,15 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            // get all task ids of current user
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == userId)
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            
             var tasks = await _databaseContext.Tasks
-                .Where(t => t.UserId == userId)
+                .Where(t => taskIds.Contains(t.Id))
                 .Select(t => new TaskInformationDTO
                 {
                     Id = t.Id,
@@ -426,15 +439,25 @@ namespace Codedberries.Services
                     StartDate = t.StartDate,
                     DueDate = t.DueDate,
                     FinishedDate = t.FinishedDate,
-                    UserId = t.UserId,
+                    Users = _databaseContext.TaskUsers
+                        .Where(tu => tu.TaskId == t.Id)
+                        .Select(tu => new UserDTO
+                        {
+                            Id = tu.UserId,
+                            FirstName = tu.User.Firstname,
+                            LastName = tu.User.Lastname,
+                            ProfilePicture = tu.User.ProfilePicture
+                        })
+                        .ToList(),
                     ProjectId = t.ProjectId,
                     StatusId = t.StatusId,
                     CategoryId = t.CategoryId,
                     PriorityId = t.PriorityId,
                     DifficultyLevel = t.DifficultyLevel,
-                    Archived = t.Archived
+                    Archived = t.Archived,
+                    Progress = t.Progress
                 })
-                .ToListAsync();
+                .ToListAsync(); 
 
             var userProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == userId)
@@ -531,9 +554,25 @@ namespace Codedberries.Services
                 throw new ArgumentException($"User with provided id {imageUserId} does not exist in database!");
             }
 
-            if(userToGetPicture.ProfilePicture == null)
+            // sets default picture for user
+            if (userToGetPicture.ProfilePicture == null || string.IsNullOrEmpty(userToGetPicture.ProfilePicture))
             {
-                throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
+                //Console.WriteLine("User profile picture is null!");
+
+                string defaultImageName = "defaultProfilePicture.jpg";
+                string defaultImagePath = Path.Combine("ProfileImages", $"{defaultImageName}");
+                byte[] defaultImageBytes = File.ReadAllBytes(defaultImagePath);
+
+                
+                string imageName = $"{imageUserId}.jpg"; // generate picture name based on user id
+                userToGetPicture.ProfilePicture = imageName; // update profile picture to default picture
+
+                // save image file to folder ProfileImages
+                string imagePathToSet = Path.Combine("ProfileImages", $"{imageName}");
+                File.WriteAllBytesAsync(imagePathToSet, defaultImageBytes);
+                _databaseContext.SaveChangesAsync();
+
+                // throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
             }
 
             var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", $"{imageUserId}.jpg");

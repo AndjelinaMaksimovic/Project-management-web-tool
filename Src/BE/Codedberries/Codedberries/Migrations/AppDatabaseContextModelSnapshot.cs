@@ -276,6 +276,9 @@ namespace Codedberries.Migrations
                     b.Property<int>("PriorityId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Progress")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
@@ -283,9 +286,6 @@ namespace Codedberries.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("StatusId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -339,9 +339,31 @@ namespace Codedberries.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(2);
 
+                    b.Property<int>("TypeOfDependencyId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TaskId", "DependentTaskId");
 
+                    b.HasIndex("TypeOfDependencyId");
+
                     b.ToTable("TaskDependency");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.TaskUser", b =>
+                {
+                    b.Property<int>("TaskId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(0);
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(1);
+
+                    b.HasKey("TaskId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskUsers");
                 });
 
             modelBuilder.Entity("Codedberries.Models.TypeOfTaskDependency", b =>
@@ -545,6 +567,33 @@ namespace Codedberries.Migrations
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Codedberries.Models.TypeOfTaskDependency", "TypeOfDependency")
+                        .WithMany()
+                        .HasForeignKey("TypeOfDependencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TypeOfDependency");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.TaskUser", b =>
+                {
+                    b.HasOne("Codedberries.Models.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.User", b =>

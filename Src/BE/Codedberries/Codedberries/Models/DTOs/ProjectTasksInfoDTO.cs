@@ -17,5 +17,6 @@
         public int DifficultyLevel { get; set; }
         public List<TaskUserInfoDTO> AssignedTo { get; set; }
         public List<int> DependentTasks { get; set; }
+        public int Progress { get; set; }
     }
 }
