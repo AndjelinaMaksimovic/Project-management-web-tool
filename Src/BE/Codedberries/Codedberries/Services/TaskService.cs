@@ -340,7 +340,12 @@ namespace Codedberries.Services
                         throw new ArgumentException($"User with ID {assignedToUserId} does not exist in the database!");
                     }
 
-                    //query = query.Where(t => t.UserId == filterParams.AssignedTo);
+                    var taskIds = _databaseContext.TaskUsers
+                         .Where(tu => tu.UserId == assignedToUserId)
+                         .Select(tu => tu.TaskId)
+                         .ToList();
+
+                    query = query.Where(t => taskIds.Contains(t.Id));
                 }
 
                 if (filterParams.StatusId.HasValue)
@@ -491,16 +496,16 @@ namespace Codedberries.Services
                     StartDate = task.StartDate,
                     DueDate = task.DueDate,
                     FinishedDate = task.FinishedDate != null ? task.FinishedDate : null,
-                    /*AssignedTo = _databaseContext.Users
-                        .Where(u => u.Id == task.UserId)
-                        .Select(u => new TaskUserInfoDTO
+                    AssignedTo = _databaseContext.TaskUsers
+                        .Where(tu => tu.TaskId == task.Id)
+                        .Select(tu => new TaskUserInfoDTO
                         {
-                            Id = u.Id,
-                            FirstName = u.Firstname,
-                            LastName = u.Lastname,
-                            ProfilePicture = u.ProfilePicture
+                            Id = tu.UserId,
+                            FirstName = tu.User.Firstname,
+                            LastName = tu.User.Lastname,
+                            ProfilePicture = tu.User.ProfilePicture
                         })
-                        .ToList(),  */
+                        .ToList(),
                     DependentTasks = dependentTaskIds,
                     DifficultyLevel = task.DifficultyLevel
                 };
