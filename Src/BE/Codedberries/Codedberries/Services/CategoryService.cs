@@ -172,16 +172,16 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (request.Id <= 0)
+            if (request.CategoryId <= 0)
             {
                 throw new ArgumentException("CategoryId must be greater than 0!");
             }
 
-            var providedCategory = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.Id);
+            var providedCategory = _databaseContext.Categories.FirstOrDefault(c => c.Id == request.CategoryId);
 
             if (providedCategory == null)
             {
-                throw new ArgumentException($"Provided Category with ID {request.Id} does not exist in database!");
+                throw new ArgumentException($"Provided Category with ID {request.CategoryId} does not exist in database!");
             }
 
             // UserProjects --- //
@@ -208,11 +208,11 @@ namespace Codedberries.Services
             // ---------------- //
 
             // check if any task has this category
-            var categoryAssignedToTask = _databaseContext.Tasks.Any(t => t.CategoryId == request.Id);
+            var categoryAssignedToTask = _databaseContext.Tasks.Any(t => t.CategoryId == request.CategoryId);
 
             if (categoryAssignedToTask)
             {
-                throw new ArgumentException($"Category with ID {request.Id} is already assigned to a task and cannot be deleted!");
+                throw new ArgumentException($"Category with ID {request.CategoryId} is already assigned to a task and cannot be deleted!");
             }
 
             _databaseContext.Categories.Remove(providedCategory);
