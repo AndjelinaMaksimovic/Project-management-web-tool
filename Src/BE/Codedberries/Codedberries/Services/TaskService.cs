@@ -557,7 +557,9 @@ namespace Codedberries.Services
             }
 
             // other tasks depend on this one
-            var dependentTasks = _databaseContext.Set<TaskDependency>().Where(td => td.DependentTaskId == taskId).ToList();
+            var dependentTasks = _databaseContext.Set<TaskDependency>()
+                .Where(td => td.DependentTaskId == taskId)
+                .ToList();
 
             if (dependentTasks.Any())
             {
@@ -565,11 +567,58 @@ namespace Codedberries.Services
             }
 
             // this task depends on others, if so - delete that relation
-            var tasksDependentOnThis = _databaseContext.Set<TaskDependency>().Where(td => td.TaskId == taskId).ToList();
+            var tasksDependentOnThis = _databaseContext.Set<TaskDependency>()
+                .Where(td => td.TaskId == taskId)
+                .ToList();
 
-            foreach (var dependentTask in tasksDependentOnThis)
+            // verify and handle each type of dependency
+            foreach (var dependency in tasksDependentOnThis)
             {
-                _databaseContext.Set<TaskDependency>().Remove(dependentTask);
+                var dependentTask = _databaseContext.Tasks.Find(dependency.DependentTaskId);
+
+                if (dependentTask == null)
+                {
+                    throw new InvalidOperationException($"Dependent task with ID {dependentTask.Id} not found in database! Cannot delete task {taskId}!");
+                }
+
+                switch (dependency.TypeOfDependencyId)
+                {
+                    case 1: // Start to Start Dependency
+                        if (task.StartDate < dependentTask.StartDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to Start to Start dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    case 2: // Start to End Dependency
+                        if (task.StartDate < dependentTask.DueDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to Start to End dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    case 3: // End to Start Dependency
+                        if (task.DueDate > dependentTask.StartDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to End to Start dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    case 4: // End to End Dependency
+                        if (task.DueDate > dependentTask.DueDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to End to End dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Invalid TypeOfDependencyId: {dependency.TypeOfDependencyId}!");
+                }
+            }
+
+            if (tasksDependentOnThis.Any())
+            {
+                _databaseContext.Set<TaskDependency>().RemoveRange(tasksDependentOnThis);
             }
 
             // remove users assigned to this task
