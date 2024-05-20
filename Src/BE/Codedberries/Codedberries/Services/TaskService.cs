@@ -248,6 +248,28 @@ namespace Codedberries.Services
                             throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
                         }
 
+                        // check if the dependency condition is met
+                        if (!CheckDependencyCondition(taskDependency, newTask, typeOfDependencyId))
+                        {
+                            switch (typeOfDependencyId)
+                            {
+                                case 1: // Start to Start Dependency
+                                    throw new ArgumentException($"Task with ID {newTask.Id} cannot start before the dependent task {taskDependency.Id}!");
+
+                                case 2: // Start to End Dependency
+                                    throw new ArgumentException($"Task with ID {newTask.Id} cannot start before the dependent task {taskDependency.Id} ends!");
+
+                                case 3: // End to Start Dependency
+                                    throw new ArgumentException($"Task with ID {newTask.Id} cannot end after the dependent task {taskDependency.Id} starts!");
+
+                                case 4: // End to End Dependency
+                                    throw new ArgumentException($"Task with ID {newTask.Id} cannot end before the dependent task {taskDependency.Id} ends!");
+
+                                default:
+                                    throw new ArgumentException("Invalid type of dependency");
+                            }
+                        }
+
                         TaskDependency newDependency = new TaskDependency
                         {
                             TaskId = taskDependency.Id,
