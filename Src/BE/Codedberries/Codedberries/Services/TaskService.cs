@@ -249,7 +249,7 @@ namespace Codedberries.Services
                         }
 
                         // check if the dependency condition is met
-                        if (!CheckDependencyCondition(taskDependency, newTask, typeOfDependencyId))
+                        if (!CheckDependencyCondition(newTask, taskDependency, typeOfDependencyId))
                         {
                             switch (typeOfDependencyId)
                             {
