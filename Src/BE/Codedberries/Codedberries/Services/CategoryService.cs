@@ -118,5 +118,19 @@ namespace Codedberries.Services
 
             return categories;
         }
+
+        public async System.Threading.Tasks.Task DeleteCategory(HttpContext httpContext, CategoryDTO request)
+        {
+            var categoryToDelete = await _databaseContext.Categories.FindAsync(request.Id);
+
+            if (categoryToDelete == null)
+            {
+                throw new InvalidOperationException($"Category with ID {request.Id} not found in the database!");
+            }
+
+            _databaseContext.Categories.Remove(categoryToDelete);
+            await _databaseContext.SaveChangesAsync();
+        }
+
     }
 }
