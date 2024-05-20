@@ -20,7 +20,7 @@ namespace Codedberries
         public DbSet<TaskComment> TaskComments { get; set; }
         public DbSet<TypeOfTaskDependency> TypesOfTaskDependency { get; set; }
         public DbSet<Milestone> Milestones { get; set; }
-
+        public DbSet<TaskUser> TaskUsers { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -98,6 +98,18 @@ namespace Codedberries
                 .HasIndex(c => c.Name)
                 .IsUnique();
 
+            modelBuilder.Entity<TaskUser>()
+            .HasKey(tu => new { tu.TaskId, tu.UserId });
+
+            modelBuilder.Entity<TaskUser>()
+                .HasOne(tu => tu.Task)
+                .WithMany() 
+                .HasForeignKey(tu => tu.TaskId);
+
+            modelBuilder.Entity<TaskUser>()
+                .HasOne(tu => tu.User)
+                .WithMany()
+                .HasForeignKey(tu => tu.UserId);
         }
 
         public void ApplyMigrations()

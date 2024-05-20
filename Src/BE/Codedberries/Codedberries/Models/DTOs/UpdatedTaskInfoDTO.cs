@@ -14,5 +14,6 @@
         public int DifficultyLevel { get; set; }
         public int ProjectId { get; set; }
         public List<UserDTO> AssignedUsers { get; set; }
+        public int Progress { get; set; }
     }
 }
