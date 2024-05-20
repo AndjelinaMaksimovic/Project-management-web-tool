@@ -553,7 +553,7 @@ namespace Codedberries.Services
 
             if (task == null)
             {
-                throw new ArgumentException($"Task with ID {taskId} does not exist!");
+                throw new ArgumentException($"Task with ID {taskId} does not exist in database!");
             }
 
             // other tasks depend on this one
@@ -571,6 +571,10 @@ namespace Codedberries.Services
             {
                 _databaseContext.Set<TaskDependency>().Remove(dependentTask);
             }
+
+            // remove users assigned to this task
+            var taskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == taskId).ToList();
+            _databaseContext.TaskUsers.RemoveRange(taskUsers);
 
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
