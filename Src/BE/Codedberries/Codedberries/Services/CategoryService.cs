@@ -147,6 +147,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            if (request.Id <= 0)
+            {
+                throw new ArgumentException("CategoryId must be greater than 0!");
+            }
+
+            var categoryExists = _databaseContext.Categories.Any(c => c.Id == request.Id);
+
+            if (!categoryExists)
+            {
+                throw new ArgumentException($"Category with ID {request.Id} does not exist in database!");
+            }
+
             var categoryToDelete = await _databaseContext.Categories.FindAsync(request.Id);
 
             if (categoryToDelete == null)
