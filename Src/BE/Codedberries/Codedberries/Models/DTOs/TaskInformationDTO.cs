@@ -8,7 +8,7 @@
         public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime? FinishedDate { get; set; }
-        public int UserId { get; set; }
+        public List<UserDTO> Users { get; set; }
         public int ProjectId { get; set; }
         public int StatusId { get; set; }
         public int CategoryId { get; set; }
