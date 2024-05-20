@@ -529,7 +529,8 @@ namespace Codedberries.Services
                         })
                         .ToList(),
                     DependentTasks = dependentTaskIds,
-                    DifficultyLevel = task.DifficultyLevel
+                    DifficultyLevel = task.DifficultyLevel,
+                    Progress = task.Progress
                 };
 
                 tasksDTO.Add(taskDTO);
@@ -979,7 +980,8 @@ namespace Codedberries.Services
                 FinishedDate = task.FinishedDate,
                 DifficultyLevel = task.DifficultyLevel,
                 ProjectId = task.ProjectId,
-                AssignedUsers = assignedUsers
+                AssignedUsers = assignedUsers,
+                Progress = task.Progress
             };
 
             return updatedTaskInfo;

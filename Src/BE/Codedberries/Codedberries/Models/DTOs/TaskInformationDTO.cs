@@ -15,5 +15,6 @@
         public int PriorityId { get; set; }
         public int DifficultyLevel { get; set; }
         public bool Archived { get; set; }
+        public int Progress { get; set; }
     }
 }

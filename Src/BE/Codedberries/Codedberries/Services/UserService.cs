@@ -454,7 +454,8 @@ namespace Codedberries.Services
                     CategoryId = t.CategoryId,
                     PriorityId = t.PriorityId,
                     DifficultyLevel = t.DifficultyLevel,
-                    Archived = t.Archived
+                    Archived = t.Archived,
+                    Progress = t.Progress
                 })
                 .ToListAsync(); 
 
