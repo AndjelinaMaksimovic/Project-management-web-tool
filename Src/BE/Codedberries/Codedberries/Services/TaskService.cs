@@ -165,28 +165,14 @@ namespace Codedberries.Services
                 }
             }
 
-            foreach (var providedUserId in request.UserIds)
-            {
-                var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
+            var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
 
-                if (existingTask != null)
-                {
-                    throw new ArgumentException($"Provided user {providedUserId} is already on Task with name '{request.Name}' in the database for the specified project {request.ProjectId}!");
-                }
+            if (existingTask != null)
+            {
+                throw new ArgumentException($"Task with name '{request.Name}' already exists in the project with ID {request.ProjectId}!");
             }
 
-            var tasks = new List<Models.Task>();
-
-            foreach (var providedUserId in request.UserIds)
-            {
-                Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate, providedUserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
-                tasks.Add(task);
-            }
-
-            if (!tasks.Any())
-            {
-                throw new InvalidOperationException("No tasks were created. The task list is empty!");
-            }
+            var newTask = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
 
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
@@ -225,48 +211,53 @@ namespace Codedberries.Services
 
             try
             {
-                foreach (var task in tasks)
-                {
-                    _databaseContext.Tasks.Add(task);
-                }
-
+                _databaseContext.Tasks.Add(newTask);
                 await _databaseContext.SaveChangesAsync();
+
+                // add users to TaskUser
+                foreach (var providedUserId in request.UserIds)
+                {
+                    var taskUser = new TaskUser
+                    {
+                        TaskId = newTask.Id,
+                        UserId = providedUserId
+                    };
+
+                    _databaseContext.TaskUsers.Add(taskUser);
+                }
 
                 // adding dependencies to TaskDependency
                 if (request.DependencyIds != null && request.DependencyIds.Any())
                 {
-                    foreach (var task in tasks)
+                    var i = 0;
+
+                    foreach (int dependency_id in request.DependencyIds)
                     {
-                        var i = 0;
+                        var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+                        var typeOfDependencyId = request.TypeOfDependencyIds[i];
 
-                        foreach (int dependency_id in request.DependencyIds)
+                        if (taskDependency == null)
                         {
-                            var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
-                            var typeOfDependencyId = request.TypeOfDependencyIds[i];
-
-                            if (taskDependency == null)
-                            {
-                                throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
-                            }
-
-                            var cyclicDependencyDetected = DetectCyclicDependency(task.Id, dependency_id);
-
-                            if (cyclicDependencyDetected)
-                            {
-                                 throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
-                            }
-
-                            TaskDependency newDependency = new TaskDependency
-                            {
-                                TaskId = taskDependency.Id,
-                                DependentTaskId = task.Id,
-                                TypeOfDependencyId = typeOfDependencyId
-                             };
-
-                            i++;
-
-                            _databaseContext.Set<TaskDependency>().Add(newDependency);
+                            throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
                         }
+
+                        var cyclicDependencyDetected = DetectCyclicDependency(newTask.Id, dependency_id);
+
+                        if (cyclicDependencyDetected)
+                        {
+                            throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                        }
+
+                        TaskDependency newDependency = new TaskDependency
+                        {
+                            TaskId = taskDependency.Id,
+                            DependentTaskId = newTask.Id,
+                            TypeOfDependencyId = typeOfDependencyId
+                        };
+
+                        i++;
+
+                        _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
 
