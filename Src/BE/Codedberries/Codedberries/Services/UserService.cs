@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -421,9 +422,15 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            /*
+            // get all task ids of current user
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == userId)
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            
             var tasks = await _databaseContext.Tasks
-                .Where(t => t.UserId == userId)
+                .Where(t => taskIds.Contains(t.Id))
                 .Select(t => new TaskInformationDTO
                 {
                     Id = t.Id,
@@ -432,7 +439,16 @@ namespace Codedberries.Services
                     StartDate = t.StartDate,
                     DueDate = t.DueDate,
                     FinishedDate = t.FinishedDate,
-                    UserId = t.UserId,
+                    Users = _databaseContext.TaskUsers
+                        .Where(tu => tu.TaskId == t.Id)
+                        .Select(tu => new UserDTO
+                        {
+                            Id = tu.UserId,
+                            FirstName = tu.User.Firstname,
+                            LastName = tu.User.Lastname,
+                            ProfilePicture = tu.User.ProfilePicture
+                        })
+                        .ToList(),
                     ProjectId = t.ProjectId,
                     StatusId = t.StatusId,
                     CategoryId = t.CategoryId,
@@ -440,7 +456,7 @@ namespace Codedberries.Services
                     DifficultyLevel = t.DifficultyLevel,
                     Archived = t.Archived
                 })
-                .ToListAsync(); */
+                .ToListAsync(); 
 
             var userProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == userId)
@@ -491,7 +507,7 @@ namespace Codedberries.Services
                 RoleId = user.RoleId,
                 RoleName = userRole.Name,
                 Projects = projects,
-                //Tasks = tasks
+                Tasks = tasks
             };
 
             return currentSessionUserDTO;
