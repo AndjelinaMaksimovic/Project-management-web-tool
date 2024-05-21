@@ -9,6 +9,8 @@ import { UserService } from '../../services/user.service';
 import { UserStatsComponent } from '../../components/user-stats/user-stats.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AvatarService } from '../../services/avatar.service';
+import { ActivatedRoute } from '@angular/router';
+import { NavbarComponent } from '../../components/navbar/navbar.component';
 
 class Member {
   firstname: string;
@@ -62,7 +64,7 @@ class Role {
 @Component({
   selector: 'app-members',
   standalone: true,
-  imports: [ TopnavComponent, FormsModule, FiltersComponent, NgIf, NgFor, MemberItemComponent, KeyValuePipe, UserStatsComponent ],
+  imports: [ TopnavComponent, FormsModule, FiltersComponent, NgIf, NgFor, MemberItemComponent, KeyValuePipe, UserStatsComponent, NavbarComponent ],
   templateUrl: './members.component.html',
   styleUrl: './members.component.css'
 })
@@ -80,25 +82,51 @@ export class MembersComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
+  constructor(private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
 
   filterRolesByName() {
     this.roles.forEach((role, key) => role.filterMembers(this.search));
   }
 
-  async ngOnInit(){
-    let onlyRoles = await this.rolesService.getAllRoles();
-    onlyRoles?.forEach((val, index) => {
-      this.roles.set(val.id, new Role(val.roleName, val.id, []));
-    });
-    this.roles.set(-1, new Role("No role", -1, []));
+  isProject: boolean = false;
+  projectId: number = -1;
 
-    await this.userService.fetchUsers();
-    let onlyUsers = await this.userService.getUsers();
-
-    onlyUsers?.forEach((val, index) => {
-      this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
+  async ngOnInit() {
+    this.route.data.subscribe(async(data) => {
+      this.isProject = data['isProject'] || false;
+      if(this.isProject) {
+        await this.route.params.subscribe((params) => {
+          this.projectId = parseInt(params['id']);
+        });
+      }
     });
+    if(this.isProject) {
+      let onlyRoles = await this.rolesService.getProjectRoles(this.projectId);
+      onlyRoles?.forEach((val, index) => {
+        this.roles.set(val.id, new Role(val.roleName, val.id, []));
+      });
+
+      await this.userService.fetchUsers();
+      let onlyUsers = await this.userService.getUsers();
+
+      onlyUsers?.forEach((val, index) => {
+        this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
+      });
+    }
+    else {
+      let onlyRoles = await this.rolesService.getAllRoles();
+      onlyRoles?.forEach((val, index) => {
+        this.roles.set(val.id, new Role(val.roleName, val.id, []));
+      });
+      this.roles.set(-1, new Role("No role", -1, []));
+
+      await this.userService.fetchUsers();
+      let onlyUsers = await this.userService.getUsers();
+
+      onlyUsers?.forEach((val, index) => {
+        this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
+      });
+    }
   }
 
   async fetchMembersFromLocalStorage() {
