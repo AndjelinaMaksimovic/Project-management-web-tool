@@ -270,6 +270,34 @@ namespace Codedberries.Services
                 throw new ArgumentException("Project with the provided ID does not exist in database!");
             }
 
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Project!");
+            }
+
+            if (userRole.CanRemoveUserFromProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to remove user from Project!");
+            }
+            // ---------------- //
+
             // find all task IDs where the user is assigned
             var taskIds = await _databaseContext.TaskUsers
                 .Where(tu => tu.UserId == request.UserId)
