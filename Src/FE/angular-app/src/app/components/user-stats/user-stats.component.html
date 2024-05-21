@@ -5,7 +5,7 @@
     </div>
     <div class="main-container">
         <div class="basic-container margin-15 left-container flex-2">
-            <img class="profile-picture center" src={{image}} onerror="this.src='/assets/default-user.jpg'">
+            <img class="profile-picture center" [src]="getProfileImagePath()" onerror="this.src='/assets/default-user.jpg'">
             <div class="ml-20 w-100">
                 <p class="title">{{name}}</p>
                 <p class="desc">{{desc}}</p>

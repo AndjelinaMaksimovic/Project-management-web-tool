@@ -8,6 +8,7 @@ import { TaskService } from '../../services/task.service';
 import { NgIf } from '@angular/common';
 import { TaskCardComponent } from '../task-card/task-card.component';
 import { UserService } from '../../services/user.service';
+import { AvatarService } from '../../services/avatar.service';
 
 @Component({
   selector: 'app-user-stats',
@@ -38,7 +39,7 @@ export class UserStatsComponent {
     return this.projectService.getProjects().filter(project => project.title.toLowerCase()).filter(project => !project.archived);
   }
 
-  constructor(private userService: UserService, private projectService: ProjectService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private userService: UserService, private projectService: ProjectService, private avatarService: AvatarService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.userId = data.id;
     this.title = data.title;
     this.projectId = data.projectId ? data.projectId : -1;
@@ -66,5 +67,9 @@ export class UserStatsComponent {
   
   toggleProjects() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  }
+
+  getProfileImagePath(){
+    return this.avatarService.getProfileImagePath(this.userId);
   }
 }
