@@ -1,7 +1,10 @@
 <div style="border-style: solid; border-width: 1px; border-radius: 4px; border-color: #DDD; margin-bottom: 20px">
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
         <mat-tab label="Edit">
-            <div style="min-height: 270px; overflow-y: hidden;">
+            <div style="min-height: 270px; overflow-y: hidden;" 
+            (keydown.control.b)="insertText('**', '**')" 
+            (keydown.control.i)="insertText('*', '*')"
+            >
                 <div style="display: flex;">
                     <button mat-icon-button (click)="insertText('**', '**')"
                         matTooltip="Bold"><mat-icon>format_bold</mat-icon></button>
