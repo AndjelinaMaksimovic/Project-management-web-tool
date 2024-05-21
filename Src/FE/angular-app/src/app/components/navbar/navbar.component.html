@@ -16,10 +16,10 @@
                     <i class="icon fa-regular fa-folder-open mr-10"></i>
                     <span *ngIf="isExpanded">Project details</span>
                 </a>
-                <a class="menu-item pl-15 pr-15 lightgray" routerLink="/performance" routerLinkActive="active">
+                <!-- <a class="menu-item pl-15 pr-15 lightgray" routerLink="/performance" routerLinkActive="active">
                     <i class="icon fa-solid fa-chart-line mr-10"></i>
                     <span *ngIf="isExpanded">Performance</span>
-                </a>
+                </a> -->
                 <a class="menu-item pl-15 pr-15 lightgray" [routerLink]="['/project', id, 'tasks']" routerLinkActive="active">
                     <i class="icon fa-solid fa-list-check mr-10"></i>
                     <span *ngIf="isExpanded">Tasks</span>
