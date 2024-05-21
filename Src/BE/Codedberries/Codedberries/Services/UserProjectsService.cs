@@ -236,5 +236,36 @@ namespace Codedberries.Services
 
             return userProjectInformation;
         }
+
+        public async System.Threading.Tasks.Task RemoveUserFromProject(HttpContext httpContext, DeleteUserFromProjectDTO request)
+        {
+            // find all task IDs where the user is assigned
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == request.UserId)
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            // check if all tasks are finished
+            var allTasksFinished = await _databaseContext.Tasks
+                .Where(t => taskIds.Contains(t.Id))
+                .AllAsync(t => t.FinishedDate != null);
+
+            if (!allTasksFinished)
+            {
+                throw new InvalidOperationException("Cannot remove user from project because they have active tasks!");
+            }
+
+            // remove the user from the project
+            var userProject = await _databaseContext.UserProjects
+                .FirstOrDefaultAsync(up => up.ProjectId == request.ProjectId && up.UserId == request.UserId);
+
+            if (userProject == null)
+            {
+                throw new ArgumentException($"User with ID {request.UserId} is not assigned to project with ID {request.ProjectId}.");
+            }
+
+            _databaseContext.UserProjects.Remove(userProject);
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }
