@@ -175,8 +175,11 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
+                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has created the project {project.Id}");
+                    _databaseContext.Activities.Add(activity);
+                    await _databaseContext.SaveChangesAsync();
 
-                    await transaction.CommitAsync();
+                await transaction.CommitAsync();
                 }
                 catch (Exception ex)
                 {
@@ -799,6 +802,9 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has updated the project {project.Id}");
+            _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -863,6 +869,10 @@ namespace Codedberries.Services
 
             // archive/active
             project.Archived = !project.Archived;
+
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has archived the project {project.Id}");
+            _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
