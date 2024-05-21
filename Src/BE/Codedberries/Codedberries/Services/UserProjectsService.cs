@@ -323,9 +323,9 @@ namespace Codedberries.Services
                 throw new ArgumentException($"User with ID {request.UserId} is not assigned to project with ID {request.ProjectId}!");
             }
 
-            // find all task IDs where the user is assigned
+            // find all task IDs where the user is assigned in the specified project
             var taskIds = await _databaseContext.TaskUsers
-                .Where(tu => tu.UserId == request.UserId)
+                .Where(tu => tu.UserId == request.UserId && _databaseContext.Tasks.Any(t => t.Id == tu.TaskId && t.ProjectId == request.ProjectId))
                 .Select(tu => tu.TaskId)
                 .ToListAsync();
 
