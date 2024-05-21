@@ -501,7 +501,7 @@ namespace Codedberries.Services
             foreach (var task in tasks)
             {
                 var dependentTasks = _databaseContext.Set<TaskDependency>()
-                    .Where(td => td.TaskId == task.Id || td.DependentTaskId == task.Id)
+                    .Where(td => td.TaskId == task.Id)
                     .Select(td => new DependentTaskDTO
                     {
                         TaskId = td.DependentTaskId,
