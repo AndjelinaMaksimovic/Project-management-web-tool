@@ -220,10 +220,15 @@ namespace Codedberries.Services
                 }
 
 
-                var activeProjects = _databaseContext.Projects
-                    .Where(p => !p.Archived)
-                    .Select(p => new ProjectInformationDTO
-                    {
+                        var activeProjects = _databaseContext.UserProjects
+                        .Where(up => up.UserId == userId) // Filter by user ID
+                        .Join(_databaseContext.Projects, // Join with Projects table
+                        up => up.ProjectId, // Match UserProject's ProjectId
+                        p => p.Id, // Match Project's Id
+                        (up, p) => p) // Select the Project
+                        .Where(p => !p.Archived) // Filter out archived projects
+                        .Select(p => new ProjectInformationDTO
+                        {
                         Id = p.Id,
                         Name = p.Name,
                         Description = p.Description,
