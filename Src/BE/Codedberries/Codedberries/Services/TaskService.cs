@@ -283,6 +283,9 @@ namespace Codedberries.Services
                         _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
+                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Id} has created the task {newTask.Id}");
+                _databaseContext.Activities.Add(activity);
+                await _databaseContext.SaveChangesAsync();
 
                 await _databaseContext.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -653,6 +656,10 @@ namespace Codedberries.Services
             var taskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == taskId).ToList();
             _databaseContext.TaskUsers.RemoveRange(taskUsers);
 
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has deleted the task {task.Id}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
         }
@@ -989,6 +996,10 @@ namespace Codedberries.Services
                 Progress = task.Progress
             };
 
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has updated the task {task.Id}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
             return updatedTaskInfo;
         }
 
@@ -1029,6 +1040,10 @@ namespace Codedberries.Services
 
             // Toggle archived status
             task.Archived = !task.Archived;
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has archived the task {task.Id}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             _databaseContext.SaveChanges();
         }
@@ -1650,6 +1665,10 @@ namespace Codedberries.Services
             }
 
             task.Progress = request.Progress;
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has changed the progress of the task {task.Id}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
