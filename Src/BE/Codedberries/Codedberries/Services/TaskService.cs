@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Codedberries.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
+using System;
 
 namespace Codedberries.Services
 {
@@ -1573,5 +1574,80 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
+        public async System.Threading.Tasks.Task ChangeTaskProgress(HttpContext httpContext, TaskProgressDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = await _databaseContext.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var task = await _databaseContext.Tasks.FindAsync(request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist in database!");
+            }
+
+            var project = await _databaseContext.Projects.FindAsync(task.ProjectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {task.ProjectId} does not exist in database!");
+            }
+
+            var taskUser = await _databaseContext.TaskUsers
+                .FirstOrDefaultAsync(tu => tu.UserId == userId && tu.TaskId == task.Id);
+
+            if (taskUser == null)
+            {
+                throw new UnauthorizedAccessException("User is not assigned to this task!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == project.Id);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {project.Id} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task!");
+            }
+            // ---------------- //
+
+            if (request.Progress < 0 || request.Progress > 100)
+            {
+                throw new ArgumentException("Progress must be between 0 and 100!");
+            }
+
+            task.Progress = request.Progress;
+
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }

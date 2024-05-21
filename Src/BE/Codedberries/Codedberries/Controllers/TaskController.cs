@@ -5,6 +5,7 @@ using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 namespace Codedberries.Controllers
 
 {
@@ -235,6 +236,29 @@ namespace Codedberries.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("changeTaskProgress")]
+        public async Task<IActionResult> ChangeTaskProgress(TaskProgressDTO request)
+        {
+            try
+            {
+                await _taskService.ChangeTaskProgress(HttpContext, request);
+
+                return Ok("Task progress updated successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating task progress: {ex.Message}"));
             }
         }
     }
