@@ -329,8 +329,8 @@ namespace Codedberries.Services
                 .Select(tu => tu.TaskId)
                 .ToListAsync();
 
-            // check if all tasks are finished
-            var allTasksFinished = await _databaseContext.Tasks
+            // check if all tasks are finished or if there are no tasks
+            var allTasksFinished = !taskIds.Any() || await _databaseContext.Tasks
                 .Where(t => taskIds.Contains(t.Id))
                 .AllAsync(t => t.FinishedDate != null);
 
@@ -339,8 +339,21 @@ namespace Codedberries.Services
                 throw new InvalidOperationException("Cannot remove user from project because they have active tasks!");
             }
 
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Tasks! Cannot remove provided user from the task assignments before removing from project!");
+            }
+
+            // remove the user from the task assignments within the project
+            var taskUsersToRemove = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == request.UserId && taskIds.Contains(tu.TaskId))
+                .ToListAsync();
+
+            _databaseContext.TaskUsers.RemoveRange(taskUsersToRemove);
+
             // remove the user from the project
             _databaseContext.UserProjects.Remove(userProjectToDelete);
+            
             await _databaseContext.SaveChangesAsync();
         }
     }
