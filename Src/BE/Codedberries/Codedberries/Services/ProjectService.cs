@@ -914,7 +914,7 @@ namespace Codedberries.Services
             return projectProgressDTO;
         }
 
-        public double CalculateProjectProgress(int projectId)
+        public int CalculateProjectProgress(int projectId)
         {
             var project = _databaseContext.Projects
                 .Include(p => p.Statuses)
@@ -936,7 +936,7 @@ namespace Codedberries.Services
 
             if (allTasksCompleted || projectDueDatePassed)
             {
-                return 100.0;
+                return 100;
             }
 
             // number of tasks that were completed and were not archived
@@ -954,7 +954,7 @@ namespace Codedberries.Services
 
             if (totalTasksCount == 0)
             {
-                return 0.0; // there are no finished tasks
+                return 0; // there are no finished tasks
             }
 
             // priority
@@ -979,7 +979,7 @@ namespace Codedberries.Services
 
             progressPercentage = Math.Min(progressPercentage, 100);
 
-            return progressPercentage;
+            return (int)progressPercentage;
         }
 
         public async System.Threading.Tasks.Task ToggleStarredProject(HttpContext httpContext, ProjectIdDTO request)
