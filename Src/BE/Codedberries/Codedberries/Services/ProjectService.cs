@@ -101,6 +101,16 @@ namespace Codedberries.Services
                 _databaseContext.Projects.Add(project);
                 await _databaseContext.SaveChangesAsync();
 
+                var userProject = new UserProject
+                {
+                    UserId = user.Id,
+                    ProjectId = project.Id,
+                    RoleId = user.RoleId.Value 
+                };
+
+                _databaseContext.UserProjects.Add(userProject);
+                await _databaseContext.SaveChangesAsync();
+
                 // users won't be added at this service, therefore this is under /* */
                 /*
                     if (request.UserIds == null || !request.UserIds.Any())
@@ -143,8 +153,8 @@ namespace Codedberries.Services
                     }
                     */
 
-                    // default statuses creation
-                    if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+                // default statuses creation
+                if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
                     {
                         throw new UnauthorizedAccessException("User does not have permission to create status, user can't create new project!");
                     }
