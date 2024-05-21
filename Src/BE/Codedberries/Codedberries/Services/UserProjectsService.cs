@@ -298,6 +298,31 @@ namespace Codedberries.Services
             }
             // ---------------- //
 
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("Provided UserId must be greater than 0!");
+            }
+
+            var userToDelete = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (userToDelete == null)
+            {
+                throw new ArgumentException($"Provided User with ID {request.UserId} not found in database!");
+            }
+
+            if (userToDelete.RoleId == null)
+            {
+                throw new InvalidOperationException($"Provided User with ID {request.UserId} does not have a role assigned!");
+            }
+
+            var userProjectToDelete = await _databaseContext.UserProjects
+                .FirstOrDefaultAsync(up => up.ProjectId == request.ProjectId && up.UserId == request.UserId);
+
+            if (userProjectToDelete == null)
+            {
+                throw new ArgumentException($"User with ID {request.UserId} is not assigned to project with ID {request.ProjectId}!");
+            }
+
             // find all task IDs where the user is assigned
             var taskIds = await _databaseContext.TaskUsers
                 .Where(tu => tu.UserId == request.UserId)
@@ -315,15 +340,7 @@ namespace Codedberries.Services
             }
 
             // remove the user from the project
-            var userProject = await _databaseContext.UserProjects
-                .FirstOrDefaultAsync(up => up.ProjectId == request.ProjectId && up.UserId == request.UserId);
-
-            if (userProject == null)
-            {
-                throw new ArgumentException($"User with ID {request.UserId} is not assigned to project with ID {request.ProjectId}.");
-            }
-
-            _databaseContext.UserProjects.Remove(userProject);
+            _databaseContext.UserProjects.Remove(userProjectToDelete);
             await _databaseContext.SaveChangesAsync();
         }
     }
