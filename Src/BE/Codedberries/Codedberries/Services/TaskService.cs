@@ -1573,5 +1573,18 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
+        public async System.Threading.Tasks.Task ChangeTaskProgress(HttpContext httpContext, TaskProgressDTO request)
+        {
+            var task = await _databaseContext.Tasks.FindAsync(request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist in database!");
+            }
+
+            task.Progress = request.Progress;
+
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }
