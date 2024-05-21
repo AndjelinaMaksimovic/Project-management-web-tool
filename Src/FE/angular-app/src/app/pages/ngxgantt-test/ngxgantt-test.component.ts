@@ -29,6 +29,8 @@ import { ThyButtonModule } from 'ngx-tethys/button';
 import { ThyLayoutModule } from 'ngx-tethys/layout';
 import { ThySwitchModule } from 'ngx-tethys/switch';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-ngxgantt-test',
@@ -201,6 +203,7 @@ export class NgxganttTestComponent {
     private route: ActivatedRoute,
     private router: Router,
     private localStorageService: LocalStorageService,
+    private dialogue: MatDialog
   ) {}
 
   projectId: number = 0;
@@ -229,7 +232,12 @@ export class NgxganttTestComponent {
   }
 
   lineClick(event: GanttLineClickEvent) {
-      console.log('Event: lineClick', `Source: [${event.source.title}] Target: [${event.target.title}]`);
+    console.log('Event: lineClick', `Source: [${event.source.title}] Target: [${event.target.title}]`);
+    let descriptionMessage = "Are you sure you want to remove the dependency between <b>" + event.source.title + "</b> and <b>" + event.target.title + "</b>?<br>This action cannot be undone and may affect related tasks and workflows.";
+    this.dialogue.open(ConfirmationDialogComponent, { data: { title: "Confirm Dependency Removal", description: descriptionMessage, yesFunc: async () => {
+      await this.taskService.deleteDependency(parseInt(event.source.id), parseInt(event.target.id)); 
+      this.updateTasksView();
+    }, noFunc: () => { } } });
   }
 
   dragMoved(event: GanttDragEvent) {}
