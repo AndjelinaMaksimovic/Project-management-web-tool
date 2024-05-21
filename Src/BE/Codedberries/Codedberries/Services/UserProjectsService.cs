@@ -258,6 +258,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
+
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist in database!");
+            }
+
             // find all task IDs where the user is assigned
             var taskIds = await _databaseContext.TaskUsers
                 .Where(tu => tu.UserId == request.UserId)
