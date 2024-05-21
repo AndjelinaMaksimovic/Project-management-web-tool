@@ -1,4 +1,5 @@
-﻿using Codedberries.Helpers;
+﻿using System.Diagnostics;
+using Codedberries.Helpers;
 using Codedberries.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -81,8 +82,12 @@ namespace Codedberries.Services
             
             _databaseContext.Milestones.Add(milestone);
             await _databaseContext.SaveChangesAsync();
-            
-            
+
+            Models.Activity activity = new Models.Activity(user.Id, request.ProjectId, $"User {user.Id} has created the Milestone {request.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+
         }
 
         public async Task<List<MilestoneDTO>> GetAllMylestonesByProjects(HttpContext httpContext, ProjectIdDTO dto)
@@ -206,6 +211,10 @@ namespace Codedberries.Services
                 ProjectId=milestone.ProjectId
             };
             
+            Models.Activity activity = new Models.Activity(user.Id, milestone.ProjectId, $"User {user.Id} has updated the Milestone {request.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
             return updatedMilestoneInfo;
         }
     }
