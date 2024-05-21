@@ -16,6 +16,7 @@ export type User = {
   roleName: string;
   roleId: number;
   profilePicture: string;
+  projects: any;
 };
 function mapUser(apiUser: any) {
   return {
@@ -26,6 +27,7 @@ function mapUser(apiUser: any) {
     roleName: apiUser.roleName,
     roleId: apiUser.roleId,
     profilePicture: apiUser.profilePicture,
+    projects: apiUser.projects,
   };
 }
 

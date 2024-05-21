@@ -87,4 +87,8 @@ export class ProjectDetailsComponent {
   deleteStatus(status: string) {
     this.statusService.deleteStatus(status);
   }
+
+  deleteCategory(category: number) {
+    this.categoryService.deleteCategory(category);
+  }
 }
