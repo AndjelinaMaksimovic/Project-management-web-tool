@@ -173,8 +173,12 @@ export class NgxganttTestComponent {
       this.projectId = parseInt(params['id']);
     });
     await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
-    this.items = this.convertTasksToNgx(this.taskService.getTasks());
+    this.updateTasksView();
     console.log(this.taskService.getTasks());
+  }
+
+  updateTasksView() {
+    this.items = this.convertTasksToNgx(this.taskService.getTasks());
   }
 
   ngAfterViewInit() {
@@ -191,19 +195,25 @@ export class NgxganttTestComponent {
 
   dragMoved(event: GanttDragEvent) {}
 
-  dragEnded(event: GanttDragEvent) {
+  async dragEnded(event: GanttDragEvent) {
       console.log('Event: dragEnded', `[${event.item.title}]`);
-      this.items = [...this.items];
 
       console.log(event.item);
 
       console.log((new Date(event.item.start! * 1000 + 6 * 3600 * 1000))); // fix
 
-      this.taskService.updateTask({
-        id: parseInt(event.item.id),
-        startDate: (new Date(event.item.start! * 1000 + 6 * 3600 * 1000)), // fix
-        dueDate: (new Date(event.item.end! * 1000))
-      })
+      let flag = await this.taskService.updateTask({
+          id: parseInt(event.item.id),
+          startDate: (new Date(event.item.start! * 1000 + 6 * 3600 * 1000)), // fix
+          dueDate: (new Date(event.item.end! * 1000)),
+          forceDateChange: false
+        });
+      if(flag) {
+        this.updateTasksView();
+      }
+      else {
+        this.updateTasksView();
+      }
   }
 
   selectedChange(event: GanttSelectedEvent) {
@@ -218,6 +228,23 @@ export class NgxganttTestComponent {
   linkDragEnded(event: GanttLinkDragEvent) {
       this.items = [...this.items];
       console.log('Event: linkDragEnded', `Source: [${event.source.title}] Target: [${event.target!.title}]`);
+      let type = -1;
+      switch(event.type) {
+        case GanttLinkType.ss:
+          type = 1
+          break;
+        case GanttLinkType.sf:
+          type = 2
+          break;
+        case GanttLinkType.fs:
+          type = 3
+          break;
+        case GanttLinkType.ff:
+          type = 4
+          break;
+      }
+      console.log(type);
+      this.taskService.createTaskDependency({ taskId: parseInt(event.source!.id), dependentTaskId: parseInt(event.target!.id), typeOfDependencyId: type });
   }
 
   scrollToToday() {

@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -204,13 +204,19 @@ export class TaskService {
       this.snackBar.open("Task updated successfully", undefined, {
         duration: 2000,
       });
+      return true;
     } catch (e) {
-      console.log(e);
-      this.snackBar.open("We couldn't update task", undefined, {
-        duration: 2000,
+      let error = "";
+      if(e instanceof HttpErrorResponse) {
+        error = " - " + e.error.errorMessage;
+      }
+      this.snackBar.open("We couldn't update task" + error, undefined, {
+        duration: 8000,
       });
       await this.fetchTasks();
+      return false;
     }
+    return false;
   }
   /**
    * this function changes the given task's status to archived and automatically re-fetches the task cache
@@ -271,6 +277,33 @@ export class TaskService {
       await this.fetchTasks();
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  async createTaskDependency(task: {
+    taskId: number;
+    dependentTaskId: number;
+    typeOfDependencyId: number;
+  }) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/Task/createTaskDependency`,
+          {
+            taskId: task.taskId,
+            dependentTaskId: task.dependentTaskId,
+            typeOfDependencyId: task.typeOfDependencyId,
+          },
+          {...this.httpOptions, responseType: "text" as "json"}
+        )
+      );
+      // await this.fetchTasks();
+    } catch (e) {
+      console.log(e);
+      this.snackBar.open("We couldn't create dependency", undefined, {
+        duration: 2000,
+      });
+      // await this.fetchTasks();
     }
   }
 }
