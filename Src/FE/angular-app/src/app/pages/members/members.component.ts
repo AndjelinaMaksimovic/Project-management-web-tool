@@ -8,6 +8,7 @@ import { RolesService } from '../../services/roles.service';
 import { UserService } from '../../services/user.service';
 import { UserStatsComponent } from '../../components/user-stats/user-stats.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AvatarService } from '../../services/avatar.service';
 
 class Member {
   firstname: string;
@@ -79,7 +80,7 @@ export class MembersComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private rolesService : RolesService, private userService: UserService, public dialog: MatDialog) {}
+  constructor(private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
 
   filterRolesByName() {
     this.roles.forEach((role, key) => role.filterMembers(this.search));
@@ -96,7 +97,7 @@ export class MembersComponent {
     let onlyUsers = await this.userService.getUsers();
 
     onlyUsers?.forEach((val, index) => {
-      this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, val.profilePicture, 0));
+      this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
     });
   }
 
