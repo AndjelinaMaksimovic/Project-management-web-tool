@@ -239,6 +239,25 @@ namespace Codedberries.Services
 
         public async System.Threading.Tasks.Task RemoveUserFromProject(HttpContext httpContext, DeleteUserFromProjectDTO request)
         {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
             // find all task IDs where the user is assigned
             var taskIds = await _databaseContext.TaskUsers
                 .Where(tu => tu.UserId == request.UserId)
