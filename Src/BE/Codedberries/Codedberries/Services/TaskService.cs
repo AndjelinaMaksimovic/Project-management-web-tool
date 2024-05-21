@@ -1609,6 +1609,14 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Project with ID {task.ProjectId} does not exist in database!");
             }
 
+            var taskUser = await _databaseContext.TaskUsers
+                .FirstOrDefaultAsync(tu => tu.UserId == userId && tu.TaskId == task.Id);
+
+            if (taskUser == null)
+            {
+                throw new UnauthorizedAccessException("User is not assigned to this task!");
+            }
+
             // UserProjects --- //
             var userProject = _databaseContext.UserProjects
                 .FirstOrDefault(up => up.UserId == userId && up.ProjectId == project.Id);
