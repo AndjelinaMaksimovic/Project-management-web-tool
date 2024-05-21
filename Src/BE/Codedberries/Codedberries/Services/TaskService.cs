@@ -1601,6 +1601,13 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Task with ID {request.TaskId} does not exist in database!");
             }
 
+            var project = await _databaseContext.Projects.FindAsync(task.ProjectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {task.ProjectId} does not exist in database!");
+            }
+
             task.Progress = request.Progress;
 
             await _databaseContext.SaveChangesAsync();
