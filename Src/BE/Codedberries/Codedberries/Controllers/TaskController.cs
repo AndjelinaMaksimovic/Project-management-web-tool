@@ -250,15 +250,15 @@ namespace Codedberries.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(ex.Message);
+                return Unauthorized(new ErrorMsg(ex.Message));
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while updating task progress:");
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating task progress: {ex.Message}"));
             }
         }
     }
