@@ -236,5 +236,125 @@ namespace Codedberries.Services
 
             return userProjectInformation;
         }
+
+        public async System.Threading.Tasks.Task RemoveUserFromProject(HttpContext httpContext, DeleteUserFromProjectDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
+
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Project!");
+            }
+
+            if (userRole.CanRemoveUserFromProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to remove user from Project!");
+            }
+            // ---------------- //
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("Provided UserId must be greater than 0!");
+            }
+
+            var userToDelete = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (userToDelete == null)
+            {
+                throw new ArgumentException($"Provided User with ID {request.UserId} not found in database!");
+            }
+
+            if (userToDelete.RoleId == null)
+            {
+                throw new InvalidOperationException($"Provided User with ID {request.UserId} does not have a role assigned!");
+            }
+
+            var userProjectToDelete = await _databaseContext.UserProjects
+                .FirstOrDefaultAsync(up => up.ProjectId == request.ProjectId && up.UserId == request.UserId);
+
+            if (userProjectToDelete == null)
+            {
+                throw new ArgumentException($"User with ID {request.UserId} is not assigned to project with ID {request.ProjectId}!");
+            }
+
+            // find all task IDs where the user is assigned in the specified project
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == request.UserId && _databaseContext.Tasks.Any(t => t.Id == tu.TaskId && t.ProjectId == request.ProjectId))
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            // check if all tasks are finished or if there are no tasks
+            var allTasksFinished = !taskIds.Any() || await _databaseContext.Tasks
+                .Where(t => taskIds.Contains(t.Id))
+                .AllAsync(t => t.FinishedDate != null);
+
+            if (!allTasksFinished)
+            {
+                throw new InvalidOperationException("Cannot remove user from project because they have active tasks!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Tasks! Cannot remove provided user from the task assignments before removing from project!");
+            }
+
+            // remove the user from the task assignments within the project
+            var taskUsersToRemove = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == request.UserId && taskIds.Contains(tu.TaskId))
+                .ToListAsync();
+
+            _databaseContext.TaskUsers.RemoveRange(taskUsersToRemove);
+
+            // remove the user from the project
+            _databaseContext.UserProjects.Remove(userProjectToDelete);
+            
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }

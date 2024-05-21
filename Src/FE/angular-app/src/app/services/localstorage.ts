@@ -13,7 +13,7 @@ export class LocalStorageService {
 
   getData(key: string): any {
     const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : null;
+    return data ? JSON.parse(data) : {};
   }
 
   removeData(key: string): void {
