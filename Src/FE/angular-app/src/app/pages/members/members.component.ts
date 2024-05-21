@@ -91,6 +91,8 @@ export class MembersComponent {
   isProject: boolean = false;
   projectId: number = -1;
 
+
+
   async ngOnInit() {
     this.route.data.subscribe(async(data) => {
       this.isProject = data['isProject'] || false;
@@ -101,15 +103,19 @@ export class MembersComponent {
       }
     });
     if(this.isProject) {
-      let onlyRoles = await this.rolesService.getProjectRoles(this.projectId);
-      onlyRoles?.forEach((val, index) => {
-        this.roles.set(val.id, new Role(val.roleName, val.id, []));
-      });
+      // let onlyRoles = await this.rolesService.getProjectRoles(this.projectId);
+      // onlyRoles?.forEach((val, index) => {
+      //   this.roles.set(val.id, new Role(val.roleName, val.id, []));
+      // });
 
-      await this.userService.fetchUsers();
+      await this.userService.fetchUsersByProject(this.projectId);
       let onlyUsers = await this.userService.getUsers();
+      console.log(onlyUsers);
 
       onlyUsers?.forEach((val, index) => {
+        if(!this.roles.has(val.roleId)) {
+          this.roles.set(val.roleId, new Role(val.roleName ? val.roleName : "Undefined", val.roleId, []));
+        }
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
       });
     }
