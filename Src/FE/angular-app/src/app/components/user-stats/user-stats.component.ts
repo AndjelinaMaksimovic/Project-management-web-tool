@@ -41,6 +41,7 @@ export class UserStatsComponent {
   constructor(private userService: UserService, private projectService: ProjectService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.userId = data.id;
     this.title = data.title;
+    this.projectId = data.projectId ? data.projectId : -1;
   }
 
   async ngOnInit() {
@@ -52,7 +53,10 @@ export class UserStatsComponent {
 
     this.projectService.fetchUserProjects(this.userId);
     if(this.projectId != -1) {
-      this.taskService.fetchUserTasks({ projectId: this.projectId, assignedTo: this.userId });
+      console.log("daaa");
+      this.tasksVisible = true;
+      await this.taskService.fetchUserTasks({ projectId: this.projectId, assignedTo: this.userId });
+      console.log(this.tasks);
     }
   }
 

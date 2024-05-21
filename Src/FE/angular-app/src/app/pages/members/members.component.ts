@@ -155,8 +155,10 @@ export class MembersComponent {
       panelClass: 'borderless-dialog',
       data: {
         id: id,
-        title: "User details"
-      }
+        title: "User details",
+        projectId: this.projectId
+      },
+      maxHeight: '90vh'
     });
   }
 }
