@@ -307,4 +307,24 @@ export class TaskService {
       // await this.fetchTasks();
     }
   }
+
+  async deleteDependency(taskId: number, dependentTaskId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl + `/Task/deleteTaskDependency`, {
+            ...this.httpOptions,
+            responseType: "text" as "json",
+            body: { 
+              taskId: taskId,
+              dependentTaskId: dependentTaskId,
+            }
+          }
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    await this.fetchTasks();
+  }
 }
