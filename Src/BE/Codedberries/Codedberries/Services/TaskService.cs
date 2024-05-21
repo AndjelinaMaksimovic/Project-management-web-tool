@@ -500,9 +500,13 @@ namespace Codedberries.Services
 
             foreach (var task in tasks)
             {
-                var dependentTaskIds = _databaseContext.Set<TaskDependency>()
+                var dependentTasks = _databaseContext.Set<TaskDependency>()
                     .Where(td => td.TaskId == task.Id)
-                    .Select(td => td.DependentTaskId)
+                    .Select(td => new DependentTaskDTO
+                    {
+                        TaskId = td.DependentTaskId,
+                        TypeOfDependencyId = td.TypeOfDependencyId
+                    })
                     .ToList();
 
                 var taskDTO = new ProjectTasksInfoDTO
@@ -529,7 +533,7 @@ namespace Codedberries.Services
                             ProfilePicture = tu.User.ProfilePicture
                         })
                         .ToList(),
-                    DependentTasks = dependentTaskIds,
+                    DependentTasks = dependentTasks,
                     DifficultyLevel = task.DifficultyLevel,
                     Progress = task.Progress
                 };
