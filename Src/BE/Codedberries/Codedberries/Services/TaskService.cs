@@ -497,6 +497,10 @@ namespace Codedberries.Services
                 {
                     query = query.Where(t => t.Archived == filterParams.Archived);
                 }
+                else
+                {
+                    query = query.Where(t => t.Archived == false);
+                }
             }
 
             List<Codedberries.Models.Task> tasks = query.ToList();
