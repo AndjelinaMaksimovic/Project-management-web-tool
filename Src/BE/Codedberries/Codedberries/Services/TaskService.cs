@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Codedberries.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
+using System;
 
 namespace Codedberries.Services
 {
@@ -1630,6 +1631,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have permission to edit Task!");
             }
             // ---------------- //
+
+            if (request.Progress < 0 || request.Progress > 100)
+            {
+                throw new ArgumentException("Progress must be between 0 and 100!");
+            }
 
             task.Progress = request.Progress;
 
