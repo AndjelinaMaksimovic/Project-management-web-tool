@@ -434,7 +434,8 @@ namespace Codedberries.Services
 
             IQueryable<Project> query = _databaseContext.Projects
                 .Include(p => p.Statuses)
-                .Include(p => p.Categories);
+                .Include(p => p.Categories)
+                .Where(p => p.Users.Any(u => u.Id == userId));
 
             if (filter != null)
             {
