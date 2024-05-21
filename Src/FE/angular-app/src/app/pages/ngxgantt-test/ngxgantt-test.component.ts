@@ -39,13 +39,52 @@ import { FormsModule } from '@angular/forms';
 })
 
 export class NgxganttTestComponent {
+  GanttLinkToDependencyId(type: GanttLinkType) {
+    let newType = -1;
+      switch(type) {
+        case GanttLinkType.ss:
+          newType = 1
+          break;
+        case GanttLinkType.sf:
+          newType = 2
+          break;
+        case GanttLinkType.fs:
+          newType = 3
+          break;
+        case GanttLinkType.ff:
+          newType = 4
+          break;
+      }
+    return newType;
+  }
+
+  dependencyIdToGanttLink(type: number) {
+    switch(type) {
+      case 1:
+        return GanttLinkType.ss
+      case 2:
+        return GanttLinkType.sf
+      case 3:
+        return GanttLinkType.fs
+      case 4:
+        return GanttLinkType.ff
+    }
+    return -1;
+  }
+
   mapTask(task: any): GanttItem {
+    // console.log(task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
+    //   return { type: value.typeOfDependencyId, link: this.dependencyIdToGanttLink(value.taskId) };
+    // }));
     return {
       id: task.id,
       title: task.title,
-
+      links: task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
+        return { type: this.dependencyIdToGanttLink(value.typeOfDependencyId), link: value.taskId };
+      }),
       start: task.startDate,
       end: task.dueDate,
+      // links: task.dependentTasks.foreach()
     //   itemDraggable: false
 
     //   expandable: false,
@@ -228,21 +267,7 @@ export class NgxganttTestComponent {
   linkDragEnded(event: GanttLinkDragEvent) {
       this.items = [...this.items];
       console.log('Event: linkDragEnded', `Source: [${event.source.title}] Target: [${event.target!.title}]`);
-      let type = -1;
-      switch(event.type) {
-        case GanttLinkType.ss:
-          type = 1
-          break;
-        case GanttLinkType.sf:
-          type = 2
-          break;
-        case GanttLinkType.fs:
-          type = 3
-          break;
-        case GanttLinkType.ff:
-          type = 4
-          break;
-      }
+      let type = this.GanttLinkToDependencyId(event.type!);
       console.log(type);
       this.taskService.createTaskDependency({ taskId: parseInt(event.source!.id), dependentTaskId: parseInt(event.target!.id), typeOfDependencyId: type });
   }
