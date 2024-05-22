@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AvatarService } from '../../services/avatar.service';
 import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { InviteToProjectModalComponent } from '../../components/invite-to-project-modal/invite-to-project-modal.component';
 
 class Member {
   firstname: string;
@@ -82,7 +83,7 @@ export class MembersComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
+  constructor(private dialogue: MatDialog, private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
 
   filterRolesByName() {
     this.roles.forEach((role, key) => role.filterMembers(this.search));
@@ -160,5 +161,9 @@ export class MembersComponent {
       },
       maxHeight: '90vh'
     });
+  }
+
+  invitePopUp(){
+    this.dialogue.open(InviteToProjectModalComponent, { autoFocus: false })
   }
 }
