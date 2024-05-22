@@ -7,7 +7,7 @@
                 <mat-icon>archive</mat-icon>
                 <span>Archive</span>
             </button>
-            <button mat-menu-item>
+            <button mat-menu-item  [routerLink]="'/project/' + task.projectId + '/task/' + task.id">
                 <mat-icon>edit</mat-icon>
                 <span>Edit</span>
             </button>
