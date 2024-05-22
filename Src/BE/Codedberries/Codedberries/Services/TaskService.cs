@@ -955,6 +955,15 @@ namespace Codedberries.Services
                     throw new InvalidOperationException($"User with ID {request.UserId} does not have a role assigned!");
                 }
 
+                // Assuming `task` is the current task entity you are updating and it has a `ProjectId` property
+                var isUserInProject = await _databaseContext.UserProjects
+                    .AnyAsync(pu => pu.ProjectId == task.ProjectId && pu.UserId == request.UserId.Value);
+
+                if (!isUserInProject)
+                {
+                    throw new ArgumentException($"User with ID {request.UserId.Value} is not assigned to the project with ID {task.ProjectId}!");
+                }
+
                 var existingTaskUser = await _databaseContext.TaskUsers
                     .FirstOrDefaultAsync(tu => tu.TaskId == task.Id && tu.UserId == request.UserId.Value);
 
