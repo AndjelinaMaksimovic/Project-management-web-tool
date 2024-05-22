@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './select.component.css',
 })
 export class SelectComponent {
-  @Input() options: {value: string, viewValue: string}[] = [];
+  @Input() options: {value: any, viewValue: string}[] = [];
   @Input() label: string = "";
   @Input() placeholder: string = "";
   @Input() multiple: boolean = false;

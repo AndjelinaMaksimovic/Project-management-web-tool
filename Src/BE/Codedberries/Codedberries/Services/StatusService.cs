@@ -102,6 +102,11 @@ namespace Codedberries.Services
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId, newStatusOrder);
 
             _databaseContext.Statuses.Add(newStatus);
+
+            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Email} has created the status {statusDTO.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
             await _databaseContext.SaveChangesAsync();
         }
 
@@ -262,6 +267,10 @@ namespace Codedberries.Services
             {
                 status.Order -= 1;
             }
+
+            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Email} has deleted the status {statusToDelete.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -452,7 +461,11 @@ namespace Codedberries.Services
                 ProjectId = status.ProjectId,
                 Order = status.Order
             };
-            
+
+            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Email} has changed the name of the status {status.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
             return StatusDTO;
 
         }

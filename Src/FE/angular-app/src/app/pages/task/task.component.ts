@@ -12,6 +12,10 @@ import { DateChipComponent } from '../../components/task-chips/date-chip/date-ch
 import { PriorityChipComponent } from '../../components/task-chips/priority-chip/priority-chip.component';
 import { UpdatableTitleComponent } from './updatable-title/updatable-title.component';
 import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip/assignee-chip.component';
+import { ProgressChipComponent } from '../../components/task-chips/progress-chip/progress-chip.component';
+import { UsersCardComponent } from './users-card/users-card.component';
+import { AddUserChipComponent } from '../../components/task-chips/add-user-chip/add-user-chip.component';
+import { DependantTasksCardComponent } from './dependant-tasks-card/dependant-tasks-card.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -27,6 +31,10 @@ import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip
     DateChipComponent,
     UpdatableTitleComponent,
     AssigneeChipComponent,
+    ProgressChipComponent,
+    UsersCardComponent,
+    AddUserChipComponent,
+    DependantTasksCardComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
@@ -35,13 +43,22 @@ import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip
 export class TaskComponent {
   taskId: number = 0;
   projectId: number = 0;
+  users: any[] = []
+  dependantTasks: any = []
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute
   ) {}
 
   get task() {
-    return this.taskService.getTasks().find((t) => t.id === this.taskId);
+    const tasks = this.taskService.getTasks()
+    const task = tasks.find((t) => t.id === this.taskId);
+    this.users = task?.assignedTo
+    this.dependantTasks = task?.dependentTasks.map((id) => {
+      const t = tasks.find(task => task.id == id)
+      return {dependant: t, type: 3}
+    })
+    return task
   }
 
   async ngOnInit() {

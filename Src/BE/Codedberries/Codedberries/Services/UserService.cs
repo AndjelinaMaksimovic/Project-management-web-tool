@@ -497,6 +497,8 @@ namespace Codedberries.Services
                 })
                 .ToListAsync();
 
+            var permissions = GetPermissionsFromRole(userRole);
+
             var currentSessionUserDTO = new CurrentSessionUserDTO
             {
                 Id = user.Id,
@@ -508,7 +510,8 @@ namespace Codedberries.Services
                 RoleId = user.RoleId,
                 RoleName = userRole.Name,
                 Projects = projects,
-                Tasks = tasks
+                Tasks = tasks,
+                Permissions = permissions
             };
 
             return currentSessionUserDTO;
@@ -675,6 +678,26 @@ namespace Codedberries.Services
                 CanRemoveTask=userRole.CanRemoveTask,
                 CanEditTask=userRole.CanEditTask
             };
+        }
+
+        // returns permissions that role contains
+        private List<string> GetPermissionsFromRole(Role role)
+        {
+            var permissions = new List<string>();
+
+            if (role.CanAddNewUser) permissions.Add("CanAddNewUser");
+            if (role.CanAddUserToProject) permissions.Add("CanAddUserToProject");
+            if (role.CanRemoveUserFromProject) permissions.Add("CanRemoveUserFromProject");
+            if (role.CanCreateProject) permissions.Add("CanCreateProject");
+            if (role.CanDeleteProject) permissions.Add("CanDeleteProject");
+            if (role.CanEditProject) permissions.Add("CanEditProject");
+            if (role.CanViewProject) permissions.Add("CanViewProject");
+            if (role.CanAddTaskToUser) permissions.Add("CanAddTaskToUser");
+            if (role.CanCreateTask) permissions.Add("CanCreateTask");
+            if (role.CanRemoveTask) permissions.Add("CanRemoveTask");
+            if (role.CanEditTask) permissions.Add("CanEditTask");
+
+            return permissions;
         }
     }
 }
