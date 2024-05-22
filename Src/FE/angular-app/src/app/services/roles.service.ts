@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { firstValueFrom } from 'rxjs';
@@ -23,6 +23,26 @@ export class RolesService {
       const roles: {roleName: string, id: number}[] = r.roleNames.map((roleName: string, index: number) => ({
         roleName: roleName,
         id: r.rolesIds[index],
+      }));
+      return roles;
+    } catch (e) {
+      console.log(e);
+    }
+    return null;
+  }
+
+  public async getProjectRoles(projectId: number) {
+    try {
+      let params = new HttpParams({ fromObject: { projectId: projectId} });
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + `/Role/getProjectRoles`,
+          { ...environment.httpOptions, params: params }
+        )
+      );
+      const roles: {roleName: string, id: number}[] = res.body.roleNames.map((roleName: string, index: number) => ({
+        roleName: roleName,
+        id: res.body.rolesIds[index],
       }));
       return roles;
     } catch (e) {

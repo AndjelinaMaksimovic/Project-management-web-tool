@@ -121,13 +121,16 @@ export class TaskService {
     return false;
   }
 
-  public async fetchUserTasks(context?: { projectId: number, assignedTo: number }) {
+  public async fetchUserTasks(context?: { projectId?: number, assignedTo: number }) {
     if (context) this.setContext(context);
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl +
-            `/Task/projectTasks?projectId=${this.context.projectId}&assignedTo=${this.context.assignedTo}`,
+            (this.context.projectId ?
+              `/Task/projectTasks?projectId=${this.context.projectId}&assignedTo=${this.context.assignedTo}` :
+              `/Task/projectTasks?assignedTo=${this.context.assignedTo}`
+            ),
           this.httpOptions
         )
       );
