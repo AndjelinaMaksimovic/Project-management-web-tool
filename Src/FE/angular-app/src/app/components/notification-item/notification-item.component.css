@@ -1,0 +1,38 @@
+.main-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.text-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+p {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 0.5rem;
+    padding: 0;
+}
+
+.profile-picture {
+    float:left;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.title {
+    font-weight: 500;
+}
+
+.desc {
+    margin-left: 3.5rem;
+    max-width: 100%;
+}

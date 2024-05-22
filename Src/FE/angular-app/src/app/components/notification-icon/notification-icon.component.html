@@ -1,5 +1,5 @@
 <!-- <div [matMenuTriggerFor]="menu" style="display: flex; gap: 10px;"> -->
-<button [matMenuTriggerFor]="menu" mat-button class="dropdown-button ml-20 p-0 white" style="min-width: auto !important;">
+<button [matMenuTriggerFor]="menu" (menuOpened)="menuOpened = true" (menuClosed)="menuOpened = false" mat-button class="dropdown-button ml-20 p-0 white" style="min-width: auto !important;">
     <i class="fa-regular fa-bell fa-lg">
         <div style="background-color: red; width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 0; right: 0;"
             *ngIf="activities.length > 0"
@@ -8,9 +8,10 @@
 </button>
 <mat-menu #menu="matMenu" (click)="$event.stopPropagation()">
     <div style="padding: 10px">
-        @for(activity of activities; track activity){
+        @for(activity of activities; track activity; let last = $last){
             <!-- <div mat-menu-item> Activity </div> -->
-            <app-activity-item [activity]="activity"></app-activity-item>
+            <app-notification-item [activity]="activity"></app-notification-item>
+            <hr *ngIf="!last">
         }
         <div *ngIf="activities.length == 0">No notifications!</div>
     </div>
