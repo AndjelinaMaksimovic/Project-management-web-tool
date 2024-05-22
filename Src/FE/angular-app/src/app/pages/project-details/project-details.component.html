@@ -64,10 +64,9 @@
 
     <div class="margin-15">
         <p class="title">Activities:</p>
-        <!-- <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
-        <hr>
-        <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
-        <hr>
-        <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item> -->
+        @for(activity of activities; track activity; let last = $last){
+            <app-activity-item [activity]="activity"></app-activity-item>
+            <hr *ngIf="!last">
+        }
     </div>    
 </app-navbar>
