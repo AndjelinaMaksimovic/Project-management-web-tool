@@ -10,68 +10,49 @@ import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/cor
 import { ProjectService } from '../../services/project.service';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf } from '@angular/common';
+import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
+import moment from "moment";
 
 @Component({
     selector: 'app-new-project-modal',
     standalone: true,
     templateUrl: './new-project-modal.component.html',
     styleUrl: './new-project-modal.component.css',
-    imports: [MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule, MatIconModule, NgIf ]
+    imports: [MarkdownEditorComponent, MaterialModule, FormsModule, ReactiveFormsModule, MatListModule, TopnavComponent, MatDatepickerModule, MatIconModule, NgIf ]
 })
 export class NewProjectModalComponent {
   constructor(private dialogue: MatDialog, private projectService: ProjectService, private dialogRef: MatDialogRef<NewProjectModalComponent>){}
 
-  errorMessage = ""
+  projectName = "";
+  description = "";
+  errorMessage = "";
 
-  user = {
-    name: "Petar",
-    surname: "Petrovic"
-  }
-
-  projectName = ""
-  description = ""
-  usersSelected = []
-  dueDate = new FormControl(new Date())
-  startDate = new FormControl(new Date())
-  projects = [
-    'pr1',
-    'project 2'
-  ]
-
-  users = [
-    {
-      name: 'Milos',
-      role: 'Project Manager'
-    },
-    {
-      name: 'Ana',
-      role: 'Developer'
-    }
-  ]
-  parentProject?: string
-
-  invite(){
-    this.dialogue.open(InvitePopupComponent, { autoFocus: false })
-  }
-
-  // Add new popup, povezi, na dugme zatvara
-  // na home dodaj delete dugme
-  // logout
+  currentDate = moment();
+  dueDate = new FormControl(this.currentDate);
+  startDate = new FormControl(this.currentDate);
 
   async createNewProject(){
-    const res = await this.projectService.createNew({
+    if (
+      !this.projectName ||
+      !this.dueDate ||
+      !this.description ||
+      !this.dueDate.value ||
+      !this.startDate.value
+    ) {
+      this.errorMessage = 'Please provide all required fields';
+      this.errorMessage = `${this.projectName}; ${this.description}; ${this.dueDate.value}; ${this.startDate.value}`;
+      return;
+    }
+    if (this.startDate.value.toDate().getTime() > this.dueDate.value.toDate().getTime()) {
+      this.errorMessage = 'Please enter valid start/due dates';
+      return;
+    }
+    await this.projectService.createNew({
       name: this.projectName,
       description: this.description,
-      dueDate: this.dueDate.value,
-      startDate: this.startDate.value,
-      // userIds: this.usersSelected,
-      userIds: [],
-      isStarted: true
-    })
-    if(!res){
-      this.errorMessage = 'Error creating project';
-    }else{
-      this.dialogRef.close()
-    }
+      startDate: this.startDate.value.toDate(),
+      dueDate: this.dueDate.value.toDate(),
+    });
+    return;
   }
 }
