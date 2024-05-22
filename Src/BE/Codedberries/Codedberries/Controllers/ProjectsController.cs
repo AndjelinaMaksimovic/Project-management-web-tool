@@ -243,5 +243,28 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while getting Starred projects: {ex.Message}"));
             }
         }
+
+        [HttpPost("allProjectActivities")]
+        public async Task<IActionResult> GetAllProjectActivity([FromBody] ProjectIdDTO request)
+        {
+            try
+            {
+                var activities = await _projectService.GetAllProjectActivity(HttpContext, request);
+
+                return Ok(activities);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
     }
 }
