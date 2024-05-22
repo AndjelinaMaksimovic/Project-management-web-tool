@@ -161,4 +161,9 @@ export class MembersComponent {
       maxHeight: '90vh'
     });
   }
+
+  removeUser(event: Event, userId: number) {
+    event.stopPropagation();
+    this.userService.removeUserFromProject(this.projectId, userId);
+  }
 }
