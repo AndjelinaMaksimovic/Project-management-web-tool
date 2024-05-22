@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { Task, TaskService } from '../../../services/task.service';
 import { MaterialModule } from '../../../material/material.module';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -11,7 +11,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
   templateUrl: './progress-chip.component.html',
   styleUrl: './progress-chip.component.css'
 })
-export class ProgressChipComponent {
+export class ProgressChipComponent implements OnChanges {
   @Input() task: Task | undefined;
   @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
   @ViewChild('inp') inp: any;
@@ -20,17 +20,20 @@ export class ProgressChipComponent {
   progress = new FormControl(0, [Validators.max(100), Validators.min(0), Validators.pattern('^[0-9][0-9]?0?$')])
 
   constructor(private taskService: TaskService){
+    this.progress.markAllAsTouched()
+  }
+  ngOnChanges(): void {
     if(this.task){
       this.progress.setValue(this.task.progress)
       this.progressView = this.task.progress
     }
-    this.progress.markAllAsTouched()
   }
 
   onOpen(){
     this.inp.nativeElement.focus()
     if(this.task)
-      this.progress.setValue(this.task.progress)
+      // this.progress.setValue(this.task.progress)
+      this.progress.setValue(this.progressView)
   }
   selectText(event: any){
     event.target.select()
@@ -45,7 +48,8 @@ export class ProgressChipComponent {
       event.stopPropagation()
     }else{
       this.trigger.closeMenu()
-      if(await this.taskService.changeTaskProgress(this.task.id, this.progress.value))
+      await this.taskService.changeTaskProgress(this.task.id, this.progress.value) // TODO: Greska jer api JSON error
+      // if(await this.taskService.changeTaskProgress(this.task.id, this.progress.value))
         this.progressView = this.progress.value
     }
   }

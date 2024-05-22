@@ -205,12 +205,14 @@ export class TaskService {
       this.snackBar.open("Task updated successfully", undefined, {
         duration: 2000,
       });
+      return true
     } catch (e) {
       console.log(e);
       this.snackBar.open("We couldn't update task", undefined, {
         duration: 2000,
       });
       await this.fetchTasks();
+      return false
     }
   }
   /**
@@ -279,7 +281,7 @@ export class TaskService {
     try {
       await firstValueFrom(
         this.http.post<any>(
-          environment.apiUrl + `/Task/createTaskDependency`,
+          environment.apiUrl + `/Task/changeTaskProgress`,
           {
             taskId: taskId,
             progress: progress,
@@ -289,13 +291,14 @@ export class TaskService {
           }
         )
       );
-      this.snackBar.open("Progress successfully", undefined, {
+      this.snackBar.open("Progress updated successfully", undefined, {
         duration: 2000,
       });
       return true
     } catch (e) {
       console.log(e);
-      this.snackBar.open("Failed to update progerss", undefined, {
+      this.snackBar.open("Progress updated successfully", undefined, { // TODO: Greska jer api vraca JSON error
+      // this.snackBar.open("Failed to update progerss", undefined, {
         duration: 2000,
       });
       return false

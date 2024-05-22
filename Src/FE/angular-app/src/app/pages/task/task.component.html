@@ -9,15 +9,13 @@
                     <span class="tag">Priority: <app-priority-chip [task]="task"></app-priority-chip></span>
                     <span class="tag">Status: <app-status-chip [task]="task"></app-status-chip></span>
                     <span class="tag">Status: <app-status-chip [task]="task"></app-status-chip></span>
-                    <span class="tag">Progress: <app-progress-chip [task]="task"></app-progress-chip></span>
-                    <div class="tag">
-                        Due date:
+                    <div class="tag">Progress: <app-progress-chip [task]="task"></app-progress-chip></div>
+                    <div class="tag"> Due date:
                         <app-date-chip [task]="task"></app-date-chip>
                     </div>
-
-                    <span class="tag">Assigned to:
+                    <!-- <span class="tag">Assigned to:
                         <app-assignee-chip [task]="task"></app-assignee-chip>
-                    </span>
+                    </span> -->
                 </div>
                 <mat-divider></mat-divider>
                 <app-editable-markdown [content]="task?.description"
@@ -25,6 +23,18 @@
                 <!-- <markdown ngPreserveWhitespaces [data]="task?.description"></markdown> -->
             </mat-card-content>
         </mat-card>
+        
+        <div style="display: flex; gap: 20px; justify-content: space-evenly;">
+            <div style="width: 48%; float: left;">
+                <h3>Assigned to: <app-add-user-chip [task]="task" (userOutput)="users=$event"></app-add-user-chip></h3>
+                <app-users-card [taskId]="task?.id" [taskUsers]="users"></app-users-card>
+            </div>
+            <div style="width: 48%; float: left;">
+                <!-- <h3>Dependant tasks: <button mat-icon-button><mat-icon>add</mat-icon></button></h3>
+                <app-users-card [task]="task"></app-users-card> -->
+            </div>
+        </div>
+
         <h3>Comments:</h3>
         <app-comments [taskId]="taskId"></app-comments>
     </div>

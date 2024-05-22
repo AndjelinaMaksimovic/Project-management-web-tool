@@ -13,6 +13,8 @@ import { PriorityChipComponent } from '../../components/task-chips/priority-chip
 import { UpdatableTitleComponent } from './updatable-title/updatable-title.component';
 import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip/assignee-chip.component';
 import { ProgressChipComponent } from '../../components/task-chips/progress-chip/progress-chip.component';
+import { UsersCardComponent } from './users-card/users-card.component';
+import { AddUserChipComponent } from '../../components/task-chips/add-user-chip/add-user-chip.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -29,6 +31,8 @@ import { ProgressChipComponent } from '../../components/task-chips/progress-chip
     UpdatableTitleComponent,
     AssigneeChipComponent,
     ProgressChipComponent,
+    UsersCardComponent,
+    AddUserChipComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
@@ -37,13 +41,16 @@ import { ProgressChipComponent } from '../../components/task-chips/progress-chip
 export class TaskComponent {
   taskId: number = 0;
   projectId: number = 0;
+  users: any[] = []
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute
   ) {}
 
   get task() {
-    return this.taskService.getTasks().find((t) => t.id === this.taskId);
+    const t = this.taskService.getTasks().find((t) => t.id === this.taskId);
+    this.users = t?.assignedTo
+    return t
   }
 
   async ngOnInit() {
