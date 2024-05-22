@@ -298,13 +298,16 @@ export class TaskService {
           {...this.httpOptions, responseType: "text" as "json"}
         )
       );
-      // await this.fetchTasks();
+      await this.fetchTasks();
     } catch (e) {
-      console.log(e);
-      this.snackBar.open("We couldn't create dependency", undefined, {
+      let error = "";
+      if(e instanceof HttpErrorResponse) {
+        error = " - " + JSON.parse(e.error).errorMessage;
+      }
+      this.snackBar.open("We couldn't create dependency" + error, undefined, {
         duration: 2000,
       });
-      // await this.fetchTasks();
+      await this.fetchTasks();
     }
   }
 

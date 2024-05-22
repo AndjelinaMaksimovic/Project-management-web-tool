@@ -248,18 +248,13 @@ export class NgxganttComponent {
 
       console.log((new Date(event.item.start! * 1000 + 6 * 3600 * 1000))); // fix
 
-      let flag = await this.taskService.updateTask({
-          id: parseInt(event.item.id),
-          startDate: (new Date(event.item.start! * 1000 + 6 * 3600 * 1000)), // fix
-          dueDate: (new Date(event.item.end! * 1000)),
-          forceDateChange: false
-        });
-      if(flag) {
-        this.updateTasksView();
-      }
-      else {
-        this.updateTasksView();
-      }
+      await this.taskService.updateTask({
+        id: parseInt(event.item.id),
+        startDate: (new Date(event.item.start! * 1000 + 6 * 3600 * 1000)), // fix
+        dueDate: (new Date(event.item.end! * 1000)),
+        forceDateChange: false
+      });
+      this.updateTasksView();
   }
 
   selectedChange(event: GanttSelectedEvent) {
@@ -271,12 +266,12 @@ export class NgxganttComponent {
       );
   }
 
-  linkDragEnded(event: GanttLinkDragEvent) {
-      this.items = [...this.items];
+  async linkDragEnded(event: GanttLinkDragEvent) {
       console.log('Event: linkDragEnded', `Source: [${event.source.title}] Target: [${event.target!.title}]`);
       let type = this.GanttLinkToDependencyId(event.type!);
       console.log(type);
-      this.taskService.createTaskDependency({ taskId: parseInt(event.source!.id), dependentTaskId: parseInt(event.target!.id), typeOfDependencyId: type });
+      await this.taskService.createTaskDependency({ taskId: parseInt(event.source!.id), dependentTaskId: parseInt(event.target!.id), typeOfDependencyId: type });
+      this.updateTasksView();
   }
 
   scrollToToday() {
