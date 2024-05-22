@@ -856,7 +856,13 @@ namespace Codedberries.Services
                 }
             }
 
-            if (request.StartDate.HasValue)
+            if (request.StartDate.HasValue && request.DueDate.HasValue)
+            {
+                bool forceDateChange = request.ForceDateChange ?? false;
+                await UpdateTaskDate(task.Id, request.StartDate, request.DueDate, forceDateChange);
+            }
+
+            if (request.StartDate.HasValue && !request.DueDate.HasValue)
             {
                 if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
                 {
@@ -884,11 +890,11 @@ namespace Codedberries.Services
                 }
                 else
                 {
-                    await UpdateTaskDate(task.Id, request.StartDate.Value, forceDateChange);
+                    await UpdateTaskDate(task.Id, request.StartDate, null, forceDateChange);
                 }
             }
 
-            if (request.DueDate.HasValue)
+            if (request.DueDate.HasValue && !request.StartDate.HasValue)
             {
                 if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
                 {
@@ -916,7 +922,7 @@ namespace Codedberries.Services
                 }
                 else
                 {
-                    await UpdateTaskDate(task.Id, request.DueDate.Value, forceDateChange);
+                    await UpdateTaskDate(task.Id, null, request.DueDate, forceDateChange);
                 }
             }
 
