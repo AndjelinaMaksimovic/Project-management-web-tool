@@ -97,7 +97,7 @@ namespace Codedberries.Services
             
             _databaseContext.Categories.Add(newCategory);
 
-            Activity activity = new Activity(user.Id, categoryDTO.ProjectId, $"User {user.Id} has created the category {categoryDTO.CategoryName}");
+            Activity activity = new Activity(user.Id, categoryDTO.ProjectId, $"User {user.Email} has created the category {categoryDTO.CategoryName}");
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -221,7 +221,7 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Category with ID {request.CategoryId} is already assigned to a task and cannot be deleted!");
             }
 
-            Activity activity = new Activity(user.Id, providedCategory.ProjectId, $"User {user.Id} has deleted the category {providedCategory.Id}");
+            Activity activity = new Activity(user.Id, providedCategory.ProjectId, $"User {user.Email} has deleted the category {providedCategory.Name}");
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 

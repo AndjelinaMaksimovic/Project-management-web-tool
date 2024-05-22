@@ -283,7 +283,7 @@ namespace Codedberries.Services
                         _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
-                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Id} has created the task {newTask.Id}");
+                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Email} has created the task {newTask.Name}");
                 _databaseContext.Activities.Add(activity);
                 await _databaseContext.SaveChangesAsync();
 
@@ -666,7 +666,7 @@ namespace Codedberries.Services
             var taskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == taskId).ToList();
             _databaseContext.TaskUsers.RemoveRange(taskUsers);
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has deleted the task {task.Id}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has deleted the task {task.Name}");
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -1006,7 +1006,7 @@ namespace Codedberries.Services
                 Progress = task.Progress
             };
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has updated the task {task.Id}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has updated the task {task.Name}");
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -1051,7 +1051,7 @@ namespace Codedberries.Services
             // Toggle archived status
             task.Archived = !task.Archived;
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has archived the task {task.Id}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has archived the task {task.Name}");
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -1676,7 +1676,7 @@ namespace Codedberries.Services
 
             task.Progress = request.Progress;
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Id} has changed the progress of the task {task.Id}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has changed the progress of the task {task.Name}");
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
