@@ -249,4 +249,44 @@ export class ProjectService {
     }
     return false;
   }
+
+  async allProjectActivities(projectId: number): Promise<any[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/allProjectActivities`,
+            {
+              projectId: projectId,
+            },
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return [];
+  }
+  
+  async allUserActivities(): Promise<any[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/allUserActivities`,
+            {},
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return [];
+  }
 }
