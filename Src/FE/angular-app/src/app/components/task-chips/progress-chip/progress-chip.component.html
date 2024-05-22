@@ -1,4 +1,4 @@
-<div [matMenuTriggerFor]="menu" (menuOpened)="focusInput()" #menuTrigger="matMenuTrigger" style="display: flex; gap: 10px; cursor: pointer;" matTooltip="Click to change progress">
+<div [matMenuTriggerFor]="menu" (menuOpened)="onOpen()" #menuTrigger="matMenuTrigger" style="display: flex; gap: 10px; cursor: pointer;" matTooltip="Click to change progress">
     {{progressView}}%
 </div>
 

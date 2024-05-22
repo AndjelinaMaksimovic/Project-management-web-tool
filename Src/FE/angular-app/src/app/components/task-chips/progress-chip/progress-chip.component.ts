@@ -27,8 +27,10 @@ export class ProgressChipComponent {
     this.progress.markAllAsTouched()
   }
 
-  focusInput(){
+  onOpen(){
     this.inp.nativeElement.focus()
+    if(this.task)
+      this.progress.setValue(this.task.progress)
   }
   selectText(event: any){
     event.target.select()

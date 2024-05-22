@@ -289,9 +289,15 @@ export class TaskService {
           }
         )
       );
+      this.snackBar.open("Progress successfully", undefined, {
+        duration: 2000,
+      });
       return true
     } catch (e) {
       console.log(e);
+      this.snackBar.open("Failed to update progerss", undefined, {
+        duration: 2000,
+      });
       return false
     }
   }
