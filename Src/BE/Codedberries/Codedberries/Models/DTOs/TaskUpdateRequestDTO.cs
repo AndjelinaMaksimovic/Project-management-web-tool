@@ -8,6 +8,8 @@
         public int? CategoryId { get; set; }
         public int? PriorityId { get; set; }
         public int? StatusId { get; set; }
+        public int? FirstTaskDependency { get; set; }
+        public int? SecondTaskDependency { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? DueDate { get; set; }
         public int? UserId { get; set; }
@@ -26,7 +28,9 @@
                    StartDate == null &&
                    UserId == null &&
                    DifficultyLevel == null &&
-                   ProjectId == null;
+                   ProjectId == null &&
+                   FirstTaskDependency == null &&
+                   SecondTaskDependency == null;
         }
     }
 }
