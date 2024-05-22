@@ -15,7 +15,6 @@ import { NewTaskComponent } from './pages/new-task/new-task.component';
 import { TaskComponent } from './pages/task/task.component';
 import { ArchivedProjectsComponent } from './pages/archived-projects/archived-projects.component';
 import { MembersComponent } from './pages/members/members.component';
-import { NgxganttTestComponent } from './pages/ngxgantt-test/ngxgantt-test.component';
 
 export const routes: Routes = [
   { path: '', title: 'Codedberries | Home', component: HomeComponent, canActivate: [LoggedIn] },
@@ -31,6 +30,5 @@ export const routes: Routes = [
   { path: 'project/:id/task/:taskId', title: 'Codedberries | Task', component: TaskComponent, canActivate: [LoggedIn] },
   { path: 'archived-projects', component: ArchivedProjectsComponent, canActivate: [LoggedIn] },
   { path: 'gantt-test', component: GanttTestComponent },
-  { path: 'ngxgantt-test/:id', title: 'Codedberries | Gantt', component: NgxganttTestComponent, canActivate: [LoggedIn] },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];

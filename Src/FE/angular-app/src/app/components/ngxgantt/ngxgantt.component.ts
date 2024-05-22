@@ -1,5 +1,5 @@
 import { DatePipe, NgFor } from '@angular/common';
-import { AfterViewInit, Component, HostBinding, OnInit, ViewChild, NgModule } from '@angular/core';
+import { AfterViewInit, Component, HostBinding, OnInit, ViewChild, NgModule, Input } from '@angular/core';
 import {
     GanttBarClickEvent,
     GanttBaselineItem,
@@ -30,17 +30,17 @@ import { ThyLayoutModule } from 'ngx-tethys/layout';
 import { ThySwitchModule } from 'ngx-tethys/switch';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
-  selector: 'app-ngxgantt-test',
+  selector: 'app-ngxgantt',
   standalone: true,
   imports: [ NgxGanttModule, DatePipe, ThyButtonModule, ThyLayoutModule, ThySwitchModule, FormsModule, NgFor ],
-  templateUrl: './ngxgantt-test.component.html',
-  styleUrl: './ngxgantt-test.component.scss'
+  templateUrl: './ngxgantt.component.html',
+  styleUrl: './ngxgantt.component.scss'
 })
 
-export class NgxganttTestComponent {
+export class NgxganttComponent {
   GanttLinkToDependencyId(type: GanttLinkType) {
     let newType = -1;
       switch(type) {
@@ -206,15 +206,14 @@ export class NgxganttTestComponent {
     private dialogue: MatDialog
   ) {}
 
-  projectId: number = 0;
+  @Input() projectId: number = -1;
 
   async ngOnInit() {
     console.log(this.items);
 
-    await this.route.params.subscribe((params) => {
-      this.projectId = parseInt(params['id']);
-    });
-    await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    if(this.projectId == -1) {
+      await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    }
     this.updateTasksView();
     console.log(this.taskService.getTasks());
   }

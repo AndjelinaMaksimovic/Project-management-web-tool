@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NgxganttTestComponent } from './ngxgantt-test.component';
+import { NgxganttTestComponent } from './ngxgantt.component';
 
 describe('NgxganttTestComponent', () => {
   let component: NgxganttTestComponent;
