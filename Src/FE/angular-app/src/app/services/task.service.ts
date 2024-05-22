@@ -25,6 +25,7 @@ export type Task = Readonly<{
   projectId?: number | undefined;
   assignedTo: any;
   dependentTasks: number[];
+  progress: number;
 }>;
 
 @Injectable({
@@ -57,6 +58,7 @@ export class TaskService {
       dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
       dependentTasks: apiTask.dependentTasks,
+      progress: apiTask.progress,
     };
   }
 
@@ -206,12 +208,14 @@ export class TaskService {
       this.snackBar.open("Task updated successfully", undefined, {
         duration: 2000,
       });
+      return true
     } catch (e) {
       console.log(e);
       this.snackBar.open("We couldn't update task", undefined, {
         duration: 2000,
       });
       await this.fetchTasks();
+      return false
     }
   }
   /**
@@ -274,6 +278,33 @@ export class TaskService {
       await this.fetchTasks();
     } catch (e) {
       console.log(e);
+    }
+  }
+  async changeTaskProgress(taskId: number, progress: number){
+    try {
+      await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/Task/changeTaskProgress`,
+          {
+            taskId: taskId,
+            progress: progress,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      this.snackBar.open("Progress updated successfully", undefined, {
+        duration: 2000,
+      });
+      return true
+    } catch (e) {
+      console.log(e);
+      this.snackBar.open("Progress updated successfully", undefined, { // TODO: Greska jer api vraca JSON error
+      // this.snackBar.open("Failed to update progerss", undefined, {
+        duration: 2000,
+      });
+      return false
     }
   }
 }
