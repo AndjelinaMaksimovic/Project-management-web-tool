@@ -1,1 +1,20 @@
-<p>dependant-tasks-card works!</p>
+<mat-card>
+    <mat-card-content>
+        <mat-list>
+        @for(task of dependant; track task; let last=$last){
+            <mat-list-item color="primary" style="height: 65px; cursor: pointer;" [routerLink]="'/project/' + task.dependant.projectId + '/task/' + task.dependant.id">
+                <div style="display: flex; align-items: center;">
+                    <div>
+                        <p style="margin: 0">{{task.dependant.title}} - {{typeToString(task.type)}}</p>
+                    </div>
+                    <!-- <button mat-icon-button style="position: absolute; right: 5px;" (click)="removeDependency(task.dependant)">
+                        <mat-icon>delete</mat-icon>
+                    </button> -->
+                </div>
+            </mat-list-item>
+            <mat-divider *ngIf="!last && task.length > 1"></mat-divider>
+        }
+        </mat-list>
+    </mat-card-content>
+</mat-card>
+

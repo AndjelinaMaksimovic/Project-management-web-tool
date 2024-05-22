@@ -15,6 +15,7 @@ import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip
 import { ProgressChipComponent } from '../../components/task-chips/progress-chip/progress-chip.component';
 import { UsersCardComponent } from './users-card/users-card.component';
 import { AddUserChipComponent } from '../../components/task-chips/add-user-chip/add-user-chip.component';
+import { DependantTasksCardComponent } from './dependant-tasks-card/dependant-tasks-card.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -33,6 +34,7 @@ import { AddUserChipComponent } from '../../components/task-chips/add-user-chip/
     ProgressChipComponent,
     UsersCardComponent,
     AddUserChipComponent,
+    DependantTasksCardComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
@@ -42,15 +44,21 @@ export class TaskComponent {
   taskId: number = 0;
   projectId: number = 0;
   users: any[] = []
+  dependantTasks: any = []
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute
   ) {}
 
   get task() {
-    const t = this.taskService.getTasks().find((t) => t.id === this.taskId);
-    this.users = t?.assignedTo
-    return t
+    const tasks = this.taskService.getTasks()
+    const task = tasks.find((t) => t.id === this.taskId);
+    this.users = task?.assignedTo
+    this.dependantTasks = task?.dependentTasks.map((id) => {
+      const t = tasks.find(task => task.id == id)
+      return {dependant: t, type: 3}
+    })
+    return task
   }
 
   async ngOnInit() {

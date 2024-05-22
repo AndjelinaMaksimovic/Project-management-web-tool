@@ -30,8 +30,8 @@
                 <app-users-card [taskId]="task?.id" [taskUsers]="users"></app-users-card>
             </div>
             <div style="width: 48%; float: left;">
-                <!-- <h3>Dependant tasks: <button mat-icon-button><mat-icon>add</mat-icon></button></h3>
-                <app-users-card [task]="task"></app-users-card> -->
+                <h3>Dependant tasks: <button mat-icon-button disabled><mat-icon>add</mat-icon></button></h3>
+                <app-dependant-tasks-card [dependant]="dependantTasks"></app-dependant-tasks-card>
             </div>
         </div>
 
