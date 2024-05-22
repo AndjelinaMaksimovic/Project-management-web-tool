@@ -101,6 +101,16 @@ namespace Codedberries.Services
                 _databaseContext.Projects.Add(project);
                 await _databaseContext.SaveChangesAsync();
 
+                var userProject = new UserProject
+                {
+                    UserId = user.Id,
+                    ProjectId = project.Id,
+                    RoleId = user.RoleId.Value 
+                };
+
+                _databaseContext.UserProjects.Add(userProject);
+                await _databaseContext.SaveChangesAsync();
+
                 // users won't be added at this service, therefore this is under /* */
                 /*
                     if (request.UserIds == null || !request.UserIds.Any())
@@ -143,8 +153,8 @@ namespace Codedberries.Services
                     }
                     */
 
-                    // default statuses creation
-                    if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+                // default statuses creation
+                if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
                     {
                         throw new UnauthorizedAccessException("User does not have permission to create status, user can't create new project!");
                     }
@@ -210,10 +220,15 @@ namespace Codedberries.Services
                 }
 
 
-                var activeProjects = _databaseContext.Projects
-                    .Where(p => !p.Archived)
-                    .Select(p => new ProjectInformationDTO
-                    {
+                        var activeProjects = _databaseContext.UserProjects
+                        .Where(up => up.UserId == userId) // Filter by user ID
+                        .Join(_databaseContext.Projects, // Join with Projects table
+                        up => up.ProjectId, // Match UserProject's ProjectId
+                        p => p.Id, // Match Project's Id
+                        (up, p) => p) // Select the Project
+                        .Where(p => !p.Archived) // Filter out archived projects
+                        .Select(p => new ProjectInformationDTO
+                        {
                         Id = p.Id,
                         Name = p.Name,
                         Description = p.Description,
@@ -419,7 +434,8 @@ namespace Codedberries.Services
 
             IQueryable<Project> query = _databaseContext.Projects
                 .Include(p => p.Statuses)
-                .Include(p => p.Categories);
+                .Include(p => p.Categories)
+                .Where(p => p.Users.Any(u => u.Id == userId));
 
             if (filter != null)
             {

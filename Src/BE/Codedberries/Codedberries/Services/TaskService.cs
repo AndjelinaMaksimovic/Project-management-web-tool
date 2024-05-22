@@ -492,6 +492,15 @@ namespace Codedberries.Services
                 {
                     query = query.Where(t => t.Name.Contains(filterParams.TaskName));
                 }
+
+                if (filterParams.Archived.HasValue)
+                {
+                    query = query.Where(t => t.Archived == filterParams.Archived);
+                }
+                else
+                {
+                    query = query.Where(t => t.Archived == false);
+                }
             }
 
             List<Codedberries.Models.Task> tasks = query.ToList();
@@ -522,6 +531,7 @@ namespace Codedberries.Services
                     StatusName = task.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == task.StatusId).Name : null,
                     StartDate = task.StartDate,
                     DueDate = task.DueDate,
+                    Archived=task.Archived,
                     FinishedDate = task.FinishedDate != null ? task.FinishedDate : null,
                     AssignedTo = _databaseContext.TaskUsers
                         .Where(tu => tu.TaskId == task.Id)
