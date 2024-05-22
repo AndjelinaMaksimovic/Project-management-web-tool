@@ -1,0 +1,19 @@
+<div [matMenuTriggerFor]="menu" (menuOpened)="focusInput()" #menuTrigger="matMenuTrigger" style="display: flex; gap: 10px; cursor: pointer;" matTooltip="Click to change progress">
+    {{progressView}}%
+</div>
+
+<mat-menu #menu="matMenu">
+    <div style="padding: 10px" (keyup.enter)="updateProgress($event)">
+        <mat-form-field (click)="$event.stopPropagation();" style="width: 100%;">
+            <mat-label>Progress %</mat-label>
+            <input matInput [formControl]="progress" #inp (focus)="selectText($event)">
+            @if (progress.hasError('pattern') || progress.hasError('max') || progress.hasError('min')) {
+                <mat-error>Please enter a number from 0 to 100</mat-error>
+            }
+        </mat-form-field>
+        <div style="width: 100%; display: flex; justify-content: space-evenly;">
+            <button mat-flat-button (click)="updateProgress($event)">Update progress</button>
+            <button mat-flat-button>Cancel</button>
+        </div>
+    </div>
+</mat-menu>

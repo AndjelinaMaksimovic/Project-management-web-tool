@@ -275,4 +275,24 @@ export class TaskService {
       console.log(e);
     }
   }
+  async changeTaskProgress(taskId: number, progress: number){
+    try {
+      await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/Task/createTaskDependency`,
+          {
+            taskId: taskId,
+            progress: progress,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      return true
+    } catch (e) {
+      console.log(e);
+      return false
+    }
+  }
 }

@@ -12,6 +12,7 @@ import { DateChipComponent } from '../../components/task-chips/date-chip/date-ch
 import { PriorityChipComponent } from '../../components/task-chips/priority-chip/priority-chip.component';
 import { UpdatableTitleComponent } from './updatable-title/updatable-title.component';
 import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip/assignee-chip.component';
+import { ProgressChipComponent } from '../../components/task-chips/progress-chip/progress-chip.component';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -27,6 +28,7 @@ import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip
     DateChipComponent,
     UpdatableTitleComponent,
     AssigneeChipComponent,
+    ProgressChipComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
