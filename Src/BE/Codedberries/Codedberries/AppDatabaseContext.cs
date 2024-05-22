@@ -21,6 +21,7 @@ namespace Codedberries
         public DbSet<TypeOfTaskDependency> TypesOfTaskDependency { get; set; }
         public DbSet<Milestone> Milestones { get; set; }
         public DbSet<TaskUser> TaskUsers { get; set; }
+        public DbSet<Activity> Activities { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -110,6 +111,16 @@ namespace Codedberries
                 .HasOne(tu => tu.User)
                 .WithMany()
                 .HasForeignKey(tu => tu.UserId);
+
+            modelBuilder.Entity<Activity>()
+                .HasOne(t=>t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId);
+
+            modelBuilder.Entity<Activity>()
+                .HasOne(t => t.Project)
+                .WithMany()
+                .HasForeignKey(t => t.ProjectId);
         }
 
         public void ApplyMigrations()

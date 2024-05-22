@@ -13,13 +13,14 @@
         public DateTime? DueDateAfter { get; set; } 
         public DateTime? DueDateBefore { get; set; } 
         public int? CategoryId { get; set; }
+        public bool? Archived { get; set; }
 
         public bool IsEmpty()
         {
             return ProjectId == 0 && !AssignedTo.HasValue && !StatusId.HasValue
                 && !PriorityId.HasValue && !DifficultyLevelGreaterThan.HasValue &&
                 !DifficultyLevelLesserThan.HasValue && !DifficultyLevelEquals.HasValue &&
-                !DueDateAfter.HasValue && !DueDateBefore.HasValue && !CategoryId.HasValue && string.IsNullOrEmpty(TaskName);
+                !DueDateAfter.HasValue && !DueDateBefore.HasValue && !CategoryId.HasValue && string.IsNullOrEmpty(TaskName) && !Archived.HasValue;
         }
     }
 }

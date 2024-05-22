@@ -65,5 +65,32 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while fetching user projects: {ex.Message}"));
             }
         }
+
+        [HttpDelete("removeUserFromProject")]
+        public async Task<IActionResult> RemoveUserFromProject(DeleteUserFromProjectDTO request)
+        {
+            try
+            {
+                await _userProjectService.RemoveUserFromProject(HttpContext, request);
+             
+                return Ok("User successfully removed from project.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message ));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while removing user from project: {ex.Message}"));
+            }
+        }
     }
 }

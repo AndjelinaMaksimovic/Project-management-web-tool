@@ -57,13 +57,6 @@ export class HomeComponent {
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
     // await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
-
-    if(this.starredProjects.length == 0) {
-      this.staredProjectsAccordionVisible = false;
-    }
-    if(this.projects.length == 0) {
-      this.activeProjectsAccordionVisible = false;
-    }
   }
 
   filterItems() {

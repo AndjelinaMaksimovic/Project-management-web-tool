@@ -16,7 +16,8 @@
         public DateTime? FinishedDate { get; set; }
         public int DifficultyLevel { get; set; }
         public List<TaskUserInfoDTO> AssignedTo { get; set; }
-        public List<int> DependentTasks { get; set; }
+        public List<DependentTaskDTO> DependentTasks { get; set; }
         public int Progress { get; set; }
+        public bool Archived { get; set; }
     }
 }

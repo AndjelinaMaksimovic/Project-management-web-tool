@@ -101,6 +101,16 @@ namespace Codedberries.Services
                 _databaseContext.Projects.Add(project);
                 await _databaseContext.SaveChangesAsync();
 
+                var userProject = new UserProject
+                {
+                    UserId = user.Id,
+                    ProjectId = project.Id,
+                    RoleId = user.RoleId.Value 
+                };
+
+                _databaseContext.UserProjects.Add(userProject);
+                await _databaseContext.SaveChangesAsync();
+
                 // users won't be added at this service, therefore this is under /* */
                 /*
                     if (request.UserIds == null || !request.UserIds.Any())
@@ -143,8 +153,8 @@ namespace Codedberries.Services
                     }
                     */
 
-                    // default statuses creation
-                    if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+                // default statuses creation
+                if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
                     {
                         throw new UnauthorizedAccessException("User does not have permission to create status, user can't create new project!");
                     }
@@ -165,8 +175,11 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
+                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has created the project {project.Name}");
+                    _databaseContext.Activities.Add(activity);
+                    await _databaseContext.SaveChangesAsync();
 
-                    await transaction.CommitAsync();
+                await transaction.CommitAsync();
                 }
                 catch (Exception ex)
                 {
@@ -210,10 +223,15 @@ namespace Codedberries.Services
                 }
 
 
-                var activeProjects = _databaseContext.Projects
-                    .Where(p => !p.Archived)
-                    .Select(p => new ProjectInformationDTO
-                    {
+                        var activeProjects = _databaseContext.UserProjects
+                        .Where(up => up.UserId == userId) // Filter by user ID
+                        .Join(_databaseContext.Projects, // Join with Projects table
+                        up => up.ProjectId, // Match UserProject's ProjectId
+                        p => p.Id, // Match Project's Id
+                        (up, p) => p) // Select the Project
+                        .Where(p => !p.Archived) // Filter out archived projects
+                        .Select(p => new ProjectInformationDTO
+                        {
                         Id = p.Id,
                         Name = p.Name,
                         Description = p.Description,
@@ -419,7 +437,8 @@ namespace Codedberries.Services
 
             IQueryable<Project> query = _databaseContext.Projects
                 .Include(p => p.Statuses)
-                .Include(p => p.Categories);
+                .Include(p => p.Categories)
+                .Where(p => p.Users.Any(u => u.Id == userId));
 
             if (filter != null)
             {
@@ -783,6 +802,9 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has updated the project {project.Name}");
+            _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -847,6 +869,10 @@ namespace Codedberries.Services
 
             // archive/active
             project.Archived = !project.Archived;
+
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has archived the project {project.Id}");
+            _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -1144,6 +1170,146 @@ namespace Codedberries.Services
             }
 
             return starredProjects;
+        }
+
+        public async Task<List<ActivityDTO>> GetAllProjectActivity(HttpContext httpContext, ProjectIdDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("ProjectId must be greater than 0!");
+            }
+
+            var activities = await _databaseContext.Activities
+                .Where(c => c.ProjectId == request.ProjectId)
+                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription=c.ActivityDescription, UserId=c.UserId })
+                .ToListAsync();
+
+            if (activities == null || !activities.Any())
+            {
+                throw new InvalidOperationException("No activities found for the specified project.");
+            }
+
+            return activities;
+        }
+
+        public async Task<List<ActivityDTO>> GetAllUserActivity(HttpContext httpContext)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found!");
+            }
+
+            var activities = await _databaseContext.Activities
+                .Where(c => c.UserId == userId)
+                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId })
+                .ToListAsync();
+
+            if (activities == null || !activities.Any())
+            {
+                throw new InvalidOperationException("No activities found for the specified user.");
+            }
+
+            return activities;
+        }
+
+        public async Task<List<ActivityDTO>> GetActivitiesByUsersProjects(HttpContext httpContext)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found!");
+            }
+
+            var userProjects = await _databaseContext.UserProjects
+            .Where(c => c.UserId == userId)
+            .Select(c => c.ProjectId)
+            .ToListAsync();
+
+            var activities = await _databaseContext.Activities
+                .Where(c => userProjects.Contains(c.ProjectId) && c.UserId != userId)
+                .ToListAsync();
+
+            var validActivities = activities.Select(act => new ActivityDTO
+            {
+                Id = act.Id,
+                ProjectId = act.ProjectId,
+                ActivityDescription = act.ActivityDescription,
+                UserId = act.UserId
+            }).ToList();
+
+            if (!validActivities.Any())
+            {
+                throw new InvalidOperationException("No activities found for the specified user.");
+            }
+
+            return validActivities;
         }
     }
 }

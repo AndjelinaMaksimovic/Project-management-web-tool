@@ -6,6 +6,7 @@ using Codedberries.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System;
+using Microsoft.Extensions.DependencyModel;
 
 namespace Codedberries.Services
 {
@@ -73,6 +74,11 @@ namespace Codedberries.Services
             if (userRole.CanCreateTask == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create Task!");
+            }
+
+            if (userRole.CanAddTaskToUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
             }
             // ---------------- //
 
@@ -283,6 +289,9 @@ namespace Codedberries.Services
                         _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
+                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Email} has created the task {newTask.Name}");
+                _databaseContext.Activities.Add(activity);
+                await _databaseContext.SaveChangesAsync();
 
                 await _databaseContext.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -492,6 +501,15 @@ namespace Codedberries.Services
                 {
                     query = query.Where(t => t.Name.Contains(filterParams.TaskName));
                 }
+
+                if (filterParams.Archived.HasValue)
+                {
+                    query = query.Where(t => t.Archived == filterParams.Archived);
+                }
+                else
+                {
+                    query = query.Where(t => t.Archived == false);
+                }
             }
 
             List<Codedberries.Models.Task> tasks = query.ToList();
@@ -500,9 +518,13 @@ namespace Codedberries.Services
 
             foreach (var task in tasks)
             {
-                var dependentTaskIds = _databaseContext.Set<TaskDependency>()
+                var dependentTasks = _databaseContext.Set<TaskDependency>()
                     .Where(td => td.TaskId == task.Id)
-                    .Select(td => td.DependentTaskId)
+                    .Select(td => new DependentTaskDTO
+                    {
+                        TaskId = td.DependentTaskId,
+                        TypeOfDependencyId = td.TypeOfDependencyId
+                    })
                     .ToList();
 
                 var taskDTO = new ProjectTasksInfoDTO
@@ -518,6 +540,7 @@ namespace Codedberries.Services
                     StatusName = task.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == task.StatusId).Name : null,
                     StartDate = task.StartDate,
                     DueDate = task.DueDate,
+                    Archived=task.Archived,
                     FinishedDate = task.FinishedDate != null ? task.FinishedDate : null,
                     AssignedTo = _databaseContext.TaskUsers
                         .Where(tu => tu.TaskId == task.Id)
@@ -529,7 +552,7 @@ namespace Codedberries.Services
                             ProfilePicture = tu.User.ProfilePicture
                         })
                         .ToList(),
-                    DependentTasks = dependentTaskIds,
+                    DependentTasks = dependentTasks,
                     DifficultyLevel = task.DifficultyLevel,
                     Progress = task.Progress
                 };
@@ -648,6 +671,10 @@ namespace Codedberries.Services
             // remove users assigned to this task
             var taskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == taskId).ToList();
             _databaseContext.TaskUsers.RemoveRange(taskUsers);
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has deleted the task {task.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
@@ -842,7 +869,35 @@ namespace Codedberries.Services
                 }
             }
 
-            if (request.StartDate.HasValue)
+            if (request.StartDate.HasValue && request.DueDate.HasValue)
+            {
+                bool forceDateChange = request.ForceDateChange ?? false;
+                int taskNumber = 0;
+
+                if (request.TaskId == request.FirstTaskDependency)
+                {
+                    taskNumber = 1;
+                }
+                else if (request.TaskId == request.SecondTaskDependency)
+                {
+                    taskNumber = 2;
+                }
+
+                if (request.FirstTaskDependency.HasValue && request.SecondTaskDependency.HasValue)
+                {
+                    var first = request.FirstTaskDependency ?? 0;
+                    var second = request.SecondTaskDependency ?? 0;
+
+                    await UpdateTaskDate(first, second, taskNumber, request.StartDate, request.DueDate, forceDateChange);
+                }
+                else
+                {
+                    task.StartDate = request.StartDate.Value;
+                    task.DueDate = request.DueDate.Value;
+                }
+            }
+
+            if (request.StartDate.HasValue && !request.DueDate.HasValue)
             {
                 if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
                 {
@@ -857,24 +912,37 @@ namespace Codedberries.Services
                     }
                 }
 
-                bool forceDateChange = request.ForceDateChange ?? false;
-
-                var dependencies = await _databaseContext.Set<TaskDependency>()
-                    .Where(td => td.TaskId == task.Id || td.DependentTaskId == task.Id)
-                    .ToListAsync();
-
-                if (!dependencies.Any())
+                if (!request.FirstTaskDependency.HasValue && !request.SecondTaskDependency.HasValue)
                 {
                     // no dependencies, update the task start date directly
                     task.StartDate = request.StartDate.Value;
                 }
                 else
                 {
-                    await UpdateTaskDate(task.Id, request.StartDate.Value, forceDateChange);
+                    bool forceDateChange = request.ForceDateChange ?? false;
+                    int taskNumber = 0;
+
+                    if (request.TaskId == request.FirstTaskDependency)
+                    {
+                        taskNumber = 1;
+                    }
+                    else if (request.TaskId == request.SecondTaskDependency)
+                    {
+                        taskNumber = 2;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Provided TaskId does not match FirstTaskDependency or SecondTaskDependency!");
+                    }
+
+                    var first = request.FirstTaskDependency ?? 0;
+                    var second = request.SecondTaskDependency ?? 0;
+
+                    await UpdateTaskDate(first, second, taskNumber, request.StartDate, request.DueDate, forceDateChange);
                 }
             }
 
-            if (request.DueDate.HasValue)
+            if (request.DueDate.HasValue && !request.StartDate.HasValue)
             {
                 if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
                 {
@@ -889,20 +957,33 @@ namespace Codedberries.Services
                     }
                 }
 
-                bool forceDateChange = request.ForceDateChange ?? false;
-
-                var dependencies = await _databaseContext.Set<TaskDependency>()
-                    .Where(td => td.TaskId == task.Id || td.DependentTaskId == task.Id)
-                    .ToListAsync();
-
-                if (!dependencies.Any())
+                if (!request.FirstTaskDependency.HasValue && !request.SecondTaskDependency.HasValue)
                 {
                     // no dependencies, update the task due date directly
                     task.DueDate = request.DueDate.Value;
                 }
                 else
                 {
-                    await UpdateTaskDate(task.Id, request.DueDate.Value, forceDateChange);
+                    bool forceDateChange = request.ForceDateChange ?? false;
+                    int taskNumber = 0;
+
+                    if (request.TaskId == request.FirstTaskDependency)
+                    {
+                        taskNumber = 1;
+                    }
+                    else if (request.TaskId == request.SecondTaskDependency)
+                    {
+                        taskNumber = 2;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Provided TaskId does not match FirstTaskDependency or SecondTaskDependency!");
+                    }
+
+                    var first = request.FirstTaskDependency ?? 0;
+                    var second = request.SecondTaskDependency ?? 0;
+
+                    await UpdateTaskDate(first, second, taskNumber, request.StartDate, request.DueDate, forceDateChange);
                 }
             }
 
@@ -916,42 +997,57 @@ namespace Codedberries.Services
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
-            if (request.UserId.HasValue)
+            if (request.UserIds != null && request.UserIds.Any())
             {
-                if (request.UserId <= 0)
+                if (userRole.CanAddTaskToUser == false)
                 {
-                    throw new ArgumentException("UserId must be greater than 0!");
+                    throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
                 }
 
-                var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
-                
-                if (userToAssign == null)
+                foreach (var providedUserId in request.UserIds)
                 {
-                    throw new ArgumentException($"User with ID {request.UserId} not found in database!");
-                }
+                    if (providedUserId <= 0)
+                    {
+                        throw new ArgumentException("Provided user ID must be greater than zero!");
+                    }
 
-                if (userToAssign.RoleId == null)
-                {
-                    throw new InvalidOperationException($"User with ID {request.UserId} does not have a role assigned!");
-                }
+                    var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
 
-                var existingTaskUser = await _databaseContext.TaskUsers
-                    .FirstOrDefaultAsync(tu => tu.TaskId == task.Id && tu.UserId == request.UserId.Value);
+                    if (requestedUser == null)
+                    {
+                        throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                    }
 
-                if (existingTaskUser == null)
-                {
-                    // if the user is not already assigned to the task, add them
+                    if (requestedUser.RoleId == null)
+                    {
+                        throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                    }
+
+                    // is provided user assigned on project where new task is being created?
+                    var userOnTask = _databaseContext.UserProjects
+                        .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == task.ProjectId);
+
+                    if (userOnTask == null)
+                    {
+                        throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {task.ProjectId} in UserProjects table!");
+                    }
+
+                    // is provided user already assigned to the task?
+                    var userOnExistingTask = _databaseContext.TaskUsers
+                        .FirstOrDefault(ut => ut.UserId == requestedUser.Id && ut.TaskId == task.Id);
+
+                    if (userOnExistingTask != null)
+                    {
+                        throw new InvalidOperationException($"User with ID {requestedUser.Id} is already assigned to task with ID {task.Id}!");
+                    }
+
                     var newTaskUser = new TaskUser
                     {
                         TaskId = task.Id,
-                        UserId = request.UserId.Value
+                        UserId = providedUserId
                     };
 
                     _databaseContext.TaskUsers.Add(newTaskUser);
-                }
-                else
-                {
-                    throw new ArgumentException($"User with ID {request.UserId.Value} is already assigned to task with ID {task.Id}!");
                 }
             }
 
@@ -984,6 +1080,10 @@ namespace Codedberries.Services
                 AssignedUsers = assignedUsers,
                 Progress = task.Progress
             };
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has updated the task {task.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             return updatedTaskInfo;
         }
@@ -1025,6 +1125,10 @@ namespace Codedberries.Services
 
             // Toggle archived status
             task.Archived = !task.Archived;
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has archived the task {task.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             _databaseContext.SaveChanges();
         }
@@ -1456,122 +1560,347 @@ namespace Codedberries.Services
             }
         }
 
-        public async System.Threading.Tasks.Task UpdateTaskDate(int taskId, DateTime newDate, bool forceDateChange)
+        private const int MaxRecursionLevel = 10;
+        public async System.Threading.Tasks.Task UpdateTaskDate(int taskId, int dependentTaskId, int taskThatDateIsBeingChanged, DateTime? newStartDate, DateTime? newDueDate, bool forceDateChange)
         {
-            var task = await _databaseContext.Tasks.FindAsync(taskId);
-            if (task == null)
+            using var transaction = _databaseContext.Database.BeginTransaction();
+
+            try
             {
-                throw new ArgumentException($"Task with ID {taskId} does not exist in the database!");
-            }
+                // Fetch the task and dependent task from the database
+                var tasks = await _databaseContext.Tasks
+                    .Where(t => t.Id == taskId || t.Id == dependentTaskId)
+                    .ToListAsync();
 
-            var dependencies = await _databaseContext.Set<TaskDependency>()
-                .Where(td => td.TaskId == taskId || td.DependentTaskId == taskId)
-                .ToListAsync();
+                var task = tasks.FirstOrDefault(t => t.Id == taskId);
+                var dependentTask = tasks.FirstOrDefault(t => t.Id == dependentTaskId);
 
-            var taskIds = dependencies.Select(td => td.TaskId)
-                .Union(dependencies.Select(td => td.DependentTaskId))
-                .Distinct()
-                .ToList();
-
-            var tasks = await _databaseContext.Tasks
-                .Where(t => taskIds.Contains(t.Id))
-                .ToListAsync();
-
-            var taskDictionary = tasks.ToDictionary(t => t.Id);
-
-            foreach (var dependency in dependencies)
-            {
-                var taskOne = taskDictionary[dependency.TaskId];
-                var taskTwo = taskDictionary[dependency.DependentTaskId];
-
-                bool conditionMet;
-                string dependencyTypeMessage;
-
-                var validTypeOfDependencyIds = new HashSet<int> { 1, 2, 3, 4 };
-                int typeOfDependency = dependency.TypeOfDependencyId;
-
-                if (!validTypeOfDependencyIds.Contains(typeOfDependency))
+                if (task == null || dependentTask == null)
                 {
-                    throw new InvalidOperationException($"Dependency {dependency.TaskId} - {dependency.DependentTaskId} does not have a valid TypeOfDependency!");
+                    throw new ArgumentException($"One of the tasks with ID {taskId} or {dependentTaskId} does not exist in the database!");
                 }
 
-                switch (typeOfDependency)
+                // Fetch the dependency relationship
+                var dependency = await _databaseContext.Set<TaskDependency>()
+                    .FirstOrDefaultAsync(td => td.TaskId == taskId && td.DependentTaskId == dependentTaskId);
+
+                if (dependency == null)
+                {
+                    throw new ArgumentException($"No dependency found between Task ID {taskId} and Dependent Task ID {dependentTaskId}.");
+                }
+
+                string dependencyTypeMessage = null;
+                bool dependencyViolated = false;
+
+                bool conditionMetStartDate = true;
+                bool conditionMetDueDate = true;
+
+                // Check dependency conditions based on type and taskThatDateIsBeingChanged
+                switch (dependency.TypeOfDependencyId)
                 {
                     case 1: // Start to Start Dependency
-                        conditionMet = taskOne.StartDate >= taskTwo.StartDate;
-                        dependencyTypeMessage = "Start to Start";
+                        if (newStartDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetStartDate = newStartDate >= dependentTask.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetStartDate = newStartDate <= task.StartDate;
+                            }
+                            dependencyTypeMessage = "Start to Start";
+                        }
                         break;
 
                     case 2: // Start to End Dependency
-                        conditionMet = taskOne.StartDate >= taskTwo.DueDate;
-                        dependencyTypeMessage = "Start to End";
+                        if (newStartDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetStartDate = newStartDate >= dependentTask.DueDate;
+                            }
+                            else
+                            {
+                                conditionMetStartDate = newStartDate <= task.DueDate;
+                            }
+                            dependencyTypeMessage = "Start to End";
+                        }
+                        if (newDueDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 2)
+                            {
+                                conditionMetDueDate = newDueDate <= task.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetDueDate = newDueDate >= dependentTask.StartDate;
+                            }
+                        }
                         break;
 
                     case 3: // End to Start Dependency
-                        conditionMet = taskTwo.StartDate >= taskOne.DueDate;
-                        dependencyTypeMessage = "End to Start";
+                        if (newStartDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetStartDate = newStartDate <= dependentTask.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetStartDate = newStartDate >= task.DueDate;
+                            }
+                            dependencyTypeMessage = "End to Start";
+                        }
+                        if (newDueDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 2)
+                            {
+                                conditionMetDueDate = newDueDate >= task.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetDueDate = newDueDate <= dependentTask.StartDate;
+                            }
+                        }
                         break;
 
                     case 4: // End to End Dependency
-                        conditionMet = taskOne.DueDate >= taskTwo.DueDate;
-                        dependencyTypeMessage = "End to End";
+                        if (newDueDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetDueDate = newDueDate >= dependentTask.DueDate;
+                            }
+                            else
+                            {
+                                conditionMetDueDate = newDueDate <= task.DueDate;
+                            }
+                            dependencyTypeMessage = "End to End";
+                        }
                         break;
 
                     default:
-                        throw new ArgumentException("Invalid type of dependency! Doesn't exist in database!");
+                        throw new InvalidOperationException($"Dependency {dependency.TaskId} - {dependency.DependentTaskId} does not have a valid TypeOfDependency!");
                 }
 
-                if (!conditionMet)
+                if (!conditionMetStartDate || !conditionMetDueDate)
                 {
-                    if (forceDateChange)
+                    dependencyViolated = true;
+                }
+
+                if (dependencyViolated && !forceDateChange)
+                {
+                    throw new ArgumentException($"Changing the date violates the {dependencyTypeMessage} dependency condition.");
+                }
+
+                // If forceDateChange is true and there is violation, update the dates
+                if (forceDateChange && dependencyViolated)
+                {
+                    switch (dependency.TypeOfDependencyId)
                     {
-                        // adjust dates according to the dependency type
-                        switch (typeOfDependency)
+                        case 1: // Start to Start Dependency
+                            if (newStartDate.HasValue)
+                            {
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.StartDate = newStartDate.Value;
+                                dependentTask.StartDate = newStartDate.Value;
+                            }
+                            break;
+
+                        case 2: // Start to End Dependency
+                            if (newStartDate.HasValue && taskThatDateIsBeingChanged == 1)
+                            {
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(dependentTask.StartDate, newStartDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {dependentTask.StartDate} - {newStartDate.Value} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.StartDate = newStartDate.Value;
+                                dependentTask.DueDate = newStartDate.Value;
+
+                                if (newDueDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value))
+                                    {
+                                        throw new ArgumentException($"New date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                                    }
+                                    else
+                                    {
+                                        task.DueDate = newDueDate.Value;
+                                    }
+                                }
+                            }
+                            if (newDueDate.HasValue && taskThatDateIsBeingChanged == 2)
+                            {
+                                if (!Helper.IsDateRangeValid(newDueDate.Value, task.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newDueDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                dependentTask.DueDate = newDueDate.Value;
+                                task.StartDate = newDueDate.Value;
+
+                                if (newStartDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate))
+                                    {
+                                        throw new ArgumentException($"New date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                    }
+                                    else
+                                    {
+                                        dependentTask.StartDate = newStartDate.Value;
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 3: // End to Start Dependency
+                            if (newStartDate.HasValue && taskThatDateIsBeingChanged == 2)
+                            {
+                                if (!Helper.IsDateRangeValid(task.StartDate, newStartDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {task.StartDate} - {newStartDate.Value} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.DueDate = newStartDate.Value;
+                                dependentTask.StartDate = newStartDate.Value;
+
+                                if (newDueDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value))
+                                    {
+                                        throw new ArgumentException($"New date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                                    }
+                                    else
+                                    {
+                                        dependentTask.DueDate = newDueDate.Value;
+                                    }
+                                }
+                            }
+                            if (newDueDate.HasValue && taskThatDateIsBeingChanged == 1)
+                            {
+                                if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(newDueDate.Value, dependentTask.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newDueDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                dependentTask.StartDate = newDueDate.Value;
+                                task.DueDate = newDueDate.Value;
+
+                                if (newStartDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate))
+                                    {
+                                        throw new ArgumentException($"New date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                    }
+                                    else
+                                    {
+                                        task.StartDate = newStartDate.Value;
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 4: // End to End Dependency
+                            if (newDueDate.HasValue)
+                            {
+                                if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.DueDate = newDueDate.Value;
+                                dependentTask.DueDate = newDueDate.Value;
+                            }
+                            break;
+                    }
+                }
+
+                // If forceDateChange is false and there is NO violation, update the dates
+                if (!dependencyViolated && !forceDateChange)
+                {
+                    if (newStartDate.HasValue && taskThatDateIsBeingChanged == 1)
+                    {
+                        if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate) && !newDueDate.HasValue)
                         {
-                            case 1: // Start to Start Dependency
-                                taskOne.StartDate = newDate;
-                                taskTwo.StartDate = newDate;
-                                break;
-
-                            case 2: // Start to End Dependency
-                                taskOne.StartDate = newDate;
-                                taskTwo.DueDate = newDate;
-                                break;
-
-                            case 3: // End to Start Dependency
-                                taskOne.DueDate = newDate;
-                                taskTwo.StartDate = newDate;
-                                break;
-
-                            case 4: // End to End Dependency
-                                taskOne.DueDate = newDate;
-                                taskTwo.DueDate = newDate;
-                                break;
+                            throw new ArgumentException($"Updating date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
                         }
-                    }
-                    else
-                    {
-                        // notify about the affected tasks
-                        var affectedTasks = dependencies.Select(d => d.DependentTaskId == taskId ? taskDictionary[d.TaskId] : taskDictionary[d.DependentTaskId]).ToList();
-                        string affectedTasksMessage = string.Join(", ", affectedTasks.Select(t => $"Task ID: {t.Id}"));
-                        throw new ArgumentException($"Changing the date violates the {dependencyTypeMessage} dependency condition. Affected tasks: {affectedTasksMessage}!");
-                    }
-                }
-                else
-                {
-                    // if the condition is still met, update the task date
-                    if (dependency.TaskId == taskId)
-                    {
-                        task.StartDate = newDate;
-                    }
-                    else
-                    {
-                        task.DueDate = newDate;
-                    }
-                }
-            }
 
-            await _databaseContext.SaveChangesAsync();
+                        task.StartDate = newStartDate.Value;
+                    }
+                    else if (newStartDate.HasValue && taskThatDateIsBeingChanged == 2)
+                    {
+                        if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate) && !newDueDate.HasValue)
+                        {
+                            throw new ArgumentException($"Updating date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                        }
+
+                        dependentTask.StartDate = newStartDate.Value;
+                    }
+
+                    if (newDueDate.HasValue && taskThatDateIsBeingChanged == 1)
+                    {
+                        if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value) && !newStartDate.HasValue)
+                        {
+                            throw new ArgumentException($"Updating date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                        }
+
+                        task.DueDate = newDueDate.Value;
+                    }
+                    else if (newDueDate.HasValue && taskThatDateIsBeingChanged == 2)
+                    {
+                        if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value) && !newStartDate.HasValue)
+                        {
+                            throw new ArgumentException($"Updating date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                        }
+
+                        dependentTask.DueDate = newDueDate.Value;
+                    }
+                }
+
+                await _databaseContext.SaveChangesAsync();
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw new Exception($"{ex.Message}");
+            }
         }
 
         public async System.Threading.Tasks.Task ChangeTaskProgress(HttpContext httpContext, TaskProgressDTO request)
@@ -1646,6 +1975,10 @@ namespace Codedberries.Services
             }
 
             task.Progress = request.Progress;
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has changed the progress of the task {task.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
