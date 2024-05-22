@@ -3,6 +3,7 @@ using Codedberries.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -95,6 +96,11 @@ namespace Codedberries.Services
             Category newCategory = new Category(categoryDTO.CategoryName, categoryDTO.ProjectId);
             
             _databaseContext.Categories.Add(newCategory);
+
+            Activity activity = new Activity(user.Id, categoryDTO.ProjectId, $"User {user.Email} has created the category {categoryDTO.CategoryName}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
             await _databaseContext.SaveChangesAsync();
         }
 
@@ -214,6 +220,10 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"Category with ID {request.CategoryId} is already assigned to a task and cannot be deleted!");
             }
+
+            Activity activity = new Activity(user.Id, providedCategory.ProjectId, $"User {user.Email} has deleted the category {providedCategory.Name}");
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
             _databaseContext.Categories.Remove(providedCategory);
             await _databaseContext.SaveChangesAsync();
