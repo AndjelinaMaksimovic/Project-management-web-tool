@@ -1217,5 +1217,46 @@ namespace Codedberries.Services
 
             return activities;
         }
+
+        public async Task<List<ActivityDTO>> GetAllUserActivity(HttpContext httpContext)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found!");
+            }
+
+            var activities = await _databaseContext.Activities
+                .Where(c => c.UserId == userId)
+                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId })
+                .ToListAsync();
+
+            if (activities == null || !activities.Any())
+            {
+                throw new InvalidOperationException("No activities found for the specified user.");
+            }
+
+            return activities;
+        }
     }
 }
