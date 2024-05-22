@@ -25,6 +25,10 @@ export class UserStatsComponent {
   name: string = "";
   desc: string = "";
   image: string = "";
+  
+  allTasks : number = 0;
+  completedTasks : number = 0;
+  overdueTasks : number = 0;
 
   allTasksAccordionVisible: boolean = true;
   allProjectsAccordionVisible: boolean = true;
@@ -54,11 +58,16 @@ export class UserStatsComponent {
 
     this.projectService.fetchUserProjects(this.userId);
     if(this.projectId != -1) {
-      console.log("daaa");
       this.tasksVisible = true;
       await this.taskService.fetchUserTasks({ projectId: this.projectId, assignedTo: this.userId });
-      console.log(this.tasks);
     }
+    else {
+      await this.taskService.fetchUserTasks({ assignedTo: this.userId });
+    }
+
+    this.allTasks = this.taskService.getTasks().length;
+    this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
+    this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
   }
 
   toggleTasks() {

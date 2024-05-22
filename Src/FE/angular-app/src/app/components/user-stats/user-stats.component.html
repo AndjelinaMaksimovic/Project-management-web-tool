@@ -21,11 +21,11 @@
     <div class="main-container">
         <div class="container pt-1 pb-1 w-100 margin-15">
             <div class="d-container">
-                <app-status-item class="mr-20" [title]="'All tasks:'" [desc]="'-'" [faicon]="'fa-solid fa-list-check'"></app-status-item>
-                <app-status-item class="mr-20" [title]="'Completed tasks:'" [desc]="'-'" [faicon]="'fa-solid fa-check'" [color]="'#5096A4'" [bold]="true"></app-status-item>
-                <app-status-item class="mr-20" [title]="'Overdue tasks:'" [desc]="'-'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item class="mr-20" [title]="'All tasks:'" [desc]="allTasks.toString()" [faicon]="'fa-solid fa-list-check'"></app-status-item>
+                <app-status-item class="mr-20" [title]="'Completed tasks:'" [desc]="completedTasks.toString()" [faicon]="'fa-solid fa-check'" [color]="'#5096A4'" [bold]="true"></app-status-item>
+                <app-status-item class="mr-20" [title]="'Overdue tasks:'" [desc]="overdueTasks.toString()" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
             </div>
-            <i class="fa-solid fa-sliders center mr-10"></i>
+            <!-- <i class="fa-solid fa-sliders center mr-10"></i> -->
         </div>
     </div>
     <div *ngIf="tasksVisible" class="margin-15">

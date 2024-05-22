@@ -155,7 +155,7 @@ export class MembersComponent {
       panelClass: 'borderless-dialog',
       data: {
         id: id,
-        title: "User details",
+        title: !this.isProject ? "User details" : "User details on project",
         projectId: this.projectId
       },
       maxHeight: '90vh'
