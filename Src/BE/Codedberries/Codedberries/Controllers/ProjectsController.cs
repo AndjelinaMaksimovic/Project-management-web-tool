@@ -289,5 +289,28 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
+
+        [HttpPost("allUsersProjectActivities")]
+        public async Task<IActionResult> GetProjectUsersActivity()
+        {
+            try
+            {
+                var activities = await _projectService.GetActivitiesByUsersProjects(HttpContext);
+
+                return Ok(activities);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
     }
 }
