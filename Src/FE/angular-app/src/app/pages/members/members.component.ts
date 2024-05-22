@@ -124,7 +124,7 @@ export class MembersComponent {
       onlyRoles?.forEach((val, index) => {
         this.roles.set(val.id, new Role(val.roleName, val.id, []));
       });
-      this.roles.set(-1, new Role("No role", -1, []));
+      // this.roles.set(-1, new Role("No role", -1, []));
 
       await this.userService.fetchUsers();
       let onlyUsers = await this.userService.getUsers();
