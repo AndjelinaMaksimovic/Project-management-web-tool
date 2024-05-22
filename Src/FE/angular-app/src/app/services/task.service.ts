@@ -25,6 +25,7 @@ export type Task = Readonly<{
   projectId?: number | undefined;
   assignedTo: any;
   dependentTasks: number[];
+  progress: number;
 }>;
 
 @Injectable({
@@ -57,6 +58,7 @@ export class TaskService {
       dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
       dependentTasks: apiTask.dependentTasks,
+      progress: apiTask.progress,
     };
   }
 

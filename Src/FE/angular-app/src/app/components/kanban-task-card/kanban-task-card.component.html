@@ -17,6 +17,7 @@
     <div style="display: flex; flex-direction: row; align-items: end; justify-content: space-between;">
         <!-- task info -->
         <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="chip chip-neutral">{{task.progress}}%</div>
             <div class="chip chip-neutral">{{task.category}}</div>
             <div [classList]="['chip chip-' + priorityColor]">{{task.priority === "High" ? "🎯︎ " + task.priority : task.priority}}</div>
             <div style="font-size: smaller;">📅 {{task.dueDate.toDateString()}}</div>
