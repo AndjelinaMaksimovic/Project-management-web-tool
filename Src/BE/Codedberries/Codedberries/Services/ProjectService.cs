@@ -175,7 +175,7 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
-                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has created the project {project.Name}");
+                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has created the project {project.Name}", TimeOnly.FromDateTime(DateTime.Now));
                     _databaseContext.Activities.Add(activity);
                     await _databaseContext.SaveChangesAsync();
 
@@ -804,7 +804,7 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has updated the project {project.Name}");
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has updated the project {project.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
 
@@ -872,7 +872,7 @@ namespace Codedberries.Services
             // archive/active
             project.Archived = !project.Archived;
 
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has archived the project {project.Id}");
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has archived the project {project.Id}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
 
