@@ -1,29 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../services/avatar.service';
-
-class Activity {
-  constructor(
-    public id: number,
-    public projectId: number,
-    public userId: number,
-    public activityDescription: string,
-    public userName: string = '',
-    public userRole: string = '',
-    public userIcon: string = '',
-    public date: string = '',
-  ){}
-}
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-activity-item',
+  selector: 'app-notification-item',
   standalone: true,
   imports: [ CommonModule ],
-  templateUrl: './activity-item.component.html',
-  styleUrl: './activity-item.component.scss'
+  templateUrl: './notification-item.component.html',
+  styleUrl: './notification-item.component.css'
 })
-export class ActivityItemComponent implements OnInit {
+export class NotificationItemComponent {
   @Input() activity: any
 
   constructor(private userService: UserService, private avatarService: AvatarService){}
