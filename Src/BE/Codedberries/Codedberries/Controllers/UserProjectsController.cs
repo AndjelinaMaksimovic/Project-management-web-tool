@@ -4,6 +4,7 @@ using Codedberries.Models;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Codedberries.Controllers
 {
@@ -90,6 +91,29 @@ namespace Codedberries.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while removing user from project: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("addNewUserToProject")]
+        public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectDTO request)
+        {
+            try
+            {
+                await _userProjectService.AddUserToProject(HttpContext, request);
+
+                return Ok("User successfully added to the project.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while adding new user to project: {ex.Message}"));
             }
         }
     }
