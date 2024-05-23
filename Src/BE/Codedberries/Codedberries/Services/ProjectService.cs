@@ -1252,7 +1252,7 @@ namespace Codedberries.Services
 
             var activities = await _databaseContext.Activities
                 .Where(c => c.ProjectId == request.ProjectId)
-                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription=c.ActivityDescription, UserId=c.UserId })
+                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription=c.ActivityDescription, UserId=c.UserId,Time=c.Time })
                 .ToListAsync();
 
             if (activities == null || !activities.Any())
@@ -1293,7 +1293,7 @@ namespace Codedberries.Services
 
             var activities = await _databaseContext.Activities
                 .Where(c => c.UserId == userId)
-                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId })
+                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId, Time=c.Time })
                 .ToListAsync();
 
             if (activities == null || !activities.Any())
@@ -1363,7 +1363,8 @@ namespace Codedberries.Services
                     ProjectId = activity.ProjectId,
                     UserId = activity.UserId,
                     ActivityDescription = activity.ActivityDescription,
-                    Seen = seen
+                    Seen = seen,
+                    Time=activity.Time
                 };
 
                 notificationDTOs.Add(notification);
