@@ -9,16 +9,18 @@ import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
 import { LocalStorageService } from '../../services/localstorage';
+import { GanttType, NgxganttComponent } from '../../components/ngxgantt/ngxgantt.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule, NgClass ],
+  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule, NgClass, NgxganttComponent ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 
 export class HomeComponent {
+  GanttType = GanttType;
   search: string = "";
 
   // userId: number;
@@ -30,6 +32,8 @@ export class HomeComponent {
   ]);
 
   isFilterOpen: boolean = false;
+
+  viewType: string = 'list';
 
   get activeFilters() {
     return Object.keys(this.localStorageService.getData("project_filters")).length;
@@ -54,6 +58,14 @@ export class HomeComponent {
   }
 
   async ngOnInit(){
+    let view = this.localStorageService.getData("home_projects_view");
+    if(view && Object.keys(view).length === 0 && view.constructor === Object) {
+      this.localStorageService.saveData("home_projects_view", this.viewType);
+    }
+    else {
+      this.viewType = this.localStorageService.getData("home_projects_view");
+    }
+
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
     // await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
@@ -94,5 +106,10 @@ export class HomeComponent {
 
   onFilterChange(data: boolean) {
     this.isFilterOpen = data;
+  }
+
+  changeView(view: string) {
+    this.viewType = view; 
+    this.localStorageService.saveData("home_projects_view", this.viewType);
   }
 }

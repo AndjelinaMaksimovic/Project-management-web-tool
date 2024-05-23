@@ -8,13 +8,14 @@
         </thy-button-group>
         &nbsp;
         <thy-button thyType="primary" thySize="sm" (click)="scrollToToday()">Today</thy-button>
-        &nbsp;
-        <thy-button thyType="outline-default" thySize="sm">Settings</thy-button>
+        <!-- &nbsp;
+        <thy-button thyType="outline-default" thySize="sm">Settings</thy-button> -->
       </ng-template>
     </thy-header>
     <thy-content style="margin: 0; padding: 0;">
         <ngx-gantt
             #gantt
+            [groups]="groups"
             [items]="items"
             [baselineItems]="baselineItems"
             [viewType]="viewType"
@@ -44,7 +45,7 @@
                 (dragStarted)="onDragStarted($event)"
                 (dragEnded)="onDragEnded($event)">
 
-                <ngx-gantt-column name="Task" width="160px" [showExpandIcon]="true">
+                <ngx-gantt-column [name]="ganttType == GanttType.Tasks ? 'Task' : 'Projects'" width="160px" [showExpandIcon]="true">
                 <ng-template #cell let-item="item"> {{ item.title }} </ng-template>
                 </ngx-gantt-column>
                 <!-- <ngx-gantt-column name="Starting date" width="200px">

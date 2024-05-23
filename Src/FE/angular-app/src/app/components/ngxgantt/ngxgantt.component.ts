@@ -4,6 +4,7 @@ import {
     GanttBarClickEvent,
     GanttBaselineItem,
     GanttDragEvent,
+    GanttGroup,
     GanttItem,
     GanttLineClickEvent,
     GanttLinkDragEvent,
@@ -31,6 +32,13 @@ import { ThySwitchModule } from 'ngx-tethys/switch';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { CategoryService } from '../../services/category.service';
+import { ProjectService } from '../../services/project.service';
+
+export enum GanttType {
+  Projects = 1,
+  Tasks = 2
+}
 
 @Component({
   selector: 'app-ngxgantt',
@@ -41,6 +49,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 })
 
 export class NgxganttComponent {
+  GanttType = GanttType;
   GanttLinkToDependencyId(type: GanttLinkType) {
     let newType = -1;
       switch(type) {
@@ -75,6 +84,7 @@ export class NgxganttComponent {
   }
 
   mapTask(task: any): GanttItem {
+    console.log(task);
     // console.log(task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
     //   return { type: value.typeOfDependencyId, link: this.dependencyIdToGanttLink(value.taskId) };
     // }));
@@ -84,6 +94,8 @@ export class NgxganttComponent {
       links: task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
         return { type: this.dependencyIdToGanttLink(value.typeOfDependencyId), link: value.taskId };
       }),
+      group_id: task.categoryId.toString(),
+      progress: task.progress / 100.0,
       start: task.startDate,
       end: task.dueDate,
       // links: task.dependentTasks.foreach()
@@ -105,11 +117,38 @@ export class NgxganttComponent {
     };
   }
 
+  mapProjects(project: any): GanttItem {
+    console.log(project);
+    return {
+      id: project.id,
+      title: project.title,
+      progress: project.progress / 100.0,
+      start: project.startDate,
+      end: project.dueDate,
+
+      expandable: false,
+      // draggable: false,
+      itemDraggable: false,
+      linkable: false
+      // color?: string;
+      // barStyle?: Partial<CSSStyleDeclaration>;
+      // origin?: T;
+      // type?: GanttItemType;
+    };
+  }
+
   convertTasksToNgx(tasks: any) : GanttItem[] {
     let newTasks = tasks.map((task: any) => {
       return this.mapTask(task);
     });
     return newTasks;
+  }
+
+  convertProjectsToNgx(projects: any) : GanttItem[] {
+    let newProjects = projects.map((project: any) => {
+      return this.mapProjects(project);
+    });
+    return newProjects;
   }
 
   views = [
@@ -188,6 +227,8 @@ export class NgxganttComponent {
     barHeight: 22
   };
 
+  @Input() ganttType: GanttType = GanttType.Tasks;
+
   @HostBinding('class.gantt-example-component') class = true;
 
   @ViewChild('gantt') ganttComponent!: NgxGanttComponent;
@@ -203,23 +244,59 @@ export class NgxganttComponent {
     private route: ActivatedRoute,
     private router: Router,
     private localStorageService: LocalStorageService,
-    private dialogue: MatDialog
+    private dialogue: MatDialog,
+    private categoryService: CategoryService,
+    private projectService: ProjectService
   ) {}
 
   @Input() projectId: number = -1;
 
+  groups: GanttGroup[] = [];
+
   async ngOnInit() {
     console.log(this.items);
 
-    if(this.projectId == -1) {
-      await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    let ganttView = this.localStorageService.getData("gantt_view");
+    if(ganttView && Object.keys(ganttView).length === 0 && ganttView.constructor === Object) {
+      this.localStorageService.saveData("gantt_view", this.selectedViewType);
     }
+    else {
+      this.selectedViewType = this.localStorageService.getData("gantt_view");
+      this.selectView(this.selectedViewType);
+    }
+
+    if(this.ganttType == GanttType.Tasks) {
+      if(this.projectId == -1) {
+        await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+      }
+      await this.createGroups();
+      console.log(this.taskService.getTasks());
+    }
+    else if(this.ganttType == GanttType.Projects) {
+      await this.projectService.fetchProjectsLocalStorage("project_filters");
+      console.log(this.projectService.getProjects());
+    }
+    
     this.updateTasksView();
-    console.log(this.taskService.getTasks());
+  }
+
+  async createGroups() {
+    if(this.ganttType == GanttType.Tasks) {
+      this.categoryService.setContext({ projectId: this.projectId });
+      await this.categoryService.fetchCategories();
+      this.categoryService.getCategories().forEach((category) => {
+        this.groups.push({ id: category.id.toString(), title: category.name, expanded: true });
+      });
+    }
   }
 
   updateTasksView() {
-    this.items = this.convertTasksToNgx(this.taskService.getTasks());
+    if(this.ganttType == GanttType.Tasks) {
+      this.items = this.convertTasksToNgx(this.taskService.getTasks());
+    }
+    else if(this.ganttType == GanttType.Projects) {
+      this.items = this.convertProjectsToNgx(this.projectService.getProjects());
+    }
   }
 
   ngAfterViewInit() {
@@ -227,25 +304,34 @@ export class NgxganttComponent {
   }
 
   barClick(event: GanttBarClickEvent) {
+    if(this.ganttType == GanttType.Tasks) {
+      this.router.navigate(['/project/' + this.projectId + '/task/' + event.item.id]);
       console.log('Event: barClick', `[${event.item.title}]`);
+    }
+    else if(this.ganttType == GanttType.Projects) {
+      this.router.navigate(['/project/' + event.item.id + '/details']);
+      console.log('Event: barClick', `[${event.item.title}]`);
+    }
   }
 
   lineClick(event: GanttLineClickEvent) {
-    console.log('Event: lineClick', `Source: [${event.source.title}] Target: [${event.target.title}]`);
-    let descriptionMessage = "Are you sure you want to remove the dependency between <b>" + event.source.title + "</b> and <b>" + event.target.title + "</b>?<br>This action cannot be undone and may affect related tasks and workflows.";
-    this.dialogue.open(ConfirmationDialogComponent, { data: { title: "Confirm Dependency Removal", description: descriptionMessage, yesFunc: async () => {
-      await this.taskService.deleteDependency(parseInt(event.source.id), parseInt(event.target.id)); 
-      this.updateTasksView();
-    }, noFunc: () => { } } });
+    if(this.ganttType == GanttType.Tasks) {
+      console.log('Event: lineClick', `Source: [${event.source.title}] Target: [${event.target.title}]`);
+      let descriptionMessage = "Are you sure you want to remove the dependency between <b>" + event.source.title + "</b> and <b>" + event.target.title + "</b>?<br>This action cannot be undone and may affect related tasks and workflows.";
+      this.dialogue.open(ConfirmationDialogComponent, { data: { title: "Confirm Dependency Removal", description: descriptionMessage, yesFunc: async () => {
+        await this.taskService.deleteDependency(parseInt(event.source.id), parseInt(event.target.id)); 
+        this.updateTasksView();
+      }, noFunc: () => { } } });
+    }
   }
 
   dragMoved(event: GanttDragEvent) {}
 
   async dragEnded(event: GanttDragEvent) {
-      console.log('Event: dragEnded', `[${event.item.title}]`);
+    console.log('Event: dragEnded', `[${event.item.title}]`);
+    console.log(event.item);
 
-      console.log(event.item);
-
+    if(this.ganttType == GanttType.Tasks) {
       console.log((new Date(event.item.start! * 1000 + 6 * 3600 * 1000))); // fix
 
       await this.taskService.updateTask({
@@ -254,24 +340,38 @@ export class NgxganttComponent {
         dueDate: (new Date(event.item.end! * 1000)),
         forceDateChange: false
       });
-      this.updateTasksView();
+    }
+    else if(this.ganttType == GanttType.Projects) {
+      console.log((new Date(event.item.start! * 1000 + 6 * 3600 * 1000))); // fix
+
+      await this.projectService.updateProject({
+        id: parseInt(event.item.id),
+        startDate: (new Date(event.item.start! * 1000 + 6 * 3600 * 1000)), // fix
+        dueDate: (new Date(event.item.end! * 1000)),
+      });
+    }
+    this.updateTasksView();
   }
 
   selectedChange(event: GanttSelectedEvent) {
+    if(this.ganttType == GanttType.Tasks) {
       event.current && this.ganttComponent.scrollToDate(event.current.start!);
 
       console.log(
           'Event: selectedChange',
           `Task ids: ${(event.selectedValue as GanttItem[]).map((item) => item.id).join('、')}`
       );
+    }
   }
 
   async linkDragEnded(event: GanttLinkDragEvent) {
+    if(this.ganttType == GanttType.Tasks) {
       console.log('Event: linkDragEnded', `Source: [${event.source.title}] Target: [${event.target!.title}]`);
       let type = this.GanttLinkToDependencyId(event.type!);
       console.log(type);
       await this.taskService.createTaskDependency({ taskId: parseInt(event.source!.id), dependentTaskId: parseInt(event.target!.id), typeOfDependencyId: type });
       this.updateTasksView();
+    }
   }
 
   scrollToToday() {
@@ -286,9 +386,12 @@ export class NgxganttComponent {
   viewChange(event: GanttView) {
       console.log(event.viewType);
       this.selectedViewType = event.viewType;
+      this.localStorageService.saveData("gantt_view", event.viewType);
   }
 
   onDragDropped(event: GanttTableDragDroppedEvent) {
+    if(this.ganttType == GanttType.Tasks) {
+    console.log(event);
     //   const sourceItems = event.sourceParent?.children || this.items;
     //   sourceItems.splice(sourceItems.indexOf(event.source), 1);
     //   if (event.dropPosition === 'inside') {
@@ -302,13 +405,18 @@ export class NgxganttComponent {
     //       }
     //   }
       this.items = [...this.items];
+    }
   }
 
   onDragStarted(event: GanttTableDragStartedEvent) {
+    if(this.ganttType == GanttType.Tasks) {
       console.log('Index drag started', event);
+    }
   }
 
   onDragEnded(event: GanttTableDragEndedEvent) {
+    if(this.ganttType == GanttType.Tasks) {
       console.log('Index drag ended', event);
+    }
   }
 }

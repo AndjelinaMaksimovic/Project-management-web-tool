@@ -15,6 +15,7 @@ export type Task = Readonly<{
   title: string;
   description: string;
   category: string;
+  categoryId: number;
   priority: 'Low' | 'Medium' | 'High';
   status: string;
   startDate: Date;
@@ -50,6 +51,7 @@ export class TaskService {
       priority: apiTask.priorityName,
       status: apiTask.statusName,
       category: apiTask.categoryName,
+      categoryId: apiTask.categoryId,
       id: apiTask.taskId,
       index: apiTask.index,
       indexInCategory: apiTask.indexInCategory,
@@ -172,6 +174,31 @@ export class TaskService {
     return false;
   }
 
+  public async fetchTasksFromLocalStorageContext(filterName: string, context?: { projectId: number }) {
+    if (context) this.setContext(context);
+    let data = this.localStorageService.getData(filterName);
+    data = { ...data, projectId: this.context.projectId };
+    
+    let params = new HttpParams({ fromObject: data });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Task/projectTasks',
+          { ...environment.httpOptions, params: params }
+        )
+      );
+      await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
+      await this.categoryService.fetchCategories();
+      this.tasks = res.body.map((task: any) => {
+        return this.mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
   /**
    * this function takes a partial task object and updates the corresponding task accordingly
    * @param task partial task object. Must have Id
@@ -205,7 +232,7 @@ export class TaskService {
           ...this.httpOptions,
         })
       );
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
       this.snackBar.open("Task updated successfully", undefined, {
         duration: 2000,
       });
@@ -218,7 +245,7 @@ export class TaskService {
       this.snackBar.open("We couldn't update task" + error, undefined, {
         duration: 8000,
       });
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
       return false;
     }
     return false;
@@ -243,7 +270,7 @@ export class TaskService {
     } catch (e) {
       console.log(e);
     }
-    await this.fetchTasks();
+    await this.fetchTasksFromLocalStorageContext("task_filters");
   }
 
   async createTask(task: {
@@ -280,7 +307,7 @@ export class TaskService {
           }
         )
       );
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
     } catch (e) {
       console.log(e);
     }
@@ -303,7 +330,7 @@ export class TaskService {
           {...this.httpOptions, responseType: "text" as "json"}
         )
       );
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
     } catch (e) {
       let error = "";
       if(e instanceof HttpErrorResponse) {
@@ -312,7 +339,7 @@ export class TaskService {
       this.snackBar.open("We couldn't create dependency" + error, undefined, {
         duration: 2000,
       });
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
     }
   }
 
@@ -333,7 +360,7 @@ export class TaskService {
     } catch (e) {
       console.log(e);
     }
-    await this.fetchTasks();
+    await this.fetchTasksFromLocalStorageContext("task_filters");
   }
   async changeTaskProgress(taskId: number, progress: number){
     try {
