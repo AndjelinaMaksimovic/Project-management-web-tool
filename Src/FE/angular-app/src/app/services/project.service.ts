@@ -146,7 +146,7 @@ export class ProjectService {
 
   async createNew(
     obj: any
-  ): Promise<boolean> {
+  ): Promise<any> {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -160,7 +160,7 @@ export class ProjectService {
 
       if (!res.ok) return false;
       
-      return true;
+      return res.body;
     } catch (e) {
       console.log(e);
     }
