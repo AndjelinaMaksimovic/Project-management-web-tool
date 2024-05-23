@@ -1,15 +1,18 @@
-<div style="padding: 20px;">
+<div style="padding: 20px; width: 350px">
     <button mat-icon-button aria-label="close dialog" mat-dialog-close
         style="position: absolute; right: 5px; top: 5px;">
         <mat-icon>close</mat-icon>
     </button>
 
-    <h1 style="margin-bottom: 25px; margin-top: 0; font-weight: bold; font-size: 2em;">Invite members to project</h1>
+    <h2 style="margin-bottom: 25px; margin-top: 0;">Invite members to project</h2>
 
-    <div style="display: flex;">
+    <div style="display: flex; flex-direction: column;">
         <app-select [options]="members" [(value)]="memberId" label="Company members"
         (valueChange)="memberId=$event" [required]="true"></app-select>
+
         <app-select [options]="roles" [(value)]="memberId" label="Roles"
         (valueChange)="memberId=$event" [required]="true"></app-select>
+
+        <button (click)="invite()" mat-flat-button color="primary" class="button-rounded">Invite</button>
     </div>
 </div>
