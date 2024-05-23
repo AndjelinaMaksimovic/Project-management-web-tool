@@ -18,6 +18,10 @@
     </div>
     <mat-divider></mat-divider>
     <h3>Activity</h3>
+    @for(activity of activities; track activity; let last = $last){
+        <app-activity-item [activity]="activity"></app-activity-item>
+        <hr *ngIf="!last">
+    }
     <!-- <div class="file-upload">
             {{fileName || "No file uploaded yet."}}
             <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
