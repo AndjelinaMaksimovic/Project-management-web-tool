@@ -68,13 +68,13 @@ export class NewProjectModalComponent {
       this.errorMessage = 'Please enter valid start/due dates';
       return;
     }
-    await this.projectService.createNew({
+    const r = await this.projectService.createNew({
       name: this.projectName,
       description: this.description,
       startDate: this.startDate.value.toDate(),
       dueDate: this.dueDate.value.toDate(),
     });
-    this.router.navigateByUrl(`/project/${1}`);
+    this.router.navigateByUrl(`/project/${r.projectId}`);
     return;
   }
 }
