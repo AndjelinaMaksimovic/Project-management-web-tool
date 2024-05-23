@@ -244,6 +244,7 @@ export class NgxganttComponent {
   }
 
   barClick(event: GanttBarClickEvent) {
+      this.router.navigate(['/project/' + this.projectId + '/task/' + event.item.id]);
       console.log('Event: barClick', `[${event.item.title}]`);
   }
 
