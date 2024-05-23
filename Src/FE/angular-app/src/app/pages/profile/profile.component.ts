@@ -10,13 +10,15 @@ import { EditableNameComponent } from './editable-name/editable-name.component';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
+import { ProjectService } from '../../services/project.service';
+import { ActivityItemComponent } from '../../components/activity-item/activity-item.component';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule],
+  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
@@ -24,6 +26,7 @@ export class ProfileComponent {
   userId: string = "me";
   loggedInUser: number | undefined;
   user: any;
+  activities: any;
   
   timestamp: number = Date.now();
   getProfileImagePath(){
@@ -38,7 +41,8 @@ export class ProfileComponent {
     private userService: UserService,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private projectService: ProjectService,
   ) {}
   async ngOnInit() {
     this.route.params.subscribe((params) => {
@@ -46,6 +50,7 @@ export class ProfileComponent {
     });
     this.loggedInUser = await this.authService.getMyId();
     this.user = this.userId === "me" ? await this.userService.getMe() : await this.userService.getUser(parseInt(this.userId));
+    this.activities = await this.projectService.allUserActivities()
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){

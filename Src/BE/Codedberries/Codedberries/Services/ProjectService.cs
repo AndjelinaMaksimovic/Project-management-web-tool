@@ -22,7 +22,7 @@ namespace Codedberries.Services
             _taskService = taskService;
         }
 
-        public async System.Threading.Tasks.Task CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
+        public async System.Threading.Tasks.Task<ProjectIdDTO> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -180,6 +180,8 @@ namespace Codedberries.Services
                     await _databaseContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+                ProjectIdDTO projectIdDTO=new ProjectIdDTO {ProjectId=project.Id};
+                return projectIdDTO;
                 }
                 catch (Exception ex)
                 {
