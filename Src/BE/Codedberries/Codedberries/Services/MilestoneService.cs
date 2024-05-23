@@ -84,7 +84,7 @@ namespace Codedberries.Services
             _databaseContext.Milestones.Add(milestone);
             await _databaseContext.SaveChangesAsync();
 
-            Models.Activity activity = new Models.Activity(user.Id, request.ProjectId, $"User {user.Email} has created the Milestone {request.Name}", TimeOnly.FromDateTime(DateTime.Now));
+            Models.Activity activity = new Models.Activity(user.Id, request.ProjectId, $"User {user.Firstname} {user.Lastname} has created the Milestone {request.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -225,7 +225,7 @@ namespace Codedberries.Services
                 ProjectId=milestone.ProjectId
             };
             
-            Models.Activity activity = new Models.Activity(user.Id, milestone.ProjectId, $"User {user.Email} has updated the Milestone {request.Name}", TimeOnly.FromDateTime(DateTime.Now));
+            Models.Activity activity = new Models.Activity(user.Id, milestone.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the Milestone {request.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
