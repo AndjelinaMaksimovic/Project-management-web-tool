@@ -95,7 +95,7 @@ namespace Codedberries.Services
 
             // if user does not have a permission to create Statuses for project, project won't be created
             using var transaction = await _databaseContext.Database.BeginTransactionAsync();
-
+            
             try
             {
                 _databaseContext.Projects.Add(project);
@@ -175,12 +175,27 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
-                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has created the project {project.Name}");
+                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has created the project {project.Name}", TimeOnly.FromDateTime(DateTime.Now));
                     _databaseContext.Activities.Add(activity);
                     await _databaseContext.SaveChangesAsync();
 
-                await transaction.CommitAsync();
+                    await transaction.CommitAsync();
                 ProjectIdDTO projectIdDTO=new ProjectIdDTO {ProjectId=project.Id};
+
+                var projectUserIds = _databaseContext.UserProjects
+                    .Where(up => up.ProjectId == project.Id && up.UserId != userId)
+                    .Select(up => up.UserId)
+                    .ToList();
+
+                // Create UserNotification for each user on the project
+                foreach (var projectUser in projectUserIds)
+                {
+                    UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                    _databaseContext.UserNotifications.Add(userNotification);
+                }
+
+                await _databaseContext.SaveChangesAsync();
+
                 return projectIdDTO;
                 }
                 catch (Exception ex)
@@ -804,8 +819,22 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has updated the project {project.Name}");
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has updated the project {project.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == project.Id && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
             await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
@@ -872,8 +901,22 @@ namespace Codedberries.Services
             // archive/active
             project.Archived = !project.Archived;
 
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has archived the project {project.Id}");
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has archived the project {project.Id}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == project.Id && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
             await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
@@ -1261,7 +1304,7 @@ namespace Codedberries.Services
             return activities;
         }
 
-        public async Task<List<ActivityDTO>> GetActivitiesByUsersProjects(HttpContext httpContext)
+        public async Task<List<NotificationDTO>> GetActivitiesByUsersProjects(HttpContext httpContext)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -1297,21 +1340,65 @@ namespace Codedberries.Services
             var activities = await _databaseContext.Activities
                 .Where(c => userProjects.Contains(c.ProjectId) && c.UserId != userId)
                 .ToListAsync();
+            
+            var activitiIds = await _databaseContext.Activities
+                .Where(c => userProjects.Contains(c.ProjectId) && c.UserId != userId)
+                .Select(c=>c.Id)
+                .ToListAsync();
 
-            var validActivities = activities.Select(act => new ActivityDTO
+            var userNotifications=await _databaseContext.UserNotifications
+                .Where(c => activitiIds.Contains(c.ActivityId))
+                .ToListAsync();
+
+            var notificationDTOs = new List<NotificationDTO>();
+
+            foreach (var activity in activities)
             {
-                Id = act.Id,
-                ProjectId = act.ProjectId,
-                ActivityDescription = act.ActivityDescription,
-                UserId = act.UserId
-            }).ToList();
+                var matchingUserNotification = userNotifications.FirstOrDefault(un => un.ActivityId == activity.Id);
+                var seen = matchingUserNotification != null && matchingUserNotification.Seen;
 
-            if (!validActivities.Any())
+                var notification = new NotificationDTO
+                {
+                    Id = activity.Id,
+                    ProjectId = activity.ProjectId,
+                    UserId = activity.UserId,
+                    ActivityDescription = activity.ActivityDescription,
+                    Seen = seen
+                };
+
+                notificationDTOs.Add(notification);
+            }
+
+            if (!notificationDTOs.Any())
             {
                 throw new InvalidOperationException("No activities found for the specified user.");
             }
 
-            return validActivities;
+            return notificationDTOs;
+        }
+
+        public async System.Threading.Tasks.Task NotificationsSeen(HttpContext httpContext)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            // Retrieve UserNotifications for the session user where seen is false
+            var userNotifications = await _databaseContext.UserNotifications
+                .Where(un => un.UserId == userId && un.Seen == false)
+                .ToListAsync();
+
+            // Update seen field to true for each UserNotification
+            foreach (var notification in userNotifications)
+            {
+                notification.Seen = true;
+            }
+
+            // Save changes to the database
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }
