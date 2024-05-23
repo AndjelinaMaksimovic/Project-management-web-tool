@@ -45,7 +45,7 @@
                 (dragStarted)="onDragStarted($event)"
                 (dragEnded)="onDragEnded($event)">
 
-                <ngx-gantt-column name="Task" width="160px" [showExpandIcon]="true">
+                <ngx-gantt-column [name]="ganttType == GanttType.Tasks ? 'Task' : 'Projects'" width="160px" [showExpandIcon]="true">
                 <ng-template #cell let-item="item"> {{ item.title }} </ng-template>
                 </ngx-gantt-column>
                 <!-- <ngx-gantt-column name="Starting date" width="200px">
