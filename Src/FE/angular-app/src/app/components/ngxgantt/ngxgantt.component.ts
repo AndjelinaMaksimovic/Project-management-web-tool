@@ -217,6 +217,14 @@ export class NgxganttComponent {
   async ngOnInit() {
     console.log(this.items);
 
+    let ganttView = this.localStorageService.getData("gantt_view");
+    if(ganttView && Object.keys(ganttView).length === 0 && ganttView.constructor === Object) {
+      this.localStorageService.saveData("gantt_view", this.selectedViewType);
+    }
+    else {
+      this.selectedViewType = this.localStorageService.getData("gantt_view");
+    }
+
     if(this.projectId == -1) {
       await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
     }
@@ -304,6 +312,7 @@ export class NgxganttComponent {
   viewChange(event: GanttView) {
       console.log(event.viewType);
       this.selectedViewType = event.viewType;
+      this.localStorageService.saveData("gantt_view", event.viewType);
   }
 
   onDragDropped(event: GanttTableDragDroppedEvent) {
