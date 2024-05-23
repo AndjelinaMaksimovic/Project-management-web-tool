@@ -15,6 +15,7 @@ export type Task = Readonly<{
   title: string;
   description: string;
   category: string;
+  categoryId: number;
   priority: 'Low' | 'Medium' | 'High';
   status: string;
   startDate: Date;
@@ -50,6 +51,7 @@ export class TaskService {
       priority: apiTask.priorityName,
       status: apiTask.statusName,
       category: apiTask.categoryName,
+      categoryId: apiTask.categoryId,
       id: apiTask.taskId,
       index: apiTask.index,
       indexInCategory: apiTask.indexInCategory,

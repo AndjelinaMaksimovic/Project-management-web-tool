@@ -32,6 +32,7 @@ import { ThySwitchModule } from 'ngx-tethys/switch';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { CategoryService } from '../../services/category.service';
 
 @Component({
   selector: 'app-ngxgantt',
@@ -86,7 +87,7 @@ export class NgxganttComponent {
       links: task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
         return { type: this.dependencyIdToGanttLink(value.typeOfDependencyId), link: value.taskId };
       }),
-      group_id: task.category,
+      group_id: task.categoryId.toString(),
       progress: task.progress / 100.0,
       start: task.startDate,
       end: task.dueDate,
@@ -207,7 +208,8 @@ export class NgxganttComponent {
     private route: ActivatedRoute,
     private router: Router,
     private localStorageService: LocalStorageService,
-    private dialogue: MatDialog
+    private dialogue: MatDialog,
+    private categoryService: CategoryService
   ) {}
 
   @Input() projectId: number = -1;
@@ -223,23 +225,22 @@ export class NgxganttComponent {
     }
     else {
       this.selectedViewType = this.localStorageService.getData("gantt_view");
+      this.selectView(this.selectedViewType);
     }
 
     if(this.projectId == -1) {
       await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
     }
-    this.createGroups();
+    await this.createGroups();
     this.updateTasksView();
     console.log(this.taskService.getTasks());
   }
 
-  createGroups() {
-    let _groups: Set<string> = new Set<string>();
-    this.taskService.getTasks().forEach((task) => {
-      if(!_groups.has(task.category)) {
-        this.groups.push({ id: task.category, title: task.category, expanded: true });
-        _groups.add(task.category);
-      }
+  async createGroups() {
+    this.categoryService.setContext({ projectId: this.projectId });
+    await this.categoryService.fetchCategories();
+    this.categoryService.getCategories().forEach((category) => {
+      this.groups.push({ id: category.id.toString(), title: category.name, expanded: true });
     });
   }
 
@@ -316,6 +317,7 @@ export class NgxganttComponent {
   }
 
   onDragDropped(event: GanttTableDragDroppedEvent) {
+    console.log(event);
     //   const sourceItems = event.sourceParent?.children || this.items;
     //   sourceItems.splice(sourceItems.indexOf(event.source), 1);
     //   if (event.dropPosition === 'inside') {
