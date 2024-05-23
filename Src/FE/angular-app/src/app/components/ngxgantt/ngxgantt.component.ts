@@ -4,6 +4,7 @@ import {
     GanttBarClickEvent,
     GanttBaselineItem,
     GanttDragEvent,
+    GanttGroup,
     GanttItem,
     GanttLineClickEvent,
     GanttLinkDragEvent,
@@ -75,6 +76,7 @@ export class NgxganttComponent {
   }
 
   mapTask(task: any): GanttItem {
+    console.log(task);
     // console.log(task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
     //   return { type: value.typeOfDependencyId, link: this.dependencyIdToGanttLink(value.taskId) };
     // }));
@@ -84,6 +86,8 @@ export class NgxganttComponent {
       links: task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
         return { type: this.dependencyIdToGanttLink(value.typeOfDependencyId), link: value.taskId };
       }),
+      group_id: task.category,
+      progress: task.progress / 100.0,
       start: task.startDate,
       end: task.dueDate,
       // links: task.dependentTasks.foreach()
@@ -208,14 +212,27 @@ export class NgxganttComponent {
 
   @Input() projectId: number = -1;
 
+  groups: GanttGroup[] = [];
+
   async ngOnInit() {
     console.log(this.items);
 
     if(this.projectId == -1) {
       await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
     }
+    this.createGroups();
     this.updateTasksView();
     console.log(this.taskService.getTasks());
+  }
+
+  createGroups() {
+    let _groups: Set<string> = new Set<string>();
+    this.taskService.getTasks().forEach((task) => {
+      if(!_groups.has(task.category)) {
+        this.groups.push({ id: task.category, title: task.category, expanded: true });
+        _groups.add(task.category);
+      }
+    });
   }
 
   updateTasksView() {
