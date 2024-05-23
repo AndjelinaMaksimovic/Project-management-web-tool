@@ -6,16 +6,15 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { InvitePopupComponent } from '../../components/invite-popup/invite-popup.component';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
-import {
-  MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
+import { SelectComponent } from '../../components/select/select.component';
 import { ProjectService } from '../../services/project.service';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf } from '@angular/common';
 import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
 import moment from 'moment';
 import { Router } from '@angular/router';
+import { UserService } from '../../services/user.service';
+import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-invite-to-project-modal',
@@ -32,6 +31,7 @@ import { Router } from '@angular/router';
     MatDatepickerModule,
     MatIconModule,
     NgIf,
+    SelectComponent,
   ],
 })
 export class InviteToProjectModalComponent {
@@ -40,45 +40,33 @@ export class InviteToProjectModalComponent {
     private projectService: ProjectService,
     private dialogRef: MatDialogRef<InviteToProjectModalComponent>,
     private router: Router,
+    private userService: UserService,
+    private rolesService: RolesService,
   ) {}
 
-  projectName = '';
-  description = '';
-  errorMessage = '';
-
-  currentDate = moment();
-  dueDate = new FormControl(this.currentDate);
-  startDate = new FormControl(this.currentDate);
-
-  async createNewProject() {
-    if (
-      !this.projectName ||
-      !this.dueDate ||
-      !this.description ||
-      !this.dueDate.value ||
-      !this.startDate.value
-    ) {
-      this.errorMessage = 'Please provide all required fields';
-      return;
-    }
-    if (
-      this.startDate.value.toDate().getTime() >
-      this.dueDate.value.toDate().getTime()
-    ) {
-      this.errorMessage = 'Please enter valid start/due dates';
-      return;
-    }
-    await this.projectService.createNew({
-      name: this.projectName,
-      description: this.description,
-      startDate: this.startDate.value.toDate(),
-      dueDate: this.dueDate.value.toDate(),
+  public memberId: string = "1";
+  public members: {value: string, viewValue: string}[] = [];
+  public roleId: string = "1";
+  public roles: {value: string, viewValue: string}[] = [];
+  async ngOnInit() {
+    await this.userService.fetchUsers();
+    this.members = this.userService.getUsers().map((u) => {
+      return { value: u.id.toString(), viewValue: `${u.firstName} ${u.lastName}` };
     });
-    this.router.navigateByUrl(`/project/${1}`);
-    return;
+    this.roles = (await this.rolesService.getAllRoles())?.map((r) => ({
+      value: r.id.toString(),
+      viewValue: r.roleName,
+    })) ?? [];
+  }
+
+  async invite(){
+    try{
+      this.projectService.addUserToProject(this.memberId, "1", this.roleId)
+    } catch(e){
+      console.log(e);
+    }
   }
 }
-
 
 // import { Component } from '@angular/core';
 

@@ -4,34 +4,12 @@
         <mat-icon>close</mat-icon>
     </button>
 
-    <h1 style="margin-bottom: 25px; margin-top: 0; font-weight: bold; font-size: 2em;">Create new project</h1>
+    <h1 style="margin-bottom: 25px; margin-top: 0; font-weight: bold; font-size: 2em;">Invite members to project</h1>
 
-    <div style="flex-grow: 1; display: flex; justify-content: space-evenly;">
-        <div style="height: 100%; display: flex; flex-direction: column; width: min(90vw, 700px)">
-            <div style="flex-grow: 1;">
-                <div style="display: flex; gap: 10px">
-                    <mat-form-field appearance="outline" class="dense-2" style="flex-grow: 1;">
-                        <mat-label>Project name</mat-label>
-                        <input matInput [(ngModel)]="projectName" required>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="dense-2" style="flex-grow: 1;">
-                        <mat-label>Start Date - Due Date</mat-label>
-                        <mat-date-range-input [rangePicker]="picker">
-                            <input matStartDate placeholder="Start date" [formControl]="startDate" [required]="true">
-                            <input matEndDate placeholder="End date" [formControl]="dueDate" [required]="true">
-                        </mat-date-range-input>
-                        <mat-hint>DD/MM/YYYY - DD/MM/YYYY</mat-hint>
-                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-date-range-picker #picker></mat-date-range-picker>
-                    </mat-form-field>
-                </div>
-                <app-markdown-editor [label]="'Description'" [(value)]="description"></app-markdown-editor>
-            </div>
-            <button mat-flat-button class="rounded-button" color="primary" (click)="createNewProject()">Create new
-                project</button>
-            <div *ngIf="errorMessage" class="alert alert-danger">
-                {{ errorMessage }}
-            </div>
-        </div>
+    <div style="display: flex;">
+        <app-select [options]="members" [(value)]="memberId" label="Company members"
+        (valueChange)="memberId=$event" [required]="true"></app-select>
+        <app-select [options]="roles" [(value)]="memberId" label="Roles"
+        (valueChange)="memberId=$event" [required]="true"></app-select>
     </div>
 </div>
