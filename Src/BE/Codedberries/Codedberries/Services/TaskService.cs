@@ -293,6 +293,20 @@ namespace Codedberries.Services
                 _databaseContext.Activities.Add(activity);
                 await _databaseContext.SaveChangesAsync();
 
+                var projectUsers = _databaseContext.UserProjects
+                .Where(up => up.ProjectId == request.ProjectId && up.UserId != userId)
+                .Select(up => up.UserId)
+                .ToList();
+
+                // Create UserNotification for each user on the project
+                foreach (var projectUser in projectUsers)
+                {
+                    UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                    _databaseContext.UserNotifications.Add(userNotification);
+                }
+
+                await _databaseContext.SaveChangesAsync();
+
                 await _databaseContext.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
@@ -674,6 +688,20 @@ namespace Codedberries.Services
 
             Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has deleted the task {task.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
             _databaseContext.SaveChangesAsync();
 
             _databaseContext.Tasks.Remove(task);
@@ -1085,6 +1113,20 @@ namespace Codedberries.Services
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
             return updatedTaskInfo;
         }
 
@@ -1128,6 +1170,20 @@ namespace Codedberries.Services
 
             Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has archived the task {task.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
             _databaseContext.SaveChangesAsync();
 
             _databaseContext.SaveChanges();
@@ -1979,6 +2035,20 @@ namespace Codedberries.Services
             Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has changed the progress of the task {task.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }

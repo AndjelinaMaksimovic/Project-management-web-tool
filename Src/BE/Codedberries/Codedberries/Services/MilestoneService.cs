@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Codedberries.Helpers;
+using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -87,6 +88,19 @@ namespace Codedberries.Services
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == request.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
         }
 
@@ -214,6 +228,20 @@ namespace Codedberries.Services
             Models.Activity activity = new Models.Activity(user.Id, milestone.ProjectId, $"User {user.Email} has updated the Milestone {request.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == milestone.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             return updatedMilestoneInfo;
         }
