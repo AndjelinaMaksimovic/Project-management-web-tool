@@ -103,7 +103,7 @@ namespace Codedberries.Services
 
             _databaseContext.Statuses.Add(newStatus);
 
-            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Email} has created the status {statusDTO.Name}", TimeOnly.FromDateTime(DateTime.Now));
+            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Firstname} {user.Lastname} has created the status {statusDTO.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -282,7 +282,7 @@ namespace Codedberries.Services
                 status.Order -= 1;
             }
 
-            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Email} has deleted the status {statusToDelete.Name}", TimeOnly.FromDateTime(DateTime.Now));
+            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Firstname} {user.Lastname} has deleted the status {statusToDelete.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -490,7 +490,7 @@ namespace Codedberries.Services
                 Order = status.Order
             };
 
-            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Email} has changed the name of the status {status.Name}", TimeOnly.FromDateTime(DateTime.Now));
+            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the name of the status {status.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
