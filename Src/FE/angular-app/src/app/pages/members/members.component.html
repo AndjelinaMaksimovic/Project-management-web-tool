@@ -44,7 +44,14 @@
                     </div>
                     <div class="member-container" *ngIf="role.value.active">
                         @for (member of role.value.members; track member) {
-                            <app-member-item [name]="member.firstname + ' ' + member.lastname" [desc]="''" [image]="member.image" (click)="openMember(member.id)"></app-member-item>
+                            <div class="member-item-container hover" (click)="openMember(member.id)">
+                                <img class="circle-image" src={{member.image}} onerror="this.src='/assets/default-user.jpg'">
+                                <p class="name">{{member.firstname}} {{member.lastname}}</p>
+                                <p class="desc"></p>
+                                <i *ngIf="isProject" class="fa-solid fa-arrow-right-from-bracket icon" style="margin: auto;" matTooltip="Remove user from project" (click)="removeUser($event, member);"></i>
+                            </div>
+                            
+                            <!-- <app-member-item [name]="member.firstname + ' ' + member.lastname" [desc]="''" [image]="member.image" (click)="openMember(member.id)" [showRemoveIcon]="isProject"></app-member-item> -->
                         }
                         @if (role.value.members.length == 0) {
                             <p>No {{role.value.name}} found!</p>

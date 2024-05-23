@@ -64,23 +64,6 @@ export class UserService {
     return false;
   }
 
-  public async fetchUsersByProject(projectId: number) {
-    try {
-      const res = await firstValueFrom(
-        this.http.get<any>(
-          environment.apiUrl + `/User/getUsers?projectId=${projectId}`,
-          this.httpOptions
-        )
-      );
-      this.users = res.body.map((user: any) => {
-        return mapUser(user);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-    return false;
-  }
-
   public async fetchUsers() {
     try {
       const res = await firstValueFrom(
@@ -146,5 +129,27 @@ export class UserService {
       console.log(e);
       return false
     }
+  }
+
+  public async removeUserFromProject(projectId: number, userId: number): Promise<void> {
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(environment.apiUrl + `/UserProjects/removeUserFromProject`, {
+          ...this.httpOptions,
+          body: { 
+            projectId: projectId,
+            userId: userId,
+          },
+        })
+      );
+    } catch (e) {
+      console.log(e);
+      if(e instanceof HttpErrorResponse){
+        this.snackBar.open(e?.error?.errorMessage, undefined, {
+          duration: 2000,
+        });
+      }
+    }
+    await this.fetchUsersByProject(projectId);
   }
 }

@@ -290,6 +290,26 @@ export class ProjectService {
     }
     return [];
   }
+  
+  async allUsersProjectActivities(): Promise<any[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/allUsersProjectActivities`,
+            {},
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return [];
+  }
+
 
   async updateProject(project: any) {
     try {
