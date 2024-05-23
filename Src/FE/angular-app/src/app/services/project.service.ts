@@ -249,4 +249,8 @@ export class ProjectService {
     }
     return false;
   }
+
+  async addUserToProject(projectId: string, userId: string, roleId: string){
+    return;
+  }
 }
