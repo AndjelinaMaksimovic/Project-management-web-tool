@@ -196,10 +196,18 @@ namespace Codedberries.Controllers
         }
 
         [HttpGet("currentUserRole")]
-        public IActionResult GetCurrentUserRole()
+        public IActionResult GetCurrentUserRole([FromQuery] CurrentUserRoleDTO request)
         {
-            RolePermissionDTO userRole = _userService.GetCurrentUserRole(HttpContext);
+            RolePermissionDTO userRole;
 
+            if(request.Id.HasValue)
+            {
+                userRole = _userService.GetCurrentProjectUserRole(HttpContext, request.Id.Value);
+            }
+            else
+            {
+                userRole = _userService.GetCurrentUserRole(HttpContext);
+            }
             if (userRole == null)
             {
                 return NotFound(new ErrorMsg("User role not found!"));
