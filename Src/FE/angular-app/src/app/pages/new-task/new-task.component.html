@@ -87,7 +87,7 @@
                 <app-select [options]="users" label="Assignee" (valueChange)="assignee=$event" [required]="true"></app-select>
             </span> -->
         </div>
-        <button style="width: max(100px, 60%); margin: auto" (click)="createTask()" class="button-rounded" color="primary"
+        <button style="width: 200px; margin: auto" (click)="createTask()" class="button-rounded" color="primary"
             mat-flat-button>Create Task</button>
         <div *ngIf="errorMessage" class="alert alert-danger">
             {{ errorMessage }}

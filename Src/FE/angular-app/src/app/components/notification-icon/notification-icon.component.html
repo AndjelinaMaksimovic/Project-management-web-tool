@@ -6,13 +6,15 @@
         ></div>
     </i>
 </button>
-<mat-menu #menu="matMenu" (click)="$event.stopPropagation()">
-    <div style="padding: 10px">
+<mat-menu #menu="matMenu">
+    <div style="padding: 10px;" (click)="$event.stopPropagation()">
         @for(activity of activities; track activity; let last = $last){
             <!-- <div mat-menu-item> Activity </div> -->
             <app-notification-item [activity]="activity"></app-notification-item>
             <hr *ngIf="!last">
         }
+        <!-- <app-notification-item [activity]="{userIcon: '', userName: 'Biba', userRole: 'struja', activityDescription: 'asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf asdfasdfasdfasdfasdfasdf asdfasdf', date: ''}"></app-notification-item> -->
         <div *ngIf="activities.length == 0">No notifications!</div>
     </div>
+    <!-- <button *ngIf="activities.length == 0" style="width: 100%" (click)="$event.stopPropagation()">Show older</button> -->
 </mat-menu>
