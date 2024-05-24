@@ -12,7 +12,7 @@
                 <input class="input" placeholder="Search members" [(ngModel)]="search" (ngModelChange)="filterRolesByName()"/>
                 <i class="fa-solid fa-magnifying-glass input-icon"></i>
             </div>
-            <a *ngIf="!isProject" class="button pl-15 pr-15 ml-20">
+            <a *ngIf="!isProject" class="button pl-15 pr-15 ml-20" (click)="openNewMember()">
                 <i class="fa-solid fa-plus mr-10"></i>
                 <span>Add new member</span>
             </a>
