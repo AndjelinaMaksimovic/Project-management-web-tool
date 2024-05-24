@@ -126,6 +126,20 @@ export class UserService {
     }
     return false;
   }
+  public async currentUserRole(projectId?: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + `/User/currentUserRole` + (projectId ? `projectId=${projectId}` : ``),
+          this.httpOptions
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
   
   async userRole(userId: number){
     try {

@@ -1,24 +1,23 @@
 <app-navbar>
     <div style="padding: 10px;">
-        <app-updatable-title [task]="task"></app-updatable-title>
+        <app-updatable-title [role]="role" [task]="task"></app-updatable-title>
         <mat-card>
             <mat-card-content>
                 <!-- <mat-divider></mat-divider> -->
                 <div style="display: flex; gap: 20px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <span class="tag">Category: <app-category-chip [task]="task"></app-category-chip></span>
-                    <span class="tag">Priority: <app-priority-chip [task]="task"></app-priority-chip></span>
-                    <span class="tag">Status: <app-status-chip [task]="task"></app-status-chip></span>
-                    <span class="tag">Status: <app-status-chip [task]="task"></app-status-chip></span>
-                    <div class="tag">Progress: <app-progress-chip [task]="task"></app-progress-chip></div>
+                    <span class="tag">Category: <app-category-chip [role]="role" [task]="task"></app-category-chip></span>
+                    <span class="tag">Priority: <app-priority-chip [role]="role" [task]="task"></app-priority-chip></span>
+                    <span class="tag">Status: <app-status-chip [role]="role" [task]="task"></app-status-chip></span>
+                    <div class="tag">Progress: <app-progress-chip [role]="role" [task]="task"></app-progress-chip></div>
                     <div class="tag"> Due date:
-                        <app-date-chip [task]="task"></app-date-chip>
+                        <app-date-chip [role]="role" [task]="task"></app-date-chip>
                     </div>
                     <!-- <span class="tag">Assigned to:
                         <app-assignee-chip [task]="task"></app-assignee-chip>
                     </span> -->
                 </div>
                 <mat-divider></mat-divider>
-                <app-editable-markdown [content]="task?.description"
+                <app-editable-markdown [role]="role" [content]="task?.description"
                     (onSave)="updateDescription($event)"></app-editable-markdown>
                 <!-- <markdown ngPreserveWhitespaces [data]="task?.description"></markdown> -->
             </mat-card-content>
@@ -26,16 +25,16 @@
         
         <div style="display: flex; gap: 20px; justify-content: space-evenly;">
             <div style="width: 48%; float: left;">
-                <h3>Assigned to: <app-add-user-chip [task]="task" (userOutput)="users=$event"></app-add-user-chip></h3>
-                <app-users-card [taskId]="task?.id" [taskUsers]="users"></app-users-card>
+                <h3>Assigned to: <app-add-user-chip *ngIf="role.canAddTaskToUser" [task]="task" (userOutput)="users=$event"></app-add-user-chip></h3>
+                <app-users-card [role]="role" [taskId]="task?.id" [projectId]="task?.projectId" [taskUsers]="users"></app-users-card>
             </div>
             <div style="width: 48%; float: left;">
-                <h3>Dependant tasks: <button mat-icon-button disabled><mat-icon>add</mat-icon></button></h3>
+                <h3>Dependant tasks: <button *ngIf="role.canEditTask" mat-icon-button disabled><mat-icon>add</mat-icon></button></h3>
                 <app-dependant-tasks-card [dependant]="dependantTasks"></app-dependant-tasks-card>
             </div>
         </div>
 
         <h3>Comments:</h3>
-        <app-comments [taskId]="taskId"></app-comments>
+        <app-comments [role]="role" [taskId]="taskId"></app-comments>
     </div>
 </app-navbar>

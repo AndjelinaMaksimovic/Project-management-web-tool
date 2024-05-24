@@ -13,6 +13,7 @@ import { PageEvent } from '@angular/material/paginator';
 })
 export class TasksTableComponent {
   @Input() tasks!: Task[];
+  @Input() role: any = {};
   get paginatedTasks(){
     return this.tasks.slice(this.pageIndex * this.pageSize, this.pageIndex * this.pageSize + this.pageSize)
   };

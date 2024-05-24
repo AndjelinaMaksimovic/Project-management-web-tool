@@ -72,6 +72,7 @@ class Role {
 
 export class MembersComponent {
   search: string = "";
+  myRole: any = {}
 
   filters: Map<string, Filter> = new Map<string, Filter>([
     // ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
@@ -134,6 +135,7 @@ export class MembersComponent {
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
       });
     }
+    this.myRole = await this.userService.currentUserRole(this.projectId)
   }
 
   async fetchMembersFromLocalStorage() {

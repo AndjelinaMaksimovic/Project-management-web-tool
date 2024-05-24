@@ -20,6 +20,7 @@ import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.comp
 export class EditableMarkdownComponent {
   isEditing: boolean = false;
   _content: string | undefined = "";
+  @Input() role: any = {}
   get content(){
     return this._content;
   }

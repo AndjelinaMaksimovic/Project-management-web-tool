@@ -1,5 +1,5 @@
 <div style="font-size: small; font-weight: bold; color: black; cursor: pointer;" [matMenuTriggerFor]="menu"
-    [matTooltip]="'click to change'">📅
+[matTooltip]="(role.canEditTask) ? 'click to change' : ''" [style.pointer-events]="(role.canEditTask) ? 'unset' : 'none' ">📅
     {{task?.dueDate?.toDateString()}}
 </div>
 <mat-menu #menu="matMenu">

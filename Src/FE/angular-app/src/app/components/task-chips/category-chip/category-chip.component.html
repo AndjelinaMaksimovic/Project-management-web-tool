@@ -1,4 +1,4 @@
-<div class="chip chip-neutral" [matMenuTriggerFor]="menu" [matTooltip]="'click to change'">{{task?.category}}</div>
+<div class="chip chip-neutral" [matMenuTriggerFor]="menu" [matTooltip]="(role.canEditTask) ? 'click to change' : ''" [style.pointer-events]="(role.canEditTask) ? 'unset' : 'none' ">{{task?.category}}</div>
 
 <mat-menu #menu="matMenu">
     @for(category of categories; track category){

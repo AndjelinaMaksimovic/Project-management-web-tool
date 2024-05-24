@@ -4,6 +4,8 @@ import { MaterialModule } from '../../../material/material.module';
 import { AvatarService } from '../../../services/avatar.service';
 import { UserService } from '../../../services/user.service';
 import { NgIf } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { UserStatsComponent } from '../../../components/user-stats/user-stats.component';
 
 @Component({
   selector: 'app-users-card',
@@ -15,10 +17,12 @@ import { NgIf } from '@angular/common';
 export class UsersCardComponent implements OnChanges {
   @Input() taskUsers!: any | undefined
   @Input() taskId: number | undefined
+  @Input() projectId?: number
+  @Input() role: any = {};
   users: any[] = []
   newUsers: any[] = []
 
-  constructor(private taskService: TaskService, private avatarService: AvatarService, private userService: UserService){}
+  constructor(private dialog: MatDialog, private taskService: TaskService, private avatarService: AvatarService, private userService: UserService){}
   async ngOnChanges() {
     if(this.taskUsers)
       this.users = await Promise.all(this.taskUsers.map(async (user: any) => {return await this.mapOther(user)}))
@@ -39,5 +43,18 @@ export class UsersCardComponent implements OnChanges {
     // if(await this.taskService.updateTask({id: this.task.id, userIds: tmp.map(usr => usr.id)}))
     if(await this.taskService.updateTask({id: this.taskId, userId: tmp[0].id}))
       this.users.splice(this.users.indexOf(user), 1)
+  }
+
+  
+  openMember(id: number) {
+    const dialogRef = this.dialog.open(UserStatsComponent, {
+      panelClass: 'borderless-dialog',
+      data: {
+        id: id,
+        title: "User details on project",
+        projectId: this.projectId
+      },
+      maxHeight: '90vh'
+    });
   }
 }

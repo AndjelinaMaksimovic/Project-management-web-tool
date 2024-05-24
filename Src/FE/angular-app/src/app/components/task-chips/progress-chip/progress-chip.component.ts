@@ -13,6 +13,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 })
 export class ProgressChipComponent implements OnChanges {
   @Input() task: Task | undefined;
+  @Input() role: any = {};
   @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
   @ViewChild('inp') inp: any;
   progressView: number = 0  // because task is readonly

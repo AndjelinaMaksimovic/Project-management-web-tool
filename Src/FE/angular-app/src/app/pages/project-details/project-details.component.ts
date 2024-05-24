@@ -41,6 +41,8 @@ export class ProjectDetailsComponent {
   completedTasks : number = 0;
   overdueTasks : number = 0;
 
+  role: any = {}
+
   constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog, private categoryService : CategoryService, private statusService : StatusService, private userService: UserService, private avatarService: AvatarService) {
     this.dialog.closeAll();
   }
@@ -80,6 +82,8 @@ export class ProjectDetailsComponent {
 
     this.activities = await this.projectService.allProjectActivities(this.projectId)
 
+    this.role = await this.userService.currentUserRole(this.projectId)
+    
     console.log(this.taskService.getTasks());
   }
 
