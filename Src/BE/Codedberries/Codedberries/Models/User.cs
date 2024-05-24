@@ -64,15 +64,21 @@ namespace Codedberries.Models
             PasswordSalt= salt;
         }
 
-        public User(string email, string password, string firstname, string lastname, int? roleId, string? profilePicture)
+        public void SetPassword(string password)
+        {
+            if (password.Length < 64) { HashPassword(password, PasswordSalt); }
+            else Password = password;
+        }
+
+        public User(string email, string password, string firstname, string lastname, int? roleId, string? profilePicture, string? activationToken = null, bool activated = true)
         {
             Email = email;
             GenerateSalt(); 
             Firstname = firstname;
             Lastname = lastname;
             RoleId = roleId;
-            Activated = false;
-            ActivationToken = null;
+            Activated = activated;
+            ActivationToken = activationToken;
             ProfilePicture = profilePicture;
             if (password.Length<64) { HashPassword(password,PasswordSalt); }
             else Password = password;

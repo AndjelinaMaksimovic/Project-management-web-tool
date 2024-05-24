@@ -12,6 +12,7 @@ import { AvatarService } from '../../services/avatar.service';
 import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { NewMemberModalComponent } from '../../components/new-member-modal/new-member-modal.component';
 
 class Member {
   firstname: string;
@@ -172,5 +173,9 @@ export class MembersComponent {
     this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
       await this.userService.removeUserFromProject(this.projectId, member.id);
     }, noFunc: () => { } } });
+  }
+
+  openNewMember() {
+    this.dialog.open(NewMemberModalComponent, { autoFocus: false });
   }
 }
