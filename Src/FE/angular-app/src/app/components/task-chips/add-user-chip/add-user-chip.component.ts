@@ -24,7 +24,7 @@ export class AddUserChipComponent {
     if(!this.task || !this.task.projectId)
       return
     await this.userService.fetchUsersByProject(this.task.projectId)
-    this.users = await this.userService.getUsers().filter(allUsers => !this.task?.assignedTo.find((taskUsers: any) => allUsers.id == taskUsers.id))
+    this.users = this.userService.getUsers().filter(allUsers => !this.task?.assignedTo.find((taskUsers: any) => allUsers.id == taskUsers.id))
   }
   // get user(){
   //   return this.userVal
