@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../services/avatar.service';
+import { UserStatsComponent } from '../user-stats/user-stats.component';
+import { MatDialog } from '@angular/material/dialog';
 
 class Activity {
   constructor(
@@ -26,12 +28,24 @@ class Activity {
 export class ActivityItemComponent implements OnInit {
   @Input() activity: any
 
-  constructor(private userService: UserService, private avatarService: AvatarService){}
+  constructor(private dialog: MatDialog, private userService: UserService, private avatarService: AvatarService){}
 
   async ngOnInit() {
       const usr = await this.userService.getUser(this.activity.userId)
       this.activity.userName = usr.firstname + ' ' + usr.lastname
       this.activity.userRole = usr.roleName
       this.activity.userIcon = this.avatarService.getProfileImagePath(this.activity.userId)
+  }
+  
+  openMember(id: number) {
+    const dialogRef = this.dialog.open(UserStatsComponent, {
+      panelClass: 'borderless-dialog',
+      data: {
+        id: id,
+        title: "User details on project",
+        projectId: this.activity.projectId
+      },
+      maxHeight: '90vh'
+    });
   }
 }

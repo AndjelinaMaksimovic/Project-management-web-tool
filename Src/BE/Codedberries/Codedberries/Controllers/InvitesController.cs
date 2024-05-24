@@ -18,52 +18,55 @@ namespace Codedberries.Controllers
     {
         private readonly Config _config;
         private readonly AppDatabaseContext _databaseContext;
-        private readonly TokenService _tokenService;
+        private readonly InviteService _inviteService;
 
-        public InvitesController(IOptions<Config> config, AppDatabaseContext context, TokenService tokenService)
+        public InvitesController(IOptions<Config> config, AppDatabaseContext context, InviteService inviteService)
         {
             _config = config.Value;
             _databaseContext = context;
-            _tokenService = tokenService;
+            _inviteService = inviteService;
         }
 
         [HttpPost("SendInvite")]
         public IActionResult AddInvite([FromBody] SendInviteDTO body)
         {
-            if (Helper.IsEmailValid(body.Email))
+            try
             {
-                Invite invite = new Invite();
-                invite.Email = body.Email;
-                invite.Token = _tokenService.GenerateToken(body.Email);
-                invite.RoleId = body.RoleId;
+                _inviteService.AddUser(HttpContext, body);
 
-                _databaseContext.Invites.Add(invite);
-                _databaseContext.SaveChanges();
-
-                MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
-                mailService.SendMessage(body.Email, "Invite", ""); // TODO - Add invite link
-
-                return Ok(new { resp = "Success" });
+                return Ok("User successfully created.");
             }
-            else
+            catch (UnauthorizedAccessException ex)
             {
-                return BadRequest(new ErrorMsg("Invalid email"));
+                return StatusCode(403, new ErrorMsg(ex.Message)); // does not have permission
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while creating new User: {ex.InnerException}"));
             }
         }
 
         [HttpPost("AcceptInvite")]
-        public IActionResult AcceptInvite([FromBody] AcceptInviteDTO body)
+        public IActionResult AcceptInvite([FromBody] ActivateAccountDTO body)
         {
-            Invite? invite = _databaseContext.Invites.FirstOrDefault(x => x.Token == body.Token && x.Email == body.Email);
-            if (invite != null)
+            try
             {
-                // TO DO - USER REGISTRATION
-                _databaseContext.Invites.Remove(invite);
-                _databaseContext.SaveChanges();
+                _inviteService.AcceptInvite(HttpContext, body);
 
-                return Ok(new { resp = "Success" });
+                return Ok("User successfully activated.");
             }
-            return BadRequest(new ErrorMsg("Invalid token"));
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while activating account: {ex.Message}"));
+            }
         }
     }
 }

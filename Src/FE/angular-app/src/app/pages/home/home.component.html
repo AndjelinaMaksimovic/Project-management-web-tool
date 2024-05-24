@@ -6,7 +6,7 @@
             <input class="input" placeholder="Search project" [(ngModel)]="search" (input)="filterItems()"/>
             <i class="fa-solid fa-magnifying-glass input-icon"></i>
         </div>
-        <a class="button pl-15 pr-15 ml-20" (click)="newProjectPopUp()">
+        <a class="button pl-15 pr-15 ml-20" (click)="newProjectPopUp()" *ngIf="role.canCreateProject">
             <i class="fa-solid fa-plus mr-10"></i>
             <span>Add new project</span>
         </a>
@@ -115,7 +115,7 @@
                 </div>
                 <div *ngIf="archivedProjectsAccordionVisible">
                     @for (project of archivedProjects; track project) {
-                        <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                        <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
                     }
                     @if (archivedProjects.length == 0) {
                         <p>No archived projects!</p>

@@ -12,6 +12,7 @@ import { AvatarService } from '../../services/avatar.service';
 import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { NewMemberModalComponent } from '../../components/new-member-modal/new-member-modal.component';
 import { InviteToProjectModalComponent } from '../../components/invite-to-project-modal/invite-to-project-modal.component';
 
 class Member {
@@ -73,6 +74,7 @@ class Role {
 
 export class MembersComponent implements OnInit {
   search: string = "";
+  myRole: any = {}
 
   filters: Map<string, Filter> = new Map<string, Filter>([
     // ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
@@ -135,6 +137,7 @@ export class MembersComponent implements OnInit {
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
       });
     }
+    this.myRole = await this.userService.currentUserRole(this.projectId)
   }
 
   async fetchMembersFromLocalStorage() {
@@ -171,6 +174,10 @@ export class MembersComponent implements OnInit {
     this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
       await this.userService.removeUserFromProject(this.projectId, member.id);
     }, noFunc: () => { } } });
+  }
+
+  openNewMember() {
+    this.dialog.open(NewMemberModalComponent, { autoFocus: false });
   }
 
   invitePopUp(){

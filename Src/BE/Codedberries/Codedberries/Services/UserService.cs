@@ -29,7 +29,7 @@ namespace Codedberries.Services
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
 
-            if (user != null && VerifyPassword(password, user.Password, user.PasswordSalt))
+            if (user != null && user.Activated && VerifyPassword(password, user.Password, user.PasswordSalt))
             {
                 // create new session
                 var sessionToken = GenerateSessionToken();
@@ -677,6 +677,43 @@ namespace Codedberries.Services
                 CanCreateTask= userRole.CanCreateTask,
                 CanRemoveTask=userRole.CanRemoveTask,
                 CanEditTask=userRole.CanEditTask
+            };
+        }
+
+        public RolePermissionDTO GetCurrentProjectUserRole(HttpContext httpContext, int projectId)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            var roleId = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+
+            if(roleId == null)
+            {
+                return null;
+            }
+
+            Role userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == roleId.RoleId);
+
+            
+            if (userRole == null)
+            {
+                return null;
+            }
+
+            return new RolePermissionDTO
+            {
+                RoleName = userRole.Name,
+                RoleId = userRole.Id,
+                CanAddNewUser = userRole.CanAddNewUser,
+                CanAddUserToProject = userRole.CanAddUserToProject,
+                CanRemoveUserFromProject = userRole.CanRemoveUserFromProject,
+                CanCreateProject = userRole.CanCreateProject,
+                CanDeleteProject = userRole.CanDeleteProject,
+                CanEditProject = userRole.CanEditProject,
+                CanViewProject = userRole.CanViewProject,
+                CanAddTaskToUser = userRole.CanAddTaskToUser,
+                CanCreateTask = userRole.CanCreateTask,
+                CanRemoveTask = userRole.CanRemoveTask,
+                CanEditTask = userRole.CanEditTask
             };
         }
 

@@ -40,11 +40,11 @@
             <div class="w-100">
                 <div style="display: flex; justify-content: space-between;">
                     <p class="title">Project statuses:</p>
-                    <i class="fa-solid fa-plus add-icon" (click)="createStatus()"></i>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-plus add-icon" (click)="createStatus()"></i>
                 </div>
                 <div *ngFor="let status of statuses" class="hover">
                     <p>{{status.order}}. {{status.name}}</p>
-                    <i class="fa-solid fa-trash icon ml-10" (click)="deleteStatus(status.name)" matTooltip="Delete"></i>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-trash icon ml-10" (click)="deleteStatus(status.name)" matTooltip="Delete"></i>
                 </div>
             </div>
         </div>
@@ -52,11 +52,11 @@
             <div class="w-100">
                 <div style="display: flex; justify-content: space-between;">
                     <p class="title">Project categories:</p>
-                    <i class="fa-solid fa-plus add-icon" (click)="createCategory()"></i>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-plus add-icon" (click)="createCategory()"></i>
                 </div>
                 <div *ngFor="let category of categories"  class="hover">
                     <p>{{category.name}}</p>
-                    <i class="fa-solid fa-trash icon ml-10" (click)="deleteCategory(category.id)" matTooltip="Delete"></i>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-trash icon ml-10" (click)="deleteCategory(category.id)" matTooltip="Delete"></i>
                 </div>
             </div>
         </div>

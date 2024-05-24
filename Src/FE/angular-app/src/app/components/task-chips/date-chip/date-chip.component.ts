@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
 })
 export class DateChipComponent {
   @Input() task: Task | undefined;
+  @Input() role: any = {};
   dueDate = new FormControl(moment());
 
   constructor(private taskService: TaskService) {

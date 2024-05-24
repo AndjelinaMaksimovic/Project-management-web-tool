@@ -1,4 +1,4 @@
-<h1>{{task?.title}}&NonBreakingSpace;<button mat-icon-button [matMenuTriggerFor]="menu"
+<h1>{{task?.title}}&NonBreakingSpace;<button *ngIf="role.canEditTask" mat-icon-button [matMenuTriggerFor]="menu"
         class="small-icon-button" [matTooltip]="'edit title'"><mat-icon>edit</mat-icon></button></h1>
 <mat-menu #menu="matMenu">
     <div style="padding: 10px">

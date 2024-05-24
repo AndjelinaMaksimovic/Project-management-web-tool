@@ -7,5 +7,6 @@
         public int UserId { get; set; }
         public string ActivityDescription { get; set; }
         public bool Seen {  get; set; }
+        public DateTime Time { get; set; }
     }
 }

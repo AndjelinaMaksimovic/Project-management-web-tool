@@ -2,11 +2,12 @@ import { Component, Input } from '@angular/core';
 import { MaterialModule } from '../../../material/material.module';
 import { Task } from '../../../services/task.service';
 import { RouterModule } from '@angular/router';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-dependant-tasks-card',
   standalone: true,
-  imports: [ MaterialModule, RouterModule ],
+  imports: [ MaterialModule, RouterModule, NgIf ],
   templateUrl: './dependant-tasks-card.component.html',
   styleUrl: './dependant-tasks-card.component.css'
 })

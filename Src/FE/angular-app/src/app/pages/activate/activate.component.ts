@@ -55,6 +55,7 @@ export class ActivateComponent {
       this.errorMessage = 'passwords do not match!';
       return;
     }
+    await this.authService.logout();
     const res = await this.authService.activate(
       this.token,
       this.email,

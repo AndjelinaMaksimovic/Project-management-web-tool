@@ -24,7 +24,6 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
     this.activities = await this.projectService.allUsersProjectActivities()
     this.intervalId = setInterval(async () => {
       if(!this.menuOpened){
-        console.log("fetch")
         this.activities = await this.projectService.allUsersProjectActivities()
       }
     }, 10_000)
