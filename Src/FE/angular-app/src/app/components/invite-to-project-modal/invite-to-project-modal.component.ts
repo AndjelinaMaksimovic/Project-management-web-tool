@@ -70,7 +70,7 @@ export class InviteToProjectModalComponent {
   async invite(){
     const success = await this.projectService.addNewUserToProject(this.data.projectId, this.member.id, this.roleId)
     // if(success)
-      this.dialogRef.close(true)
+      this.dialogRef.close(this.member.id)
     // else
       // this.error = "An error occured while inviting member"/
   }

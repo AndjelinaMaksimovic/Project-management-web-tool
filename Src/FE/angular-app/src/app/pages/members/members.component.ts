@@ -184,8 +184,10 @@ export class MembersComponent implements OnInit {
   invitePopUp(){
     const ref = this.dialogue.open(InviteToProjectModalComponent, { autoFocus: false, data: {projectId: this.projectId} })
     ref.afterClosed().subscribe((data: any)=>{
-      if(data)
+      if(data){
+        this.roles = new Map<number, Role>();
         this.ngOnInit()
+      }
     })
   }
 }
