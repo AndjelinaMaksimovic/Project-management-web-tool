@@ -16,6 +16,8 @@ import { ProgressChipComponent } from '../../components/task-chips/progress-chip
 import { UsersCardComponent } from './users-card/users-card.component';
 import { AddUserChipComponent } from '../../components/task-chips/add-user-chip/add-user-chip.component';
 import { DependantTasksCardComponent } from './dependant-tasks-card/dependant-tasks-card.component';
+import { UserService } from '../../services/user.service';
+import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -35,6 +37,7 @@ import { DependantTasksCardComponent } from './dependant-tasks-card/dependant-ta
     UsersCardComponent,
     AddUserChipComponent,
     DependantTasksCardComponent,
+    NgIf,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
@@ -45,9 +48,11 @@ export class TaskComponent {
   projectId: number = 0;
   users: any[] = []
   dependantTasks: any = []
+  role: any = {}
   constructor(
     private taskService: TaskService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private userService: UserService,
   ) {}
 
   get task() {
@@ -67,6 +72,7 @@ export class TaskComponent {
       this.projectId = parseInt(params['id']);
     });
     await this.taskService.fetchTasks({ projectId: this.projectId });
+    this.role = await this.userService.currentUserRole()
   }
 
   updateDescription(newDescription: string) {

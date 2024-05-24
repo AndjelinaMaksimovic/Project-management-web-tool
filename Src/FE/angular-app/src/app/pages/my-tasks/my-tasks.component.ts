@@ -20,6 +20,7 @@ import { Filter } from '../../components/filters/filters.component';
 import { PriorityService } from '../../services/priority.service';
 import { LocalStorageService } from '../../services/localstorage';
 import { NgxganttComponent } from '../../components/ngxgantt/ngxgantt.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-my-tasks',
@@ -46,6 +47,9 @@ export class MyTasksComponent {
 
   projectId: number = 0;
   isLoading: boolean = true;
+
+  role: any = {}
+
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
@@ -55,6 +59,7 @@ export class MyTasksComponent {
     private route: ActivatedRoute,
     private router: Router,
     private localStorageService: LocalStorageService,
+    private userService: UserService,
   ) {}
 
   async ngOnInit() {
@@ -73,6 +78,9 @@ export class MyTasksComponent {
       ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})],
       ["Archived", new Filter({ name: 'Archived', icon: 'fa-solid fa-box-archive', type: 'select', items: [ { value: false, name: "False" }, { value: true, name: "True" } ]})]
     ]);
+
+    this.role = await this.userService.currentUserRole(this.projectId)
+    console.log(this.role)
   }
 
   get activeFilters() {

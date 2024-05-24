@@ -10,6 +10,7 @@ import { Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
 import { LocalStorageService } from '../../services/localstorage';
 import { GanttType, NgxganttComponent } from '../../components/ngxgantt/ngxgantt.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-home',
@@ -22,6 +23,7 @@ import { GanttType, NgxganttComponent } from '../../components/ngxgantt/ngxgantt
 export class HomeComponent {
   GanttType = GanttType;
   search: string = "";
+  role: any = {}
 
   // userId: number;
 
@@ -39,7 +41,7 @@ export class HomeComponent {
     return Object.keys(this.localStorageService.getData("project_filters")).length;
   }
 
-  constructor(private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService) {}
+  constructor(private userService: UserService, private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService) {}
 
   get projects(){
     return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
@@ -69,6 +71,7 @@ export class HomeComponent {
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
     // await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
+    this.role = await this.userService.currentUserRole()
   }
 
   filterItems() {

@@ -10,7 +10,7 @@
 </div>
 <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
     @for (task of paginatedTasks; track task) {
-    <app-task-card [task]="task"></app-task-card>
+    <app-task-card [role]="role" [task]="task"></app-task-card>
     }
 </div>
 <mat-paginator (page)="pageChangeEvent($event)" [length]="tasks.length" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">

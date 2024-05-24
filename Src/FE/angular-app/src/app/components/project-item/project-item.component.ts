@@ -26,6 +26,7 @@ export class ProjectItemComponent {
     @Input() id: number = 0;
 
     @Input() isArchived: boolean = false;
+    @Input() role: any = {};
 
     async toggleStarred() {
         let response = await this.projectService.toggleStarred(this.id);

@@ -21,6 +21,7 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrl: './kanban-view.component.css',
 })
 export class KanbanViewComponent {
+  @Input() role: any = {}
   constructor(private taskService: TaskService, private statusService: StatusService, private dialog: MatDialog){}
   mobile: boolean = false;
   ngOnInit() {}

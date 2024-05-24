@@ -6,16 +6,18 @@ import { Task } from '../../services/task.service';
 import { RouterModule } from '@angular/router';
 import { AvatarService } from '../../services/avatar.service';
 import { AvatarStackComponent } from '../avatar-stack/avatar-stack.component';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-kanban-task-card',
   standalone: true,
-  imports: [MaterialModule, RouterModule, AvatarStackComponent],
+  imports: [MaterialModule, RouterModule, AvatarStackComponent, NgIf],
   templateUrl: './kanban-task-card.component.html',
   styleUrl: './kanban-task-card.component.css',
 })
 export class KanbanTaskCardComponent {
   @Input() task!: Task;
+  @Input() role: any = {};
 
   constructor(private dialog: MatDialog, public avatarService: AvatarService) {}
 

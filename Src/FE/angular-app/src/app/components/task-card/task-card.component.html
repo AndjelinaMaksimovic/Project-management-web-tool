@@ -7,7 +7,7 @@
     <div style="width: 100%; display: flex; justify-content: center; display: flex; flex-direction: row; align-items: center; gap: 4px;">
         <!-- delete/edit -->
         <div style="display: flex;">
-            <button matTooltip="archive" matTooltipPosition="above" mat-icon-button class="small-icon-button" (click)="deleteTask()"><mat-icon>archive</mat-icon></button>
+            <button *ngIf="role.canRemoveTask" matTooltip="archive" matTooltipPosition="above" mat-icon-button class="small-icon-button" (click)="deleteTask()"><mat-icon>archive</mat-icon></button>
             <button matTooltip="edit" [routerLink]="'/project/' + task.projectId + '/task/' + task.id" matTooltipPosition="above" mat-icon-button class="small-icon-button"><mat-icon>edit</mat-icon></button>
         </div>
         <!-- date -->

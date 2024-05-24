@@ -12,6 +12,7 @@ import { PriorityService } from '../../../services/priority.service';
 })
 export class PriorityChipComponent {
   @Input() task: Task | undefined;
+  @Input() role: any = {};
 
   constructor(private taskService: TaskService, private priorityService: PriorityService) {}
 

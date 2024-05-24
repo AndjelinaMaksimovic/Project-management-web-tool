@@ -12,6 +12,7 @@ import { StatusService } from '../../../services/status.service';
 })
 export class StatusChipComponent {
   @Input() task: Task | undefined;
+  @Input() role: any = {}
 
   constructor(private statusService: StatusService, private taskService: TaskService){}
 

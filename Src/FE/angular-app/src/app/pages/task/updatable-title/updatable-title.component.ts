@@ -20,6 +20,7 @@ import { ClearableInputComponent } from '../../../components/clearable-input/cle
 })
 export class UpdatableTitleComponent {
   @Input() task: Task | undefined = undefined;
+  @Input() role: any = {};
   _title: string | undefined = undefined;
   get title(){
     return this._title || this.task?.title || ""
