@@ -7,11 +7,13 @@
     <h2 style="margin-bottom: 25px; margin-top: 0;">Invite members to project</h2>
 
     <div style="display: flex; flex-direction: column;">
-        <app-select [options]="members" [(value)]="memberId" label="Company members"
-        (valueChange)="memberId=$event" [required]="true"></app-select>
+        <app-select [options]="members" [(value)]="member" label="Company members"
+        (valueChange)="member=$event ; roleId=$event.roleId" [required]="true"></app-select>
 
-        <app-select [options]="roles" [(value)]="memberId" label="Roles"
-        (valueChange)="memberId=$event" [required]="true"></app-select>
+        <app-select [options]="roles" [(value)]="roleId" label="Roles"
+        (valueChange)="roleId=$event" [required]="true"></app-select>
+
+        <p *ngIf="error" class="alert alert-danger">{{error}}</p>
 
         <button (click)="invite()" mat-flat-button color="primary" class="button-rounded">Invite</button>
     </div>

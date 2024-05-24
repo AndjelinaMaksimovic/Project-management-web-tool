@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatListModule } from '@angular/material/list';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { InvitePopupComponent } from '../../components/invite-popup/invite-popup.component';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NgIf } from '@angular/common';
 import { MarkdownEditorComponent } from '../markdown-editor/markdown-editor.component';
 import moment from 'moment';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { RolesService } from '../../services/roles.service';
 
@@ -42,29 +42,40 @@ export class InviteToProjectModalComponent {
     private router: Router,
     private userService: UserService,
     private rolesService: RolesService,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
-  public memberId: string = "1";
-  public members: {value: string, viewValue: string}[] = [];
-  public roleId: string = "1";
-  public roles: {value: string, viewValue: string}[] = [];
+  public member: any;
+  public members: any[] = [];
+  public roleId: number = 1;
+  public roles: any[] = [];
+  error = "";
   async ngOnInit() {
+    await this.userService.fetchUsersByProject(this.data.projectId)
+    const projectUsers = this.userService.getUsers()
+    console.log(projectUsers)
     await this.userService.fetchUsers();
-    this.members = this.userService.getUsers().map((u) => {
-      return { value: u.id.toString(), viewValue: `${u.firstName} ${u.lastName}` };
+    const allUsers = this.userService.getUsers()
+    console.log(allUsers)
+    const avaliableUsers = allUsers.filter(_allUsers => !projectUsers.find((projectUsers: any) => _allUsers.id == projectUsers.id))
+    console.log(avaliableUsers)
+    this.members = avaliableUsers.map((u) => {
+      return { value: {id: u.id, roleId: u.roleId}, viewValue: `${u.firstName} ${u.lastName}` };
     });
+    this.member = this.members[0]
     this.roles = (await this.rolesService.getAllRoles())?.map((r) => ({
-      value: r.id.toString(),
+      value: r.id,
       viewValue: r.roleName,
     })) ?? [];
+    this.roleId = this.members[0].roleId
   }
 
   async invite(){
-    try{
-      this.projectService.addUserToProject(this.memberId, "1", this.roleId)
-    } catch(e){
-      console.log(e);
-    }
+    const success = await this.projectService.addNewUserToProject(this.data.projectId, this.member.id, this.roleId)
+    if(success)
+      this.dialogRef.close(true)
+    else
+      this.error = "An error occured while inviting member"
   }
 }
 

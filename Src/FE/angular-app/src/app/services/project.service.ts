@@ -344,7 +344,26 @@ export class ProjectService {
     return false;
   }
 
-  async addUserToProject(projectId: string, userId: string, roleId: string){
-    return;
+  async addNewUserToProject(projectId: number, userId: number, roleId: number){
+    try {
+      await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/addNewUserToProject`,
+            {
+              projectId: projectId,
+              userId: userId,
+              roleId: roleId
+            },
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false
+    }
   }
 }

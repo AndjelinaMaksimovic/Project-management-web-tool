@@ -59,6 +59,7 @@ export class UserService {
         return mapUser(user);
       });
     } catch (e) {
+      this.users = []
       console.log(e);
     }
     return false;
@@ -76,6 +77,7 @@ export class UserService {
         return mapUser(user);
       });
     } catch (e) {
+      this.users = []
       console.log(e);
     }
     return false;
@@ -93,6 +95,7 @@ export class UserService {
         return mapUser(user);
       });
     } catch (e) {
+      this.users = []
       console.log(e);
     }
     return false;

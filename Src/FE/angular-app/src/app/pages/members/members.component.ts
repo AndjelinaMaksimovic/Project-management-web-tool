@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { FiltersComponent, Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
@@ -71,7 +71,7 @@ class Role {
   styleUrl: './members.component.css'
 })
 
-export class MembersComponent {
+export class MembersComponent implements OnInit {
   search: string = "";
 
   filters: Map<string, Filter> = new Map<string, Filter>([
@@ -174,6 +174,10 @@ export class MembersComponent {
   }
 
   invitePopUp(){
-    this.dialogue.open(InviteToProjectModalComponent, { autoFocus: false })
+    const ref = this.dialogue.open(InviteToProjectModalComponent, { autoFocus: false, data: {projectId: this.projectId} })
+    ref.afterClosed().subscribe((data: any)=>{
+      if(data)
+        this.ngOnInit()
+    })
   }
 }
