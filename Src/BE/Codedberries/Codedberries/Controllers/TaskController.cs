@@ -5,6 +5,7 @@ using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 namespace Codedberries.Controllers
 
 {
@@ -39,6 +40,10 @@ namespace Codedberries.Controllers
             catch (InvalidOperationException ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while creating new Task: {ex.Message}"));
             }
         }
 
@@ -158,11 +163,11 @@ namespace Codedberries.Controllers
         }
 
         [HttpGet("TaskComments")]
-        public IActionResult GetTaskComments([FromQuery] TaskDeletionDTO filterParams)
+        public async Task<IActionResult> GetTaskComments([FromQuery] TaskIdDTO body)
         {
             try
             {
-                var comments = _taskService.GetTasksComments(HttpContext, filterParams);
+                var comments = await _taskService.GetTasksComments(HttpContext, body);
 
                 return Ok(comments);
             }
@@ -174,9 +179,86 @@ namespace Codedberries.Controllers
             {
                 return BadRequest(new ErrorMsg(ex.Message));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg("An error occurred while processing your request."));
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred while processing your request: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("createTaskDependency")]
+        public async Task<IActionResult> CreateTaskDependency([FromBody] TaskDependencyRequestDTO request)
+        {
+            try
+            {
+                await _taskService.CreateTaskDependency(HttpContext, request);
+
+                return Ok("Task dependency created successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpDelete("deleteTaskDependency")]
+        public async Task<IActionResult> DeleteTaskDependencies([FromBody] TaskDependencyDeletionDTO request)
+        {
+            try
+            {
+                await _taskService.DeleteTaskDependencies(HttpContext, request);
+
+                return Ok("Task dependency deleted successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("changeTaskProgress")]
+        public async Task<IActionResult> ChangeTaskProgress(TaskProgressDTO request)
+        {
+            try
+            {
+                await _taskService.ChangeTaskProgress(HttpContext, request);
+
+                return Ok("Task progress updated successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while updating task progress: {ex.Message}"));
             }
         }
     }

@@ -18,6 +18,9 @@ import { MilestoneService } from '../../services/milestone.service';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { PriorityService } from '../../services/priority.service';
+import { LocalStorageService } from '../../services/localstorage';
+import { NgxganttComponent } from '../../components/ngxgantt/ngxgantt.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-my-tasks',
@@ -31,7 +34,8 @@ import { PriorityService } from '../../services/priority.service';
     TasksTableComponent,
     NavbarComponent,
     GanttComponent,
-    FiltersComponent
+    FiltersComponent,
+    NgxganttComponent
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',
@@ -42,6 +46,10 @@ export class MyTasksComponent {
   isFilterOpen: boolean = false;
 
   projectId: number = 0;
+  isLoading: boolean = true;
+
+  role: any = {}
+
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
@@ -50,27 +58,35 @@ export class MyTasksComponent {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router,
+    private localStorageService: LocalStorageService,
+    private userService: UserService,
   ) {}
 
   async ngOnInit() {
     await this.route.params.subscribe((params) => {
       this.projectId = parseInt(params['id']);
     });
-    this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    this.isLoading = false;
     this.milestoneService.fetchMilestones({ projectId: this.projectId });
     
-    this.statusService.setContext({ projectId: this.projectId });
-    await this.statusService.fetchStatuses();
-    await this.priorityService.fetchPriorities();
-
     this.filters = new Map<string, Filter>([
       ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
       ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
       // ["AssignedTo", new Filter({ name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" })]})],
       ["StatusId", new Filter({ name: 'Status', icon: 'fa-solid fa-circle-exclamation', type: 'select', items: this.statusService.getStatuses().map(status => ({ value: status.id, name: status.name }))})],
-      ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})]
+      ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})],
+      ["Archived", new Filter({ name: 'Archived', icon: 'fa-solid fa-box-archive', type: 'select', items: [ { value: false, name: "False" }, { value: true, name: "True" } ]})]
     ]);
+
+    this.role = await this.userService.currentUserRole(this.projectId)
+    console.log(this.role)
   }
+
+  get activeFilters() {
+    return Object.keys(this.localStorageService.getData("task_filters")).length;
+  }
+
   get tasks() {
     return this.taskService.getTasks();
   }
@@ -78,7 +94,15 @@ export class MyTasksComponent {
     return this.milestoneService.getMilestones();
   }
   /** this determines what task view we render */
-  view: 'table' | 'kanban' | 'gantt' = 'table';
+  validViews = ['table', 'kanban', 'gantt'] as const;
+  _view: (typeof this.validViews)[number] = this.validViews.find(e => e === this.localStorageService.getData("task-view")) || "table";
+  get view(){
+    return this._view
+  }
+  set view(newView: (typeof this.validViews)[number]){
+    this._view = newView;
+    this.localStorageService.saveData("task-view", newView);
+  }
 
   fetchTasksFromLocalStorage() {
     this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
@@ -97,5 +121,9 @@ export class MyTasksComponent {
 
   openFilters() {
     this.isFilterOpen = !this.isFilterOpen;
+  }
+
+  onFilterChange(data: boolean) {
+    this.isFilterOpen = data;
   }
 }

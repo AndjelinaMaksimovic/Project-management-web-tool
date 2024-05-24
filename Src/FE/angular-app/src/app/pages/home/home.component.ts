@@ -1,24 +1,31 @@
 import { Component, Input } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectItemComponent } from '../../components/project-item/project-item.component';
-import { NgIf } from '@angular/common';
-import { ProjectService } from '../../services/project.service';
+import { NgClass, NgIf } from '@angular/common';
+import { ProjectService, Project } from '../../services/project.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewProjectModalComponent } from '../../components/new-project-modal/new-project-modal.component';
 import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
+import { LocalStorageService } from '../../services/localstorage';
+import { GanttType, NgxganttComponent } from '../../components/ngxgantt/ngxgantt.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule ],
+  imports: [ TopnavComponent, ProjectItemComponent, NgIf, FiltersComponent, FormsModule, NgClass, NgxganttComponent ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 
 export class HomeComponent {
+  GanttType = GanttType;
   search: string = "";
+  role: any = {}
+
+  // userId: number;
 
   filters: Map<string, Filter> = new Map<string, Filter>([
     ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
@@ -28,15 +35,43 @@ export class HomeComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private projectService: ProjectService, private dialogue: MatDialog) {}
+  viewType: string = 'list';
+
+  get activeFilters() {
+    return Object.keys(this.localStorageService.getData("project_filters")).length;
+  }
+
+  constructor(private userService: UserService, private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService) {}
 
   get projects(){
     return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
   }
 
+  get archivedProjects(){
+    return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => project.archived);
+  }
+
+  get starredProjects(){
+    return this.projectService.getStarredProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);
+  }
+
+  get projectProgress() {
+    return this.projectService.getProgresses();
+  }
+
   async ngOnInit(){
+    let view = this.localStorageService.getData("home_projects_view");
+    if(view && Object.keys(view).length === 0 && view.constructor === Object) {
+      this.localStorageService.saveData("home_projects_view", this.viewType);
+    }
+    else {
+      this.viewType = this.localStorageService.getData("home_projects_view");
+    }
+
     await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
+    // await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
+    this.role = await this.userService.currentUserRole()
   }
 
   filterItems() {
@@ -48,27 +83,36 @@ export class HomeComponent {
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
   }
 
-  @Input() mostRecentAccordionVisible: boolean = true;
-  @Input() starredProjectsAccordionVisible: boolean = true;
-  @Input() allProjectsAccordionVisible: boolean = true;
+  staredProjectsAccordionVisible: boolean = true;
+  activeProjectsAccordionVisible: boolean = true;
+  archivedProjectsAccordionVisible: boolean = false;
 
   openFilters() {
     this.isFilterOpen = !this.isFilterOpen;
   }
 
-  toggleMostRecentAccordion() {
-    this.mostRecentAccordionVisible = !this.mostRecentAccordionVisible;
+  toggleStarred() {
+    this.staredProjectsAccordionVisible = !this.staredProjectsAccordionVisible
   }
 
-  toggleStarredProjectsAccordion() {
-    this.starredProjectsAccordionVisible = !this.starredProjectsAccordionVisible;
+  toggleActive() {
+    this.activeProjectsAccordionVisible = !this.activeProjectsAccordionVisible
   }
-
-  toggleAllProjectsAccordion() {
-    this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  
+  toggleArchived() {
+    this.archivedProjectsAccordionVisible = !this.archivedProjectsAccordionVisible
   }
 
   newProjectPopUp(){
     this.dialogue.open(NewProjectModalComponent, { autoFocus: false })
+  }
+
+  onFilterChange(data: boolean) {
+    this.isFilterOpen = data;
+  }
+
+  changeView(view: string) {
+    this.viewType = view; 
+    this.localStorageService.saveData("home_projects_view", this.viewType);
   }
 }

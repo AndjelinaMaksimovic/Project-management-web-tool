@@ -1,49 +1,93 @@
 <app-navbar>
     <div class="stack-container" style="padding: 40px;">
-        <h1 style="font-weight: normal; text-align: center; margin-top: 0;">Create new task</h1>
-        <app-clearable-input type="text" label="Title" (valueChange)="title=$event"></app-clearable-input>
-        <!-- due date -->
-        <div style="display: flex; gap: 10px;">
+        <h1 style="font-weight: normal; margin-top: 0;">Create new task</h1>
+        <div style="display: flex; width: 100%; gap: 10px">
+            <div style="flex-grow: 1">
+                <app-clearable-input type="text" label="Title" (valueChange)="title=$event" [required]="true"></app-clearable-input>
+            </div>
+            <!-- due date -->
+            <div style="width: max-content">
+                <mat-form-field appearance="outline" class="dense-2">
+                    <mat-label>Start Date - Due Date</mat-label>
+                    <mat-date-range-input [rangePicker]="picker">
+                    <input matStartDate placeholder="Start date" [formControl]="startDate" [required]="true">
+                    <input matEndDate placeholder="End date" [formControl]="dueDate" [required]="true">
+                    </mat-date-range-input>
+                    <mat-hint>DD/MM/YYYY - DD/MM/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+            </div>
+        </div>
+        <!-- <div style="display: flex; gap: 10px;">
             <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                 <mat-label>Start date</mat-label>
-                <input matInput [matDatepicker]="dp" [formControl]="startDate">
+                <input matInput [matDatepicker]="dp" [formControl]="startDate" [required]="true">
                 <mat-hint>DD/MM/YYYY</mat-hint>
                 <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
                 <mat-datepicker #dp></mat-datepicker>
             </mat-form-field>
             <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
                 <mat-label>Due date</mat-label>
-                <input matInput [matDatepicker]="dp2" [formControl]="dueDate">
+                <input matInput [matDatepicker]="dp2" [formControl]="dueDate" [required]="true">
                 <mat-hint>DD/MM/YYYY</mat-hint>
                 <mat-datepicker-toggle matIconSuffix [for]="dp2"></mat-datepicker-toggle>
                 <mat-datepicker #dp2></mat-datepicker>
             </mat-form-field>
-        </div>
+        </div> -->
         <!-- description -->
-        <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
-            <mat-label>Description</mat-label>
-            <textarea matInput [(ngModel)]="description" style="height: 50vh;"></textarea>
-        </mat-form-field>
-        <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event"></app-select>
-        <div style="display: flex; width: 100%; gap: 10px; align-items: button;">
-            <span style="width: 100%; gap: 10px;">
-                <app-select [options]="categories" label="Category" (valueChange)="category=$event"></app-select>
+        
+        <app-markdown-editor [label]="'Description'" [(value)]="description"></app-markdown-editor>
+        <div style="display: flex; width: 100%; gap: 10px">
+            <span style="flex-grow: 0.5;">
+                <app-select [options]="priorities" label="Priority" (valueChange)="priority=$event" [required]="true"></app-select>
             </span>
-            <button matTooltip="new category" mat-icon-button color="primary"
-                (click)="createCategory()"><mat-icon>add</mat-icon></button>
+            <div style="display: flex; flex-grow: 0.5; gap: 10px; align-items: button;">
+                <span style="width: 100%; gap: 10px;">
+                    <app-select [options]="statuses" [(value)]="status" label="Status"
+                        (valueChange)="status=$event" [required]="true"></app-select>
+                </span>
+                <button matTooltip="new status" mat-icon-button color="primary"
+                    (click)="createStatus()"><mat-icon>add</mat-icon></button>
+            </div>
         </div>
         <!-- task dependencies -->
-        <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+        <!-- <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
             <mat-label>Dependencies</mat-label>
             <mat-select [multiple]="true">
                 @for (task of tasks; track task) {
                 <mat-option [value]="task.value">{{task.viewValue}}</mat-option>
                 }
             </mat-select>
-        </mat-form-field>
-        <!-- asignee -->
-        <app-select [options]="users" label="Assignee" (valueChange)="category=$event"></app-select>
-        <button style="width: 80%; margin: auto" (click)="createTask()" class="button-rounded" color="primary"
+        </mat-form-field> -->
+        <div style="display: flex; width: 100%; gap: 10px">
+
+            
+            <!-- asignee -->
+            <mat-form-field appearance="outline" style="flex-grow: 0.5;" class="dense-2">
+                <mat-label>Assignee</mat-label>
+                <mat-select [multiple]="true" [(ngModel)]="assignees">
+                    @for (user of users; track user) {
+                    <mat-option [value]="user.value">
+                        <span style="display: flex; align-items: center; gap: 10px">
+                            <img style="width: 24px; border-radius: 50%" [src]="avatarService.getProfileImagePath(user.value)">{{user.viewValue}}
+                        </span>
+                    </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <div style="display: flex; flex-grow: 0.5; gap: 10px; align-items: button;">
+                <span style="width: 100%; gap: 10px;">
+                    <app-select [options]="categories" label="Category" (valueChange)="category=$event" [required]="true"></app-select>
+                </span>
+                <button matTooltip="new category" mat-icon-button color="primary"
+                    (click)="createCategory()"><mat-icon>add</mat-icon></button>
+            </div>
+            <!-- <span style="flex-grow: 0.5;">
+                <app-select [options]="users" label="Assignee" (valueChange)="assignee=$event" [required]="true"></app-select>
+            </span> -->
+        </div>
+        <button style="width: 200px; margin: auto" (click)="createTask()" class="button-rounded" color="primary"
             mat-flat-button>Create Task</button>
         <div *ngIf="errorMessage" class="alert alert-danger">
             {{ errorMessage }}

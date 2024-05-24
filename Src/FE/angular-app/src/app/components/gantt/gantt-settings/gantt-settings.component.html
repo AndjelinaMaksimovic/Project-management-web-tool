@@ -1,0 +1,51 @@
+<div style="width: 400px; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close
+        style="position: absolute; right: 5px; top: 5px;">
+        <mat-icon>close</mat-icon>
+    </button>
+
+    <h1>Settings</h1>
+    <p>Zoom</p>
+    <mat-select placeholder="Select" [(value)]="scale" style="width: 200px;">
+        <mat-option *ngFor="let scaleOption of timeScale;" [value]="scaleOption.val">
+            {{scaleOption.viewVal}}
+        </mat-option>
+    </mat-select>
+    <p>Sorting</p>
+    <mat-select placeholder="Sorting" [(value)]="itemSort" style="width: 200px;">
+        <mat-option *ngFor="let itemSortOption of itemSortArray;" [value]="itemSortOption">
+            {{itemSortOption}}
+        </mat-option>
+    </mat-select>
+    <mat-checkbox [(ngModel)]="groupByCategory">Group by category</mat-checkbox>
+    <mat-checkbox [(ngModel)]="hideWeekend">Hide weekend</mat-checkbox>
+    <div cdkDropList (cdkDropListDropped)="colDrop($event)">
+        @for (col of columns; track col) {
+            <div class="example-box" style="cursor: move; display: flex; flex-direction: row; width: 200px;"
+                cdkDrag
+                [cdkDragDisabled]="disableColumnsDrag"
+            >
+                <p style="margin-right: 20px;">{{col.type}}</p>
+                <input style="flex-grow: 1; min-width: 0;" type="number"
+                    [(ngModel)]="col.width"
+                    (mouseenter)="disableColumnsDrag = true"
+                    (mouseleave)="disableColumnsDrag = false"
+                >
+                <button mat-icon-button (click)="removeColumn(col)">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        }
+    </div>
+    <button mat-button [matMenuTriggerFor]="menu" [disabled]="hiddenColumns.length == 0">Add column</button>
+    <mat-menu #menu="matMenu">
+      @for (col of hiddenColumns; track col) {
+        <button mat-menu-item (click)="addColumn(col)">{{col.type}}</button>
+      }
+    </mat-menu>
+    
+    <div>
+        <button mat-flat-button (click)="cancel()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="submit()" style="margin-right: 5px;">Apply</button>
+    </div>
+</div>

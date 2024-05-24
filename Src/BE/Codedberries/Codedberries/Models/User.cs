@@ -43,26 +43,45 @@ namespace Codedberries.Models
 
         public ICollection<Project> Projects { get; } = new List<Project>();
 
-        public string HashPassword(string password)
+        public void HashPassword(string password, byte[] salt)
         {
             using (var sha256 = SHA256.Create())
             {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Password = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-            }
+                var saltedPassword = Encoding.UTF8.GetBytes(password).Concat(salt).ToArray();
+                var hashedBytes = sha256.ComputeHash(saltedPassword);
+                string pass  = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+                Password= pass;
+                }
         }
 
-        public User(string email, string password, string firstname, string lastname, int? roleId)
+        public void GenerateSalt()
+        {
+            byte[] salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+            PasswordSalt= salt;
+        }
+
+        public void SetPassword(string password)
+        {
+            if (password.Length < 64) { HashPassword(password, PasswordSalt); }
+            else Password = password;
+        }
+
+        public User(string email, string password, string firstname, string lastname, int? roleId, string? profilePicture, string? activationToken = null, bool activated = true)
         {
             Email = email;
-            Password=HashPassword(password);
-            //Password = password;
+            GenerateSalt(); 
             Firstname = firstname;
             Lastname = lastname;
             RoleId = roleId;
-            Activated = false;
-            PasswordSalt = new byte[1];
-            ActivationToken = null;
+            Activated = activated;
+            ActivationToken = activationToken;
+            ProfilePicture = profilePicture;
+            if (password.Length<64) { HashPassword(password,PasswordSalt); }
+            else Password = password;
         }
     }
 }

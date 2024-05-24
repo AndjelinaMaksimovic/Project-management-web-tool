@@ -6,28 +6,29 @@
             <input class="input" placeholder="Search project" [(ngModel)]="search" (input)="filterItems()"/>
             <i class="fa-solid fa-magnifying-glass input-icon"></i>
         </div>
-        <a class="button pl-15 pr-15 ml-20" (click)="newProjectPopUp()">
+        <a class="button pl-15 pr-15 ml-20" (click)="newProjectPopUp()" *ngIf="role.canCreateProject">
             <i class="fa-solid fa-plus mr-10"></i>
             <span>Add new project</span>
         </a>
     </div>
     <div class="container row pl-l pl-r mt-20" style="justify-content: space-between;">
         <div class="container row align-left">
-            <a class="small-button mr-20 active">
+            <a class="small-button mr-20" [ngClass]="{ 'active': viewType == 'list' }" (click)="changeView('list');">
                 <i class="fa-solid fa-list mr-10"></i>
                 <span>List</span>
             </a>
-            <a class="small-button">
+            <a class="small-button" [ngClass]="{ 'active': viewType == 'gantt' }" (click)="changeView('gantt');">
                 <i class="fa-solid fa-chart-gantt mr-10"></i>
                 <span>Ganttogram</span>
             </a>
         </div>
         <div class="filters">
-            <a class="small-button" (click)="openFilters()">
+            <a class="small-button" (click)="openFilters()" [ngClass]="{ 'active': activeFilters > 0 }">
                 <i class="fa-solid fa-filter mr-10"></i>
                 <span>Filter</span>
+                <span *ngIf="activeFilters > 0"> ({{activeFilters}})</span>
             </a>
-            <app-filters *ngIf="isFilterOpen" [title]="'Project Filters'" (fetchProjects)="fetchProjectsFromLocalStorage()" [filtersName]="'project_filters'" [allFilters]="filters"></app-filters>
+            <app-filters *ngIf="isFilterOpen" (filterOpenEvent)="onFilterChange($event)" [title]="'Project Filters'" (fetchProjects)="fetchProjectsFromLocalStorage()" [filtersName]="'project_filters'" [allFilters]="filters"></app-filters>
             <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
             </div>
         </div>
@@ -64,16 +65,62 @@
         </div>
     </div> -->
 
-    <div class="container row align-left pl-l pl-r mt-20">
-        <div class="accordion" #allProjectsAccordion>
-            <div class="accordion-item accordion-header" (click)="toggleAllProjectsAccordion();">
-                <i class="fa-solid fa-chevron-down mr-10"></i>
-                <span>All projects</span>
+    <div *ngIf="viewType == 'gantt'" style="height: 70vh;">
+        <app-ngxgantt [ganttType]="GanttType.Projects"></app-ngxgantt>
+    </div>
+
+    <div *ngIf="viewType == 'list'">
+        <div class="container row align-left pl-l pl-r mt-20">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleStarred();">
+                    <i *ngIf="staredProjectsAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10" style="width: 1rem;"></i>
+                    <i *ngIf="!staredProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10" style="width: 1rem;"></i>
+                    <span>Starred projects</span>
+                </div>
+                <div *ngIf="staredProjectsAccordionVisible">
+                    @for (project of starredProjects; track project) {
+                        <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="projectProgress.get(project.id)!" [progressBarColor]="'#FFCF32'"></app-project-item>
+                    }
+                    @if (starredProjects.length == 0) {
+                        <p>No starred projects!</p>
+                    }
+                </div>
             </div>
-            <div *ngIf="allProjectsAccordionVisible">
-                @for (project of projects; track project) {
-                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
-                }
+        </div>
+    
+        <div class="container row align-left pl-l pl-r mt-20">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleActive();">
+                    <i *ngIf="activeProjectsAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10" style="width: 1rem;"></i>
+                    <i *ngIf="!activeProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10" style="width: 1rem;"></i>
+                    <span>Active projects</span>
+                </div>
+                <div *ngIf="activeProjectsAccordionVisible">
+                    @for (project of projects; track project) {
+                        <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="projectProgress.get(project.id)!" [progressBarColor]="'#FFCF32'"></app-project-item>
+                    }
+                    @if (projects.length == 0) {
+                        <p>No active projects!</p>
+                    }
+                </div>
+            </div>
+        </div>
+    
+        <div class="container row align-left pl-l pl-r mt-20">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleArchived();">
+                    <i *ngIf="archivedProjectsAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10" style="width: 1rem;"></i>
+                    <i *ngIf="!archivedProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10" style="width: 1rem;"></i>
+                    <span>Archived projects</span>
+                </div>
+                <div *ngIf="archivedProjectsAccordionVisible">
+                    @for (project of archivedProjects; track project) {
+                        <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                    }
+                    @if (archivedProjects.length == 0) {
+                        <p>No archived projects!</p>
+                    }
+                </div>
             </div>
         </div>
     </div>

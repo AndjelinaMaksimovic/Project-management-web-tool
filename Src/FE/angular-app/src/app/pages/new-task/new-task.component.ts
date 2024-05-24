@@ -18,6 +18,11 @@ import {
 } from '@angular/material/core';
 import { UserService } from '../../services/user.service';
 import { CreateCategoryModalComponent } from '../../components/create-category-modal/create-category-modal.component';
+import { StatusService } from '../../services/status.service';
+import { CreateStatusModalComponent } from '../../components/create-status-modal/create-status-modal.component';
+import { MarkdownEditorComponent } from '../../components/markdown-editor/markdown-editor.component';
+import moment from "moment";
+import { AvatarService } from '../../services/avatar.service';
 
 @Component({
   selector: 'app-new-task',
@@ -31,10 +36,7 @@ import { CreateCategoryModalComponent } from '../../components/create-category-m
     ClearableInputComponent,
     EmailFieldComponent,
     SelectComponent,
-  ],
-  providers: [
-    provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    MarkdownEditorComponent,
   ],
   templateUrl: './new-task.component.html',
   styleUrl: './new-task.component.css',
@@ -47,20 +49,22 @@ export class NewTaskComponent {
   description: string | null = null;
   // date: string | null = null;
   // startDate: string | null = null;
-  dueDate = new FormControl(new Date());
-  startDate = new FormControl(new Date());
+  currentDate = moment();
+  dueDate = new FormControl(this.currentDate);
+  startDate = new FormControl(this.currentDate);
   priority: string | null = null;
+  status: string = this.statusService.getStatuses()[0]?.id?.toString() || "";
   category: string | null = null;
   dependencies: string[] = [];
-  assignee: string | undefined;
+  assignees: string[] = [];
 
   tasks: { value: string; viewValue: string }[] = [];
   users: { value: string; viewValue: string }[] = [];
 
   priorities = [
-    { value: 'Low', viewValue: 'Low' },
-    { value: 'Medium', viewValue: 'Medium' },
-    { value: 'High', viewValue: 'High' },
+    { value: '3', viewValue: 'High' },
+    { value: '2', viewValue: 'Medium' },
+    { value: '1', viewValue: 'Low' },
   ];
   // hack fix
   // we change _categories when `categoryService.getCategories().length` does not match the `_categories.length`
@@ -79,14 +83,30 @@ export class NewTaskComponent {
     }
     return this._categories;
   }
+  _statuses: { value: string; viewValue: string }[] = [];
+  get statuses() {
+    if (
+      this._statuses.length !== this.statusService.getStatuses().length
+    ) {
+      this._statuses = this.statusService.getStatuses().map((cat) => {
+        return {
+          value: cat.id.toString(),
+          viewValue: cat.name,
+        };
+      });
+    }
+    return this._statuses;
+  }
 
   constructor(
     private taskService: TaskService,
     private categoryService: CategoryService,
+    private statusService: StatusService,
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public avatarService: AvatarService,
   ) {}
 
   async ngOnInit() {
@@ -106,8 +126,8 @@ export class NewTaskComponent {
       .map((t) => ({ value: t.id.toString(), viewValue: t.title }));
     await this.userService.fetchUsers();
     this.users = this.userService
-      .getUsers()
-      .map((u) => ({ value: '1', viewValue: `${u.firstName} ${u.lastName}` }));
+      .getUsers().filter((u: any) => u.projects.some((p: any) => p.id === this.projectId))
+      .map((u) => ({ value: u.id.toString(), viewValue: `${u.firstName} ${u.lastName}` }));
   }
 
   async createTask() {
@@ -117,14 +137,19 @@ export class NewTaskComponent {
       !this.priority ||
       !this.description ||
       !this.category ||
+      !this.status ||
       !this.dueDate.value ||
       !this.startDate.value
     ) {
       this.errorMessage = 'Please provide all required fields';
       return;
     }
-    if (this.startDate.value.getTime() > this.dueDate.value.getTime()) {
+    if (this.startDate.value.toDate().getTime() > this.dueDate.value.toDate().getTime()) {
       this.errorMessage = 'Please enter valid start/due dates';
+      return;
+    }
+    if (this.assignees.length === 0) {
+      this.errorMessage = 'Please enter at least one asignee';
       return;
     }
     await this.taskService.createTask(
@@ -132,12 +157,12 @@ export class NewTaskComponent {
         title: this.title,
         description: this.description,
         // date: this.dueDate.value,
-        startDate: this.startDate.value,
-        dueDate: this.dueDate.value,
+        startDate: this.startDate.value.toDate(),
+        dueDate: this.dueDate.value.toDate(),
         category: this.category,
-        priority: this.priority as 'Low' | 'High' | 'Medium',
-        status: 'Active',
-        assignedTo: [],
+        priority: this.priority,
+        status: this.status,
+        assignedTo: this.assignees,
         dependencies: this.dependencies,
       },
       1
@@ -146,5 +171,8 @@ export class NewTaskComponent {
   }
   createCategory() {
     this.dialog.open(CreateCategoryModalComponent);
+  }
+  createStatus() {
+    this.dialog.open(CreateStatusModalComponent);
   }
 }

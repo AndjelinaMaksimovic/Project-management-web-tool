@@ -1,6 +1,6 @@
 <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
     <mat-label>{{label}}</mat-label>
-    <mat-select [(value)]="data" [multiple]="multiple">
+    <mat-select [(value)]="data" [multiple]="multiple" [required]="required">
         @for (option of options; track option) {
             <mat-option [value]="option.value">{{option.viewValue}}</mat-option>
         }

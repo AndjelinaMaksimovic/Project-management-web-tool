@@ -1,32 +1,34 @@
 <app-navbar>
-    <div style="height: 100%; width: auto; background-color: white; padding: 20px;">
-        <!-- seearch and create button -->
-        <div style="display: flex; gap: 20px; width: 100%; align-items: center; justify-content: center;">
-            <app-clearable-input label="search tasks" style="margin-bottom: -1.25em;"></app-clearable-input>
-            <button class="button-rounded" mat-flat-button color="primary" (click)="createTask()"><mat-icon>add</mat-icon>Create new task</button>
-        </div>
+    <div style="height: calc(100% - 40px); width: auto; background-color: white; padding: 20px; display: flex; flex-direction: column;">
         <!-- filter/view bar -->
-        <div style="display: flex; justify-content: space-between; background-color: #EEE; border-radius: 4px; width: 100%; padding: 8px; margin-top: 40px;">
-
-            <div class="filters">
-                <button mat-button (click)="openFilters()">
-                    <mat-icon>filter_list</mat-icon>
-                    Filters
-                </button>
-                <div *ngIf="isFilterOpen" class="filters-container">
-                    <app-filters [title]="'Task Filters'" (fetchProjects)="fetchTasksFromLocalStorage()" [filtersName]="'task_filters'" [allFilters]="filters"></app-filters>
-                </div>
-                <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
-                </div>
-            </div>
+        <div style="display: flex; justify-content: space-between; background-color: #EEE; border-radius: 4px; width: 100%; padding: 8px; margin-top: 10px;">
+            <!-- seearch and create button -->
             <div style="display: flex; gap: 8px">
-                <button mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
+                <mat-form-field style="margin-bottom: -1.25em; margin-top: -5px; height: 55px; background-color: white;" class="dense-2" appearance="outline">
+                    <mat-label>Search tasks</mat-label>
+                    <input matInput>
+                    <button mat-icon-button matSuffix (click)="openFilters()" [ngClass]="{ 'active': activeFilters > 0 }">
+                        <mat-icon>filter_list</mat-icon>
+                    </button>
+                </mat-form-field>
+                <button *ngIf="role.canCreateTask" class="button-rounded" mat-flat-button color="primary" (click)="createTask()"><mat-icon>add</mat-icon>Create new task</button>
+            </div>
+
+            <!-- filter window -->
+            <div *ngIf="isFilterOpen" class="filters-container">
+                <app-filters (filterOpenEvent)="onFilterChange($event)" [title]="'Task Filters'" (fetchProjects)="fetchTasksFromLocalStorage()" [filtersName]="'task_filters'" [allFilters]="filters"></app-filters>
+            </div>
+            <div *ngIf="isFilterOpen" (click)="openFilters()" class="overlay">
+            </div>
+
+            <div style="display: flex; gap: 8px">
+                <button *ngIf="role.canEditProject" mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
                     Create Status
                 </button>
-                <button mat-stroked-button color="primary" class="button-rounded" (click)="createCategory()">
+                <button *ngIf="role.canEditProject" mat-stroked-button color="primary" class="button-rounded" (click)="createCategory()">
                     Create Category
                 </button>
-                <mat-button-toggle-group name="fontStyle" class="dense-3" [(ngModel)]="view">
+                <mat-button-toggle-group name="fontStyle" class="dense-3" [(ngModel)]="view" hideSingleSelectionIndicator>
                     <mat-button-toggle value="table" class="test"><div class="toggle-button-content"><mat-icon>view_list</mat-icon>List</div></mat-button-toggle>
                     <mat-button-toggle value="kanban" class="test"><div class="toggle-button-content"><mat-icon>view_column</mat-icon>Kanban</div></mat-button-toggle>
                     <mat-button-toggle value="gantt" class="test"><div class="toggle-button-content"><mat-icon>view_stream</mat-icon>Gantogram</div></mat-button-toggle>
@@ -34,10 +36,26 @@
             </div>
         </div>
         <div style="margin-top: 20px;"></div>
-        <div [ngSwitch]="view">
-            <app-kanban-view *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
-            <app-tasks-table *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
-            <app-gantt style="border: 1px solid #5096A4; display: inline-block; width: 100%;" *ngSwitchCase="'gantt'" [tasks]="tasks" [milestones]="milestones"></app-gantt>
+        <div *ngIf="isLoading === false" style="height: 100%;">
+            <div *ngIf="tasks.length > 0" style="height: 100%;">
+                <div [ngSwitch]="view" style="flex-grow: 1; height: 100%;">
+                    <app-kanban-view [role]="role" *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
+                    <app-tasks-table [role]="role" *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
+                    <!-- <app-gantt style="border: 1px solid #5096A4; display: inline-block; width: 100%; height: 100%;"
+                        *ngSwitchCase="'gantt'" [tasks]="tasks" [milestones]="milestones"></app-gantt> -->
+                    <app-ngxgantt *ngSwitchCase="'gantt'" [projectId]="projectId"></app-ngxgantt>
+                </div>
+            </div>
+            <div *ngIf="tasks.length === 0">
+                <div style="color: #AAA; text-align: center; font-size: x-large;">Looks like there are no tasks selected with
+                    current filters. So sad 😔</div>
+            </div>
+        </div>
+
+        <div *ngIf="isLoading === true">
+            <div style="display: flex; width: 100%; height: 50vh; justify-content: center; align-items: center;">
+                <mat-spinner [diameter]="50"></mat-spinner>
+            </div>
         </div>
     </div>
 </app-navbar>

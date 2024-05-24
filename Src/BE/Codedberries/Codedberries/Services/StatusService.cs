@@ -3,6 +3,7 @@ using Codedberries.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.Data;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -101,6 +102,25 @@ namespace Codedberries.Services
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId, newStatusOrder);
 
             _databaseContext.Statuses.Add(newStatus);
+
+            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Firstname} {user.Lastname} has created the status {statusDTO.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusDTO.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
             await _databaseContext.SaveChangesAsync();
         }
 
@@ -262,6 +282,24 @@ namespace Codedberries.Services
                 status.Order -= 1;
             }
 
+            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Firstname} {user.Lastname} has deleted the status {statusToDelete.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusToDelete.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
             await _databaseContext.SaveChangesAsync();
         }
 
@@ -379,6 +417,99 @@ namespace Codedberries.Services
             }
 
             await _databaseContext.SaveChangesAsync();
+        }
+
+        public async Task<StatusDTO> ChangeStatusName(HttpContext httpContext, ChangeStatusNameDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.Id <= 0)
+            {
+                throw new ArgumentException("StatusId must be greater than 0!");
+            }
+
+            var status = await _databaseContext.Statuses
+                .FirstOrDefaultAsync(t => t.Id == request.Id);
+
+            if (status == null)
+            {
+                throw new ArgumentException($"Status with ID {request.Id} not found in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == status.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {status.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task!");
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                status.Name = request.Name;
+            }
+            
+            await _databaseContext.SaveChangesAsync();
+
+            var StatusDTO = new StatusDTO
+            {
+                Id = status.Id,
+                Name = status.Name,
+                ProjectId = status.ProjectId,
+                Order = status.Order
+            };
+
+            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the name of the status {status.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == status.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
+            return StatusDTO;
+
         }
     }
 }

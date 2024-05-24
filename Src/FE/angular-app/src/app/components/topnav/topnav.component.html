@@ -1,36 +1,22 @@
 <div class="container">
     <div class="sub-container left ml-10">
-        <img class="circle-image" src="/assets/logo.svg">
-        <a mat-button class="dropdown-button ml-10 white" [matMenuTriggerFor]="projects">
+        <img [routerLink]="'/'" class="profile-picture" style="cursor: pointer;" src="/assets/logo.svg">
+        <a mat-button class="dropdown-button ml-10 white" [routerLink]="'/'">
             Projects
-            <i class="fa-solid fa-chevron-down fa-xs white"></i>
         </a>
-        <button mat-button class="dropdown-button ml-10 white">
+        <a mat-button class="dropdown-button ml-10 white" [routerLink]="'/company-members'">
             Company members
-            <i class="fa-solid fa-chevron-down fa-xs"></i>
-        </button>
-        
-        <mat-menu #projects="matMenu">
-            <ng-container>
-                <a mat-menu-item [routerLink]="'/'">
-                    All projects
-                </a>
-                <a mat-menu-item [routerLink]="'/archived-projects'">
-                    Archieved projects
-                </a>
-            </ng-container>
-        </mat-menu>
+        </a>
     </div>
     <div class="sub-container right mr-10">
-        <input class="search" placeholder="Ask virtual assistant">
-        <button mat-button class="dropdown-button ml-20 p-0 white" style="min-width: auto !important;">
-            <i class="fa-regular fa-bell fa-lg"></i>
-        </button>
+        <!-- <input class="search" placeholder="Ask virtual assistant"> -->
+        <app-notification-icon></app-notification-icon>
         <button mat-button class="dropdown-button ml-10 white" [matMenuTriggerFor]="profileDropdown">
-            <img class="profile-picture center" src="/assets/logo.svg">
+            <img class="profile-picture center" [src]="getProfileImagePath()">
             <i class="fa-solid fa-chevron-down fa-sm ml-10 center" style="margin-top: 0.75rem;"></i>
         </button>
         <mat-menu #profileDropdown="matMenu" xPosition="before">
+            <button mat-menu-item [routerLink]="'/profile/me'">View profile</button>
             <button mat-menu-item (click)="logOut()">Log out</button>
         </mat-menu>
     </div>

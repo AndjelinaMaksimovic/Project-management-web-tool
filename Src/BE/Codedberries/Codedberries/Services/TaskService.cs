@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Codedberries.Helpers;
 using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using System;
+using Microsoft.Extensions.DependencyModel;
 
 namespace Codedberries.Services
 {
@@ -39,12 +42,45 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
 
-            if (userRole != null && userRole.CanCreateTask == false)
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanCreateTask == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create Task!");
             }
+
+            if (userRole.CanAddTaskToUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
+            }
+            // ---------------- //
 
             if (string.IsNullOrEmpty(request.Name))
             {
@@ -71,18 +107,6 @@ namespace Codedberries.Services
             if (requestedPriority == null)
             {
                 throw new ArgumentException("Priority with the provided ID does not exist!");
-            }
-
-            if (request.ProjectId <= 0)
-            {
-                throw new ArgumentException("Project ID must be greater than zero!");
-            }
-
-            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
-
-            if (requestedProject == null)
-            {
-                throw new ArgumentException("Project with the provided ID does not exist!");
             }
 
             if (request.StatusId <= 0)
@@ -114,32 +138,49 @@ namespace Codedberries.Services
                 throw new ArgumentException("Invalid difficulty level!");
             }
 
-            if (request.UserId <= 0)
+            if (request.UserIds == null || !request.UserIds.Any())
             {
-                throw new ArgumentException("User ID must be greater than zero!");
+                throw new ArgumentException("At least one user ID must be provided!");
             }
 
-            var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
-
-            if (requestedUser == null)
+            foreach (var providedUserId in request.UserIds)
             {
-                throw new ArgumentException("User with the provided ID does not exist!");
-            }
+                if (providedUserId <= 0)
+                {
+                    throw new ArgumentException("Provided user ID must be greater than zero!");
+                }
 
-            if (requestedUser.RoleId == null)
-            {
-                throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
+
+                if (requestedUser == null)
+                {
+                    throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                }
+
+                if (requestedUser.RoleId == null)
+                {
+                    throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                }
+
+                // is provided user assigned on project where new task is being created?
+                var userOnTask = _databaseContext.UserProjects
+                    .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == request.ProjectId);
+
+                if (userOnTask == null)
+                {
+                    throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {request.ProjectId} in UserProjects table!");
+                }
             }
 
             var existingTask = _databaseContext.Tasks.FirstOrDefault(t => t.Name == request.Name && t.ProjectId == request.ProjectId);
 
             if (existingTask != null)
             {
-                throw new ArgumentException($"Task with name '{request.Name}' already exists in the database for the specified project!");
+                throw new ArgumentException($"Task with name '{request.Name}' already exists in the project with ID {request.ProjectId}!");
             }
 
-            Models.Task task = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate ,request.UserId, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
-            
+            var newTask = new Models.Task(request.Name, request.Description, request.DueDate, request.StartDate, request.StatusId, request.PriorityId, request.DifficultyLevel, request.CategoryId, request.ProjectId);
+
             if (request.DependencyIds != null && request.DependencyIds.Any())
             {
                 foreach (int dependency_id in request.DependencyIds)
@@ -148,32 +189,132 @@ namespace Codedberries.Services
 
                     if (taskDependency == null)
                     {
-                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project in database!");
+                        throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
                     }
                 }
             }
 
-            _databaseContext.Tasks.Add(task);
-            await _databaseContext.SaveChangesAsync();
-
-            // adding dependencies to TaskDependency
-            if (request.DependencyIds != null && request.DependencyIds.Any())
+            if (request.DependencyIds != null && request.DependencyIds.Count != request.TypeOfDependencyIds.Count)
             {
-                foreach (int dependency_id in request.DependencyIds)
+                throw new ArgumentException("The number of DependencyIds must match the number of TypeOfDependencyIds!");
+            }
+
+            if (request.DependencyIds != null && request.TypeOfDependencyIds != null)
+            {
+                foreach (var typeOfDependencyId in request.TypeOfDependencyIds)
                 {
-                    var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+                    var typeOfDependencyExists = await _databaseContext.TypesOfTaskDependency
+                        .AnyAsync(t => t.Id == typeOfDependencyId);
 
-                    TaskDependency newDependency = new TaskDependency
+                    if (!typeOfDependencyExists)
                     {
-                        TaskId = taskDependency.Id,
-                        DependentTaskId = task.Id
-                    };
-
-                    _databaseContext.Set<TaskDependency>().Add(newDependency);
+                        throw new ArgumentException($"TypeOfTaskDependency with ID {typeOfDependencyId} does not exist in the database!");
+                    }
                 }
             }
 
-            await _databaseContext.SaveChangesAsync();
+            // if there is circual dependency, task won't be created
+            using var transaction = await _databaseContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                _databaseContext.Tasks.Add(newTask);
+                await _databaseContext.SaveChangesAsync();
+
+                // add users to TaskUser
+                foreach (var providedUserId in request.UserIds)
+                {
+                    var taskUser = new TaskUser
+                    {
+                        TaskId = newTask.Id,
+                        UserId = providedUserId
+                    };
+
+                    _databaseContext.TaskUsers.Add(taskUser);
+                }
+
+                // adding dependencies to TaskDependency
+                if (request.DependencyIds != null && request.DependencyIds.Any())
+                {
+                    var i = 0;
+
+                    foreach (int dependency_id in request.DependencyIds)
+                    {
+                        var taskDependency = _databaseContext.Tasks.FirstOrDefault(u => u.Id == dependency_id && u.ProjectId == request.ProjectId);
+                        var typeOfDependencyId = request.TypeOfDependencyIds[i];
+
+                        if (taskDependency == null)
+                        {
+                            throw new ArgumentException($"Dependency task with ID {dependency_id} does not exist for the provided project {request.ProjectId} in database!");
+                        }
+
+                        var cyclicDependencyDetected = DetectCyclicDependency(newTask.Id, dependency_id);
+
+                        if (cyclicDependencyDetected)
+                        {
+                            throw new ArgumentException($"Creating dependency for {dependency_id} and new task would result in a circular dependency!");
+                        }
+
+                        // check if the dependency condition is met
+                        if (!CheckDependencyCondition(newTask, taskDependency, typeOfDependencyId))
+                        {
+                            switch (typeOfDependencyId)
+                            {
+                                case 1: // Start to Start Dependency
+                                    throw new ArgumentException($"NEW Task with ID {newTask.Id} cannot start before the dependent task {taskDependency.Id}!");
+
+                                case 2: // Start to End Dependency
+                                    throw new ArgumentException($"NEW Task with ID {newTask.Id} cannot start before the dependent task {taskDependency.Id} ends!");
+
+                                case 3: // End to Start Dependency
+                                    throw new ArgumentException($"NEW Task with ID {newTask.Id} cannot end after the dependent task {taskDependency.Id} starts!");
+
+                                case 4: // End to End Dependency
+                                    throw new ArgumentException($"NEW Task with ID {newTask.Id} cannot end before the dependent task {taskDependency.Id} ends!");
+
+                                default:
+                                    throw new ArgumentException("Invalid type of dependency");
+                            }
+                        }
+
+                        TaskDependency newDependency = new TaskDependency
+                        {
+                            TaskId = taskDependency.Id,
+                            DependentTaskId = newTask.Id,
+                            TypeOfDependencyId = typeOfDependencyId
+                        };
+
+                        i++;
+
+                        _databaseContext.Set<TaskDependency>().Add(newDependency);
+                    }
+                }
+                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Firstname} {user.Lastname} has created the task {newTask.Name}", DateTime.Now);
+                _databaseContext.Activities.Add(activity);
+                await _databaseContext.SaveChangesAsync();
+
+                var projectUsers = _databaseContext.UserProjects
+                .Where(up => up.ProjectId == request.ProjectId && up.UserId != userId)
+                .Select(up => up.UserId)
+                .ToList();
+
+                // Create UserNotification for each user on the project
+                foreach (var projectUser in projectUsers)
+                {
+                    UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                    _databaseContext.UserNotifications.Add(userNotification);
+                }
+
+                await _databaseContext.SaveChangesAsync();
+
+                await _databaseContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception($"{ex.Message}");
+            }
         }
 
         public List<ProjectTasksInfoDTO> GetTasksByFilters(HttpContext httpContext, TaskFilterParamsDTO filterParams)
@@ -245,7 +386,12 @@ namespace Codedberries.Services
                         throw new ArgumentException($"User with ID {assignedToUserId} does not exist in the database!");
                     }
 
-                    query = query.Where(t => t.UserId == filterParams.AssignedTo);
+                    var taskIds = _databaseContext.TaskUsers
+                         .Where(tu => tu.UserId == assignedToUserId)
+                         .Select(tu => tu.TaskId)
+                         .ToList();
+
+                    query = query.Where(t => taskIds.Contains(t.Id));
                 }
 
                 if (filterParams.StatusId.HasValue)
@@ -364,6 +510,20 @@ namespace Codedberries.Services
 
                     query = query.Where(t => t.CategoryId == filterParams.CategoryId);
                 }
+
+                if (!string.IsNullOrEmpty(filterParams.TaskName))
+                {
+                    query = query.Where(t => t.Name.Contains(filterParams.TaskName));
+                }
+
+                if (filterParams.Archived.HasValue)
+                {
+                    query = query.Where(t => t.Archived == filterParams.Archived);
+                }
+                else
+                {
+                    query = query.Where(t => t.Archived == false);
+                }
             }
 
             List<Codedberries.Models.Task> tasks = query.ToList();
@@ -372,9 +532,13 @@ namespace Codedberries.Services
 
             foreach (var task in tasks)
             {
-                var dependentTaskIds = _databaseContext.Set<TaskDependency>()
+                var dependentTasks = _databaseContext.Set<TaskDependency>()
                     .Where(td => td.TaskId == task.Id)
-                    .Select(td => td.DependentTaskId)
+                    .Select(td => new DependentTaskDTO
+                    {
+                        TaskId = td.DependentTaskId,
+                        TypeOfDependencyId = td.TypeOfDependencyId
+                    })
                     .ToList();
 
                 var taskDTO = new ProjectTasksInfoDTO
@@ -388,19 +552,23 @@ namespace Codedberries.Services
                     CategoryName = task.CategoryId != null ? _databaseContext.Categories.FirstOrDefault(c => c.Id == task.CategoryId).Name : null,
                     PriorityName = task.PriorityId != null ? _databaseContext.Priorities.FirstOrDefault(p => p.Id == task.PriorityId).Name : null,
                     StatusName = task.StatusId != null ? _databaseContext.Statuses.FirstOrDefault(s => s.Id == task.StatusId).Name : null,
+                    StartDate = task.StartDate,
                     DueDate = task.DueDate,
-                    AssignedTo = _databaseContext.Users
-                        .Where(u => u.Id == task.UserId)
-                        .Select(u => new TaskUserInfoDTO
+                    Archived=task.Archived,
+                    FinishedDate = task.FinishedDate != null ? task.FinishedDate : null,
+                    AssignedTo = _databaseContext.TaskUsers
+                        .Where(tu => tu.TaskId == task.Id)
+                        .Select(tu => new TaskUserInfoDTO
                         {
-                            Id = u.Id,
-                            FirstName = u.Firstname,
-                            LastName = u.Lastname,
-                            ProfilePicture = u.ProfilePicture
+                            Id = tu.UserId,
+                            FirstName = tu.User.Firstname,
+                            LastName = tu.User.Lastname,
+                            ProfilePicture = tu.User.ProfilePicture
                         })
                         .ToList(),
-                    DependentTasks = dependentTaskIds,
-                    DifficultyLevel = task.DifficultyLevel
+                    DependentTasks = dependentTasks,
+                    DifficultyLevel = task.DifficultyLevel,
+                    Progress = task.Progress
                 };
 
                 tasksDTO.Add(taskDTO);
@@ -446,11 +614,13 @@ namespace Codedberries.Services
 
             if (task == null)
             {
-                throw new ArgumentException($"Task with ID {taskId} does not exist!");
+                throw new ArgumentException($"Task with ID {taskId} does not exist in database!");
             }
 
             // other tasks depend on this one
-            var dependentTasks = _databaseContext.Set<TaskDependency>().Where(td => td.DependentTaskId == taskId).ToList();
+            var dependentTasks = _databaseContext.Set<TaskDependency>()
+                .Where(td => td.DependentTaskId == taskId)
+                .ToList();
 
             if (dependentTasks.Any())
             {
@@ -458,12 +628,81 @@ namespace Codedberries.Services
             }
 
             // this task depends on others, if so - delete that relation
-            var tasksDependentOnThis = _databaseContext.Set<TaskDependency>().Where(td => td.TaskId == taskId).ToList();
+            var tasksDependentOnThis = _databaseContext.Set<TaskDependency>()
+                .Where(td => td.TaskId == taskId)
+                .ToList();
 
-            foreach (var dependentTask in tasksDependentOnThis)
+            // verify and handle each type of dependency
+            foreach (var dependency in tasksDependentOnThis)
             {
-                _databaseContext.Set<TaskDependency>().Remove(dependentTask);
+                var dependentTask = _databaseContext.Tasks.Find(dependency.DependentTaskId);
+
+                if (dependentTask == null)
+                {
+                    throw new InvalidOperationException($"Dependent task with ID {dependentTask.Id} not found in database! Cannot delete task {taskId}!");
+                }
+
+                switch (dependency.TypeOfDependencyId)
+                {
+                    case 1: // Start to Start Dependency
+                        if (task.StartDate < dependentTask.StartDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to Start to Start dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    case 2: // Start to End Dependency
+                        if (task.StartDate < dependentTask.DueDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to Start to End dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    case 3: // End to Start Dependency
+                        if (task.DueDate > dependentTask.StartDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to End to Start dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    case 4: // End to End Dependency
+                        if (task.DueDate > dependentTask.DueDate)
+                        {
+                            throw new InvalidOperationException($"Cannot delete task ID {taskId} due to End to End dependency with task ID {dependentTask.Id}!");
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Invalid TypeOfDependencyId: {dependency.TypeOfDependencyId}!");
+                }
             }
+
+            if (tasksDependentOnThis.Any())
+            {
+                _databaseContext.Set<TaskDependency>().RemoveRange(tasksDependentOnThis);
+            }
+
+            // remove users assigned to this task
+            var taskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == taskId).ToList();
+            _databaseContext.TaskUsers.RemoveRange(taskUsers);
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has deleted the task {task.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            _databaseContext.SaveChangesAsync();
 
             _databaseContext.Tasks.Remove(task);
             _databaseContext.SaveChanges();
@@ -482,19 +721,12 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
-            }
-
-            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
-
-            if (userRole != null && userRole.CanEditTask == false)
-            {
-                throw new UnauthorizedAccessException("User does not have permission to edit task!");
             }
 
             if(request.IsEmpty())
@@ -514,6 +746,29 @@ namespace Codedberries.Services
             {
                 throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == task.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {task.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task!");
+            }
+            // ---------------- //
 
             if (!string.IsNullOrEmpty(request.Name))
             {
@@ -560,7 +815,7 @@ namespace Codedberries.Services
                 }
 
                 var category = await _databaseContext.Categories.FindAsync(request.CategoryId.Value);
-                
+
                 if (category == null)
                 {
                     throw new ArgumentException($"Category with ID {request.CategoryId} not found in database!");
@@ -582,12 +837,12 @@ namespace Codedberries.Services
                 }
 
                 var priority = await _databaseContext.Priorities.FindAsync(request.PriorityId.Value);
-                
+
                 if (priority == null)
                 {
                     throw new ArgumentException($"Priority with ID {request.PriorityId} not found in database!!");
                 }
-                
+
                 task.PriorityId = request.PriorityId.Value;
             }
 
@@ -599,7 +854,7 @@ namespace Codedberries.Services
                 }
 
                 var status = await _databaseContext.Statuses.FindAsync(request.StatusId.Value);
-                
+
                 if (status == null)
                 {
                     throw new ArgumentException($"Status with ID {request.StatusId} not found in database!");
@@ -610,36 +865,112 @@ namespace Codedberries.Services
                     throw new ArgumentException($"Status with ID {request.StatusId} does not match the project of the task!");
                 }
 
+                var currentStatus = await _databaseContext.Statuses.FindAsync(task.StatusId);
+
+                if (currentStatus == null)
+                {
+                    throw new ArgumentException($"Current status with ID {task.StatusId} not found in database!");
+                }
+
+                if (currentStatus.ProjectId != task.ProjectId)
+                {
+                    throw new ArgumentException($"Current status with ID {currentStatus.Id} and {currentStatus.ProjectId} does not match the project of the task {task.Project}!");
+                }
+
+                if (currentStatus.Name == "Done" && status.Name != "Done")
+                {
+                    task.FinishedDate = null; // from Done to other
+                }
+                else if (currentStatus.Name != "Done" && status.Name == "Done")
+                {
+                    task.FinishedDate = DateTime.UtcNow; // from other to Done
+                }
+
                 task.StatusId = request.StatusId.Value;
             }
 
-            if(request.StartDate.HasValue && request.DueDate.HasValue)
+            if (request.StartDate.HasValue && request.DueDate.HasValue)
             {
-                if(Helper.IsDateRangeValid(request.StartDate.Value, request.DueDate.Value) == false)
+                if (Helper.IsDateRangeValid(request.StartDate.Value, request.DueDate.Value) == false)
                 {
                     throw new ArgumentException("Invalid StartDate and DueDate range!");
                 }
             }
 
-            if (request.StartDate.HasValue)
+            if (request.StartDate.HasValue && request.DueDate.HasValue)
+            {
+                bool forceDateChange = request.ForceDateChange ?? false;
+                int taskNumber = 0;
+
+                if (request.TaskId == request.FirstTaskDependency)
+                {
+                    taskNumber = 1;
+                }
+                else if (request.TaskId == request.SecondTaskDependency)
+                {
+                    taskNumber = 2;
+                }
+
+                if (request.FirstTaskDependency.HasValue && request.SecondTaskDependency.HasValue)
+                {
+                    var first = request.FirstTaskDependency ?? 0;
+                    var second = request.SecondTaskDependency ?? 0;
+
+                    await UpdateTaskDate(first, second, taskNumber, request.StartDate, request.DueDate, forceDateChange);
+                }
+                else
+                {
+                    task.StartDate = request.StartDate.Value;
+                    task.DueDate = request.DueDate.Value;
+                }
+            }
+
+            if (request.StartDate.HasValue && !request.DueDate.HasValue)
             {
                 if (request.StartDate <= DateTime.MinValue || request.StartDate >= DateTime.MaxValue)
                 {
                     throw new ArgumentException("StartDate must be a valid date!");
                 }
 
-                if(request.StartDate > task.DueDate)
+                if (request.StartDate > task.DueDate)
                 {
-                    if(!request.DueDate.HasValue)
+                    if (!request.DueDate.HasValue)
                     {
                         throw new ArgumentException("StartDate cannot be after DueDate!");
                     }
                 }
 
-                task.StartDate = request.StartDate.Value;
+                if (!request.FirstTaskDependency.HasValue && !request.SecondTaskDependency.HasValue)
+                {
+                    // no dependencies, update the task start date directly
+                    task.StartDate = request.StartDate.Value;
+                }
+                else
+                {
+                    bool forceDateChange = request.ForceDateChange ?? false;
+                    int taskNumber = 0;
+
+                    if (request.TaskId == request.FirstTaskDependency)
+                    {
+                        taskNumber = 1;
+                    }
+                    else if (request.TaskId == request.SecondTaskDependency)
+                    {
+                        taskNumber = 2;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Provided TaskId does not match FirstTaskDependency or SecondTaskDependency!");
+                    }
+
+                    var first = request.FirstTaskDependency ?? 0;
+                    var second = request.SecondTaskDependency ?? 0;
+
+                    await UpdateTaskDate(first, second, taskNumber, request.StartDate, request.DueDate, forceDateChange);
+                }
             }
 
-            if (request.DueDate.HasValue)
+            if (request.DueDate.HasValue && !request.StartDate.HasValue)
             {
                 if (request.DueDate <= DateTime.MinValue || request.DueDate >= DateTime.MaxValue)
                 {
@@ -654,29 +985,34 @@ namespace Codedberries.Services
                     }
                 }
 
-                task.DueDate = request.DueDate.Value;
-            }
-
-            if (request.UserId.HasValue)
-            {
-                if (request.UserId <= 0)
+                if (!request.FirstTaskDependency.HasValue && !request.SecondTaskDependency.HasValue)
                 {
-                    throw new ArgumentException("UserId must be greater than 0!");
+                    // no dependencies, update the task due date directly
+                    task.DueDate = request.DueDate.Value;
                 }
-
-                var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
-                
-                if (userToAssign == null)
+                else
                 {
-                    throw new ArgumentException($"User with ID {request.UserId} not found in database!");
-                }
+                    bool forceDateChange = request.ForceDateChange ?? false;
+                    int taskNumber = 0;
 
-                if (userToAssign.RoleId == null)
-                {
-                    throw new InvalidOperationException($"User with ID {request.UserId} does not have a role assigned!");
-                }
+                    if (request.TaskId == request.FirstTaskDependency)
+                    {
+                        taskNumber = 1;
+                    }
+                    else if (request.TaskId == request.SecondTaskDependency)
+                    {
+                        taskNumber = 2;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Provided TaskId does not match FirstTaskDependency or SecondTaskDependency!");
+                    }
 
-                task.UserId = request.UserId.Value;
+                    var first = request.FirstTaskDependency ?? 0;
+                    var second = request.SecondTaskDependency ?? 0;
+
+                    await UpdateTaskDate(first, second, taskNumber, request.StartDate, request.DueDate, forceDateChange);
+                }
             }
 
             if (request.DifficultyLevel.HasValue)
@@ -689,7 +1025,72 @@ namespace Codedberries.Services
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
+            if (request.UserIds != null && request.UserIds.Any())
+            {
+                if (userRole.CanAddTaskToUser == false)
+                {
+                    throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
+                }
+
+                foreach (var providedUserId in request.UserIds)
+                {
+                    if (providedUserId <= 0)
+                    {
+                        throw new ArgumentException("Provided user ID must be greater than zero!");
+                    }
+
+                    var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
+
+                    if (requestedUser == null)
+                    {
+                        throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                    }
+
+                    if (requestedUser.RoleId == null)
+                    {
+                        throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                    }
+
+                    // is provided user assigned on project where new task is being created?
+                    var userOnTask = _databaseContext.UserProjects
+                        .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == task.ProjectId);
+
+                    if (userOnTask == null)
+                    {
+                        throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {task.ProjectId} in UserProjects table!");
+                    }
+
+                    // is provided user already assigned to the task?
+                    var userOnExistingTask = _databaseContext.TaskUsers
+                        .FirstOrDefault(ut => ut.UserId == requestedUser.Id && ut.TaskId == task.Id);
+
+                    if (userOnExistingTask != null)
+                    {
+                        throw new InvalidOperationException($"User with ID {requestedUser.Id} is already assigned to task with ID {task.Id}!");
+                    }
+
+                    var newTaskUser = new TaskUser
+                    {
+                        TaskId = task.Id,
+                        UserId = providedUserId
+                    };
+
+                    _databaseContext.TaskUsers.Add(newTaskUser);
+                }
+            }
+
             await _databaseContext.SaveChangesAsync();
+
+            var assignedUsers = _databaseContext.TaskUsers
+                .Where(tu => tu.TaskId == task.Id)
+                .Select(tu => new UserDTO
+                {
+                    Id = tu.User.Id,
+                    FirstName = tu.User.Firstname,
+                    LastName = tu.User.Lastname,
+                    ProfilePicture = tu.User.ProfilePicture
+                })
+                .ToList();
 
             var updatedTaskInfo = new UpdatedTaskInfoDTO
             {
@@ -699,34 +1100,32 @@ namespace Codedberries.Services
                 CategoryId = task.CategoryId,
                 PriorityId = task.PriorityId,
                 StatusId = task.StatusId,
-                DueDate = task.DueDate,
                 StartDate = task.StartDate,
+                DueDate = task.DueDate,
+                FinishedDate = task.FinishedDate,
                 DifficultyLevel = task.DifficultyLevel,
-                ProjectId = task.ProjectId 
+                ProjectId = task.ProjectId,
+                AssignedUsers = assignedUsers,
+                Progress = task.Progress
             };
 
-            var tasksWithSameNameAndProjectId = await _databaseContext.Tasks
-                .Where(t => t.Name == task.Name && t.ProjectId == task.ProjectId)
-                .ToListAsync();
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the task {task.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
 
-            var userIds = tasksWithSameNameAndProjectId
-                .SelectMany(t => new[] { t.UserId })
-                .Distinct()
-                .ToList();
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
 
-            var assignedUsers = await _databaseContext.Users
-                .Where(u => userIds.Contains(u.Id))
-                .ToListAsync();
-
-            var userDTOs = assignedUsers.Select(u => new UserDTO
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
             {
-                Id = u.Id,
-                FirstName = u.Firstname,
-                LastName = u.Lastname,
-                ProfilePicture = u.ProfilePicture
-            }).ToList();
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
 
-            updatedTaskInfo.AssignedUsers = userDTOs;
+            await _databaseContext.SaveChangesAsync();
 
             return updatedTaskInfo;
         }
@@ -769,6 +1168,24 @@ namespace Codedberries.Services
             // Toggle archived status
             task.Archived = !task.Archived;
 
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has archived the task {task.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            _databaseContext.SaveChangesAsync();
+
             _databaseContext.SaveChanges();
         }
 
@@ -785,7 +1202,7 @@ namespace Codedberries.Services
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found!");
+                throw new UnauthorizedAccessException("User not found in database!");
             }
 
             if (user.RoleId == null)
@@ -793,33 +1210,49 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            if (string.IsNullOrEmpty(request.Comment))
-            {
-                throw new ArgumentException("Comment is required!");
-            }
-
             if (request.TaskId <= 0)
             {
                 throw new ArgumentException("Task ID must be greater than zero!");
             }
 
-            var task = _databaseContext.Tasks.Find(request.TaskId);
+            var task = await _databaseContext.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId);
 
             if (task == null)
             {
-                throw new ArgumentException($"Task with ID {request.TaskId} does not exist.");
+                throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
             }
 
-            User currentUser =_databaseContext.Users.FirstOrDefault(r => r.Id == userId);
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == task.ProjectId);
 
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {task.ProjectId} in UserProjects table!");
+            }
 
-            Models.TaskComment taskComment = new TaskComment(request.Comment, currentUser.Id ,request.TaskId);
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+            // ---------------- //
+
+            if (string.IsNullOrEmpty(request.Comment))
+            {
+                throw new ArgumentException("Comment is required!");
+            }
+
+            DateTime currentDate = DateTime.Now;
+            Models.TaskComment taskComment = new TaskComment(request.Comment, user.Id ,request.TaskId, currentDate);
 
             _databaseContext.TaskComments.Add(taskComment);
             await _databaseContext.SaveChangesAsync();
         }
 
-        public List<TaskCommentInfoDTO> GetTasksComments(HttpContext httpContext, TaskDeletionDTO filterParams)
+        public async Task<List<TaskCommentInfoDTO>> GetTasksComments(HttpContext httpContext, TaskIdDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -827,21 +1260,797 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("Invalid session!");
             }
-            System.Linq.IQueryable<Codedberries.Models.TaskComment> query = _databaseContext.TaskComments;
-            if (filterParams.TaskId != 0)
-            {
-                query = query.Where(t => t.TaskId == filterParams.TaskId);
-            }
-            List<Codedberries.Models.TaskComment> comments = query.ToList();
-            List<TaskCommentInfoDTO> commentsDTO = comments.Select(t => new TaskCommentInfoDTO
-            {
-                Comment = t.Comment,
-                CommentId = t.CommentId,
-                TaskId = t.TaskId,
-                UserId = t.UserId
 
-            }).ToList();
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("Task ID must be greater than zero!");
+            }
+
+            var task = await _databaseContext.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} not found in database!");
+            }
+
+            var comments = await _databaseContext.TaskComments
+                .Where(tc => tc.TaskId == request.TaskId)
+                .ToListAsync();
+
+            if (!comments.Any())
+            {
+                throw new ArgumentException($"There are no comments for task with ID {request.TaskId}!");
+            }
+
+            List<TaskCommentInfoDTO> commentsDTO = new List<TaskCommentInfoDTO>();
+
+            foreach (var comment in comments)
+            {
+                var commentUser = await _databaseContext.Users.FindAsync(comment.UserId);
+
+                if (commentUser == null)
+                {
+                    throw new ArgumentException($"User with ID {comment.UserId} not found!");
+                }
+
+                var commentDTO = new TaskCommentInfoDTO
+                {
+                    Comment = comment.Comment,
+                    CommentId = comment.CommentId,
+                    TaskId = comment.TaskId,
+                    UserId = comment.UserId,
+                    FirstName = commentUser.Firstname,
+                    LastName = commentUser.Lastname,
+                    CommentDate = comment.CommentDate
+                };
+
+                commentsDTO.Add(commentDTO);
+            }
+
             return commentsDTO;
+        }
+
+        // function is used to detect cyclic dependencies between tasks
+        private bool DetectCyclicDependency(int taskId, int dependencyId)
+        {
+            var visited = new HashSet<int>();
+            visited.Add(taskId);
+
+            var queue = new Queue<int>();
+            queue.Enqueue(dependencyId);
+
+            while (queue.Count > 0)
+            {
+                var currentTaskId = queue.Dequeue();
+
+                var dependentTasks = _databaseContext.Set<TaskDependency>()
+                    .Where(td => td.TaskId == currentTaskId)
+                    .Select(td => td.DependentTaskId)
+                    .ToList();
+
+                foreach (var dependentTaskId in dependentTasks)
+                {
+                    if (dependentTaskId == taskId)
+                    {
+                        return true; // circular dependency detected
+                    }
+
+                    if (!visited.Contains(dependentTaskId))
+                    {
+                        visited.Add(dependentTaskId);
+                        queue.Enqueue(dependentTaskId);
+                    }
+                }
+            }
+
+            return false; // no circular dependency detected
+        }
+
+        public async System.Threading.Tasks.Task CreateTaskDependency(HttpContext httpContext, TaskDependencyRequestDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = await _databaseContext.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.TypeOfDependencyId <= 0)
+            {
+                throw new ArgumentException("Type Of Dependency ID must be greater than zero!");
+            }
+
+            var typeOfDependencyExists = await _databaseContext.TypesOfTaskDependency
+                .AnyAsync(t => t.Id == request.TypeOfDependencyId);
+
+            if (!typeOfDependencyExists)
+            {
+                throw new ArgumentException($"TypeOfTaskDependency with ID {request.TypeOfDependencyId} does not exist in the database!");
+            }
+
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("Task ID must be greater than zero!");
+            }
+
+            var task = await _databaseContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist in the database!");
+            }
+
+            if (request.DependentTaskId <= 0)
+            {
+                throw new ArgumentException("Dependent Task ID must be greater than zero!");
+            }
+
+            var dependentTask = await _databaseContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == request.DependentTaskId);
+
+            if (dependentTask == null)
+            {
+                throw new ArgumentException($"Task with ID {request.DependentTaskId} does not exist in the database!");
+            }
+
+            if (request.TaskId == request.DependentTaskId)
+            {
+                throw new ArgumentException("Both provided tasks IDs are the same!");
+            }
+
+            if (task.ProjectId != dependentTask.ProjectId)
+            {
+                throw new ArgumentException("Both tasks must belong to the same project!");
+            }
+
+            var projectId = task.ProjectId;
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {projectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task dependency!");
+            }
+            // ---------------- //
+
+            // does dependency already exist
+            var existingDependency = await _databaseContext.Set<TaskDependency>()
+                .AnyAsync(td => td.TaskId == request.TaskId && td.DependentTaskId == request.DependentTaskId);
+
+            if (existingDependency)
+            {
+                throw new InvalidOperationException("A dependency between these two tasks already exists!");
+            }
+
+            var cyclicDependencyDetected = DetectCyclicDependency(request.TaskId, request.DependentTaskId);
+
+            if (cyclicDependencyDetected)
+            {
+                throw new ArgumentException($"Creating dependency for {request.TaskId} and {request.DependentTaskId} would result in a circular dependency!");
+            }
+
+            if (!CheckDependencyCondition(task, dependentTask, request.TypeOfDependencyId))
+            {
+                switch (request.TypeOfDependencyId)
+                {
+                    case 1: // Start to Start Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot start before the dependent task {dependentTask.Id}!");
+
+                    case 2: // Start to End Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot start before the dependent task {dependentTask.Id} ends!");
+
+                    case 3: // End to Start Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot end after the dependent task {dependentTask.Id} starts!");
+
+                    case 4: // End to End Dependency
+                        throw new ArgumentException($"Task with ID {task.Id} cannot end before the dependent task {dependentTask.Id} ends!");
+
+                    default:
+                        throw new ArgumentException("Invalid type of dependency");
+                }
+            }
+
+            var taskDependency = new TaskDependency
+            {
+                TaskId = request.TaskId,
+                DependentTaskId = request.DependentTaskId,
+                TypeOfDependencyId = request.TypeOfDependencyId
+            };
+
+            _databaseContext.Set<TaskDependency>().Add(taskDependency);
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task DeleteTaskDependencies(HttpContext httpContext, TaskDependencyDeletionDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = await _databaseContext.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (request.TaskId <= 0)
+            {
+                throw new ArgumentException("Task ID must be greater than zero!");
+            }
+
+            var task = await _databaseContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist in the database!");
+            }
+
+            if (request.DependentTaskId <= 0)
+            {
+                throw new ArgumentException("Dependent Task ID must be greater than zero!");
+            }
+
+            var dependentTask = await _databaseContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == request.DependentTaskId);
+
+            if (dependentTask == null)
+            {
+                throw new ArgumentException($"Task with ID {request.DependentTaskId} does not exist in the database!");
+            }
+
+            if (request.TaskId == request.DependentTaskId)
+            {
+                throw new ArgumentException("Both provided tasks IDs are the same!");
+            }
+
+            if (task.ProjectId != dependentTask.ProjectId)
+            {
+                throw new ArgumentException("Both tasks must belong to the same project!");
+            }
+
+            var projectId = task.ProjectId;
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {projectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to delete Task dependency!");
+            }
+            // ---------------- //
+
+            var dependencyToDelete = await _databaseContext.Set<TaskDependency>()
+                .FirstOrDefaultAsync(td => td.TaskId == request.TaskId && td.DependentTaskId == request.DependentTaskId);
+
+            if (dependencyToDelete == null)
+            {
+                throw new InvalidOperationException("A dependency between these two tasks doesn't exists in database!");
+            }
+
+            _databaseContext.Set<TaskDependency>().RemoveRange(dependencyToDelete);
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public bool CheckDependencyCondition(Codedberries.Models.Task taskOne, Codedberries.Models.Task taskTwo, int typeOfDependency)
+        {
+            switch (typeOfDependency)
+            {
+                case 1: // Start to Start Dependency
+                    return taskOne.StartDate >= taskTwo.StartDate;
+
+                case 2: // Start to End Dependency
+                    return taskOne.StartDate >= taskTwo.DueDate;
+
+                case 3: // End to Start Dependency
+                    return taskTwo.StartDate >= taskOne.DueDate;
+
+                case 4: // End to End Dependency
+                    return taskOne.DueDate >= taskTwo.DueDate;
+
+                default:
+                    throw new ArgumentException("Invalid type of dependency! Doesn't exist in database!");
+            }
+        }
+
+        private const int MaxRecursionLevel = 10;
+        public async System.Threading.Tasks.Task UpdateTaskDate(int taskId, int dependentTaskId, int taskThatDateIsBeingChanged, DateTime? newStartDate, DateTime? newDueDate, bool forceDateChange)
+        {
+            using var transaction = _databaseContext.Database.BeginTransaction();
+
+            try
+            {
+                // Fetch the task and dependent task from the database
+                var tasks = await _databaseContext.Tasks
+                    .Where(t => t.Id == taskId || t.Id == dependentTaskId)
+                    .ToListAsync();
+
+                var task = tasks.FirstOrDefault(t => t.Id == taskId);
+                var dependentTask = tasks.FirstOrDefault(t => t.Id == dependentTaskId);
+
+                if (task == null || dependentTask == null)
+                {
+                    throw new ArgumentException($"One of the tasks with ID {taskId} or {dependentTaskId} does not exist in the database!");
+                }
+
+                // Fetch the dependency relationship
+                var dependency = await _databaseContext.Set<TaskDependency>()
+                    .FirstOrDefaultAsync(td => td.TaskId == taskId && td.DependentTaskId == dependentTaskId);
+
+                if (dependency == null)
+                {
+                    throw new ArgumentException($"No dependency found between Task ID {taskId} and Dependent Task ID {dependentTaskId}.");
+                }
+
+                string dependencyTypeMessage = null;
+                bool dependencyViolated = false;
+
+                bool conditionMetStartDate = true;
+                bool conditionMetDueDate = true;
+
+                // Check dependency conditions based on type and taskThatDateIsBeingChanged
+                switch (dependency.TypeOfDependencyId)
+                {
+                    case 1: // Start to Start Dependency
+                        if (newStartDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetStartDate = newStartDate >= dependentTask.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetStartDate = newStartDate <= task.StartDate;
+                            }
+                            dependencyTypeMessage = "Start to Start";
+                        }
+                        break;
+
+                    case 2: // Start to End Dependency
+                        if (newStartDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetStartDate = newStartDate >= dependentTask.DueDate;
+                            }
+                            else
+                            {
+                                conditionMetStartDate = newStartDate <= task.DueDate;
+                            }
+                            dependencyTypeMessage = "Start to End";
+                        }
+                        if (newDueDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 2)
+                            {
+                                conditionMetDueDate = newDueDate <= task.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetDueDate = newDueDate >= dependentTask.StartDate;
+                            }
+                        }
+                        break;
+
+                    case 3: // End to Start Dependency
+                        if (newStartDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetStartDate = newStartDate <= dependentTask.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetStartDate = newStartDate >= task.DueDate;
+                            }
+                            dependencyTypeMessage = "End to Start";
+                        }
+                        if (newDueDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 2)
+                            {
+                                conditionMetDueDate = newDueDate >= task.StartDate;
+                            }
+                            else
+                            {
+                                conditionMetDueDate = newDueDate <= dependentTask.StartDate;
+                            }
+                        }
+                        break;
+
+                    case 4: // End to End Dependency
+                        if (newDueDate.HasValue)
+                        {
+                            if (taskThatDateIsBeingChanged == 1)
+                            {
+                                conditionMetDueDate = newDueDate >= dependentTask.DueDate;
+                            }
+                            else
+                            {
+                                conditionMetDueDate = newDueDate <= task.DueDate;
+                            }
+                            dependencyTypeMessage = "End to End";
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Dependency {dependency.TaskId} - {dependency.DependentTaskId} does not have a valid TypeOfDependency!");
+                }
+
+                if (!conditionMetStartDate || !conditionMetDueDate)
+                {
+                    dependencyViolated = true;
+                }
+
+                if (dependencyViolated && !forceDateChange)
+                {
+                    throw new ArgumentException($"Changing the date violates the {dependencyTypeMessage} dependency condition.");
+                }
+
+                // If forceDateChange is true and there is violation, update the dates
+                if (forceDateChange && dependencyViolated)
+                {
+                    switch (dependency.TypeOfDependencyId)
+                    {
+                        case 1: // Start to Start Dependency
+                            if (newStartDate.HasValue)
+                            {
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.StartDate = newStartDate.Value;
+                                dependentTask.StartDate = newStartDate.Value;
+                            }
+                            break;
+
+                        case 2: // Start to End Dependency
+                            if (newStartDate.HasValue && taskThatDateIsBeingChanged == 1)
+                            {
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(dependentTask.StartDate, newStartDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {dependentTask.StartDate} - {newStartDate.Value} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.StartDate = newStartDate.Value;
+                                dependentTask.DueDate = newStartDate.Value;
+
+                                if (newDueDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value))
+                                    {
+                                        throw new ArgumentException($"New date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                                    }
+                                    else
+                                    {
+                                        task.DueDate = newDueDate.Value;
+                                    }
+                                }
+                            }
+                            if (newDueDate.HasValue && taskThatDateIsBeingChanged == 2)
+                            {
+                                if (!Helper.IsDateRangeValid(newDueDate.Value, task.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newDueDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                dependentTask.DueDate = newDueDate.Value;
+                                task.StartDate = newDueDate.Value;
+
+                                if (newStartDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate))
+                                    {
+                                        throw new ArgumentException($"New date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                    }
+                                    else
+                                    {
+                                        dependentTask.StartDate = newStartDate.Value;
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 3: // End to Start Dependency
+                            if (newStartDate.HasValue && taskThatDateIsBeingChanged == 2)
+                            {
+                                if (!Helper.IsDateRangeValid(task.StartDate, newStartDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {task.StartDate} - {newStartDate.Value} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.DueDate = newStartDate.Value;
+                                dependentTask.StartDate = newStartDate.Value;
+
+                                if (newDueDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value))
+                                    {
+                                        throw new ArgumentException($"New date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                                    }
+                                    else
+                                    {
+                                        dependentTask.DueDate = newDueDate.Value;
+                                    }
+                                }
+                            }
+                            if (newDueDate.HasValue && taskThatDateIsBeingChanged == 1)
+                            {
+                                if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(newDueDate.Value, dependentTask.DueDate))
+                                {
+                                    throw new ArgumentException($"New date {newDueDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                dependentTask.StartDate = newDueDate.Value;
+                                task.DueDate = newDueDate.Value;
+
+                                if (newStartDate.HasValue)
+                                {
+                                    if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate))
+                                    {
+                                        throw new ArgumentException($"New date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                                    }
+                                    else
+                                    {
+                                        task.StartDate = newStartDate.Value;
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 4: // End to End Dependency
+                            if (newDueDate.HasValue)
+                            {
+                                if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                                }
+
+                                if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value))
+                                {
+                                    throw new ArgumentException($"New date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                                }
+
+                                task.DueDate = newDueDate.Value;
+                                dependentTask.DueDate = newDueDate.Value;
+                            }
+                            break;
+                    }
+                }
+
+                // If forceDateChange is false and there is NO violation, update the dates
+                if (!dependencyViolated && !forceDateChange)
+                {
+                    if (newStartDate.HasValue && taskThatDateIsBeingChanged == 1)
+                    {
+                        if (!Helper.IsDateRangeValid(newStartDate.Value, task.DueDate) && !newDueDate.HasValue)
+                        {
+                            throw new ArgumentException($"Updating date {newStartDate.Value} - {task.DueDate} is not valid for task {task.Id}!");
+                        }
+
+                        task.StartDate = newStartDate.Value;
+                    }
+                    else if (newStartDate.HasValue && taskThatDateIsBeingChanged == 2)
+                    {
+                        if (!Helper.IsDateRangeValid(newStartDate.Value, dependentTask.DueDate) && !newDueDate.HasValue)
+                        {
+                            throw new ArgumentException($"Updating date {newStartDate.Value} - {dependentTask.DueDate} is not valid for task {dependentTask.Id}!");
+                        }
+
+                        dependentTask.StartDate = newStartDate.Value;
+                    }
+
+                    if (newDueDate.HasValue && taskThatDateIsBeingChanged == 1)
+                    {
+                        if (!Helper.IsDateRangeValid(task.StartDate, newDueDate.Value) && !newStartDate.HasValue)
+                        {
+                            throw new ArgumentException($"Updating date {task.StartDate} - {newDueDate.Value} is not valid for task {task.Id}!");
+                        }
+
+                        task.DueDate = newDueDate.Value;
+                    }
+                    else if (newDueDate.HasValue && taskThatDateIsBeingChanged == 2)
+                    {
+                        if (!Helper.IsDateRangeValid(dependentTask.StartDate, newDueDate.Value) && !newStartDate.HasValue)
+                        {
+                            throw new ArgumentException($"Updating date {dependentTask.StartDate} - {newDueDate.Value} is not valid for task {dependentTask.Id}!");
+                        }
+
+                        dependentTask.DueDate = newDueDate.Value;
+                    }
+                }
+
+                await _databaseContext.SaveChangesAsync();
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw new Exception($"{ex.Message}");
+            }
+        }
+
+        public async System.Threading.Tasks.Task ChangeTaskProgress(HttpContext httpContext, TaskProgressDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = await _databaseContext.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var task = await _databaseContext.Tasks.FindAsync(request.TaskId);
+
+            if (task == null)
+            {
+                throw new ArgumentException($"Task with ID {request.TaskId} does not exist in database!");
+            }
+
+            var project = await _databaseContext.Projects.FindAsync(task.ProjectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException($"Project with ID {task.ProjectId} does not exist in database!");
+            }
+
+            var taskUser = await _databaseContext.TaskUsers
+                .FirstOrDefaultAsync(tu => tu.UserId == userId && tu.TaskId == task.Id);
+
+            if (taskUser == null)
+            {
+                throw new UnauthorizedAccessException("User is not assigned to this task!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == project.Id);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {project.Id} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanEditTask == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to edit Task!");
+            }
+            // ---------------- //
+
+            if (request.Progress < 0 || request.Progress > 100)
+            {
+                throw new ArgumentException("Progress must be between 0 and 100!");
+            }
+
+            task.Progress = request.Progress;
+
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the progress of the task {task.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }

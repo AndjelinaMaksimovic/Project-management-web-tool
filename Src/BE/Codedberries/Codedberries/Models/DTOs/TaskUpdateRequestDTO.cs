@@ -8,11 +8,14 @@
         public int? CategoryId { get; set; }
         public int? PriorityId { get; set; }
         public int? StatusId { get; set; }
-        public DateTime? DueDate { get; set; }
+        public int? FirstTaskDependency { get; set; }
+        public int? SecondTaskDependency { get; set; }
         public DateTime? StartDate { get; set; }
-        public int? UserId { get; set; }
+        public DateTime? DueDate { get; set; }
+        public List<int>? UserIds { get; set; }
         public int? DifficultyLevel { get; set; }
         public int? ProjectId { get; set; }
+        public bool? ForceDateChange { get; set; }
 
         public bool IsEmpty()
         {
@@ -23,9 +26,11 @@
                    StatusId == null &&
                    DueDate == null &&
                    StartDate == null &&
-                   UserId == null &&
+                   (UserIds == null || !UserIds.Any()) &&
                    DifficultyLevel == null &&
-                   ProjectId == null;
+                   ProjectId == null &&
+                   FirstTaskDependency == null &&
+                   SecondTaskDependency == null;
         }
     }
 }

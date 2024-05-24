@@ -1,49 +1,49 @@
-<div *ngIf="offset.x >= 0; then thenBlock else elseBlock"></div>
+<div *ngIf="offset.x >= 0; then thenBlock else elseBlock" style="cursor: default;"></div>
 <ng-template #thenBlock>
     <!-- from task to the right -->
     <div class="line normal defaultHeight" [ngClass]="{'hover': hover}"
-    style="width: 15px;"
+    [style.width]="firstOffset + 'px'"
     [style.top]="from.y + 'px'"
     [style.left]="from.x + 'px'"></div>
     <!-- up / down -->
     <div class="line normal defaultWidth" [ngClass]="{'hover': hover}"
-    [style.left]="from.x + 15 + 'px'"
-    [style.height]="abs(offset.y) + 3 + ((offset.x < 15) ? - (taskHeight / 2) : 0 ) + 'px'"
-    [style.top]="from.y + ((offset.y < 0)? offset.y : 0) + 'px'"></div>
+    [style.left]="from.x + firstOffset + 'px'"
+    [style.height]="abs(offset.y) + 3 + ((offset.x < firstOffset) ? - (barHeight / 2) : 0 ) + 'px'"
+    [style.top]="from.y + ((offset.y < 0)? offset.y + ((offset.x < firstOffset) ? barHeight / 2 : 0) : 0) + 'px'"></div>
     <!-- left / right to task -->
     <div class="line normal defaultHeight" [ngClass]="{'hover': hover}"
-    [style.left]="from.x + 15 + 'px'"
-    [style.width]="((offset.x < 15) ? 0 : abs(offset.x) - 15) + 'px'"
+    [style.left]="from.x + firstOffset + 'px'"
+    [style.width]="((offset.x < firstOffset) ? 0 : abs(offset.x) - firstOffset) + 'px'"
     [style.top]="(from.y + offset.y) +'px'"
     ></div>
 </ng-template>
 <ng-template #elseBlock>
     <!-- from task to the right -->
     <div class="line red defaultHeight" [ngClass]="{'hover': hover}"
-    style="width: 15px;"
+    [style.width]="firstOffset + 'px'"
     [style.top]="from.y + 'px'"
     [style.left]="from.x + 'px'"></div>
     <!-- up / down -->
     <div class="line red defaultWidth" [ngClass]="{'hover': hover}"
-    [style.left]="from.x + 15 + 'px'"
+    [style.left]="from.x + firstOffset + 'px'"
     [style.height]="taskHeight / 2 + ((offset.y < 0) ? 5 : 1) + 'px'"
     [style.top]="from.y + ((offset.y < 0) ? - (taskHeight + 4) / 2: 0) + 'px'"></div>
     <!-- left -->
     <div  class="line red defaultHeight" [ngClass]="{'hover': hover}"
-    [style.left]="from.x + offset.x - 15 + 'px'"
-    [style.width]="abs(offset.x) + 30 + 'px'"
+    [style.left]="from.x + offset.x - firstOffset + 'px'"
+    [style.width]="abs(offset.x) + firstOffset * 2 + 'px'"
     [style.top]="(from.y + ((offset.y < 0) ? -taskHeight - 4 : taskHeight - 4) / 2) +'px'"
     ></div>
     <!-- up / down -->
     <!-- TODO: bug when dragging within the same task -->
     <div  class="line red defaultWidth" [ngClass]="{'hover': hover}"
-    [style.left]="from.x + offset.x - 15 + 'px'"
+    [style.left]="from.x + offset.x - firstOffset + 'px'"
     [style.height]="abs(offset.y) - (taskHeight / 2) + 'px'"
     [style.top]="from.y + ((offset.y < 0) ? offset.y : taskHeight / 2) + 'px'"></div>
     <!-- right to task -->
     <div  class="line red defaultHeight" [ngClass]="{'hover': hover}"
-    [style.left]="from.x + offset.x - 15 + 'px'"
-    [style.width]="15 + 'px'"
+    [style.left]="from.x + offset.x - firstOffset + 'px'"
+    [style.width]="firstOffset + 'px'"
     [style.top]="(from.y + offset.y) +'px'"
     ></div>
 </ng-template>

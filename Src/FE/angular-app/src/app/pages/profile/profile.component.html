@@ -1,15 +1,34 @@
-<app-navbar>
-    <!-- header -->
-    <div style="padding: 20px;">
-        <div style="display: flex; flex-direction: column; align-items: center;">
-            <img class="circle-image" style="outline: solid;" src="/assets/logo.svg">
-            <h2>{{user?.firstName}} {{user?.lastName}}</h2>
-            <div style="display: flex; gap: 20px">
-                <h4 style="font-weight: lighter;">{{user?.email}}</h4>
-                <h4 style="font-weight: lighter;">{{'member since 4.10.2024'}}</h4>
-            </div>
+<app-topnav></app-topnav>
+<!-- header -->
+<div style="padding: 20px;">
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <img class="circle-image" style="outline: solid; width: 13vw;" [src]="getProfileImagePath()"
+            onerror="this.src='/assets/logo.svg'">
+        <input #fileUpload hidden="true" type="file" class="file-input" accept="image/png, image/jpeg"
+            (change)="onFileSelected($event)">
+        <button *ngIf="loggedInUser === user.id" mat-flat-button style="margin-top: 20px;" color="primary"
+            class="dense-3" (click)="fileUpload.click()">Set profile picture</button>
+        <!-- <h2>{{user?.firstname}} {{user?.lastname}}</h2> -->
+        <h2>{{user?.firstname}} {{user?.lastname}}</h2>
+        <span class="chip chip-neutral">{{user?.roleName}}</span>
+        <div style="display: flex; gap: 20px">
+            <h4 style="font-weight: lighter;">{{user?.email}}</h4>
+            <h4 style="font-weight: lighter;">{{'member since 4.10.2024'}}</h4>
         </div>
-        <mat-divider></mat-divider>
-        <h3>Activity</h3>
     </div>
-</app-navbar>
+    <mat-divider></mat-divider>
+    <h3>Activity</h3>
+    @for(activity of activities; track activity; let last = $last){
+        <!-- <app-activity-item [activity]="activity"></app-activity-item> -->
+        <p class="desc mt-20">{{ activity.activityDescription }}</p>
+        <hr *ngIf="!last">
+    }
+    <!-- <div class="file-upload">
+            {{fileName || "No file uploaded yet."}}
+            <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
+                <mat-icon>attach_file</mat-icon>
+            </button>
+        </div> -->
+    <!-- <input type="file" accept="image/png, image/jpeg" (change)="onFileSelected($event)" /> -->
+
+</div>

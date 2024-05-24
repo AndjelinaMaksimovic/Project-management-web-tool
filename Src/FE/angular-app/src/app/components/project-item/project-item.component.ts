@@ -19,16 +19,20 @@ export class ProjectItemComponent {
     @Input() projectName: string = "";
     @Input() dueDate: string = "";
 
-    @Input() progressBarProgress: Number = 0;
+    @Input() progressBarProgress: number = 0;
     @Input() progressBarColor: string = "black";
 
     @Input() starred: boolean = false;
     @Input() id: number = 0;
 
     @Input() isArchived: boolean = false;
+    @Input() role: any = {};
 
-    toggleStarred() {
-        this.starred = !this.starred;
+    async toggleStarred() {
+        let response = await this.projectService.toggleStarred(this.id);
+        if(response) {
+            this.starred = !this.starred;
+        }
     }
 
     archiveProject() {

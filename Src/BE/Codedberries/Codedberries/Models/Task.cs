@@ -19,9 +19,7 @@ namespace Codedberries.Models
 
         public DateTime DueDate { get; set; }
         public DateTime StartDate { get; set; }
-
-        [ForeignKey("UserId")]
-        public int UserId { get; set; }
+        public DateTime? FinishedDate { get; set; }
 
         [Required]
         public int StatusId { get; set; }
@@ -59,18 +57,21 @@ namespace Codedberries.Models
         public ICollection<Task> Dependencies { get; } = new List<Task>();
         public ICollection<Task> DependentTasks { get; } = new List<Task>();
 
-        public Task(string name, string description, DateTime dueDate,DateTime startDate ,int userId, int statusId, int priorityId, int difficultyLevel, int categoryId, int projectId)
+        [Range(0, 100)]
+        public int Progress { get; set; }
+
+        public Task(string name, string description, DateTime dueDate,DateTime startDate, int statusId, int priorityId, int difficultyLevel, int categoryId, int projectId, int progress = 0)
         {
             Name = name;
             Description = description;
             DueDate = dueDate;
-            UserId = userId;
             StatusId = statusId;
             PriorityId = priorityId;
             DifficultyLevel = difficultyLevel;
             CategoryId = categoryId;
             ProjectId = projectId;
             StartDate = startDate;
+            Progress = progress;
         }
     }
 }

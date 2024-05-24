@@ -22,18 +22,18 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './select.component.css',
 })
 export class SelectComponent {
-  @Input() options: {value: string, viewValue: string}[] = [];
+  @Input() options: {value: any, viewValue: string}[] = [];
   @Input() label: string = "";
   @Input() placeholder: string = "";
   @Input() multiple: boolean = false;
-  @Output() valueChange = new EventEmitter<string>();
-
-  private _data: string = "";
+  @Output() valueChange = new EventEmitter<any>();
+  @Input() value: any;
+  @Input() required: boolean = false;
   get data(){
-    return this._data;
+    return this.value;
   }
-  set data(value: string){
-    this._data = value;
+  set data(value: any){
+    this.value = value;
     this.valueChange.emit(this.data);
   }
 }
