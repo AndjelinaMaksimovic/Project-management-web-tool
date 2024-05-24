@@ -63,16 +63,18 @@ export class AuthService {
   ): Promise<boolean> {
     try {
       const res = await firstValueFrom(
-        this.http.post<any>(
-          environment.apiUrl +
-            `/Registration/Activate/${token}/${email}/${password}`,
-          {},
-          environment.httpOptions
+        this.http.post<any>(environment.apiUrl + `/Invites/AcceptInvite`, 
+          {
+            token: token,
+            email: email,
+            password: password,
+          },
+          {...environment.httpOptions, responseType: "text" as "json"}
         )
       );
       if (!res.ok) return false;
-      const success = await this.login(email, password);
-      if(!success) return false;
+      // const success = await this.login(email, password);
+      // if(!success) return false;
       return true;
     } catch (e) {
       console.log(e);

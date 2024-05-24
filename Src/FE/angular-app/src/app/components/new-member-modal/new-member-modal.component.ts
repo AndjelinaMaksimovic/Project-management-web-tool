@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RolesService } from '../../services/roles.service';
 import { MatSelectModule } from '@angular/material/select';
+import { InviteService } from '../../services/invite.service';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -32,6 +33,7 @@ export class NewMemberModalComponent {
   constructor(
     public dialogRef: MatDialogRef<NewMemberModalComponent>,
     private roleService: RolesService,
+    private inviteService: InviteService,
     @Inject(MAT_DIALOG_DATA) public data : any) {
   }
 
@@ -42,11 +44,11 @@ export class NewMemberModalComponent {
   }
 
   onSubmit() {
-    if (this.emailFormControl.valid) {
-      console.log('Form Submitted:', this.emailFormControl.value);
-      // Add your submission logic here
+    if (this.firstnameFormControl.valid && this.lastnameFormControl && this.emailFormControl.valid && this.roleFormControl) {
+      this.inviteService.inviteUser(this.firstnameFormControl.value!, this.lastnameFormControl.value!, this.emailFormControl.value!, "", parseInt(this.roleFormControl.value!));
+      this.closeDialog();
     } else {
-      console.log('Form is invalid');
+      
     }
   }
 
