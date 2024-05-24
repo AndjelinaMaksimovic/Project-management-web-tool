@@ -8,8 +8,6 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AvatarService } from '../../services/avatar.service';
 import { NotificationIconComponent } from '../notification-icon/notification-icon.component';
-import { InviteModalComponent } from '../invite-modal/invite-modal.component';
-import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 @Component({
@@ -21,7 +19,7 @@ import { CommonModule } from '@angular/common';
 })
 
 export class TopnavComponent {
-  constructor(private userService: UserService, private dialogue: MatDialog, private authService: AuthService, private router: Router, public avatarService: AvatarService){ }
+  constructor(private userService: UserService, private authService: AuthService, private router: Router, public avatarService: AvatarService){ }
   loggedInUserId: number | undefined;
   role: any = {}
   async ngOnInit(){
@@ -33,8 +31,5 @@ export class TopnavComponent {
   }
   async logOut(){
     await this.authService.logout()
-  }
-  invitePopup(){
-    this.dialogue.open(InviteModalComponent, { autoFocus: false })
   }
 }

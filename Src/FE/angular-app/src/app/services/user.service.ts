@@ -133,7 +133,7 @@ export class UserService {
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
-          environment.apiUrl + `/User/currentUserRole` + (projectId ? `projectId=${projectId}` : ``),
+          environment.apiUrl + `/User/currentUserRole` + (projectId ? `?projectId=${projectId}` : ``),
           this.httpOptions
         )
       );

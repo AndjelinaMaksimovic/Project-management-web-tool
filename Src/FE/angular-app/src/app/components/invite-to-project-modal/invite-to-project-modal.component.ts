@@ -53,12 +53,9 @@ export class InviteToProjectModalComponent {
   async ngOnInit() {
     await this.userService.fetchUsersByProject(this.data.projectId)
     const projectUsers = this.userService.getUsers()
-    console.log(projectUsers)
     await this.userService.fetchUsers();
     const allUsers = this.userService.getUsers()
-    console.log(allUsers)
     const avaliableUsers = allUsers.filter(_allUsers => !projectUsers.find((projectUsers: any) => _allUsers.id == projectUsers.id))
-    console.log(avaliableUsers)
     this.members = avaliableUsers.map((u) => {
       return { value: {id: u.id, roleId: u.roleId}, viewValue: `${u.firstName} ${u.lastName}` };
     });
@@ -72,10 +69,10 @@ export class InviteToProjectModalComponent {
 
   async invite(){
     const success = await this.projectService.addNewUserToProject(this.data.projectId, this.member.id, this.roleId)
-    if(success)
+    // if(success)
       this.dialogRef.close(true)
-    else
-      this.error = "An error occured while inviting member"
+    // else
+      // this.error = "An error occured while inviting member"/
   }
 }
 

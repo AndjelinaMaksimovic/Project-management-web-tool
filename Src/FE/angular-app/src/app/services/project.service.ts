@@ -349,7 +349,7 @@ export class ProjectService {
       await firstValueFrom(
         this.http.post<any>(
           environment.apiUrl +
-            `/Projects/addNewUserToProject`,
+            `/UserProjects/addNewUserToProject`,
             {
               projectId: projectId,
               userId: userId,
@@ -364,6 +364,22 @@ export class ProjectService {
     } catch (e) {
       console.log(e);
       return false
+    }
+  }
+  async notificationsSeen() {
+    try {
+      await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/NotificationsSeen`,
+            {},
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+    } catch (e) {
+      console.log(e);
     }
   }
 }
