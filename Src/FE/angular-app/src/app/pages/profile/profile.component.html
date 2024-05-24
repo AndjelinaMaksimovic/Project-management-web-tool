@@ -2,7 +2,7 @@
 <!-- header -->
 <div style="padding: 20px;">
     <div style="display: flex; flex-direction: column; align-items: center;">
-        <img class="circle-image" style="outline: solid; width: 128px;" [src]="getProfileImagePath()"
+        <img class="circle-image" style="outline: solid; width: 13vw;" [src]="getProfileImagePath()"
             onerror="this.src='/assets/logo.svg'">
         <input #fileUpload hidden="true" type="file" class="file-input" accept="image/png, image/jpeg"
             (change)="onFileSelected($event)">
@@ -18,6 +18,11 @@
     </div>
     <mat-divider></mat-divider>
     <h3>Activity</h3>
+    @for(activity of activities; track activity; let last = $last){
+        <!-- <app-activity-item [activity]="activity"></app-activity-item> -->
+        <p class="desc mt-20">{{ activity.activityDescription }}</p>
+        <hr *ngIf="!last">
+    }
     <!-- <div class="file-upload">
             {{fileName || "No file uploaded yet."}}
             <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">

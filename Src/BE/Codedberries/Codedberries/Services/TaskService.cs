@@ -75,6 +75,11 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have permission to create Task!");
             }
+
+            if (userRole.CanAddTaskToUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
+            }
             // ---------------- //
 
             if (string.IsNullOrEmpty(request.Name))
@@ -284,8 +289,22 @@ namespace Codedberries.Services
                         _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
-                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Email} has created the task {newTask.Name}");
+                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Email} has created the task {newTask.Name}", TimeOnly.FromDateTime(DateTime.Now));
                 _databaseContext.Activities.Add(activity);
+                await _databaseContext.SaveChangesAsync();
+
+                var projectUsers = _databaseContext.UserProjects
+                .Where(up => up.ProjectId == request.ProjectId && up.UserId != userId)
+                .Select(up => up.UserId)
+                .ToList();
+
+                // Create UserNotification for each user on the project
+                foreach (var projectUser in projectUsers)
+                {
+                    UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                    _databaseContext.UserNotifications.Add(userNotification);
+                }
+
                 await _databaseContext.SaveChangesAsync();
 
                 await _databaseContext.SaveChangesAsync();
@@ -667,8 +686,22 @@ namespace Codedberries.Services
             var taskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == taskId).ToList();
             _databaseContext.TaskUsers.RemoveRange(taskUsers);
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has deleted the task {task.Name}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has deleted the task {task.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
             _databaseContext.SaveChangesAsync();
 
             _databaseContext.Tasks.Remove(task);
@@ -992,51 +1025,57 @@ namespace Codedberries.Services
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
-            if (request.UserId.HasValue)
+            if (request.UserIds != null && request.UserIds.Any())
             {
-                if (request.UserId <= 0)
+                if (userRole.CanAddTaskToUser == false)
                 {
-                    throw new ArgumentException("UserId must be greater than 0!");
+                    throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
                 }
 
-                var userToAssign = await _databaseContext.Users.FindAsync(request.UserId.Value);
-                
-                if (userToAssign == null)
+                foreach (var providedUserId in request.UserIds)
                 {
-                    throw new ArgumentException($"User with ID {request.UserId} not found in database!");
-                }
+                    if (providedUserId <= 0)
+                    {
+                        throw new ArgumentException("Provided user ID must be greater than zero!");
+                    }
 
-                if (userToAssign.RoleId == null)
-                {
-                    throw new InvalidOperationException($"User with ID {request.UserId} does not have a role assigned!");
-                }
+                    var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
 
-                // Assuming `task` is the current task entity you are updating and it has a `ProjectId` property
-                var isUserInProject = await _databaseContext.UserProjects
-                    .AnyAsync(pu => pu.ProjectId == task.ProjectId && pu.UserId == request.UserId.Value);
+                    if (requestedUser == null)
+                    {
+                        throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                    }
 
-                if (!isUserInProject)
-                {
-                    throw new ArgumentException($"User with ID {request.UserId.Value} is not assigned to the project with ID {task.ProjectId}!");
-                }
+                    if (requestedUser.RoleId == null)
+                    {
+                        throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                    }
 
-                var existingTaskUser = await _databaseContext.TaskUsers
-                    .FirstOrDefaultAsync(tu => tu.TaskId == task.Id && tu.UserId == request.UserId.Value);
+                    // is provided user assigned on project where new task is being created?
+                    var userOnTask = _databaseContext.UserProjects
+                        .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == task.ProjectId);
 
-                if (existingTaskUser == null)
-                {
-                    // if the user is not already assigned to the task, add them
+                    if (userOnTask == null)
+                    {
+                        throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {task.ProjectId} in UserProjects table!");
+                    }
+
+                    // is provided user already assigned to the task?
+                    var userOnExistingTask = _databaseContext.TaskUsers
+                        .FirstOrDefault(ut => ut.UserId == requestedUser.Id && ut.TaskId == task.Id);
+
+                    if (userOnExistingTask != null)
+                    {
+                        throw new InvalidOperationException($"User with ID {requestedUser.Id} is already assigned to task with ID {task.Id}!");
+                    }
+
                     var newTaskUser = new TaskUser
                     {
                         TaskId = task.Id,
-                        UserId = request.UserId.Value
+                        UserId = providedUserId
                     };
 
                     _databaseContext.TaskUsers.Add(newTaskUser);
-                }
-                else
-                {
-                    throw new ArgumentException($"User with ID {request.UserId.Value} is already assigned to task with ID {task.Id}!");
                 }
             }
 
@@ -1070,9 +1109,23 @@ namespace Codedberries.Services
                 Progress = task.Progress
             };
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has updated the task {task.Name}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has updated the task {task.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             return updatedTaskInfo;
         }
@@ -1115,8 +1168,22 @@ namespace Codedberries.Services
             // Toggle archived status
             task.Archived = !task.Archived;
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has archived the task {task.Name}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has archived the task {task.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
             _databaseContext.SaveChangesAsync();
 
             _databaseContext.SaveChanges();
@@ -1965,9 +2032,23 @@ namespace Codedberries.Services
 
             task.Progress = request.Progress;
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has changed the progress of the task {task.Name}");
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Email} has changed the progress of the task {task.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == task.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }

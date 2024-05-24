@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AvatarService } from '../../services/avatar.service';
 import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { InviteToProjectModalComponent } from '../../components/invite-to-project-modal/invite-to-project-modal.component';
 
 class Member {
@@ -161,6 +162,15 @@ export class MembersComponent {
       },
       maxHeight: '90vh'
     });
+  }
+
+  removeUser(event: Event, member: Member) {
+    event.stopPropagation();
+    
+    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the project?<br>This action cannot be undone and may affect project permissions and collaboration.";
+    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
+      await this.userService.removeUserFromProject(this.projectId, member.id);
+    }, noFunc: () => { } } });
   }
 
   invitePopUp(){

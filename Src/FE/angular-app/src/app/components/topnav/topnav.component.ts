@@ -7,10 +7,11 @@ import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AvatarService } from '../../services/avatar.service';
+import { NotificationIconComponent } from '../notification-icon/notification-icon.component';
 @Component({
   selector: 'app-topnav',
   standalone: true,
-  imports: [ MatButtonModule, MatIconModule, MatInputModule, MatMenuModule, RouterLink ],
+  imports: [ MatButtonModule, MatIconModule, MatInputModule, MatMenuModule, RouterLink, NotificationIconComponent ],
   templateUrl: './topnav.component.html',
   styleUrl: './topnav.component.css'
 })

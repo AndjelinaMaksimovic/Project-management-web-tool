@@ -19,6 +19,7 @@ import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { PriorityService } from '../../services/priority.service';
 import { LocalStorageService } from '../../services/localstorage';
+import { NgxganttComponent } from '../../components/ngxgantt/ngxgantt.component';
 
 @Component({
   selector: 'app-my-tasks',
@@ -32,7 +33,8 @@ import { LocalStorageService } from '../../services/localstorage';
     TasksTableComponent,
     NavbarComponent,
     GanttComponent,
-    FiltersComponent
+    FiltersComponent,
+    NgxganttComponent
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',

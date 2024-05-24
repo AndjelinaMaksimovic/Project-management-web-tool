@@ -12,7 +12,7 @@
         public int? SecondTaskDependency { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? DueDate { get; set; }
-        public int? UserId { get; set; }
+        public List<int>? UserIds { get; set; }
         public int? DifficultyLevel { get; set; }
         public int? ProjectId { get; set; }
         public bool? ForceDateChange { get; set; }
@@ -26,7 +26,7 @@
                    StatusId == null &&
                    DueDate == null &&
                    StartDate == null &&
-                   UserId == null &&
+                   (UserIds == null || !UserIds.Any()) &&
                    DifficultyLevel == null &&
                    ProjectId == null &&
                    FirstTaskDependency == null &&

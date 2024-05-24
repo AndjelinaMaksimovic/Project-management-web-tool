@@ -103,9 +103,23 @@ namespace Codedberries.Services
 
             _databaseContext.Statuses.Add(newStatus);
 
-            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Email} has created the status {statusDTO.Name}");
+            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Email} has created the status {statusDTO.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusDTO.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -268,9 +282,23 @@ namespace Codedberries.Services
                 status.Order -= 1;
             }
 
-            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Email} has deleted the status {statusToDelete.Name}");
+            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Email} has deleted the status {statusToDelete.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusToDelete.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -462,9 +490,23 @@ namespace Codedberries.Services
                 Order = status.Order
             };
 
-            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Email} has changed the name of the status {status.Name}");
+            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Email} has changed the name of the status {status.Name}", TimeOnly.FromDateTime(DateTime.Now));
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == status.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             return StatusDTO;
 

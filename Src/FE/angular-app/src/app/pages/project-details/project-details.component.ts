@@ -15,6 +15,8 @@ import { CreateCategoryModalComponent } from '../../components/create-category-m
 import { CategoryService } from '../../services/category.service';
 import { StatusService } from '../../services/status.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { UserService } from '../../services/user.service';
+import { AvatarService } from '../../services/avatar.service';
 
 @Component({
   selector: 'app-project-details',
@@ -25,6 +27,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class ProjectDetailsComponent {
   project?: Project;
+
+  activities: any[] = []
 
   projectId: number = 0;
   title?: string = "";
@@ -37,7 +41,7 @@ export class ProjectDetailsComponent {
   completedTasks : number = 0;
   overdueTasks : number = 0;
 
-  constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog, private categoryService : CategoryService, private statusService : StatusService) {
+  constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog, private categoryService : CategoryService, private statusService : StatusService, private userService: UserService, private avatarService: AvatarService) {
     this.dialog.closeAll();
   }
 
@@ -72,6 +76,9 @@ export class ProjectDetailsComponent {
     this.allTasks = this.taskService.getTasks().length;
     this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
     this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
+
+
+    this.activities = await this.projectService.allProjectActivities(this.projectId)
 
     console.log(this.taskService.getTasks());
   }

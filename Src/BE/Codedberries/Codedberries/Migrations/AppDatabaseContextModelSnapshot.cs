@@ -30,6 +30,9 @@ namespace Codedberries.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<TimeOnly>("Time")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
@@ -457,6 +460,30 @@ namespace Codedberries.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Codedberries.Models.UserNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Seen")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("userNotification");
+                });
+
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>
                 {
                     b.Property<int>("UserId")
@@ -647,6 +674,25 @@ namespace Codedberries.Migrations
                         .HasForeignKey("RoleId");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.UserNotification", b =>
+                {
+                    b.HasOne("Codedberries.Models.Activity", "Activity")
+                        .WithMany()
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>

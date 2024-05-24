@@ -1,8 +1,9 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LocalStorageService } from './localstorage';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 export type Project = Readonly<{
   title: string;
@@ -34,7 +35,7 @@ export class ProjectService {
   private projects: Project[] = [];
   private projectsProgress: Map<number, number> = new Map<number, number>();
 
-  constructor(private http: HttpClient, private localStorageService : LocalStorageService) {}
+  constructor(private http: HttpClient, private localStorageService : LocalStorageService, private snackBar: MatSnackBar) {}
 
   /**
    * @returns a list of projects (current project cache)
@@ -246,6 +247,99 @@ export class ProjectService {
       return true;
     } catch (e) {
       console.log(e);
+    }
+    return false;
+  }
+
+  async allProjectActivities(projectId: number): Promise<any[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/allProjectActivities`,
+            {
+              projectId: projectId,
+            },
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return [];
+  }
+  
+  async allUserActivities(): Promise<any[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/allUserActivities`,
+            {},
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return [];
+  }
+  
+  async allUsersProjectActivities(): Promise<any[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/allUsersProjectActivities`,
+            {},
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return [];
+  }
+
+
+  async updateProject(project: any) {
+    try {
+      const request: Record<string, unknown> = { projectId: project.id };
+      if (project.title) request['name'] = project.title;
+      if (project.description) request['description'] = project.description;
+      if (project.startDate) request['startDate'] = project.startDate;
+      if (project.dueDate) request['dueDate'] = project.dueDate;
+      // update cache
+      const res = await firstValueFrom(
+        this.http.put<any>(environment.apiUrl + `/Projects/updateProject`, request, {
+          ...environment.httpOptions, responseType: "text" as "json"
+        })
+      );
+      await this.fetchProjectsLocalStorage("project_filters");
+      this.snackBar.open("Project updated successfully", undefined, {
+        duration: 2000,
+      });
+      return true;
+    } catch (e) {
+      console.log(e);
+      let error = "";
+      if(e instanceof HttpErrorResponse) {
+        error = " - " + JSON.parse(e.error).errorMessage;
+      }
+      this.snackBar.open("We couldn't update project" + error, undefined, {
+        duration: 8000,
+      });
+      await this.fetchProjectsLocalStorage("project_filters");
+      return false;
     }
     return false;
   }
