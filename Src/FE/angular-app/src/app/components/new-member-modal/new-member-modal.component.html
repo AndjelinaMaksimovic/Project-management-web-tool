@@ -1,0 +1,54 @@
+<div style="margin: 1rem 2rem 1rem 2rem; max-width: 50vh; display: flex; flex-direction: column;">
+    <h3>Add new member</h3>
+    <form style="display: flex; flex-direction: column;">
+        <div style="display: flex; width: 100%; gap: 10px;">
+            <mat-form-field style="width: 100%">
+                <mat-label>Firstname</mat-label>
+                <input type="text" matInput [formControl]="firstnameFormControl" [errorStateMatcher]="matcher" placeholder="Petar">
+                @if (firstnameFormControl.hasError('firstname') && !firstnameFormControl.hasError('required')) {
+                  <mat-error>Please enter a valid firstname</mat-error>
+                }
+                @if (firstnameFormControl.hasError('required')) {
+                  <mat-error>Firstname is <strong>required</strong></mat-error>
+                }
+            </mat-form-field>
+            <mat-form-field style="width: 100%">
+                <mat-label>Lastname</mat-label>
+                <input type="text" matInput [formControl]="lastnameFormControl" [errorStateMatcher]="matcher" placeholder="Petrovic">
+                @if (lastnameFormControl.hasError('lastname') && !lastnameFormControl.hasError('required')) {
+                  <mat-error>Please enter a valid lastname</mat-error>
+                }
+                @if (lastnameFormControl.hasError('required')) {
+                  <mat-error>Lastname is <strong>required</strong></mat-error>
+                }
+            </mat-form-field>
+        </div>
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input type="email" matInput [formControl]="emailFormControl" [errorStateMatcher]="matcher" placeholder="example@gmail.com">
+          @if (emailFormControl.hasError('email') && !emailFormControl.hasError('required')) {
+            <mat-error>Please enter a valid email address</mat-error>
+          }
+          @if (emailFormControl.hasError('required')) {
+            <mat-error>Email is <strong>required</strong></mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Role</mat-label>
+            <mat-select [formControl]="roleFormControl" [errorStateMatcher]="matcher">
+              @for (role of roles; track role) {
+                <mat-option [value]="role.id">{{role.roleName}}</mat-option>
+              }
+            </mat-select>
+            @if (roleFormControl.hasError('required')) {
+            <mat-error>Role is <strong>required</strong></mat-error>
+            }
+          </mat-form-field>
+      </form>
+      
+    <div style="display: flex; width: 100%;">
+        <button class="white" mat-button style="background-color: #5096A4; width: 100%;" (click)="closeDialog();">Yes</button>
+        <button class="" mat-button style="background-color: #EFF0F0; width: 100%;" (click)="closeDialog();">No</button>
+    </div>
+</div>
