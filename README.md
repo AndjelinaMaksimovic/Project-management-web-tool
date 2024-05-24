@@ -8,6 +8,8 @@
     - [1. Pokretanje u aktivnom terminalu](#1-pokretanje-u-aktivnom-terminalu)
     - [2. Pokretanje u pozadini (komanda)](#2-pokretanje-u-pozadini-komanda)
       - [Zaustavljanje alata pokrenutog u pozadini](#zaustavljanje-alata-pokrenutog-u-pozadini)
+- [Kredencijali svih tipova korisnika u sistemu](#kredencijali)
+    
 
 
 
@@ -80,7 +82,7 @@ Kada se alat pokrene na ovaj način, biće aktivan u trajanju sesije u terminalu
 
 **Bekend** - Locirati se u sledeći folder:`cd BE/out` i pokrenuti bekend komandom: `dotnet Codedberries.dll --urls=http://0.0.0.0:10122`.
 
-**Frontend** - Pokrenuti još jedan terminal i locirati se na folder *codedberries* kako je gore navedeno. Locirati na folder: `cd FE/dist` i pokrenuti frontend komandom: `python3 -m http.server 10 123`.
+**Frontend** - Pokrenuti još jedan terminal i locirati se na folder *codedberries* kako je gore navedeno. Locirati na folder: `cd FE/dist` i pokrenuti frontend komandom: `python3 error_script.py`.
 
 Kada su frontend i bekend pokrenuti, otvoriti adresu: 
     
@@ -94,12 +96,13 @@ Kada se alat pokrene na ovaj način, alat radi u pozadini odnosno ostaje aktivan
  ![pid pokrenutog bekenda](images/detachedBE.JPG)
 
 **Frontend** - Iz istog terminala se locirati se na folder *codedberries* kako je navedeno na početku. Locirati na folder: `cd FE/dist` i pokrenuti frontend komandom: 
-`nohup python3 -m http.server 10123 > /dev/null 2>&1 &`.
+`nohup python3  error_script.py > /dev/null 2>&1 &`.
 
 Kao i kod bekenda dogovr na komandu je pid procesa frontenda.
 
 #### Zaustavljanje alata pokrenutog u pozadini
 Ukoliko se ne sačuvaju negde pidovi proces frontnda i bekenda do njih se može doći sledećim komandama:
+
 
 **Bekend** - `ps aux | grep Codedberries.dll`. Dobije se:
  ![pid pokrenutog bekenda](images/killBE.JPG)
@@ -109,5 +112,19 @@ Ukoliko se ne sačuvaju negde pidovi proces frontnda i bekenda do njih se može 
 `. Dobije se:
  ![pid pokrenutog frontenda](images/killFe.JPG)
  Frontend se zaustavlja sa `kill <PID>` odnonso na ovom primeru `kill 995490`.
+
+
+# Kredencijali svih tipova korisnika u sistemu
+
+**Super user** - username: petar.simic@gmail.com  password: password1
+**Project owner**  - username: zoran.gajic@gmail.com  password: password3
+**Project manager**  - username: lazar.milojevic@gmail.com  password: password3
+**Employee**  - username: ana.dacic@gmail.com password: password3
+**Viewer**  - username: mina.markovic@gmail.com password: password3
+
+
+
+
+
 
  Za oba načina pokretanja alat se otvara na adresi: *http://softeng.pmf.kg.ac.rs:10123*.
