@@ -29,7 +29,7 @@ namespace Codedberries.Services
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
 
-            if (user != null && VerifyPassword(password, user.Password, user.PasswordSalt))
+            if (user != null && user.Activated && VerifyPassword(password, user.Password, user.PasswordSalt))
             {
                 // create new session
                 var sessionToken = GenerateSessionToken();
