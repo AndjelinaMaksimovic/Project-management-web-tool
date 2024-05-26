@@ -11,7 +11,7 @@
 - [Kredencijali svih tipova korisnika u sistemu](#kredencijali)
     
 
-
+**Aplikacja se nalazi na: http://softeng.pmf.kg.ac.rs:10123/**
 
 # Razvojna verzija
 
