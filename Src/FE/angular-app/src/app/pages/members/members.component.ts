@@ -120,6 +120,7 @@ export class MembersComponent {
         }
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
       });
+      this.myRole = await this.userService.currentUserRole(this.projectId)
     }
     else {
       let onlyRoles = await this.rolesService.getAllRoles();
@@ -134,8 +135,8 @@ export class MembersComponent {
       onlyUsers?.forEach((val, index) => {
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
       });
+      this.myRole = await this.userService.currentUserRole()
     }
-    this.myRole = await this.userService.currentUserRole(this.projectId)
   }
 
   async fetchMembersFromLocalStorage() {

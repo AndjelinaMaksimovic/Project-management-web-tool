@@ -1,15 +1,12 @@
 <div class="container">
     <div class="sub-container left ml-10">
         <img [routerLink]="'/'" class="profile-picture" style="cursor: pointer;" src="/assets/logo.svg">
-        <a mat-button class="dropdown-button ml-10 white" [routerLink]="'/'">
+        <a mat-button class="dropdown-button ml-10 white" [routerLink]="'/'" *ngIf="!role.canAddNewUser">
             Projects
         </a>
-        <a mat-button class="dropdown-button ml-10 white" [routerLink]="'/company-members'">
+        <a mat-button class="dropdown-button ml-10 white" [routerLink]="'/company-members'" *ngIf="role.canAddNewUser || role.canAddUserToProject">
             Company members
         </a>
-        <button (click)="invitePopup()" *ngIf="role.canAddNewUser" mat-button class="dropdown-button ml-10 white">
-            Invite new member
-        </button>
     </div>
     <div class="sub-container right mr-10">
         <!-- <input class="search" placeholder="Ask virtual assistant"> -->

@@ -128,6 +128,12 @@ export class AuthService {
     }
     return this.router.createUrlTree(["/"])
   }
+  async canSeeCompanyMembers(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+    const role = await this.userService.currentUserRole()
+    if(role.canAddUserToProject)
+      return true
+    return this.router.createUrlTree(["/"])
+  }
   async notSuperUser(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
     const role = await this.userService.currentUserRole()
     if(role.canAddNewUser)
@@ -144,4 +150,7 @@ export const NotLoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: 
 }
 export const NotSuperUser: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> => {
   return inject(AuthService).notSuperUser(next, state);
+}
+export const CanSeeCompanyMembers: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> => {
+  return inject(AuthService).canSeeCompanyMembers(next, state);
 }

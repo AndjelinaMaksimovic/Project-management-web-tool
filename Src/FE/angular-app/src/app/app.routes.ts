@@ -7,7 +7,7 @@ import { ActivateComponent } from './pages/activate/activate.component';
 // import { NewProjectComponent } from './pages/new-project/new-project.component';
 import { GanttTestComponent } from './pages/gantt-test/gantt-test.component';
 import { MyTasksComponent } from './pages/my-tasks/my-tasks.component';
-import { LoggedIn, NotSuperUser } from './services/auth.service';
+import { CanSeeCompanyMembers, LoggedIn, NotSuperUser } from './services/auth.service';
 import { NotLoggedIn } from './services/auth.service';
 import { ProjectDetailsComponent } from './pages/project-details/project-details.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -21,17 +21,27 @@ export const routes: Routes = [
     path: '',
     canActivate: [LoggedIn],
     children: [
-      { path: '', canActivate: [NotSuperUser], component: HomeComponent },
-      { path: 'company-members', title: 'Company members | Codedberries', component: MembersComponent},
-      // { path: 'new-project', component: NewProjectComponent },
-      { path: 'project/:id/tasks', title: 'Project tasks | Codedberries', component: MyTasksComponent },
-      { path: 'project/:id/new-task', title: 'New task | Codedberries', component: NewTaskComponent },
-      { path: 'project/:id/details', title: 'Project details | Codedberries', component: ProjectDetailsComponent },
       { path: 'profile/:userId', title: 'Profile | Codedberries', component: ProfileComponent },
-      { path: 'project/:id/task/:taskId', title: 'Task | Codedberries', component: TaskComponent },
-      { path: 'members/:id', title: 'Members | Codedberries', component: MembersComponent, data: { isProject: true} },
-      { path: 'archived-projects', title: 'Archived projects | Codedberries', component: ArchivedProjectsComponent },
-      { path: 'gantt-test', component: GanttTestComponent },
+      { path: 'company-members', title: 'Company members | Codedberries', canActivate: [CanSeeCompanyMembers],component: MembersComponent},
+      {
+        path: '',
+        canActivate: [NotSuperUser],
+        // component: HomeComponent,
+        children: [
+          {
+            path: '',
+            canActivate: [NotSuperUser],
+            component: HomeComponent,
+          },
+          // { path: 'new-project', component: NewProjectComponent },
+          { path: 'project/:id/tasks', title: 'Project tasks | Codedberries', component: MyTasksComponent },
+          { path: 'project/:id/new-task', title: 'New task | Codedberries', component: NewTaskComponent },
+          { path: 'project/:id/details', title: 'Project details | Codedberries', component: ProjectDetailsComponent },
+          { path: 'project/:id/task/:taskId', title: 'Task | Codedberries', component: TaskComponent },
+          { path: 'project/:id/members', title: 'Members | Codedberries', component: MembersComponent, data: { isProject: true} },
+          { path: 'archived-projects', title: 'Archived projects | Codedberries', component: ArchivedProjectsComponent },
+        ]
+      },
     ]
   },
   { path: 'login', title: 'Log in | Codedberries', canActivate: [NotLoggedIn], component: LoginComponent },
