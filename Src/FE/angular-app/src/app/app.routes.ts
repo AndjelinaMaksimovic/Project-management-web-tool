@@ -7,7 +7,7 @@ import { ActivateComponent } from './pages/activate/activate.component';
 // import { NewProjectComponent } from './pages/new-project/new-project.component';
 import { GanttTestComponent } from './pages/gantt-test/gantt-test.component';
 import { MyTasksComponent } from './pages/my-tasks/my-tasks.component';
-import { LoggedIn } from './services/auth.service';
+import { LoggedIn, NotSuperUser } from './services/auth.service';
 import { NotLoggedIn } from './services/auth.service';
 import { ProjectDetailsComponent } from './pages/project-details/project-details.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -17,19 +17,29 @@ import { ArchivedProjectsComponent } from './pages/archived-projects/archived-pr
 import { MembersComponent } from './pages/members/members.component';
 
 export const routes: Routes = [
-  { path: '', title: 'Codedberries | Home', component: HomeComponent, canActivate: [LoggedIn] },
-  { path: 'login', title: 'Codedberries | Log in', component: LoginComponent, canActivate: [NotLoggedIn] },
-  { path: 'register', title: 'Codedberries | Register', component: RegisterComponent },
-  { path: 'activate', title: 'Codedberries | Activate', component: ActivateComponent },
-  { path: 'company-members', component: MembersComponent, canActivate: [LoggedIn] },
-  // { path: 'new-project', component: NewProjectComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/tasks', title: 'Codedberries | Project tasks', component: MyTasksComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/new-task', title: 'Codedberries | New task', component: NewTaskComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/details', title: 'Codedberries | Project details', component: ProjectDetailsComponent, canActivate: [LoggedIn] },
-  { path: 'profile/:userId', title: 'Codedberries | Profile', component: ProfileComponent, canActivate: [LoggedIn] },
-  { path: 'project/:id/task/:taskId', title: 'Codedberries | Task', component: TaskComponent, canActivate: [LoggedIn] },
-  { path: 'members/:id', title: 'Codedberries | Members', component: MembersComponent, data: { isProject: true}, canActivate: [LoggedIn] },
-  { path: 'archived-projects', component: ArchivedProjectsComponent, canActivate: [LoggedIn] },
-  { path: 'gantt-test', component: GanttTestComponent },
+  {
+    path: '',
+    canActivate: [LoggedIn],
+    children: [
+      { path: '', canActivate: [NotSuperUser], component: HomeComponent },
+      { path: 'company-members', title: 'Company members | Codedberries', component: MembersComponent},
+      // { path: 'new-project', component: NewProjectComponent },
+      { path: 'project/:id/tasks', title: 'Project tasks | Codedberries', component: MyTasksComponent },
+      { path: 'project/:id/new-task', title: 'New task | Codedberries', component: NewTaskComponent },
+      { path: 'project/:id/details', title: 'Project details | Codedberries', component: ProjectDetailsComponent },
+      { path: 'profile/:userId', title: 'Profile | Codedberries', component: ProfileComponent },
+      { path: 'project/:id/task/:taskId', title: 'Task | Codedberries', component: TaskComponent },
+      { path: 'members/:id', title: 'Members | Codedberries', component: MembersComponent, data: { isProject: true} },
+      { path: 'archived-projects', title: 'Archived projects | Codedberries', component: ArchivedProjectsComponent },
+      { path: 'gantt-test', component: GanttTestComponent },
+    ]
+  },
+  { path: 'login', title: 'Log in | Codedberries', canActivate: [NotLoggedIn], component: LoginComponent },
+  { path: 'register', title: 'Register | Codedberries', component: RegisterComponent },
+  { path: 'activate', title: 'Activate | Codedberries', component: ActivateComponent },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];
+/*
+signalr, socket za notifikacije
+paginacija aktivnosti
+*/
