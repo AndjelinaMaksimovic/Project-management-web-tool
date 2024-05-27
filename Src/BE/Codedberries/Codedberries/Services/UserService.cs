@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
@@ -735,6 +736,54 @@ namespace Codedberries.Services
             if (role.CanEditTask) permissions.Add("CanEditTask");
 
             return permissions;
+        }
+
+        public async Task<string> RemoveUserProfilePicture(HttpContext httpContext)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (!string.IsNullOrEmpty(user.ProfilePicture))
+            {
+                string currentImagePath = Path.Combine("ProfileImages", user.ProfilePicture);
+                
+                if (File.Exists(currentImagePath))
+                {
+                    File.Delete(currentImagePath);
+                }
+
+                user.ProfilePicture = null;
+                await _databaseContext.SaveChangesAsync();
+            }
+
+            string defaultImageName = "defaultProfilePicture.jpg";
+            string defaultImagePath = Path.Combine("ProfileImages", defaultImageName);
+            byte[] defaultImageBytes = await File.ReadAllBytesAsync(defaultImagePath);
+
+            string newImageName = $"{user.Id}.jpg";
+            string newImagePath = Path.Combine("ProfileImages", newImageName);
+            await File.WriteAllBytesAsync(newImagePath, defaultImageBytes);
+
+            user.ProfilePicture = newImageName;
+            await _databaseContext.SaveChangesAsync();
+
+            return newImagePath;
         }
     }
 }
