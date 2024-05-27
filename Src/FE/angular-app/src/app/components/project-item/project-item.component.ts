@@ -38,8 +38,4 @@ export class ProjectItemComponent {
     archiveProject() {
         this.projectService.archiveProject(this.id);
     }
-
-    unarchiveProject() {
-        this.projectService.unarchiveProject(this.id);
-    }
 }
