@@ -31,6 +31,7 @@ export class LoginComponent {
       !this.email.value
       || !this.password.value
       || this.email.errors
+      || this.password.errors
     ){
       return
     }
