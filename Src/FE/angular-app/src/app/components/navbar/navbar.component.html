@@ -12,7 +12,6 @@
             <p class="title margin-15" *ngIf="isExpanded">{{ title }}</p>
 
             <mat-nav-list>
-                <h1>{{title}}</h1>
                 <a class="menu-item pl-15 pr-15 lightgray" [routerLink]="['/project', id, 'details']" routerLinkActive="active">
                     <i class="icon fa-regular fa-folder-open mr-10"></i>
                     <span *ngIf="isExpanded">Project details</span>
@@ -25,7 +24,7 @@
                     <i class="icon fa-solid fa-list-check mr-10"></i>
                     <span *ngIf="isExpanded">Tasks</span>
                 </a>
-                <a class="menu-item pl-15 pr-15 lightgray" [routerLink]="['/members', id]" routerLinkActive="active">
+                <a class="menu-item pl-15 pr-15 lightgray" [routerLink]="['/project', id, 'members']" routerLinkActive="active">
                     <i class="icon fa-solid fa-users mr-10"></i>
                     <span *ngIf="isExpanded">Members</span>
                 </a>

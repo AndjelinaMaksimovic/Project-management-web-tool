@@ -73,12 +73,15 @@ export class ProjectService {
    * Use it to initialize projects list or
    * after deleting/updating/creating projects
    */
-  public async fetchProjects() {
+  public async fetchProjects(filters?: any) {
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl + '/Projects/filterProjects',
-          environment.httpOptions,
+          {
+            ...environment.httpOptions,
+            params: filters,
+          },
         )
       );
       this.projects = res.body.map((project: any) => {

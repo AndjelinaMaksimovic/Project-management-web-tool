@@ -49,7 +49,3 @@ export const routes: Routes = [
   { path: 'activate', title: 'Activate | Codedberries', component: ActivateComponent },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];
-/*
-signalr, socket za notifikacije
-paginacija aktivnosti
-*/
