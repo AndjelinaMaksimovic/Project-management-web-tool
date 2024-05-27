@@ -16,20 +16,31 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
   activities: any[] = []
   menuOpened = false
   intervalId!: any
+  seen = true
   
 
   constructor(private projectService: ProjectService){}
 
   async ngOnInit(){
-    this.activities = await this.projectService.allUsersProjectActivities()
+    this.fetch()
     this.intervalId = setInterval(async () => {
       if(!this.menuOpened){
-        this.activities = await this.projectService.allUsersProjectActivities()
+        this.fetch()
       }
     }, 10_000)
   }
 
+  async fetch(){
+    this.activities = await this.projectService.allUsersProjectActivities()
+    this.seen = !this.activities.some(act => !act.seen)
+  }
+
   ngOnDestroy(): void {
     clearInterval(this.intervalId)
+  }
+
+  onOpen(){
+    this.seen = true
+    this.projectService.notificationsSeen()
   }
 }

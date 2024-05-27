@@ -175,7 +175,7 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
-                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has created the project {project.Name}", TimeOnly.FromDateTime(DateTime.Now));
+                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has created the project {project.Name}", DateTime.Now);
                     _databaseContext.Activities.Add(activity);
                     await _databaseContext.SaveChangesAsync();
 
@@ -819,7 +819,7 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Email} has updated the project {project.Name}", TimeOnly.FromDateTime(DateTime.Now));
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has updated the project {project.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
 
@@ -901,7 +901,7 @@ namespace Codedberries.Services
             // archive/active
             project.Archived = !project.Archived;
 
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Id} has archived the project {project.Id}", TimeOnly.FromDateTime(DateTime.Now));
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project {project.Id}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
 
@@ -1252,7 +1252,7 @@ namespace Codedberries.Services
 
             var activities = await _databaseContext.Activities
                 .Where(c => c.ProjectId == request.ProjectId)
-                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription=c.ActivityDescription, UserId=c.UserId })
+                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription=c.ActivityDescription, UserId=c.UserId,Time=c.Time })
                 .ToListAsync();
 
             if (activities == null || !activities.Any())
@@ -1293,7 +1293,7 @@ namespace Codedberries.Services
 
             var activities = await _databaseContext.Activities
                 .Where(c => c.UserId == userId)
-                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId })
+                .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId, Time=c.Time })
                 .ToListAsync();
 
             if (activities == null || !activities.Any())
@@ -1363,7 +1363,8 @@ namespace Codedberries.Services
                     ProjectId = activity.ProjectId,
                     UserId = activity.UserId,
                     ActivityDescription = activity.ActivityDescription,
-                    Seen = seen
+                    Seen = seen,
+                    Time=activity.Time
                 };
 
                 notificationDTOs.Add(notification);

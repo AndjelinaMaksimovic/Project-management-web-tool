@@ -150,7 +150,7 @@ export class ProjectService {
 
   async createNew(
     obj: any
-  ): Promise<boolean> {
+  ): Promise<any> {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -164,7 +164,7 @@ export class ProjectService {
 
       if (!res.ok) return false;
       
-      return true;
+      return res.body;
     } catch (e) {
       console.log(e);
     }
@@ -345,5 +345,44 @@ export class ProjectService {
       return false;
     }
     return false;
+  }
+
+  async addNewUserToProject(projectId: number, userId: number, roleId: number){
+    try {
+      await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/UserProjects/addNewUserToProject`,
+            {
+              projectId: projectId,
+              userId: userId,
+              roleId: roleId
+            },
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false
+    }
+  }
+  async notificationsSeen() {
+    try {
+      await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/NotificationsSeen`,
+            {},
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
