@@ -160,10 +160,10 @@ export class NgxganttComponent {
           name: 'day',
           value: GanttViewType.day
       },
-      {
-          name: 'week',
-          value: GanttViewType.week
-      },
+      // {
+      //     name: 'week',
+      //     value: GanttViewType.week
+      // },
       {
           name: 'month',
           value: GanttViewType.month
