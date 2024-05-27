@@ -1,9 +1,7 @@
 ﻿using Codedberries.Helpers;
 using Codedberries.Models.DTOs;
 using Codedberries.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 namespace Codedberries.Controllers
 {
     [Route("api/[controller]")]
@@ -214,6 +212,33 @@ namespace Codedberries.Controllers
             }
 
             return Ok(userRole);
+        }
+
+        [HttpPost("removeProfilePicture")]
+        public async Task<IActionResult> RemoveUserProfilePicture()
+        {
+            try
+            {
+                await _userService.RemoveUserProfilePicture(HttpContext);
+
+                return Ok("Profile picture successfully removed.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(401, new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
+            }
         }
     }
 }
