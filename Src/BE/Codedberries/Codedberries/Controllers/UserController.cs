@@ -1,11 +1,7 @@
 ﻿using Codedberries.Helpers;
 using Codedberries.Models.DTOs;
 using Codedberries.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 namespace Codedberries.Controllers
 {
     [Route("api/[controller]")]
