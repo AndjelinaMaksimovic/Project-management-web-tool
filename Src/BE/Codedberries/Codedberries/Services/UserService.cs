@@ -238,6 +238,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            // gets all users including super users
             var usersQuery = _databaseContext.Users.AsQueryable();
 
             if (body.ProjectId != null)
@@ -264,8 +265,10 @@ namespace Codedberries.Services
                 }
             }
 
+            // gets super users
             // usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
 
+            /*
             // get all users that are not super user, inlcuding ones that dont have any role assigned
             usersQuery = usersQuery.Where(u => u.RoleId == null || !(u.Role.CanAddNewUser
                                     && u.Role.CanAddUserToProject
@@ -278,6 +281,7 @@ namespace Codedberries.Services
                                     && u.Role.CanCreateTask
                                     && u.Role.CanRemoveTask
                                     && u.Role.CanEditTask));
+            */
 
             var users = await usersQuery
                 .Select(u => new UserInformationDTO
