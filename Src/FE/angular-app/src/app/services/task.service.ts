@@ -27,6 +27,7 @@ export type Task = Readonly<{
   assignedTo: any;
   dependentTasks: number[];
   progress: number;
+  archived: boolean;
 }>;
 
 @Injectable({
@@ -61,6 +62,7 @@ export class TaskService {
       assignedTo: apiTask.assignedTo,
       dependentTasks: apiTask.dependentTasks,
       progress: apiTask.progress,
+      archived: apiTask.archived,
     };
   }
 
