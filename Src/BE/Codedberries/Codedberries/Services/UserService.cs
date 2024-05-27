@@ -742,7 +742,7 @@ namespace Codedberries.Services
             return permissions;
         }
 
-        public async Task<string> RemoveUserProfilePicture(HttpContext httpContext)
+        public async System.Threading.Tasks.Task RemoveUserProfilePicture(HttpContext httpContext)
         {
             var userId = this.GetCurrentSessionUser(httpContext);
 
@@ -777,7 +777,7 @@ namespace Codedberries.Services
             }
 
             string defaultImageName = "defaultProfilePicture.jpg";
-            string defaultImagePath = Path.Combine("ProfileImages", defaultImageName);
+            string defaultImagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", defaultImageName);
             byte[] defaultImageBytes = await File.ReadAllBytesAsync(defaultImagePath);
 
             string newImageName = $"{user.Id}.jpg";
@@ -786,8 +786,6 @@ namespace Codedberries.Services
 
             user.ProfilePicture = newImageName;
             await _databaseContext.SaveChangesAsync();
-
-            return newImagePath;
         }
     }
 }

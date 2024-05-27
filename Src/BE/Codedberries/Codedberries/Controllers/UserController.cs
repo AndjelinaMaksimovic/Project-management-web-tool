@@ -3,6 +3,8 @@ using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Codedberries.Controllers
 {
@@ -221,9 +223,9 @@ namespace Codedberries.Controllers
         {
             try
             {
-                var defaultImagePath = await _userService.RemoveUserProfilePicture(HttpContext);
+                await _userService.RemoveUserProfilePicture(HttpContext);
 
-                return Ok(defaultImagePath);
+                return Ok("Profile picture successfully removed.");
             }
             catch (UnauthorizedAccessException ex)
             {
