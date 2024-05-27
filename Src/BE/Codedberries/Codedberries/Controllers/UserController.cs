@@ -215,5 +215,32 @@ namespace Codedberries.Controllers
 
             return Ok(userRole);
         }
+
+        [HttpPost("removeProfilePicture")]
+        public async Task<IActionResult> RemoveUserProfilePicture()
+        {
+            try
+            {
+                var defaultImagePath = await _userService.RemoveUserProfilePicture(HttpContext);
+
+                return Ok(defaultImagePath);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(401, new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
+            }
+        }
     }
 }
