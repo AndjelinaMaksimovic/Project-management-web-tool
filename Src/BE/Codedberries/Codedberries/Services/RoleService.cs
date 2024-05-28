@@ -16,12 +16,32 @@ namespace Codedberries.Services
             _authorizationService = authorizationService;
         }
 
-        public AllRolesDTO GetRoles()
+        public List<RolePermissionDTO> GetRoles()
         {
-            List<string> roleNames = _databaseContext.Roles.Select(r => r.Name).ToList();
-            List<int> rolesIds = _databaseContext.Roles.Select(r => r.Id).ToList();
+            List < Role > roles= _databaseContext.Roles.ToList();
+            List<RolePermissionDTO> roleDTO= new List<RolePermissionDTO>(); ;
 
-            return new AllRolesDTO { RoleNames = roleNames, RolesIds = rolesIds };
+            foreach(var role in roles)
+            {
+                var DTO = new RolePermissionDTO
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name,
+                    CanAddUserToProject = role.CanAddUserToProject,
+                    CanAddNewUser=role.CanAddNewUser,
+                    CanCreateProject=role.CanCreateProject,
+                    CanDeleteProject=role.CanDeleteProject,
+                    CanCreateTask=role.CanCreateTask,
+                    CanAddTaskToUser=role.CanAddTaskToUser,
+                    CanEditProject=role.CanEditProject,
+                    CanEditTask=role.CanEditTask,
+                    CanRemoveTask=role.CanRemoveTask,
+                    CanRemoveUserFromProject=role.CanRemoveUserFromProject,
+                    CanViewProject=role.CanViewProject
+                };
+                roleDTO.Add(DTO);
+            }
+            return roleDTO;
         }
 
         public async Task<bool> AddNewCustomRole(HttpContext httpContext, CustomRoleDTO request)
