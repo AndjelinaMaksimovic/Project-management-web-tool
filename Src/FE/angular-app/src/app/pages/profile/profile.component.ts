@@ -12,13 +12,16 @@ import { AuthService } from '../../services/auth.service';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectService } from '../../services/project.service';
 import { ActivityItemComponent } from '../../components/activity-item/activity-item.component';
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
+import { PageEvent } from '@angular/material/paginator';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent],
+  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, MarkdownModule],
+  providers: [provideMarkdown()],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
@@ -26,7 +29,11 @@ export class ProfileComponent {
   userId: string = "me";
   loggedInUser: number | undefined;
   user: any;
-  activities: any;
+  activities: any[] = [];
+  
+  paginatorLen = 0
+  paginatorPageSize = 5
+  viewActivities: any[] = []
   
   timestamp: number = Date.now();
   getProfileImagePath(){
@@ -51,6 +58,9 @@ export class ProfileComponent {
     this.loggedInUser = await this.authService.getMyId();
     this.user = this.userId === "me" ? await this.userService.getMe() : await this.userService.getUser(parseInt(this.userId));
     this.activities = await this.projectService.allUserActivities()
+    this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
+    this.paginatorLen = this.activities.length
+    this.viewActivities = this.activities.slice(0, this.paginatorPageSize)
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){
@@ -91,5 +101,10 @@ export class ProfileComponent {
       // Now you have the base64 string of the image
       this.uploadImage(base64String, "./test-image-02.jpg");
     };
+  }
+  
+  pageChange(e: PageEvent){
+    const offset = e.pageIndex * e.pageSize
+    this.viewActivities = this.activities.slice(offset, offset + e.pageSize)
   }
 }

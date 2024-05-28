@@ -17,11 +17,12 @@ import { StatusService } from '../../services/status.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../services/avatar.service';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-project-details',
   standalone: true,
-  imports: [ NavbarComponent, ProjectItemComponent, NgIf, StatusItemComponent, ProgressbarComponent, ActivityItemComponent, DatePipe, NgFor, MatTooltipModule ],
+  imports: [ NavbarComponent, ProjectItemComponent, NgIf, StatusItemComponent, ProgressbarComponent, ActivityItemComponent, DatePipe, NgFor, MatTooltipModule, MatPaginatorModule ],
   templateUrl: './project-details.component.html',
   styleUrl: './project-details.component.scss'
 })
@@ -29,6 +30,9 @@ export class ProjectDetailsComponent {
   project?: Project;
 
   activities: any[] = []
+  viewActivities: any[] = []
+  paginatorLen = 0
+  paginatorPageSize = 5
 
   projectId: number = 0;
   title?: string = "";
@@ -81,6 +85,9 @@ export class ProjectDetailsComponent {
 
 
     this.activities = await this.projectService.allProjectActivities(this.projectId)
+    this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
+    this.paginatorLen = this.activities.length
+    this.viewActivities = this.activities.slice(0, this.paginatorPageSize)
 
     this.role = await this.userService.currentUserRole(this.projectId)
     
@@ -101,5 +108,10 @@ export class ProjectDetailsComponent {
 
   deleteCategory(category: number) {
     this.categoryService.deleteCategory(category);
+  }
+
+  pageChange(e: PageEvent){
+    const offset = e.pageIndex * e.pageSize
+    this.viewActivities = this.activities.slice(offset, offset + e.pageSize)
   }
 }
