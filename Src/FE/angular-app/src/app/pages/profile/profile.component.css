@@ -1,7 +1,36 @@
 .circle-image {
+    display: block;
     border-radius: 50%;
-    height: 70%;
+    width: 7rem;
+    height: 7rem;
     background-color: white;
+    object-fit: cover;
+}
+
+.edit-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    color: black;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    cursor: pointer;
+}
+
+.image-container {
+    height: 7rem;
+    width: 7rem;
+    position: relative;
+}
+
+.image-container:hover .edit-icon  {
+    display: block;
+}
+
+.image-container:hover .circle-image  {
+    background:rgba(0,0,0,0.6);
+    opacity: 0.5;
 }
 
 .tag {
@@ -52,4 +81,10 @@
     font-size: x-large;
     font-weight: 500;
     cursor: pointer;
+}
+
+.scroll {
+    height: 20rem;
+    overflow: scroll;
+    overflow-x: hidden;
 }
