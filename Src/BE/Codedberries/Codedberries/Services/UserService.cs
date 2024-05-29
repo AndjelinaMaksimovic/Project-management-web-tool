@@ -788,7 +788,7 @@ namespace Codedberries.Services
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task DeactivateUser(HttpContext httpContext, UserIdDTO request)
+        public async System.Threading.Tasks.Task DeactivateUser(HttpContext httpContext, UserIdDTO request)
         {
             var userId = this.GetCurrentSessionUser(httpContext);
 
@@ -809,6 +809,18 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            var currentUserRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == currentUser.RoleId);
+
+            if (currentUserRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (currentUserRole.CanAddNewUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to deactivate user!");
+            }
+
             // find user to deactivate
             if (request.UserId <= 0)
             {
@@ -825,15 +837,13 @@ namespace Codedberries.Services
             if (userToDeactivate.RoleId == null)
             {
                 throw new InvalidOperationException($"Provided User with ID {request.UserId} does not have a role assigned!");
-            }
+            }        
 
-            // find all task IDs where the user is assigned to
             var taskIds = await _databaseContext.TaskUsers
                 .Where(tu => tu.UserId == userToDeactivate.Id)
                 .Select(tu => tu.TaskId)
                 .ToListAsync();
 
-            // check if all tasks are finished or if there are no tasks
             var allTasksFinished = !taskIds.Any() || await _databaseContext.Tasks
                 .Where(t => taskIds.Contains(t.Id))
                 .AllAsync(t => t.FinishedDate != null);
