@@ -787,5 +787,65 @@ namespace Codedberries.Services
             user.ProfilePicture = newImageName;
             await _databaseContext.SaveChangesAsync();
         }
+
+        public async Task DeactivateUser(HttpContext httpContext, UserIdDTO request)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var currentUser = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (currentUser == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (currentUser.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            // find user to deactivate
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("Provided UserId must be greater than 0!");
+            }
+
+            var userToDeactivate = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (userToDeactivate == null)
+            {
+                throw new ArgumentException($"Provided User with ID {request.UserId} not found in database!");
+            }
+
+            if (userToDeactivate.RoleId == null)
+            {
+                throw new InvalidOperationException($"Provided User with ID {request.UserId} does not have a role assigned!");
+            }
+
+            // find all task IDs where the user is assigned to
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == userToDeactivate.Id)
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            // check if all tasks are finished or if there are no tasks
+            var allTasksFinished = !taskIds.Any() || await _databaseContext.Tasks
+                .Where(t => taskIds.Contains(t.Id))
+                .AllAsync(t => t.FinishedDate != null);
+
+            if (!allTasksFinished)
+            {
+                throw new InvalidOperationException("Cannot deactivate user from project because they have active tasks!");
+            }
+
+            // deactivate user
+            userToDeactivate.Activated = false;
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }
