@@ -240,5 +240,20 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
             }
         }
+
+        [HttpPost("deactivateUser")]
+        public async Task<IActionResult> DeactivateUser([FromBody] UserIdDTO request)
+        {
+            try
+            {
+                await _userService.DeactivateUser(HttpContext, request);
+
+                return Ok("User successfully deactivated.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
+            }
+        }
     }
 }
