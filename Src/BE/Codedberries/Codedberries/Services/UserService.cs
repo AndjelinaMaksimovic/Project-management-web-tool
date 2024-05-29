@@ -850,7 +850,7 @@ namespace Codedberries.Services
 
             if (!allTasksFinished)
             {
-                throw new InvalidOperationException("Cannot deactivate user from project because they have active tasks!");
+                throw new InvalidOperationException("Cannot deactivate provided user because they have active tasks!");
             }
 
             /*
