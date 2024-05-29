@@ -853,6 +853,18 @@ namespace Codedberries.Services
                 throw new InvalidOperationException("Cannot deactivate user from project because they have active tasks!");
             }
 
+            /*
+            // removing user from projects 
+            var userProjectsToDelete = await _databaseContext.UserProjects
+                .Where(up => up.UserId == userToDeactivate.Id)
+                .ToListAsync();
+
+            if (userProjectsToDelete.Any())
+            {
+                _databaseContext.UserProjects.RemoveRange(userProjectsToDelete);
+            }
+            */
+
             // deactivate user
             userToDeactivate.Activated = false;
             await _databaseContext.SaveChangesAsync();
