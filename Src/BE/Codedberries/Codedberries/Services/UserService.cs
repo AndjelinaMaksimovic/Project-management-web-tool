@@ -844,9 +844,10 @@ namespace Codedberries.Services
                 .Select(tu => tu.TaskId)
                 .ToListAsync();
 
+            // no tasks or all tasks are arcived
             var allTasksFinished = !taskIds.Any() || await _databaseContext.Tasks
                 .Where(t => taskIds.Contains(t.Id))
-                .AllAsync(t => t.FinishedDate != null);
+                .AllAsync(t => t.Archived == true);
 
             if (!allTasksFinished)
             {
