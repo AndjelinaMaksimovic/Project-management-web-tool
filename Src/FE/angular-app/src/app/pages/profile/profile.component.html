@@ -17,6 +17,46 @@
         </div>
     </div>
     <mat-divider></mat-divider>
+
+    <div style="width: 80%; margin: auto;">
+        <div class="margin-15">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleTasks();">
+                    <i *ngIf="allTasksAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
+                    <i *ngIf="!allTasksAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
+                    <span>Active tasks</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;" *ngIf="allTasksAccordionVisible">
+                    @for (task of tasks; track task) {
+                        <app-task-card [task]="task"></app-task-card>
+                    }
+                    @if (tasks.length == 0) {
+                        <p>No active tasks!</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="margin-15">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleProjects();">
+                    <i *ngIf="allProjectsAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
+                    <i *ngIf="!allProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
+                    <span>Active projects</span>
+                </div>
+                <div *ngIf="allProjectsAccordionVisible">
+                    @for (project of projects; track project) {
+                        <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [dontRefresh]="true"></app-project-item>
+                    }
+                    @if (projects.length == 0) {
+                        <p>No active projects!</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
     <h3>Activity</h3>
     @for(activity of activities; track activity; let last = $last){
         <!-- <app-activity-item [activity]="activity"></app-activity-item> -->

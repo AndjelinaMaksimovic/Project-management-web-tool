@@ -12,13 +12,16 @@ import { AuthService } from '../../services/auth.service';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectService } from '../../services/project.service';
 import { ActivityItemComponent } from '../../components/activity-item/activity-item.component';
+import { TaskService } from '../../services/task.service';
+import { TaskCardComponent } from '../../components/task-card/task-card.component';
+import { ProjectItemComponent } from '../../components/project-item/project-item.component';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent],
+  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, TaskCardComponent, ProjectItemComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
@@ -27,6 +30,17 @@ export class ProfileComponent {
   loggedInUser: number | undefined;
   user: any;
   activities: any;
+
+  allTasksAccordionVisible: boolean = false;
+  allProjectsAccordionVisible: boolean = false;
+
+  get tasks() {
+    return this.taskService.getTasks();
+  }
+
+  get projects(){
+    return this.projectService.getProjects().filter(project => !project.archived);
+  }
   
   timestamp: number = Date.now();
   getProfileImagePath(){
@@ -43,6 +57,7 @@ export class ProfileComponent {
     private authService: AuthService,
     private http: HttpClient,
     private projectService: ProjectService,
+    private taskService: TaskService
   ) {}
   async ngOnInit() {
     this.route.params.subscribe((params) => {
@@ -51,6 +66,12 @@ export class ProfileComponent {
     this.loggedInUser = await this.authService.getMyId();
     this.user = this.userId === "me" ? await this.userService.getMe() : await this.userService.getUser(parseInt(this.userId));
     this.activities = await this.projectService.allUserActivities()
+
+    await this.projectService.fetchUserProjects(this.loggedInUser!);
+    await this.taskService.fetchUserTasks({ assignedTo: this.loggedInUser! });
+
+    if(this.tasks.length != 0) this.allTasksAccordionVisible = true;
+    if(this.projects.length != 0) this.allProjectsAccordionVisible = true;
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){
@@ -91,5 +112,13 @@ export class ProfileComponent {
       // Now you have the base64 string of the image
       this.uploadImage(base64String, "./test-image-02.jpg");
     };
+  }
+
+  toggleTasks() {
+    this.allTasksAccordionVisible = !this.allTasksAccordionVisible;
+  }
+  
+  toggleProjects() {
+    this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
   }
 }

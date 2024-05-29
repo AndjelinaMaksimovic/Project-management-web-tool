@@ -39,3 +39,17 @@
     color: var(--color-primary);
     background-color: rgb(71, 118, 228, 0.15);
 }
+
+.accordion {
+    width: 100%;
+}
+
+.accordion-item {
+    margin-bottom: 10px !important;
+}
+
+.accordion-header {
+    font-size: x-large;
+    font-weight: 500;
+    cursor: pointer;
+}
