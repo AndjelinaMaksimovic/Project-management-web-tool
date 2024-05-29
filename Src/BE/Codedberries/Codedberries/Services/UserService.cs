@@ -681,7 +681,8 @@ namespace Codedberries.Services
                 CanAddTaskToUser= userRole.CanAddTaskToUser,
                 CanCreateTask= userRole.CanCreateTask,
                 CanRemoveTask=userRole.CanRemoveTask,
-                CanEditTask=userRole.CanEditTask
+                CanEditTask=userRole.CanEditTask,
+                CanEditUser=userRole.CanEditUser
             };
         }
 
@@ -718,7 +719,8 @@ namespace Codedberries.Services
                 CanAddTaskToUser = userRole.CanAddTaskToUser,
                 CanCreateTask = userRole.CanCreateTask,
                 CanRemoveTask = userRole.CanRemoveTask,
-                CanEditTask = userRole.CanEditTask
+                CanEditTask = userRole.CanEditTask,
+                CanEditUser=userRole.CanEditUser,
             };
         }
 
@@ -738,6 +740,7 @@ namespace Codedberries.Services
             if (role.CanCreateTask) permissions.Add("CanCreateTask");
             if (role.CanRemoveTask) permissions.Add("CanRemoveTask");
             if (role.CanEditTask) permissions.Add("CanEditTask");
+            if (role.CanEditUser) permissions.Add("CanEditUser");
 
             return permissions;
         }

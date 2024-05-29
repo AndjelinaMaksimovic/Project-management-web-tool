@@ -231,5 +231,23 @@ namespace Codedberries.Services
             }
             return false;
         }
+
+        public bool CanEditUser(int userId, int projectId)
+        {
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanEditUser;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
