@@ -37,7 +37,8 @@ namespace Codedberries.Services
                     CanEditTask=role.CanEditTask,
                     CanRemoveTask=role.CanRemoveTask,
                     CanRemoveUserFromProject=role.CanRemoveUserFromProject,
-                    CanViewProject=role.CanViewProject
+                    CanViewProject=role.CanViewProject,
+                    CanEditUser=role.CanEditUser
                 };
                 roleDTO.Add(DTO);
             }
