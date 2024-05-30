@@ -20,14 +20,25 @@ namespace Codedberries.Controllers
         [HttpGet("allRoles")]
         public IActionResult GetAllRoles()
         {
-            List<RolePermissionDTO> allRolesNames = _roleService.GetRoles(HttpContext);
-
-            if (allRolesNames == null)
+            try
             {
-                return NotFound(new ErrorMsg("No roles found!"));
-            }
+                List<RolePermissionDTO> allRolesNames = _roleService.GetRoles(HttpContext);
 
-            return Ok(allRolesNames);
+                if (allRolesNames == null)
+                {
+                    return NotFound(new ErrorMsg("No roles found!"));
+                }
+
+                return Ok(allRolesNames);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg("Internal server error: " + ex.Message));
+            }
         }
 
         [HttpPost("createCustomRole")]
@@ -45,6 +56,18 @@ namespace Codedberries.Controllers
                 {
                     return BadRequest(new ErrorMsg("Failed to create custom role!"));
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
