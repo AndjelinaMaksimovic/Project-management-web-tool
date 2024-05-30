@@ -20,10 +20,11 @@ export class RolesService {
       const r = await firstValueFrom(
         this.http.get<any>(environment.apiUrl + '/Role/allRoles', {})
       );
-      const roles: {roleName: string, id: number}[] = r.roleNames.map((roleName: string, index: number) => ({
-        roleName: roleName,
-        id: r.rolesIds[index],
+      const roles: {roleName: string, id: number}[] = r.map((r: any) => ({
+        roleName: r.roleName,
+        id: r.roleId,
       }));
+      console.log(roles)
       return roles;
     } catch (e) {
       console.log(e);
