@@ -20,7 +20,7 @@ namespace Codedberries.Controllers
         [HttpGet("allRoles")]
         public IActionResult GetAllRoles()
         {
-            List<RolePermissionDTO> allRolesNames = _roleService.GetRoles();
+            List<RolePermissionDTO> allRolesNames = _roleService.GetRoles(HttpContext);
 
             if (allRolesNames == null)
             {
