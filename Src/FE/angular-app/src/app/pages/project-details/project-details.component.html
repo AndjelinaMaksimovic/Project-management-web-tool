@@ -64,9 +64,10 @@
 
     <div class="margin-15">
         <p class="title">Activities:</p>
-        @for(activity of activities; track activity; let last = $last){
+        @for(activity of viewActivities; track activity; let last = $last){
             <app-activity-item [activity]="activity"></app-activity-item>
             <hr *ngIf="!last">
         }
+        <mat-paginator (page)="pageChange($event)" [length]="paginatorLen" [pageSize]="paginatorPageSize" [pageSizeOptions]="[5, 10, 20]"></mat-paginator>
     </div>    
 </app-navbar>

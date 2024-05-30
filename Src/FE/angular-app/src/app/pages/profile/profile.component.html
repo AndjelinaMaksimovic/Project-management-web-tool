@@ -18,11 +18,13 @@
     </div>
     <mat-divider></mat-divider>
     <h3>Activity</h3>
-    @for(activity of activities; track activity; let last = $last){
+    @for(activity of viewActivities; track activity; let last = $last){
         <!-- <app-activity-item [activity]="activity"></app-activity-item> -->
-        <p class="desc mt-20">{{ activity.activityDescription }}</p>
+        <markdown ngPreserveWhitespaces [data]="activity.activityDescription" class="desc mt-20"></markdown>
+        <p>{{ activity.time | date:'d/M/yy, h:mm:ss a' }}</p>
         <hr *ngIf="!last">
     }
+    <mat-paginator (page)="pageChange($event)" [length]="paginatorLen" [pageSize]="paginatorPageSize" [pageSizeOptions]="[2,5, 10, 20]"></mat-paginator>
     <!-- <div class="file-upload">
             {{fileName || "No file uploaded yet."}}
             <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
