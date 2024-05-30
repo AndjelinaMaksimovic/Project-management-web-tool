@@ -117,14 +117,12 @@ export class AuthService {
     return r
   }
   loggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree{
-    console.log("loggedInCheck")
     if(!document.cookie.includes("sessionId")){
       return this.router.createUrlTree(["/login"])
     }
     return true
   }
   notLoggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
-    console.log("notloggedInCheck")
     if(!document.cookie.includes("sessionId")){
       return true
     }
