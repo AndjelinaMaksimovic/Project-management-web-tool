@@ -73,12 +73,10 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            /*  // !!!! change to CanEditUsers when it gets added
-            if (userRole.CanEditProject == false)
+            if (userRole.CanEditUser == false)
             {
                 throw new InvalidOperationException("User does not have permission create new custom role!");
             }
-            */
 
             if (string.IsNullOrWhiteSpace(request.CustomRoleName))
             {
