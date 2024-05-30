@@ -72,32 +72,51 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            /*  // !!!! change to canEditUsers when it gets added
+            /*  // !!!! change to CanEditUsers when it gets added
             if (userRole.CanEditProject == false)
             {
                 throw new InvalidOperationException("User does not have permission create new custom role!");
             }
             */
 
-
-            var newRole = new Role(request.CustomRoleName)
+            if (string.IsNullOrWhiteSpace(request.CustomRoleName))
             {
-                CanAddNewUser = false,
-                CanAddUserToProject = false,
-                CanRemoveUserFromProject = false,
-                CanCreateProject = false,
-                CanDeleteProject = false,
-                CanEditProject = false,
-                CanViewProject = false,
-                CanAddTaskToUser = false,
-                CanCreateTask = false,
-                CanRemoveTask = false,
-                CanEditTask = false
-            };
+                throw new ArgumentException("CustomRoleName cannot be null or empty!");
+            }
+
+            if (request.Permissions == null || !request.Permissions.Any())
+            {
+                throw new ArgumentException("Permissions list cannot be null or empty!");
+            }
+
+            // getting all permissions from Role model
+            var allPermissions = typeof(Role).GetProperties()
+                .Where(p => p.PropertyType == typeof(bool))
+                .Select(p => p.Name)
+                .ToList();
+
+            foreach (var permission in request.Permissions)
+            {
+                if (!allPermissions.Contains(permission))
+                {
+                    throw new ArgumentException($"Invalid provided permission: {permission}!");
+                }
+            }
+
+            var existingRole = await _databaseContext.Roles.FirstOrDefaultAsync(r => r.Name == request.CustomRoleName);
+
+            if (existingRole != null)
+            {
+                throw new InvalidOperationException($"A role with the same name {request.CustomRoleName} already exists!");
+            }
+
+            // new role
+            var newRole = new Role(request.CustomRoleName);
 
             foreach (var permission in request.Permissions)
             {
                 var property = newRole.GetType().GetProperty(permission);
+
                 if (property != null && property.PropertyType == typeof(bool))
                 {
                     property.SetValue(newRole, true);
