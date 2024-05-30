@@ -1,6 +1,7 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
@@ -16,10 +17,36 @@ namespace Codedberries.Services
             _authorizationService = authorizationService;
         }
 
-        public List<RolePermissionDTO> GetRoles()
+        public List<RolePermissionDTO> GetRoles(HttpContext httpContext)
         {
-            List < Role > roles= _databaseContext.Roles.ToList();
-            List<RolePermissionDTO> roleDTO= new List<RolePermissionDTO>(); ;
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            List<Role> roles = _databaseContext.Roles.ToList();
+            List<RolePermissionDTO> roleDTO = new List<RolePermissionDTO>();
 
             foreach(var role in roles)
             {
@@ -28,18 +55,19 @@ namespace Codedberries.Services
                     RoleId = role.Id,
                     RoleName = role.Name,
                     CanAddUserToProject = role.CanAddUserToProject,
-                    CanAddNewUser=role.CanAddNewUser,
-                    CanCreateProject=role.CanCreateProject,
-                    CanDeleteProject=role.CanDeleteProject,
-                    CanCreateTask=role.CanCreateTask,
-                    CanAddTaskToUser=role.CanAddTaskToUser,
-                    CanEditProject=role.CanEditProject,
-                    CanEditTask=role.CanEditTask,
-                    CanRemoveTask=role.CanRemoveTask,
-                    CanRemoveUserFromProject=role.CanRemoveUserFromProject,
-                    CanViewProject=role.CanViewProject,
-                    CanEditUser=role.CanEditUser
+                    CanAddNewUser = role.CanAddNewUser,
+                    CanCreateProject = role.CanCreateProject,
+                    CanDeleteProject = role.CanDeleteProject,
+                    CanCreateTask = role.CanCreateTask,
+                    CanAddTaskToUser = role.CanAddTaskToUser,
+                    CanEditProject = role.CanEditProject,
+                    CanEditTask = role.CanEditTask,
+                    CanRemoveTask = role.CanRemoveTask,
+                    CanRemoveUserFromProject = role.CanRemoveUserFromProject,
+                    CanViewProject = role.CanViewProject,
+                    CanEditUser = role.CanEditUser
                 };
+
                 roleDTO.Add(DTO);
             }
             return roleDTO;
