@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectService } from '../../services/project.service';
 import { ActivityItemComponent } from '../../components/activity-item/activity-item.component';
+import { AvatarService } from '../../services/avatar.service';
 // import { environment } from '../../environments/environment';
 
 
@@ -30,7 +31,7 @@ export class ProfileComponent {
   
   timestamp: number = Date.now();
   getProfileImagePath(){
-    return `${environment.apiUrl}/User/users/avatars/${this.user.id}?timestamp=${this.timestamp}`
+    return this.avatarService.getProfileImagePath(this.user?.id);
   }
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -43,6 +44,7 @@ export class ProfileComponent {
     private authService: AuthService,
     private http: HttpClient,
     private projectService: ProjectService,
+    private avatarService: AvatarService,
   ) {}
   async ngOnInit() {
     this.route.params.subscribe((params) => {
