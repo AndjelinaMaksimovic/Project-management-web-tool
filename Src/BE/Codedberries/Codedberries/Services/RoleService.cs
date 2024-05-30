@@ -53,47 +53,59 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("Invalid session!");
             }
 
-            var defaultUserRoleId = _databaseContext.Users.Where(u => u.Id == userId).Select(u => u.RoleId).FirstOrDefault();
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
 
-            if (defaultUserRoleId == null)
+            if (user == null)
             {
-                throw new InvalidOperationException("User default role not found!");
+                throw new UnauthorizedAccessException("User not found!");
             }
 
-            var role = _databaseContext.Roles.FirstOrDefault(r => r.Id == defaultUserRoleId);
-            
-            if (role == null)
+            if (user.RoleId == null)
             {
-                throw new InvalidOperationException("Role not found!");
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
-            if (role.CanAddUserToProject == false)
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
             {
-                throw new InvalidOperationException("User does not have permission to add user to project!");
+                throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-
-            var defaultTruePermissions = role.GetType().GetProperties()
-                        .Where(p => p.PropertyType == typeof(bool) && (bool)p.GetValue(role) == true)
-                        .Select(p => p.Name)
-                        .ToList();
-
-            var newRole = new Role(request.CustomRoleName);
-
-            foreach (var property in newRole.GetType().GetProperties())
+            /*  // !!!! change to canEditUsers when it gets added
+            if (userRole.CanEditProject == false)
             {
-                if (property.PropertyType == typeof(bool) &&
-                    (defaultTruePermissions.Contains(property.Name) || request.Permissions.Contains(property.Name)))
+                throw new InvalidOperationException("User does not have permission create new custom role!");
+            }
+            */
+
+
+            var newRole = new Role(request.CustomRoleName)
+            {
+                CanAddNewUser = false,
+                CanAddUserToProject = false,
+                CanRemoveUserFromProject = false,
+                CanCreateProject = false,
+                CanDeleteProject = false,
+                CanEditProject = false,
+                CanViewProject = false,
+                CanAddTaskToUser = false,
+                CanCreateTask = false,
+                CanRemoveTask = false,
+                CanEditTask = false
+            };
+
+            foreach (var permission in request.Permissions)
+            {
+                var property = newRole.GetType().GetProperty(permission);
+                if (property != null && property.PropertyType == typeof(bool))
                 {
                     property.SetValue(newRole, true);
                 }
             }
 
-  
             _databaseContext.Roles.Add(newRole);
             await _databaseContext.SaveChangesAsync();
-
-            await AddToUserProject(userId.Value, newRole.Id, request.ProjectId);
 
             return true;
         }
