@@ -2,7 +2,7 @@
 <!-- header -->
 <div style="padding: 20px;">
     <div style="display: flex; flex-direction: column; align-items: center;">
-        <img class="circle-image" style="outline: solid; width: 13vw;" [src]="getProfileImagePath()"
+        <img class="circle-image" style="outline: solid; width: 13vw; height: 13vw;" [src]="getProfileImagePath()"
             onerror="this.src='/assets/logo.svg'">
         <input #fileUpload hidden="true" type="file" class="file-input" accept="image/png, image/jpeg"
             (change)="onFileSelected($event)">
