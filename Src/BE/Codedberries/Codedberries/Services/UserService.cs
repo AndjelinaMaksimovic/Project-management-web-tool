@@ -326,12 +326,8 @@ namespace Codedberries.Services
             {
                 if (this.ValidateSession(sessionToken) == false)
                 {
-                    throw new UnauthorizedAccessException("Session is invalid or expired!");
+                    return null;
                 }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Session cookie not found!");
             }
 
             var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
