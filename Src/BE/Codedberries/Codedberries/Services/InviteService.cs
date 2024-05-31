@@ -81,5 +81,11 @@ namespace Codedberries.Services
             user.ActivationToken = null;
             _databaseContext.SaveChanges();
         }
+
+        public void CheckInvite(HttpContext httpContext, CheckInviteDTO body)
+        {
+            User user = _databaseContext.Users.FirstOrDefault(x => x.ActivationToken == body.Token && x.Email == body.Email);
+            if (user == null) throw new Exception("Invalid token!");
+        }
     }
 }
