@@ -22,7 +22,8 @@ namespace Codedberries.Helpers
                     CanAddTaskToUser = true,
                     CanCreateTask = true,
                     CanRemoveTask = true,
-                    CanEditTask = true
+                    CanEditTask = true,
+                    CanEditUser = true
                 },
                 new Role("Project owner")
                 {
@@ -35,7 +36,8 @@ namespace Codedberries.Helpers
                     CanAddTaskToUser = true,
                     CanCreateTask = true,
                     CanRemoveTask = true,
-                    CanEditTask = true
+                    CanEditTask = true,
+                    CanEditUser= true
                 },
                 new Role("Project manager") 
                 {
@@ -46,7 +48,8 @@ namespace Codedberries.Helpers
                     CanAddTaskToUser = true,
                     CanCreateTask = true,
                     CanRemoveTask = true,
-                    CanEditTask = true
+                    CanEditTask = true,
+                    CanEditUser=true
                 },
                 new Role("Employee")
                 {
@@ -171,7 +174,8 @@ namespace Codedberries.Helpers
                      CanAddTaskToUser = true,
                      CanCreateTask = true,
                      CanRemoveTask = true,
-                     CanEditTask = true
+                     CanEditTask = true,
+                     CanEditUser=true
                  },
                 new Role("Project owner")
                 {
@@ -184,7 +188,8 @@ namespace Codedberries.Helpers
                     CanAddTaskToUser = true,
                     CanCreateTask = true,
                     CanRemoveTask = true,
-                    CanEditTask = true
+                    CanEditTask = true,
+                    CanEditUser=true
                 },
                 new Role("Project manager")
                 {
@@ -195,7 +200,8 @@ namespace Codedberries.Helpers
                     CanAddTaskToUser = true,
                     CanCreateTask = true,
                     CanRemoveTask = true,
-                    CanEditTask = true
+                    CanEditTask = true,
+                    CanEditUser=true
                 },
                 new Role("Employee")
                 {

@@ -7,9 +7,9 @@
                     <div>
                         <p style="margin: 0">{{task.dependant.title}} - {{typeToString(task.type)}}</p>
                     </div>
-                    <!-- <button mat-icon-button style="position: absolute; right: 5px;" (click)="removeDependency(task.dependant)">
+                    <button mat-icon-button style="position: absolute; right: 5px;"  (click)="$event.stopPropagation(); removeDependency(task)">
                         <mat-icon>delete</mat-icon>
-                    </button> -->
+                    </button>
                 </div>
             </mat-list-item>
             <mat-divider *ngIf="!last && dependant && dependant.length > 1"></mat-divider>

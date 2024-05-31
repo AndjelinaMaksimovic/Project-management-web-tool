@@ -45,6 +45,9 @@ namespace Codedberries.Models
 
         [Required]
         public bool CanEditTask { get; set; }
+        
+        [Required]
+        public bool CanEditUser { get; set; }
 
         public Role(string name)
         {

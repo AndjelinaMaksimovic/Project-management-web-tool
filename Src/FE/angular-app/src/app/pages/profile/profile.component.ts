@@ -15,13 +15,17 @@ import { ActivityItemComponent } from '../../components/activity-item/activity-i
 import { TaskService } from '../../services/task.service';
 import { TaskCardComponent } from '../../components/task-card/task-card.component';
 import { ProjectItemComponent } from '../../components/project-item/project-item.component';
+import { AvatarService } from '../../services/avatar.service';
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
+import { PageEvent } from '@angular/material/paginator';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, TaskCardComponent, ProjectItemComponent],
+  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, TaskCardComponent, ProjectItemComponent, MarkdownModule],
+  providers: [provideMarkdown()],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
@@ -29,7 +33,6 @@ export class ProfileComponent {
   userId: string = "me";
   loggedInUser: number | undefined;
   user: any;
-  activities: any;
 
   allTasksAccordionVisible: boolean = false;
   allProjectsAccordionVisible: boolean = false;
@@ -42,9 +45,15 @@ export class ProfileComponent {
     return this.projectService.getProjects().filter(project => !project.archived);
   }
   
+  activities: any[] = [];
+  
+  paginatorLen = 0
+  paginatorPageSize = 5
+  viewActivities: any[] = []
+  
   timestamp: number = Date.now();
   getProfileImagePath(){
-    return `${environment.apiUrl}/User/users/avatars/${this.user.id}?timestamp=${this.timestamp}`
+    return this.avatarService.getProfileImagePath(this.user?.id);
   }
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -57,6 +66,7 @@ export class ProfileComponent {
     private authService: AuthService,
     private http: HttpClient,
     private projectService: ProjectService,
+    private avatarService: AvatarService,
     private taskService: TaskService
   ) {}
   async ngOnInit() {
@@ -72,6 +82,9 @@ export class ProfileComponent {
 
     if(this.tasks.length != 0) this.allTasksAccordionVisible = true;
     if(this.projects.length != 0) this.allProjectsAccordionVisible = true;
+    this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
+    this.paginatorLen = this.activities.length
+    this.viewActivities = this.activities.slice(0, this.paginatorPageSize)
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){
@@ -120,5 +133,10 @@ export class ProfileComponent {
   
   toggleProjects() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  }
+  
+  pageChange(e: PageEvent){
+    const offset = e.pageIndex * e.pageSize
+    this.viewActivities = this.activities.slice(offset, offset + e.pageSize)
   }
 }

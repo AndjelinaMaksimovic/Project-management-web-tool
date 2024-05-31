@@ -880,10 +880,12 @@ namespace Codedberries.Services
                 if (currentStatus.Name == "Done" && status.Name != "Done")
                 {
                     task.FinishedDate = null; // from Done to other
+                    task.Progress = 0; // set progress to 0 when changing from Done
                 }
                 else if (currentStatus.Name != "Done" && status.Name == "Done")
                 {
                     task.FinishedDate = DateTime.UtcNow; // from other to Done
+                    task.Progress = 100; // set progress to 100 when changing to Done
                 }
 
                 task.StatusId = request.StatusId.Value;

@@ -5,11 +5,12 @@ import { ConfirmTaskDeleteModalComponent } from '../confirm-task-delete-modal/co
 import { Task } from '../../services/task.service';
 import { RouterModule } from '@angular/router';
 import { NgIf } from '@angular/common';
+import { AvatarStackComponent } from '../avatar-stack/avatar-stack.component';
 
 @Component({
   selector: 'app-task-card',
   standalone: true,
-  imports: [MaterialModule, RouterModule, NgIf],
+  imports: [MaterialModule, RouterModule, NgIf, AvatarStackComponent],
   templateUrl: './task-card.component.html',
   styleUrl: './task-card.component.css',
 })
@@ -17,6 +18,9 @@ export class TaskCardComponent {
   @Input() task!: Task;
   @Input() role: any = {};
 
+  get asigneeIds(){
+    return this.task.assignedTo.map((user: any) => user.id);
+  }
   constructor(private dialog: MatDialog) {}
 
   deleteTask(){

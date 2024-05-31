@@ -25,7 +25,7 @@ export type Task = Readonly<{
   indexInCategory: number;
   projectId?: number | undefined;
   assignedTo: any;
-  dependentTasks: number[];
+  dependentTasks: {taskId: number, typeOfDependencyId: number}[];
   progress: number;
   archived: boolean;
 }>;
@@ -332,7 +332,6 @@ export class TaskService {
           {...this.httpOptions, responseType: "text" as "json"}
         )
       );
-      await this.fetchTasksFromLocalStorageContext("task_filters");
     } catch (e) {
       let error = "";
       if(e instanceof HttpErrorResponse) {
@@ -341,8 +340,10 @@ export class TaskService {
       this.snackBar.open("We couldn't create dependency" + error, undefined, {
         duration: 2000,
       });
-      await this.fetchTasksFromLocalStorageContext("task_filters");
+      return false
     }
+    await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
   }
 
   async deleteDependency(taskId: number, dependentTaskId: number) {
@@ -361,8 +362,10 @@ export class TaskService {
       );
     } catch (e) {
       console.log(e);
+      return false
     }
     await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
   }
   async changeTaskProgress(taskId: number, progress: number){
     try {

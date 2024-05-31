@@ -4,6 +4,7 @@ import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../services/avatar.service';
 import { UserStatsComponent } from '../user-stats/user-stats.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 
 class Activity {
   constructor(
@@ -21,7 +22,8 @@ class Activity {
 @Component({
   selector: 'app-activity-item',
   standalone: true,
-  imports: [ CommonModule ],
+  imports: [ CommonModule, MarkdownModule ],
+  providers: [provideMarkdown()],
   templateUrl: './activity-item.component.html',
   styleUrl: './activity-item.component.scss'
 })
