@@ -59,7 +59,7 @@ namespace Codedberries.Services
 
             if (userRole.CanEditUser == false)
             {
-                throw new UnauthorizedAccessException("User does not have permission to deactivate user!");
+                throw new UnauthorizedAccessException("User does not have permission to add user!");
             }
 
             if (_databaseContext.Users.FirstOrDefault(u => u.Email == body.Email) != null) new Exception("User with the same email already exists");
