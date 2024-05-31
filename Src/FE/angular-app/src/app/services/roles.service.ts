@@ -51,14 +51,13 @@ export class RolesService {
     return null;
   }
   
-  public async createCustomRole(name: string, permissions: string[], projectId: number) {
+  public async createCustomRole(name: string, permissions: string[]) {
     try {
       const r = await firstValueFrom(
         this.http.post<any>(environment.apiUrl + `/Role/createCustomRole`, 
         {
           customRoleName: name,
           permissions: permissions,
-          projectId: projectId
         },
         this.httpOptions
         )
@@ -66,8 +65,8 @@ export class RolesService {
       return r.body
     } catch (e) {
       console.log(e)
+      return false
     }
-    return false
   }
 
 }

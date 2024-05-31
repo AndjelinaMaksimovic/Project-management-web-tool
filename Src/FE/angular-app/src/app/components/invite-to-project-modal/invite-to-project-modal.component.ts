@@ -198,7 +198,7 @@ export class InviteToProjectModalComponent implements OnInit, AfterViewInit{
     if(!this.newRoleName.value || this.newRoleName.hasError('required'))
       return
 
-    const newRoleId = await this.rolesService.createCustomRole(this.newRoleName.value, this.permissions.filter(perm => perm.selected).map(perm => perm.value), this.data.projectId)
+    const newRoleId = await this.rolesService.createCustomRole(this.newRoleName.value, this.permissions.filter(perm => perm.selected).map(perm => perm.value))
     if(newRoleId){
       const r = new Role(newRoleId, this.newRoleName.value, this.permissions.map(p => new Permission(p.name, p.value, p.selected)))
       this.roles.push(r)
