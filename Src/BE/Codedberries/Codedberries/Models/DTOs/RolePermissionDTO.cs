@@ -15,5 +15,6 @@
         public bool CanCreateTask { get; set; }
         public bool CanRemoveTask { get; set; }
         public bool CanEditTask { get; set; }
+        public bool CanEditUser { get; set;}
     }
 }

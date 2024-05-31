@@ -1,5 +1,6 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
@@ -237,6 +238,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            // gets all users including super users
             var usersQuery = _databaseContext.Users.AsQueryable();
 
             if (body.ProjectId != null)
@@ -263,8 +265,10 @@ namespace Codedberries.Services
                 }
             }
 
+            // gets super users
             // usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
 
+            /*
             // get all users that are not super user, inlcuding ones that dont have any role assigned
             usersQuery = usersQuery.Where(u => u.RoleId == null || !(u.Role.CanAddNewUser
                                     && u.Role.CanAddUserToProject
@@ -277,6 +281,7 @@ namespace Codedberries.Services
                                     && u.Role.CanCreateTask
                                     && u.Role.CanRemoveTask
                                     && u.Role.CanEditTask));
+            */
 
             var users = await usersQuery
                 .Select(u => new UserInformationDTO
@@ -321,12 +326,8 @@ namespace Codedberries.Services
             {
                 if (this.ValidateSession(sessionToken) == false)
                 {
-                    throw new UnauthorizedAccessException("Session is invalid or expired!");
+                    return null;
                 }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Session cookie not found!");
             }
 
             var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
@@ -676,7 +677,8 @@ namespace Codedberries.Services
                 CanAddTaskToUser= userRole.CanAddTaskToUser,
                 CanCreateTask= userRole.CanCreateTask,
                 CanRemoveTask=userRole.CanRemoveTask,
-                CanEditTask=userRole.CanEditTask
+                CanEditTask=userRole.CanEditTask,
+                CanEditUser=userRole.CanEditUser
             };
         }
 
@@ -713,7 +715,8 @@ namespace Codedberries.Services
                 CanAddTaskToUser = userRole.CanAddTaskToUser,
                 CanCreateTask = userRole.CanCreateTask,
                 CanRemoveTask = userRole.CanRemoveTask,
-                CanEditTask = userRole.CanEditTask
+                CanEditTask = userRole.CanEditTask,
+                CanEditUser=userRole.CanEditUser,
             };
         }
 
@@ -733,8 +736,138 @@ namespace Codedberries.Services
             if (role.CanCreateTask) permissions.Add("CanCreateTask");
             if (role.CanRemoveTask) permissions.Add("CanRemoveTask");
             if (role.CanEditTask) permissions.Add("CanEditTask");
+            if (role.CanEditUser) permissions.Add("CanEditUser");
 
             return permissions;
+        }
+
+        public async System.Threading.Tasks.Task RemoveUserProfilePicture(HttpContext httpContext)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (!string.IsNullOrEmpty(user.ProfilePicture))
+            {
+                string currentImagePath = Path.Combine("ProfileImages", user.ProfilePicture);
+                
+                if (File.Exists(currentImagePath))
+                {
+                    File.Delete(currentImagePath);
+                }
+
+                user.ProfilePicture = null;
+                await _databaseContext.SaveChangesAsync();
+            }
+
+            string defaultImageName = "defaultProfilePicture.jpg";
+            string defaultImagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", defaultImageName);
+            byte[] defaultImageBytes = await File.ReadAllBytesAsync(defaultImagePath);
+
+            string newImageName = $"{user.Id}.jpg";
+            string newImagePath = Path.Combine("ProfileImages", newImageName);
+            await File.WriteAllBytesAsync(newImagePath, defaultImageBytes);
+
+            user.ProfilePicture = newImageName;
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task DeactivateUser(HttpContext httpContext, UserIdDTO request)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var currentUser = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (currentUser == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (currentUser.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var currentUserRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == currentUser.RoleId);
+
+            if (currentUserRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (currentUserRole.CanAddNewUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to deactivate user!");
+            }
+
+            // find user to deactivate
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("Provided UserId must be greater than 0!");
+            }
+
+            var userToDeactivate = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (userToDeactivate == null)
+            {
+                throw new ArgumentException($"Provided User with ID {request.UserId} not found in database!");
+            }
+
+            if (userToDeactivate.RoleId == null)
+            {
+                throw new InvalidOperationException($"Provided User with ID {request.UserId} does not have a role assigned!");
+            }        
+
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == userToDeactivate.Id)
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            // no tasks or all tasks are arcived
+            var allTasksFinished = !taskIds.Any() || await _databaseContext.Tasks
+                .Where(t => taskIds.Contains(t.Id))
+                .AllAsync(t => t.Archived == true);
+
+            if (!allTasksFinished)
+            {
+                throw new InvalidOperationException("Cannot deactivate provided user because they have active tasks!");
+            }
+
+            /*
+            // removing user from projects 
+            var userProjectsToDelete = await _databaseContext.UserProjects
+                .Where(up => up.UserId == userToDeactivate.Id)
+                .ToListAsync();
+
+            if (userProjectsToDelete.Any())
+            {
+                _databaseContext.UserProjects.RemoveRange(userProjectsToDelete);
+            }
+            */
+
+            // deactivate user
+            userToDeactivate.Activated = false;
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }
