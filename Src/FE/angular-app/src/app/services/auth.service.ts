@@ -56,6 +56,28 @@ export class AuthService {
     return r
   }
 
+  async check(
+    token: string,
+    email: string,
+  ): Promise<boolean> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Invites/CheckInvite`, 
+          {
+            token: token,
+            email: email,
+          },
+          {...environment.httpOptions, responseType: "text" as "json"}
+        )
+      );
+      if (!res.ok) return false;
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
   async activate(
     token: string,
     email: string,
