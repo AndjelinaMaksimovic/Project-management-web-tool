@@ -289,7 +289,8 @@ namespace Codedberries.Services
                         _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
-                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Firstname} {user.Lastname} has created the task {newTask.Name}", DateTime.Now);
+                string taskUrl = $"http://localhost:4200/project/{request.ProjectId}/task/{newTask.Id}";
+                Activity activity = new Activity(user.Id, newTask.ProjectId, $"User {user.Firstname} {user.Lastname} has created the task <a href=\"{taskUrl}\">{newTask.Name}</a>", DateTime.Now);
                 _databaseContext.Activities.Add(activity);
                 await _databaseContext.SaveChangesAsync();
 
@@ -1110,8 +1111,8 @@ namespace Codedberries.Services
                 AssignedUsers = assignedUsers,
                 Progress = task.Progress
             };
-
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the task {task.Name}", DateTime.Now);
+            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -1169,8 +1170,8 @@ namespace Codedberries.Services
 
             // Toggle archived status
             task.Archived = !task.Archived;
-
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has archived the task {task.Name}", DateTime.Now);
+            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has archived the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -2033,8 +2034,9 @@ namespace Codedberries.Services
             }
 
             task.Progress = request.Progress;
+            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the progress on the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the progress of the task {task.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
