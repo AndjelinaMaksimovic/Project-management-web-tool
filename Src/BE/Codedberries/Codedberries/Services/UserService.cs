@@ -815,7 +815,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (currentUserRole.CanAddNewUser == false)
+            if (currentUserRole.CanEditUser == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to deactivate user!");
             }

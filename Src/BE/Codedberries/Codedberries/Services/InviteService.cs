@@ -57,6 +57,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            if (userRole.CanEditUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to add user!");
+            }
+
             if (_databaseContext.Users.FirstOrDefault(u => u.Email == body.Email) != null) new Exception("User with the same email already exists");
 
             if (!Helper.IsEmailValid(body.Email)) throw new Exception("Email is not valid!");
