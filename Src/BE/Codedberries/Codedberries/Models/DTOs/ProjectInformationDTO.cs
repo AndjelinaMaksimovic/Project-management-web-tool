@@ -8,6 +8,7 @@
         public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
         public bool Archived { get; set; }
+        public bool IsStarred { get; set; }
         public List<StatusDTO> Statuses { get; set; }
         public List<CategoryDTO> Categories { get; set; }
         public List<UserDTO> Users { get; set; }

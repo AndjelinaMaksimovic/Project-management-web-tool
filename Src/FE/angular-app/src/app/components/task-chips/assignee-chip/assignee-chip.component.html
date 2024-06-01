@@ -2,9 +2,10 @@
     @for (assignee of task?.assignedTo; track assignee) {
     <span style="display: flex; align-items: center; gap: 10px"
         [matTooltip]="assignee.firstName + ' ' + assignee.lastName">
-        <span
+        <app-avatar-stack [userIds]="asigneeIds" [size]="24"></app-avatar-stack>
+        <!-- <span
             style="width: 24px; height: 24px; border-radius: 100%; background-color: rgb(255, 102, 0); color: white; text-align: center; vertical-align: center; line-height: 24px;">
-            {{assignee.firstName[0]}}</span>
+            {{assignee.firstName[0]}}</span> -->
     </span>
     }
     <button mat-icon-button class="small-icon-button" [matTooltip]="'edit assignees'"><mat-icon>edit</mat-icon></button>

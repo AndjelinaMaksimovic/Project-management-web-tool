@@ -1,27 +1,34 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between;">
         <h4 style="margin-top: 0; margin-bottom: 5px; font-weight: normal; cursor: pointer;" [routerLink]="'/project/' + task.projectId + '/task/' + task.id">{{task.title}}</h4>
-        <button mat-icon-button [matMenuTriggerFor]="menu" class="small-icon-button"><mat-icon>more_vert</mat-icon></button>
+        <button *ngIf="role.canRemoveTask" mat-icon-button [matMenuTriggerFor]="menu" class="small-icon-button"><mat-icon>more_vert</mat-icon></button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="deleteTask()">
-                <mat-icon>archive</mat-icon>
-                <span>Archive</span>
+                <mat-icon *ngIf="!task.archived">archive</mat-icon>
+                <mat-icon *ngIf="task.archived">unarchive</mat-icon>
+                <span *ngIf="!task.archived">Archive</span>
+                <span *ngIf="task.archived">Unarchive</span>
             </button>
-            <button mat-menu-item>
+            <button mat-menu-item  [routerLink]="'/project/' + task.projectId + '/task/' + task.id">
                 <mat-icon>edit</mat-icon>
                 <span>Edit</span>
             </button>
         </mat-menu>
+        
+        <button *ngIf="!role.canRemoveTask" mat-icon-button class="small-icon-button" [routerLink]="'/project/' + task.projectId + '/task/' + task.id">
+            <mat-icon>edit</mat-icon>
+        </button>
     </div>
     <!-- content -->
     <div style="display: flex; flex-direction: row; align-items: end; justify-content: space-between;">
         <!-- task info -->
         <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="chip chip-neutral">{{task.progress}}%</div>
             <div class="chip chip-neutral">{{task.category}}</div>
             <div [classList]="['chip chip-' + priorityColor]">{{task.priority === "High" ? "🎯︎ " + task.priority : task.priority}}</div>
             <div style="font-size: smaller;">📅 {{task.dueDate.toDateString()}}</div>
         </div>
         <!-- avatar -->
-        <div style="width: 32px; height: 32px; border-radius: 100%; background-color: rgb(255, 102, 0); color: white; text-align: center; vertical-align: center; line-height: 32px;">A</div>
+        <app-avatar-stack [userIds]="asigneeIds"></app-avatar-stack>
     </div>
 </div>

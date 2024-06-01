@@ -1,4 +1,4 @@
-<div [classList]="['chip chip-' + 'warn']" [matMenuTriggerFor]="menu" [matTooltip]="'click to change'">{{task?.priority
+<div [classList]="['chip chip-' + 'warn']" [matMenuTriggerFor]="menu"  [matTooltip]="(role.canEditTask) ? 'click to change' : ''" [style.pointer-events]="(role.canEditTask) ? 'unset' : 'none' ">{{task?.priority
     === "High" ?
     "🎯︎ "
     + task?.priority :

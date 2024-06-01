@@ -35,12 +35,39 @@
         </div>
     </div>
 
+    <div class="main-container">
+        <div class="container w-100 margin-15 left-container">
+            <div class="w-100">
+                <div style="display: flex; justify-content: space-between;">
+                    <p class="title">Project statuses:</p>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-plus add-icon" (click)="createStatus()"></i>
+                </div>
+                <div *ngFor="let status of statuses" class="hover">
+                    <p>{{status.order}}. {{status.name}}</p>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-trash icon ml-10" (click)="deleteStatus(status.name)" matTooltip="Delete"></i>
+                </div>
+            </div>
+        </div>
+        <div class="container w-100 margin-15 inherit-height">
+            <div class="w-100">
+                <div style="display: flex; justify-content: space-between;">
+                    <p class="title">Project categories:</p>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-plus add-icon" (click)="createCategory()"></i>
+                </div>
+                <div *ngFor="let category of categories"  class="hover">
+                    <p>{{category.name}}</p>
+                    <i *ngIf="role.canEditProject" class="fa-solid fa-trash icon ml-10" (click)="deleteCategory(category.id)" matTooltip="Delete"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="margin-15">
         <p class="title">Activities:</p>
-        <!-- <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
-        <hr>
-        <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item>
-        <hr>
-        <app-activity-item [name]="'Pera Peric'" [jobPosition]="'Developer'" [activity]="'Opened merge request !76. Resolve FE redizajn home stranice levi navbar at SI2024 / Codedberries'" [date]="'24 minutes ago'"></app-activity-item> -->
+        @for(activity of viewActivities; track activity; let last = $last){
+            <app-activity-item [activity]="activity"></app-activity-item>
+            <hr *ngIf="!last">
+        }
+        <mat-paginator (page)="pageChange($event)" [length]="paginatorLen" [pageSize]="paginatorPageSize" [pageSizeOptions]="[5, 10, 20]"></mat-paginator>
     </div>    
 </app-navbar>

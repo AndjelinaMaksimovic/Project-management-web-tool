@@ -23,9 +23,9 @@ namespace Codedberries.Controllers
         {
             try
             {
-                await _projectService.CreateProject(HttpContext, body);
+                ProjectIdDTO projectId=await _projectService.CreateProject(HttpContext, body);
 
-                return Ok("Project successfully created.");
+                return Ok(projectId);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -241,6 +241,97 @@ namespace Codedberries.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while getting Starred projects: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("allProjectActivities")]
+        public async Task<IActionResult> GetAllProjectActivity([FromBody] ProjectIdDTO request)
+        {
+            try
+            {
+                var activities = await _projectService.GetAllProjectActivity(HttpContext, request);
+
+                return Ok(activities);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("allUserActivities")]
+        public async Task<IActionResult> GetAllUserActivity()
+        {
+            try
+            {
+                var activities = await _projectService.GetAllUserActivity(HttpContext);
+
+                return Ok(activities);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("allUsersProjectActivities")]
+        public async Task<IActionResult> GetProjectUsersActivity()
+        {
+            try
+            {
+                var activities = await _projectService.GetActivitiesByUsersProjects(HttpContext);
+
+                return Ok(activities);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
+        [HttpPost("NotificationsSeen")]
+        public async Task<IActionResult> NotificationSeen()
+        {
+            try
+            {
+                await _projectService.NotificationsSeen(HttpContext);
+                return Ok("All notifications Seen");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
             }
         }
     }

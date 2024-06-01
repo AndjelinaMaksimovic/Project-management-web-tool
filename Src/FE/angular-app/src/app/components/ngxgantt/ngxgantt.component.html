@@ -1,0 +1,68 @@
+<thy-layout>
+    <thy-header class="header-with-baseline">
+      <ng-template #headerContent>
+        <thy-button-group thySize="sm" thyType="outline-default">
+          <button thyButton="primary" *ngFor="let view of views" [class.active]="view.value === selectedViewType" (click)="selectView(view.value)">
+            {{ view.name }}
+          </button>
+        </thy-button-group>
+        &nbsp;
+        <thy-button thyType="primary" thySize="sm" (click)="scrollToToday()">Today</thy-button>
+        <!-- &nbsp;
+        <thy-button thyType="outline-default" thySize="sm">Settings</thy-button> -->
+      </ng-template>
+    </thy-header>
+    <thy-content style="margin: 0; padding: 0;">
+        <ngx-gantt
+            #gantt
+            [groups]="groups"
+            [items]="items"
+            [baselineItems]="baselineItems"
+            [viewType]="viewType"
+            [draggable]="true"
+            [linkable]="true"
+            [selectable]="false"
+            [multiple]="true"
+            [styles]="styles"
+            [viewOptions]="viewOptions"
+            [showToolbar]="isShowToolbarChecked"
+            [toolbarOptions]="toolbarOptions"
+            [showToolbar]="false"
+            [loading]="loading"
+            [virtualScrollEnabled]="false"
+            (barClick)="barClick($event)"
+            (viewChange)="viewChange($event)"
+            (lineClick)="lineClick($event)"
+            (dragMoved)="dragMoved($event)"
+            (dragEnded)="dragEnded($event)"
+            [linkOptions]="linkOptions"
+            (selectedChange)="selectedChange($event)"
+            (linkDragEnded)="linkDragEnded($event)">
+            <ngx-gantt-table
+                [draggable]="true"
+                [dropEnterPredicate]="dropEnterPredicate"
+                (dragDropped)="onDragDropped($event)"
+                (dragStarted)="onDragStarted($event)"
+                (dragEnded)="onDragEnded($event)">
+
+                <ngx-gantt-column [name]="ganttType == GanttType.Tasks ? 'Task' : 'Projects'" width="160px" [showExpandIcon]="true">
+                <ng-template #cell let-item="item"> {{ item.title }} </ng-template>
+                </ngx-gantt-column>
+                <!-- <ngx-gantt-column name="Starting date" width="200px">
+                <ng-template #cell let-item="item">
+                    {{ item.start | date : 'yyyy-MM-dd HH:mm' }}
+                </ng-template>
+                </ngx-gantt-column>
+                <ngx-gantt-column name="Due date" width="200px">
+                <ng-template #cell let-item="item">
+                    {{ item.end | date : 'yyyy-MM-dd HH:mm' }}
+                </ng-template>
+                </ngx-gantt-column> -->
+            </ngx-gantt-table>
+
+            <ng-template #bar let-item="item">
+                <span style="color: #fff">&nbsp;&nbsp;{{ item.title }} </span>
+            </ng-template>
+        </ngx-gantt>
+    </thy-content>
+</thy-layout>

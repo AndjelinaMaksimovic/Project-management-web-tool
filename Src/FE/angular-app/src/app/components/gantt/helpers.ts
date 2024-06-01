@@ -1,8 +1,11 @@
+import { Column } from "./item";
+
 export class helpers{
     static range(start: number, end: number, step: number = 1){ // inclusive
         return Array(Math.floor((end - start) / step + 1)).fill(0).map((_, i) => start + i * step)
     }
-    static colOffset(idx: number, colWidths: number[]){
+    static colOffset(idx: number, columns: Column[]){
+        const colWidths = columns.map(col => col.width)
         return colWidths.slice(0, idx+1).reduce((a,b)=>a+b,0)
     }
 

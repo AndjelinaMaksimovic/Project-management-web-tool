@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { FiltersComponent, Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,12 @@ import { RolesService } from '../../services/roles.service';
 import { UserService } from '../../services/user.service';
 import { UserStatsComponent } from '../../components/user-stats/user-stats.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AvatarService } from '../../services/avatar.service';
+import { ActivatedRoute } from '@angular/router';
+import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { NewMemberModalComponent } from '../../components/new-member-modal/new-member-modal.component';
+import { InviteToProjectModalComponent } from '../../components/invite-to-project-modal/invite-to-project-modal.component';
 
 class Member {
   firstname: string;
@@ -61,13 +67,14 @@ class Role {
 @Component({
   selector: 'app-members',
   standalone: true,
-  imports: [ TopnavComponent, FormsModule, FiltersComponent, NgIf, NgFor, MemberItemComponent, KeyValuePipe, UserStatsComponent ],
+  imports: [ TopnavComponent, FormsModule, FiltersComponent, NgIf, NgFor, MemberItemComponent, KeyValuePipe, UserStatsComponent, NavbarComponent ],
   templateUrl: './members.component.html',
   styleUrl: './members.component.css'
 })
 
-export class MembersComponent {
+export class MembersComponent implements OnInit {
   search: string = "";
+  myRole: any = {}
 
   filters: Map<string, Filter> = new Map<string, Filter>([
     // ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
@@ -79,25 +86,59 @@ export class MembersComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private rolesService : RolesService, private userService: UserService, public dialog: MatDialog) {}
+  constructor(private dialogue: MatDialog, private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
 
   filterRolesByName() {
     this.roles.forEach((role, key) => role.filterMembers(this.search));
   }
 
-  async ngOnInit(){
-    let onlyRoles = await this.rolesService.getAllRoles();
-    onlyRoles?.forEach((val, index) => {
-      this.roles.set(val.id, new Role(val.roleName, val.id, []));
-    });
-    this.roles.set(-1, new Role("No role", -1, []));
+  isProject: boolean = false;
+  projectId: number = -1;
 
-    await this.userService.fetchUsers();
-    let onlyUsers = await this.userService.getUsers();
 
-    onlyUsers?.forEach((val, index) => {
-      this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, val.profilePicture, 0));
+
+  async ngOnInit() {
+    this.route.data.subscribe(async(data) => {
+      this.isProject = data['isProject'] || false;
+      if(this.isProject) {
+        await this.route.params.subscribe((params) => {
+          this.projectId = parseInt(params['id']);
+        });
+      }
     });
+    if(this.isProject) {
+      // let onlyRoles = await this.rolesService.getProjectRoles(this.projectId);
+      // onlyRoles?.forEach((val, index) => {
+      //   this.roles.set(val.id, new Role(val.roleName, val.id, []));
+      // });
+
+      await this.userService.fetchUsersByProject(this.projectId);
+      let onlyUsers = await this.userService.getUsers();
+      console.log(onlyUsers);
+
+      onlyUsers?.forEach((val, index) => {
+        if(!this.roles.has(val.roleId)) {
+          this.roles.set(val.roleId, new Role(val.roleName ? val.roleName : "Undefined", val.roleId, []));
+        }
+        this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
+      });
+      this.myRole = await this.userService.currentUserRole(this.projectId)
+    }
+    else {
+      let onlyRoles = await this.rolesService.getAllRoles();
+      onlyRoles?.forEach((val, index) => {
+        this.roles.set(val.id, new Role(val.roleName, val.id, []));
+      });
+      // this.roles.set(-1, new Role("No role", -1, []));
+
+      await this.userService.fetchUsers();
+      let onlyUsers = await this.userService.getUsers();
+
+      onlyUsers?.forEach((val, index) => {
+        this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
+      });
+      this.myRole = await this.userService.currentUserRole()
+    }
   }
 
   async fetchMembersFromLocalStorage() {
@@ -120,8 +161,33 @@ export class MembersComponent {
       panelClass: 'borderless-dialog',
       data: {
         id: id,
-        title: "User details"
-      }
+        title: !this.isProject ? "User details" : "User details on project",
+        projectId: this.projectId
+      },
+      maxHeight: '90vh'
     });
+  }
+
+  removeUser(event: Event, member: Member) {
+    event.stopPropagation();
+    
+    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the project?<br>This action cannot be undone and may affect project permissions and collaboration.";
+    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
+      await this.userService.removeUserFromProject(this.projectId, member.id);
+    }, noFunc: () => { } } });
+  }
+
+  openNewMember() {
+    this.dialog.open(NewMemberModalComponent, { autoFocus: false });
+  }
+
+  invitePopUp(){
+    const ref = this.dialogue.open(InviteToProjectModalComponent, { autoFocus: false, data: {projectId: this.projectId} })
+    ref.afterClosed().subscribe((data: any)=>{
+      if(data){
+        this.roles = new Map<number, Role>();
+        this.ngOnInit()
+      }
+    })
   }
 }

@@ -19,6 +19,8 @@ import { FiltersComponent } from '../../components/filters/filters.component';
 import { Filter } from '../../components/filters/filters.component';
 import { PriorityService } from '../../services/priority.service';
 import { LocalStorageService } from '../../services/localstorage';
+import { NgxganttComponent } from '../../components/ngxgantt/ngxgantt.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-my-tasks',
@@ -32,7 +34,8 @@ import { LocalStorageService } from '../../services/localstorage';
     TasksTableComponent,
     NavbarComponent,
     GanttComponent,
-    FiltersComponent
+    FiltersComponent,
+    NgxganttComponent
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.css',
@@ -44,6 +47,9 @@ export class MyTasksComponent {
 
   projectId: number = 0;
   isLoading: boolean = true;
+
+  role: any = {}
+
   constructor(
     private taskService: TaskService,
     private statusService: StatusService,
@@ -53,6 +59,7 @@ export class MyTasksComponent {
     private route: ActivatedRoute,
     private router: Router,
     private localStorageService: LocalStorageService,
+    private userService: UserService,
   ) {}
 
   async ngOnInit() {
@@ -68,8 +75,12 @@ export class MyTasksComponent {
       ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
       // ["AssignedTo", new Filter({ name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" })]})],
       ["StatusId", new Filter({ name: 'Status', icon: 'fa-solid fa-circle-exclamation', type: 'select', items: this.statusService.getStatuses().map(status => ({ value: status.id, name: status.name }))})],
-      ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})]
+      ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})],
+      ["Archived", new Filter({ name: 'Archived', icon: 'fa-solid fa-box-archive', type: 'select', items: [ { value: false, name: "False" }, { value: true, name: "True" } ]})]
     ]);
+
+    this.role = await this.userService.currentUserRole(this.projectId)
+    console.log(this.role)
   }
 
   get activeFilters() {

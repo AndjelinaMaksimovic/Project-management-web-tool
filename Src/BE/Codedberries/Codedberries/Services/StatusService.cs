@@ -102,6 +102,25 @@ namespace Codedberries.Services
             var newStatus = new Models.Status(statusDTO.Name, statusDTO.ProjectId, newStatusOrder);
 
             _databaseContext.Statuses.Add(newStatus);
+
+            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Firstname} {user.Lastname} has created the status {statusDTO.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusDTO.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
             await _databaseContext.SaveChangesAsync();
         }
 
@@ -262,6 +281,24 @@ namespace Codedberries.Services
             {
                 status.Order -= 1;
             }
+
+            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Firstname} {user.Lastname} has deleted the status {statusToDelete.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusToDelete.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -452,7 +489,25 @@ namespace Codedberries.Services
                 ProjectId = status.ProjectId,
                 Order = status.Order
             };
-            
+
+            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the name of the status {status.Name}", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == status.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+            }
+
+            await _databaseContext.SaveChangesAsync();
+
             return StatusDTO;
 
         }

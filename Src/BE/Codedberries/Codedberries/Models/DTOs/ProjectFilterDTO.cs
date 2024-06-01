@@ -11,6 +11,7 @@
         public DateTime? DueDateBefore { get; set; }
         public DateTime? ExactDueDate { get; set; }
         public bool? IsArchived { get; set; }
+        public bool? IsStarred { get; set; }
         public int? StatusId { get; set; }
         public int? CategoryId { get; set; }
         public bool? SortByDueDate { get; set; }

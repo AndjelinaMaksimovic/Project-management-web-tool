@@ -2,8 +2,27 @@
 <div class="centered-content stack-container" style="background-color: white;" (keyup.enter)="login()">
     <h2>Sign in</h2>
     <div style="display: flex; flex-direction: column; width: 70%;">
-        <app-email-field label="Email" (valueChange)="email = $event"></app-email-field>
-        <app-password-field label="Password" (eventFromChild)="password=$event"></app-password-field>
+        <mat-form-field appearance="outline" style="width: 100%;" class="dense-2">
+            <mat-label>E-mail</mat-label>
+            <input matInput placeholder="example@email.com" [formControl]="email" required=true>
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="email.setValue('')">
+                <mat-icon>close</mat-icon>
+            </button>
+            @if (email.hasError('email') || email.hasError('required')) {
+                <mat-error>Please enter a number valid email</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="dense-2">
+            <mat-label>Password</mat-label>
+            <input matInput [type]="hide ? 'password' : 'text'" [formControl]="password">
+            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+              <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            @if (password.hasError('required')) {
+                <mat-error>Please enter a password</mat-error>
+            }
+        </mat-form-field>
+        <!-- <app-password-field label="Password" [formControl]="password"></app-password-field> -->
         <mat-checkbox [(ngModel)]="remember" color="primary">Remember me</mat-checkbox>
         <a (click)="popup()" href="javascript:void()" style="padding: 5px; color: #5096a4;">Forgot password?</a>
     </div>

@@ -17,6 +17,34 @@ namespace Codedberries.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
 
+            modelBuilder.Entity("Codedberries.Models.Activity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ActivityDescription")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Activities");
+                });
+
             modelBuilder.Entity("Codedberries.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -177,6 +205,9 @@ namespace Codedberries.Migrations
                     b.Property<bool>("CanEditTask")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("CanEditUser")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("CanRemoveTask")
                         .HasColumnType("INTEGER");
 
@@ -291,6 +322,9 @@ namespace Codedberries.Migrations
                     b.Property<int>("PriorityId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Progress")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
@@ -298,9 +332,6 @@ namespace Codedberries.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("StatusId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -354,9 +385,49 @@ namespace Codedberries.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(2);
 
+                    b.Property<int>("TypeOfDependencyId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TaskId", "DependentTaskId");
 
+                    b.HasIndex("TypeOfDependencyId");
+
                     b.ToTable("TaskDependency");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.TaskUser", b =>
+                {
+                    b.Property<int>("TaskId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(0);
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(1);
+
+                    b.HasKey("TaskId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskUsers");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.TypeOfTaskDependency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("TypesOfTaskDependency");
                 });
 
             modelBuilder.Entity("Codedberries.Models.User", b =>
@@ -407,6 +478,30 @@ namespace Codedberries.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Codedberries.Models.UserNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Seen")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("userNotification");
+                });
+
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>
                 {
                     b.Property<int>("UserId")
@@ -427,6 +522,25 @@ namespace Codedberries.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserProjects");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.Activity", b =>
+                {
+                    b.HasOne("Codedberries.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Category", b =>
@@ -553,6 +667,33 @@ namespace Codedberries.Migrations
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Codedberries.Models.TypeOfTaskDependency", "TypeOfDependency")
+                        .WithMany()
+                        .HasForeignKey("TypeOfDependencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TypeOfDependency");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.TaskUser", b =>
+                {
+                    b.HasOne("Codedberries.Models.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.User", b =>
@@ -562,6 +703,25 @@ namespace Codedberries.Migrations
                         .HasForeignKey("RoleId");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.UserNotification", b =>
+                {
+                    b.HasOne("Codedberries.Models.Activity", "Activity")
+                        .WithMany()
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>

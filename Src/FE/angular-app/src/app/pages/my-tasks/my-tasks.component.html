@@ -11,7 +11,7 @@
                         <mat-icon>filter_list</mat-icon>
                     </button>
                 </mat-form-field>
-                <button class="button-rounded" mat-flat-button color="primary" (click)="createTask()"><mat-icon>add</mat-icon>Create new task</button>
+                <button *ngIf="role.canCreateTask" class="button-rounded" mat-flat-button color="primary" (click)="createTask()"><mat-icon>add</mat-icon>Create new task</button>
             </div>
 
             <!-- filter window -->
@@ -22,10 +22,10 @@
             </div>
 
             <div style="display: flex; gap: 8px">
-                <button mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
+                <button *ngIf="role.canEditProject" mat-stroked-button color="primary" class="button-rounded" (click)="createStatus()">
                     Create Status
                 </button>
-                <button mat-stroked-button color="primary" class="button-rounded" (click)="createCategory()">
+                <button *ngIf="role.canEditProject" mat-stroked-button color="primary" class="button-rounded" (click)="createCategory()">
                     Create Category
                 </button>
                 <mat-button-toggle-group name="fontStyle" class="dense-3" [(ngModel)]="view" hideSingleSelectionIndicator>
@@ -36,13 +36,14 @@
             </div>
         </div>
         <div style="margin-top: 20px;"></div>
-        <div *ngIf="isLoading === false">
-            <div *ngIf="tasks.length > 0">
-                <div [ngSwitch]="view" style="flex-grow: 1;">
-                    <app-kanban-view *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
-                    <app-tasks-table *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
-                    <app-gantt style="border: 1px solid #5096A4; display: inline-block; width: 100%; height: 100%;"
-                        *ngSwitchCase="'gantt'" [tasks]="tasks" [milestones]="milestones"></app-gantt>
+        <div *ngIf="isLoading === false" style="height: 100%;">
+            <div *ngIf="tasks.length > 0" style="height: 100%;">
+                <div [ngSwitch]="view" style="flex-grow: 1; height: 100%;">
+                    <app-kanban-view [role]="role" *ngSwitchCase="'kanban'" [tasks]="tasks"></app-kanban-view>
+                    <app-tasks-table [role]="role" *ngSwitchCase="'table'" [tasks]="tasks"></app-tasks-table>
+                    <!-- <app-gantt style="border: 1px solid #5096A4; display: inline-block; width: 100%; height: 100%;"
+                        *ngSwitchCase="'gantt'" [tasks]="tasks" [milestones]="milestones"></app-gantt> -->
+                    <app-ngxgantt *ngSwitchCase="'gantt'" [projectId]="projectId"></app-ngxgantt>
                 </div>
             </div>
             <div *ngIf="tasks.length === 0">
@@ -50,6 +51,7 @@
                     current filters. So sad 😔</div>
             </div>
         </div>
+
         <div *ngIf="isLoading === true">
             <div style="display: flex; width: 100%; height: 50vh; justify-content: center; align-items: center;">
                 <mat-spinner [diameter]="50"></mat-spinner>

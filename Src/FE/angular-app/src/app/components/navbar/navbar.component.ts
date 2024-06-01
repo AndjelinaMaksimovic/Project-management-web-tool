@@ -9,6 +9,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { TopnavComponent } from '../topnav/topnav.component';
 import { NgStyle } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { ProjectService } from '../../services/project.service';
 
 @Component({
   selector: 'app-navbar',
@@ -29,15 +30,22 @@ import { ActivatedRoute } from '@angular/router';
   ]
 })
 export class NavbarComponent{
-  @Input() title?: string
-  @Input() id?: number
+  title?: string
+  id?: number
   navMargin = 13;
 
-  constructor(private router: Router, private route: ActivatedRoute){}
+  constructor(private router: Router, private route: ActivatedRoute, private projectService: ProjectService){}
 
   ngOnInit(){
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe(async params => {
       this.id = parseInt(params['id']);
+      let title = this.projectService.getProjectWithID(this.id)?.title
+      if(title)
+        this.title = title
+      else{
+        await this.projectService.fetchProjects({projectId: this.id})
+        this.title = this.projectService.getProjectWithID(this.id)?.title
+      }
     });
   }
   

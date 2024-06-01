@@ -12,6 +12,12 @@ import { DateChipComponent } from '../../components/task-chips/date-chip/date-ch
 import { PriorityChipComponent } from '../../components/task-chips/priority-chip/priority-chip.component';
 import { UpdatableTitleComponent } from './updatable-title/updatable-title.component';
 import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip/assignee-chip.component';
+import { ProgressChipComponent } from '../../components/task-chips/progress-chip/progress-chip.component';
+import { UsersCardComponent } from './users-card/users-card.component';
+import { AddUserChipComponent } from '../../components/task-chips/add-user-chip/add-user-chip.component';
+import { DependantTasksCardComponent } from './dependant-tasks-card/dependant-tasks-card.component';
+import { UserService } from '../../services/user.service';
+import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -27,6 +33,11 @@ import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip
     DateChipComponent,
     UpdatableTitleComponent,
     AssigneeChipComponent,
+    ProgressChipComponent,
+    UsersCardComponent,
+    AddUserChipComponent,
+    DependantTasksCardComponent,
+    NgIf,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
@@ -35,13 +46,24 @@ import { AssigneeChipComponent } from '../../components/task-chips/assignee-chip
 export class TaskComponent {
   taskId: number = 0;
   projectId: number = 0;
+  users: any[] = []
+  dependantTasks: any = []
+  role: any = {}
   constructor(
     private taskService: TaskService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private userService: UserService,
   ) {}
 
   get task() {
-    return this.taskService.getTasks().find((t) => t.id === this.taskId);
+    const tasks = this.taskService.getTasks()
+    const task = tasks.find((t) => t.id === this.taskId);
+    this.users = task?.assignedTo
+    this.dependantTasks = task?.dependentTasks.map((id) => {
+      const t = tasks.find(task => task.id == id)
+      return {dependant: t, type: 3}
+    })
+    return task
   }
 
   async ngOnInit() {
@@ -50,6 +72,7 @@ export class TaskComponent {
       this.projectId = parseInt(params['id']);
     });
     await this.taskService.fetchTasks({ projectId: this.projectId });
+    this.role = await this.userService.currentUserRole()
   }
 
   updateDescription(newDescription: string) {

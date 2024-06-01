@@ -1,0 +1,24 @@
+<mat-card>
+    <mat-card-content>
+        <mat-list>
+        @for(user of users; track user; let last=$last){
+            <mat-list-item color="primary" style="height: 65px; cursor: pointer;" (click)="openMember(user.id)">
+                <div style="display: flex; align-items: center;">
+                    <!-- icon -->
+                    <img [src]="user.profilePicture" style="width: 45px; height: 45px; border-radius: 50%; margin: 5px; margin-right: 15px;" alt="Avatar">
+                    <!-- <div style="width: 45px; height: 45px; background-color: aqua; border-radius: 50%; margin: 5px; margin-right: 15px;"></div> -->
+                    <div>
+                        <p style="margin: 0">{{user.firstName}} {{user.lastName}}</p>
+                        <p style="color: grey; padding-top: 5px; margin: 0;">{{user.role}}</p>
+                    </div>
+                    <button *ngIf="role.canEditTask" mat-icon-button style="position: absolute; right: 5px;" (click)="$event.stopPropagation(); removeUser(user)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+            </mat-list-item>
+            <mat-divider *ngIf="!last && users.length > 1"></mat-divider>
+        }
+        </mat-list>
+    </mat-card-content>
+</mat-card>
+

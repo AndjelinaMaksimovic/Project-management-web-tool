@@ -2,11 +2,12 @@ import { Component, Inject } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Task, TaskService } from '../../services/task.service';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-confirm-task-delete-modal',
   standalone: true,
-  imports: [MaterialModule],
+  imports: [MaterialModule, NgIf],
   templateUrl: './confirm-task-delete-modal.component.html',
   styleUrl: './confirm-task-delete-modal.component.css'
 })

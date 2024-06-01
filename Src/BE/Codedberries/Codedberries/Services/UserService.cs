@@ -1,7 +1,8 @@
-﻿using Codedberries.Environment;
+using Codedberries.Environment;
 using Codedberries.Helpers;
 using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,6 +11,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Codedberries.Services
 {
@@ -35,7 +37,7 @@ namespace Codedberries.Services
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
 
-            if (user != null && VerifyPassword(password, user.Password, user.PasswordSalt))
+            if (user != null && user.Activated && VerifyPassword(password, user.Password, user.PasswordSalt))
             {
                 // create new session
                 var sessionToken = GenerateSessionToken();
@@ -135,7 +137,7 @@ namespace Codedberries.Services
             };
         }
 
-        public UserRoleDTO GetUserRole(int userId)
+        public UserRoleDTO GetUserRole(int userId)//////////////////////////////////////
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
 
@@ -191,6 +193,11 @@ namespace Codedberries.Services
                 throw new ArgumentException("UserId must be grater than 0!");
             }
 
+            if (userId != request.UserId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to change another user's profile picture!");
+            }
+
             var userToSetProfilePicture = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
 
             if (userToSetProfilePicture == null)
@@ -238,6 +245,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
 
+            // gets all users including super users
             var usersQuery = _databaseContext.Users.AsQueryable();
 
             if (body.ProjectId != null)
@@ -264,8 +272,10 @@ namespace Codedberries.Services
                 }
             }
 
+            // gets super users
             // usersQuery = usersQuery.Where(u => !u.Role.Name.ToLower().Contains("super user"));
 
+            /*
             // get all users that are not super user, inlcuding ones that dont have any role assigned
             usersQuery = usersQuery.Where(u => u.RoleId == null || !(u.Role.CanAddNewUser
                                     && u.Role.CanAddUserToProject
@@ -278,6 +288,7 @@ namespace Codedberries.Services
                                     && u.Role.CanCreateTask
                                     && u.Role.CanRemoveTask
                                     && u.Role.CanEditTask));
+            */
 
             var users = await usersQuery
                 .Select(u => new UserInformationDTO
@@ -322,12 +333,8 @@ namespace Codedberries.Services
             {
                 if (this.ValidateSession(sessionToken) == false)
                 {
-                    throw new UnauthorizedAccessException("Session is invalid or expired!");
+                    return null;
                 }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Session cookie not found!");
             }
 
             var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
@@ -423,8 +430,15 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            // get all task ids of current user
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == userId)
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            
             var tasks = await _databaseContext.Tasks
-                .Where(t => t.UserId == userId)
+                .Where(t => taskIds.Contains(t.Id))
                 .Select(t => new TaskInformationDTO
                 {
                     Id = t.Id,
@@ -433,15 +447,25 @@ namespace Codedberries.Services
                     StartDate = t.StartDate,
                     DueDate = t.DueDate,
                     FinishedDate = t.FinishedDate,
-                    UserId = t.UserId,
+                    Users = _databaseContext.TaskUsers
+                        .Where(tu => tu.TaskId == t.Id)
+                        .Select(tu => new UserDTO
+                        {
+                            Id = tu.UserId,
+                            FirstName = tu.User.Firstname,
+                            LastName = tu.User.Lastname,
+                            ProfilePicture = tu.User.ProfilePicture
+                        })
+                        .ToList(),
                     ProjectId = t.ProjectId,
                     StatusId = t.StatusId,
                     CategoryId = t.CategoryId,
                     PriorityId = t.PriorityId,
                     DifficultyLevel = t.DifficultyLevel,
-                    Archived = t.Archived
+                    Archived = t.Archived,
+                    Progress = t.Progress
                 })
-                .ToListAsync();
+                .ToListAsync(); 
 
             var userProjects = await _databaseContext.UserProjects
                 .Where(up => up.UserId == userId)
@@ -459,6 +483,7 @@ namespace Codedberries.Services
                     StartDate = p.StartDate,
                     DueDate = p.DueDate,
                     Archived = p.Archived,
+                    IsStarred = _databaseContext.Starred.Any(s => s.ProjectId == p.Id && s.UserId == userId),
                     Statuses = p.Statuses.Select(s => new StatusDTO
                     {
                         Id = s.Id,
@@ -480,6 +505,8 @@ namespace Codedberries.Services
                 })
                 .ToListAsync();
 
+            var permissions = GetPermissionsFromRole(userRole);
+
             var currentSessionUserDTO = new CurrentSessionUserDTO
             {
                 Id = user.Id,
@@ -491,7 +518,8 @@ namespace Codedberries.Services
                 RoleId = user.RoleId,
                 RoleName = userRole.Name,
                 Projects = projects,
-                Tasks = tasks
+                Tasks = tasks,
+                Permissions = permissions
             };
 
             return currentSessionUserDTO;
@@ -537,9 +565,25 @@ namespace Codedberries.Services
                 throw new ArgumentException($"User with provided id {imageUserId} does not exist in database!");
             }
 
-            if(userToGetPicture.ProfilePicture == null)
+            // sets default picture for user
+            if (userToGetPicture.ProfilePicture == null || string.IsNullOrEmpty(userToGetPicture.ProfilePicture))
             {
-                throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
+                //Console.WriteLine("User profile picture is null!");
+
+                string defaultImageName = "defaultProfilePicture.jpg";
+                string defaultImagePath = Path.Combine("ProfileImages", $"{defaultImageName}");
+                byte[] defaultImageBytes = File.ReadAllBytes(defaultImagePath);
+
+                
+                string imageName = $"{imageUserId}.jpg"; // generate picture name based on user id
+                userToGetPicture.ProfilePicture = imageName; // update profile picture to default picture
+
+                // save image file to folder ProfileImages
+                string imagePathToSet = Path.Combine("ProfileImages", $"{imageName}");
+                File.WriteAllBytesAsync(imagePathToSet, defaultImageBytes);
+                _databaseContext.SaveChangesAsync();
+
+                // throw new ArgumentException($"User with provided id {imageUserId} does not have profile picture set in database!");
             }
 
             var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", $"{imageUserId}.jpg");
@@ -606,6 +650,230 @@ namespace Codedberries.Services
             userToChange.Firstname = request.FirstName;
             userToChange.Lastname = request.LastName;
 
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public RolePermissionDTO GetCurrentUserRole(HttpContext httpContext)
+        {
+            var userId=this.GetCurrentSessionUser(httpContext);
+            User user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            Role userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+
+            if (userRole == null)
+            {
+                return null;
+            }
+
+            return new RolePermissionDTO
+            {
+                RoleName = userRole.Name,
+                RoleId = userRole.Id,
+                CanAddNewUser = userRole.CanAddNewUser,
+                CanAddUserToProject=userRole.CanAddUserToProject,
+                CanRemoveUserFromProject=userRole.CanRemoveUserFromProject,
+                CanCreateProject = userRole.CanCreateProject,
+                CanDeleteProject = userRole.CanDeleteProject,
+                CanEditProject= userRole.CanEditProject,
+                CanViewProject= userRole.CanViewProject,
+                CanAddTaskToUser= userRole.CanAddTaskToUser,
+                CanCreateTask= userRole.CanCreateTask,
+                CanRemoveTask=userRole.CanRemoveTask,
+                CanEditTask=userRole.CanEditTask,
+                CanEditUser=userRole.CanEditUser
+            };
+        }
+
+        public RolePermissionDTO GetCurrentProjectUserRole(HttpContext httpContext, int projectId)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            var roleId = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+
+            if(roleId == null)
+            {
+                return null;
+            }
+
+            Role userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == roleId.RoleId);
+
+            
+            if (userRole == null)
+            {
+                return null;
+            }
+
+            return new RolePermissionDTO
+            {
+                RoleName = userRole.Name,
+                RoleId = userRole.Id,
+                CanAddNewUser = userRole.CanAddNewUser,
+                CanAddUserToProject = userRole.CanAddUserToProject,
+                CanRemoveUserFromProject = userRole.CanRemoveUserFromProject,
+                CanCreateProject = userRole.CanCreateProject,
+                CanDeleteProject = userRole.CanDeleteProject,
+                CanEditProject = userRole.CanEditProject,
+                CanViewProject = userRole.CanViewProject,
+                CanAddTaskToUser = userRole.CanAddTaskToUser,
+                CanCreateTask = userRole.CanCreateTask,
+                CanRemoveTask = userRole.CanRemoveTask,
+                CanEditTask = userRole.CanEditTask,
+                CanEditUser=userRole.CanEditUser,
+            };
+        }
+
+        // returns permissions that role contains
+        private List<string> GetPermissionsFromRole(Role role)
+        {
+            var permissions = new List<string>();
+
+            if (role.CanAddNewUser) permissions.Add("CanAddNewUser");
+            if (role.CanAddUserToProject) permissions.Add("CanAddUserToProject");
+            if (role.CanRemoveUserFromProject) permissions.Add("CanRemoveUserFromProject");
+            if (role.CanCreateProject) permissions.Add("CanCreateProject");
+            if (role.CanDeleteProject) permissions.Add("CanDeleteProject");
+            if (role.CanEditProject) permissions.Add("CanEditProject");
+            if (role.CanViewProject) permissions.Add("CanViewProject");
+            if (role.CanAddTaskToUser) permissions.Add("CanAddTaskToUser");
+            if (role.CanCreateTask) permissions.Add("CanCreateTask");
+            if (role.CanRemoveTask) permissions.Add("CanRemoveTask");
+            if (role.CanEditTask) permissions.Add("CanEditTask");
+            if (role.CanEditUser) permissions.Add("CanEditUser");
+
+            return permissions;
+        }
+
+        public async System.Threading.Tasks.Task RemoveUserProfilePicture(HttpContext httpContext)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            if (!string.IsNullOrEmpty(user.ProfilePicture))
+            {
+                string currentImagePath = Path.Combine("ProfileImages", user.ProfilePicture);
+                
+                if (File.Exists(currentImagePath))
+                {
+                    File.Delete(currentImagePath);
+                }
+
+                user.ProfilePicture = null;
+                await _databaseContext.SaveChangesAsync();
+            }
+
+            string defaultImageName = "defaultProfilePicture.jpg";
+            string defaultImagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProfileImages", defaultImageName);
+            byte[] defaultImageBytes = await File.ReadAllBytesAsync(defaultImagePath);
+
+            string newImageName = $"{user.Id}.jpg";
+            string newImagePath = Path.Combine("ProfileImages", newImageName);
+            await File.WriteAllBytesAsync(newImagePath, defaultImageBytes);
+
+            user.ProfilePicture = newImageName;
+            await _databaseContext.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task DeactivateUser(HttpContext httpContext, UserIdDTO request)
+        {
+            var userId = this.GetCurrentSessionUser(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var currentUser = await _databaseContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (currentUser == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (currentUser.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            var currentUserRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == currentUser.RoleId);
+
+            if (currentUserRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (currentUserRole.CanAddNewUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to deactivate user!");
+            }
+
+            // find user to deactivate
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("Provided UserId must be greater than 0!");
+            }
+
+            var userToDeactivate = await _databaseContext.Users.FindAsync(request.UserId);
+
+            if (userToDeactivate == null)
+            {
+                throw new ArgumentException($"Provided User with ID {request.UserId} not found in database!");
+            }
+
+            if (userToDeactivate.RoleId == null)
+            {
+                throw new InvalidOperationException($"Provided User with ID {request.UserId} does not have a role assigned!");
+            }        
+
+            var taskIds = await _databaseContext.TaskUsers
+                .Where(tu => tu.UserId == userToDeactivate.Id)
+                .Select(tu => tu.TaskId)
+                .ToListAsync();
+
+            // no tasks or all tasks are arcived
+            var allTasksFinished = !taskIds.Any() || await _databaseContext.Tasks
+                .Where(t => taskIds.Contains(t.Id))
+                .AllAsync(t => t.Archived == true);
+
+            if (!allTasksFinished)
+            {
+                throw new InvalidOperationException("Cannot deactivate provided user because they have active tasks!");
+            }
+
+            /*
+            // removing user from projects 
+            var userProjectsToDelete = await _databaseContext.UserProjects
+                .Where(up => up.UserId == userToDeactivate.Id)
+                .ToListAsync();
+
+            if (userProjectsToDelete.Any())
+            {
+                _databaseContext.UserProjects.RemoveRange(userProjectsToDelete);
+            }
+            */
+
+            // deactivate user
+            userToDeactivate.Activated = false;
             await _databaseContext.SaveChangesAsync();
         }
         public bool ChangePassword(string token, string newPassword)

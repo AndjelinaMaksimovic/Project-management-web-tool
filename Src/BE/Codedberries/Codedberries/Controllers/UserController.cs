@@ -3,9 +3,7 @@ using Codedberries.Helpers;
 using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Codedberries.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 namespace Codedberries.Controllers
 {
     [Route("api/[controller]")]
@@ -194,6 +192,81 @@ namespace Codedberries.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred while updating user name: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("currentUserRole")]
+        public IActionResult GetCurrentUserRole([FromQuery] CurrentUserRoleDTO request)
+        {
+            RolePermissionDTO userRole;
+
+            if(request.Id.HasValue)
+            {
+                userRole = _userService.GetCurrentProjectUserRole(HttpContext, request.Id.Value);
+            }
+            else
+            {
+                userRole = _userService.GetCurrentUserRole(HttpContext);
+            }
+            if (userRole == null)
+            {
+                return NotFound(new ErrorMsg("User role not found!"));
+            }
+
+            return Ok(userRole);
+        }
+
+        [HttpPost("removeProfilePicture")]
+        public async Task<IActionResult> RemoveUserProfilePicture()
+        {
+            try
+            {
+                await _userService.RemoveUserProfilePicture(HttpContext);
+
+                return Ok("Profile picture successfully removed.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(401, new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
+            }
+        }
+
+        [HttpPost("deactivateUser")]
+        public async Task<IActionResult> DeactivateUser([FromBody] UserIdDTO request)
+        {
+            try
+            {
+                await _userService.DeactivateUser(HttpContext, request);
+
+                return Ok("User successfully deactivated.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
             }
         }
         [HttpPost("updatePassword")]

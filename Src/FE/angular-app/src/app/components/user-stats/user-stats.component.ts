@@ -8,6 +8,7 @@ import { TaskService } from '../../services/task.service';
 import { NgIf } from '@angular/common';
 import { TaskCardComponent } from '../task-card/task-card.component';
 import { UserService } from '../../services/user.service';
+import { AvatarService } from '../../services/avatar.service';
 
 @Component({
   selector: 'app-user-stats',
@@ -24,6 +25,10 @@ export class UserStatsComponent {
   name: string = "";
   desc: string = "";
   image: string = "";
+  
+  allTasks : number = 0;
+  completedTasks : number = 0;
+  overdueTasks : number = 0;
 
   allTasksAccordionVisible: boolean = true;
   allProjectsAccordionVisible: boolean = true;
@@ -38,9 +43,10 @@ export class UserStatsComponent {
     return this.projectService.getProjects().filter(project => project.title.toLowerCase()).filter(project => !project.archived);
   }
 
-  constructor(private userService: UserService, private projectService: ProjectService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private userService: UserService, private projectService: ProjectService, private avatarService: AvatarService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.userId = data.id;
     this.title = data.title;
+    this.projectId = data.projectId ? data.projectId : -1;
   }
 
   async ngOnInit() {
@@ -52,8 +58,16 @@ export class UserStatsComponent {
 
     this.projectService.fetchUserProjects(this.userId);
     if(this.projectId != -1) {
-      this.taskService.fetchUserTasks({ projectId: this.projectId, assignedTo: this.userId });
+      this.tasksVisible = true;
+      await this.taskService.fetchUserTasks({ projectId: this.projectId, assignedTo: this.userId });
     }
+    else {
+      await this.taskService.fetchUserTasks({ assignedTo: this.userId });
+    }
+
+    this.allTasks = this.taskService.getTasks().length;
+    this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
+    this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
   }
 
   toggleTasks() {
@@ -62,5 +76,9 @@ export class UserStatsComponent {
   
   toggleProjects() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  }
+
+  getProfileImagePath(){
+    return this.avatarService.getProfileImagePath(this.userId);
   }
 }
