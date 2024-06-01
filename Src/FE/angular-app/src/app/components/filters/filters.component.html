@@ -11,13 +11,13 @@
                 <i [ngClass]="['m-auto', allFilters.get(filter.key)!.icon]"></i>
                 <p class="option-value ml-10">{{allFilters.get(filter.key)!.name}}</p>
             </div>
-            <input *ngIf="allFilters.get(filter.key)!.type != 'select'" [type]="allFilters.get(filter.key)!.type" class="input ml-20 mr-20" [(ngModel)]="allFilters.get(filter.key)!.value">
+            <input *ngIf="allFilters.get(filter.key)!.type == 'date'" type="date" class="input ml-20 mr-20" [(ngModel)]="allFilters.get(filter.key)!.value">
             <mat-select *ngIf="allFilters.get(filter.key)!.type == 'select'" class="dropdown ml-20 mr-20" placeholder="Select" [(ngModel)]="allFilters.get(filter.key)!.value">
                 <mat-option *ngFor="let item of allFilters.get(filter.key)!.items;" [value]="item.value">
                     {{item.name}}
                 </mat-option>
             </mat-select>
-            <i class="fa-solid fa-x m-auto lightgray c-pointer" (click)="removeFilter(filter.key)"></i>
+            <i class="fa-solid fa-x lightgray c-pointer" style="margin-top: auto; margin-bottom: auto;" (click)="removeFilter(filter.key)"></i>
             <mat-menu #selectMenu>
                 <input type="text" class="input ml-20 mr-20" (click)="$event.stopPropagation()">
                 <ng-container *ngFor="let filter of allFilters | keyvalue;">
