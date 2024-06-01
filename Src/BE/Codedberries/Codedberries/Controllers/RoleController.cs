@@ -48,9 +48,9 @@ namespace Codedberries.Controllers
             {
                 var result = await _roleService.AddNewCustomRole(HttpContext, body);
 
-                if (result)
+                if (result.RoleId>0)
                 {
-                    return Ok("Custom role created successfully!");
+                    return Ok(result);
                 }
                 else
                 {
