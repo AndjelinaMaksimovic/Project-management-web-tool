@@ -111,6 +111,7 @@ export class InviteToProjectModalComponent implements OnInit, AfterViewInit{
       {name: 'Add task to user', value: 'CanCreateTask', selected: false},
       {name: 'Create task', value: 'CanRemoveTask', selected: false},
       {name: 'Edit task', value: 'CanEditTask', selected: false},
+      {name: 'Edit user', value: 'CanEditUser', selected: false},
     ]
     this.currentPermissions = this.permissions.map(p => p)
     
@@ -119,7 +120,12 @@ export class InviteToProjectModalComponent implements OnInit, AfterViewInit{
     await this.initMembers()
     this.membersSelect = this.members.map(m => {return {value: m, viewValue: m.name}})
     
-    this.roles = (await this.rolesService.getAllRoles())?.map((r) => new Role(r.id, r.roleName, this.permissions)) ?? [];
+    this.roles = (await this.rolesService.getAllRoles())?.map((r) => new Role(r.id, r.roleName, r.permissions.map(p => {
+      const thisP = this.permissions.find(thisP => thisP.value.toLowerCase() == p.name.toLowerCase())
+      if(!thisP)
+        throw 'Permission doesn\'t exist'
+      return new Permission(thisP.name, thisP.value, p.value)
+    }))) ?? [];
     
     this.role = this.getRoleFromId(this.members[0].roleId)
 
@@ -161,7 +167,7 @@ export class InviteToProjectModalComponent implements OnInit, AfterViewInit{
   }
   
   getRoleFromId(id: number){
-    const role = this.roles.find(r => r.id == this.members[0].roleId)
+    const role = this.roles.find(r => r.id == id)
     if(role)
       return role
     throw "No role with id " + id
