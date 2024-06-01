@@ -35,6 +35,6 @@ export class LoginComponent {
   }
 
   popup(){
-    this.dialogue.open(ForgotPasswordPopupComponent, { data: this.email, autoFocus: false })
+    this.dialogue.open(ForgotPasswordPopupComponent, { data: this.email.value, autoFocus: false })
   }
 }

@@ -18,6 +18,7 @@ namespace Codedberries
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Starred> Starred { get; set; }
         public DbSet<TaskComment> TaskComments { get; set; }
+        public DbSet<PasswordChangeToken> PasswordChangeTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -85,6 +86,10 @@ namespace Codedberries
                 .WithMany()
                 .HasForeignKey(tc => tc.TaskId);
 
+            modelBuilder.Entity<PasswordChangeToken>()
+                .HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId);
         }
 
         public void ApplyMigrations()

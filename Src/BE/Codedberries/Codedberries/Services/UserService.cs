@@ -1,7 +1,10 @@
-﻿using Codedberries.Models;
+﻿using Codedberries.Environment;
+using Codedberries.Helpers;
+using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Collections;
 using System.Diagnostics;
 using System.Net.Http;
@@ -17,11 +20,15 @@ namespace Codedberries.Services
         private const int Iterations = 10000;
 
         private readonly AppDatabaseContext _databaseContext;
+        private readonly TokenService _tokenService;
+        private readonly Config _config;
         private const int SessionDurationHours = 24;
 
-        public UserService(AppDatabaseContext databaseContext)
+        public UserService(AppDatabaseContext databaseContext, TokenService tokenService, IOptions<Config> config)
         {
             _databaseContext = databaseContext;
+            _tokenService = tokenService;
+            _config = config.Value;
         }
 
         public Session LoginUser(string email, string password)
@@ -600,6 +607,55 @@ namespace Codedberries.Services
             userToChange.Lastname = request.LastName;
 
             await _databaseContext.SaveChangesAsync();
+        }
+        public bool ChangePassword(string token, string newPassword)
+        {
+            var tokenObj = _databaseContext.PasswordChangeTokens.Find(token);
+            if (tokenObj == null)
+            {
+                throw new UnauthorizedAccessException("Invalid token");
+            }
+
+            if (!_tokenService.ValidateToken(tokenObj.Token))
+                throw new UnauthorizedAccessException("Invalid token");
+
+            var user = _databaseContext.Users.Find(tokenObj.UserId);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            user.SetPassword(newPassword);
+            _databaseContext.PasswordChangeTokens.Remove(tokenObj);
+
+            _databaseContext.SaveChanges();
+
+            return true;
+        }
+        public bool SendUpdatePasswordMail(string email)
+        {
+            if (!Helper.IsEmailValid(email))
+                throw new ArgumentException("Invalid email");
+
+            User? user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
+
+            if(user == null)
+            {
+                throw new UnauthorizedAccessException($"User with email {email} doesn't exist!");
+            }
+
+            PasswordChangeToken pst = new PasswordChangeToken(user.Id);
+            pst.Token = _tokenService.GenerateToken(email);
+
+            _databaseContext.PasswordChangeTokens.Add(pst);
+            _databaseContext.SaveChanges();
+
+            string activationLink = _config.FrontendURL + "/changePassword?token=" + pst.Token;
+
+            MailService mailService = new MailService(_config.SmtpHost, _config.SmtpPort, _config.SmtpUsername, _config.SmtpPassword);
+            mailService.SendMessage(email, "Change password", EmailTemplates.ChangePassword(user.Firstname, user.Lastname, activationLink));
+
+            return true;
         }
     }
 }
