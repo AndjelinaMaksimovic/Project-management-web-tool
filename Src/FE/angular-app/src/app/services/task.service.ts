@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from './category.service';
 import { LocalStorageService } from './localstorage';
 import { PriorityService } from './priority.service';
+import { UserService } from './user.service';
 
 /**
  * Task format used within the app
@@ -34,7 +35,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService, private userService: UserService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -155,6 +156,14 @@ export class TaskService {
     this.setContext({projectId});
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: projectId };
+
+    if(!data.assignedTo || data.assignedTo != -1) {
+      let userId = (await this.userService.getMe()).id;
+      data = { ...data, assignedTo: userId };
+    }
+    else {
+      data.assignedTo = '';
+    }
     
     let params = new HttpParams({ fromObject: data });
     try {
