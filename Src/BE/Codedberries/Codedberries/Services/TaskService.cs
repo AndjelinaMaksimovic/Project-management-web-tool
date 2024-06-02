@@ -729,14 +729,12 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
-
-            /*
+  
             if(request.IsEmpty())
             {
                 throw new ArgumentException("Not enough parameters for task update!");
             }
-            */
-
+            
             if (request.TaskId <= 0)
             {
                 throw new ArgumentException("TaskId must be greater than 0!");
