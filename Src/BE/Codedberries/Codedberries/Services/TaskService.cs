@@ -729,12 +729,12 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
-
+  
             if(request.IsEmpty())
             {
                 throw new ArgumentException("Not enough parameters for task update!");
             }
-
+            
             if (request.TaskId <= 0)
             {
                 throw new ArgumentException("TaskId must be greater than 0!");
@@ -1028,57 +1028,53 @@ namespace Codedberries.Services
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
-            if (request.UserIds != null && request.UserIds.Any())
+            if (request.UserIds != null)
             {
                 if (userRole.CanAddTaskToUser == false)
                 {
                     throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
                 }
 
-                foreach (var providedUserId in request.UserIds)
+                var currentTaskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == task.Id).ToList();
+                _databaseContext.TaskUsers.RemoveRange(currentTaskUsers);
+
+                if (request.UserIds.Any())
                 {
-                    if (providedUserId <= 0)
+                    foreach (var providedUserId in request.UserIds)
                     {
-                        throw new ArgumentException("Provided user ID must be greater than zero!");
+                        if (providedUserId <= 0)
+                        {
+                            throw new ArgumentException("Provided user ID must be greater than zero!");
+                        }
+
+                        var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
+
+                        if (requestedUser == null)
+                        {
+                            throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                        }
+
+                        if (requestedUser.RoleId == null)
+                        {
+                            throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                        }
+
+                        var userOnTask = _databaseContext.UserProjects
+                            .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == task.ProjectId);
+
+                        if (userOnTask == null)
+                        {
+                            throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {task.ProjectId} in UserProjects table!");
+                        }
+
+                        var newTaskUser = new TaskUser
+                        {
+                            TaskId = task.Id,
+                            UserId = providedUserId
+                        };
+
+                        _databaseContext.TaskUsers.Add(newTaskUser);
                     }
-
-                    var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
-
-                    if (requestedUser == null)
-                    {
-                        throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
-                    }
-
-                    if (requestedUser.RoleId == null)
-                    {
-                        throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
-                    }
-
-                    // is provided user assigned on project where new task is being created?
-                    var userOnTask = _databaseContext.UserProjects
-                        .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == task.ProjectId);
-
-                    if (userOnTask == null)
-                    {
-                        throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {task.ProjectId} in UserProjects table!");
-                    }
-
-                    // is provided user already assigned to the task?
-                    var userOnExistingTask = _databaseContext.TaskUsers
-                        .FirstOrDefault(ut => ut.UserId == requestedUser.Id && ut.TaskId == task.Id);
-
-                    if (userOnExistingTask != null)
-                    {
-                        throw new InvalidOperationException($"User with ID {requestedUser.Id} is already assigned to task with ID {task.Id}!");
-                    }
-
-                    var newTaskUser = new TaskUser
-                    {
-                        TaskId = task.Id,
-                        UserId = providedUserId
-                    };
-
-                    _databaseContext.TaskUsers.Add(newTaskUser);
                 }
             }
 
