@@ -18,9 +18,12 @@ export class RolesService {
   public async getAllRoles() {
     try {
       const r = await firstValueFrom(
-        this.http.get<any>(environment.apiUrl + '/Role/allRoles', {})
+        this.http.get<any>(
+          environment.apiUrl + '/Role/allRoles',
+          { ...environment.httpOptions }
+        )
       );
-      const roles: {roleName: string, id: number, permissions: {name: string, value: boolean}[]}[] = r.map((role: any) => ({
+      const roles: {roleName: string, id: number, permissions: {name: string, value: boolean}[]}[] = r.body.map((role: any) => ({
         id: role.roleId,
         roleName: role.roleName,
         permissions: Object.entries(role).slice(2).map(p => ({name: p[0], value: p[1]})),
@@ -64,7 +67,7 @@ export class RolesService {
         this.httpOptions
         )
       )
-      return r.body
+      return r.body.roleId
     } catch (e) {
       console.log(e)
       return false
