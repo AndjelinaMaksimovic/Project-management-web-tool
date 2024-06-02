@@ -15,6 +15,7 @@ import { NewTaskComponent } from './pages/new-task/new-task.component';
 import { TaskComponent } from './pages/task/task.component';
 import { ArchivedProjectsComponent } from './pages/archived-projects/archived-projects.component';
 import { MembersComponent } from './pages/members/members.component';
+import { ChangePasswordComponent } from './pages/change-password/change-password.component';
 
 export const routes: Routes = [
   {
@@ -47,5 +48,6 @@ export const routes: Routes = [
   { path: 'login', title: 'Log in | Codedberries', canActivate: [NotLoggedIn], component: LoginComponent },
   { path: 'register', title: 'Register | Codedberries', component: RegisterComponent },
   { path: 'activate', title: 'Activate | Codedberries', component: ActivateComponent },
+  { path: 'changePassword', title: 'Change password | Codedberries', component: ChangePasswordComponent },
   { path: '**', title: 'Codedberries | Page not found', component: ErrorComponent },
 ];

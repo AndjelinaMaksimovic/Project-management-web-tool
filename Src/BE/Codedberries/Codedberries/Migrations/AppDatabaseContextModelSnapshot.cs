@@ -111,6 +111,21 @@ namespace Codedberries.Migrations
                     b.ToTable("Milestones");
                 });
 
+            modelBuilder.Entity("Codedberries.Models.PasswordChangeToken", b =>
+                {
+                    b.Property<string>("Token")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Token");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordChangeToken");
+                });
+
             modelBuilder.Entity("Codedberries.Models.Priority", b =>
                 {
                     b.Property<int>("Id")
@@ -548,6 +563,17 @@ namespace Codedberries.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.PasswordChangeToken", b =>
+                {
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Starred", b =>
