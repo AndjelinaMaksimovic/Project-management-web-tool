@@ -67,6 +67,7 @@ export class ProjectDetailsComponent {
     this.project = this.projectService.getProjectWithID(this.projectId);
 
     await this.taskService.fetchTasks({ projectId: this.projectId });
+    await this.statusService.fetchStatuses();
 
     this.title = this.project?.title;
     this.description = this.project?.description;

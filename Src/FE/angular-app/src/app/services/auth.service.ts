@@ -57,6 +57,28 @@ export class AuthService {
     return r
   }
 
+  async check(
+    token: string,
+    email: string,
+  ): Promise<boolean> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Invites/CheckInvite`, 
+          {
+            token: token,
+            email: email,
+          },
+          {...environment.httpOptions, responseType: "text" as "json"}
+        )
+      );
+      if (!res.ok) return false;
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
   async activate(
     token: string,
     email: string,
@@ -117,14 +139,12 @@ export class AuthService {
     return r
   }
   loggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree{
-    console.log("loggedInCheck")
     if(!document.cookie.includes("sessionId")){
       return this.router.createUrlTree(["/login"])
     }
     return true
   }
   notLoggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
-    console.log("notloggedInCheck")
     if(!document.cookie.includes("sessionId")){
       return true
     }

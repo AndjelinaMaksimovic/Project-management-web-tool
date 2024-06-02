@@ -1,30 +1,75 @@
 <app-topnav></app-topnav>
 <!-- header -->
 <div style="padding: 20px;">
-    <div style="display: flex; flex-direction: column; align-items: center;">
-        <img class="circle-image" style="outline: solid; width: 13vw;" [src]="getProfileImagePath()"
-            onerror="this.src='/assets/logo.svg'">
-        <input #fileUpload hidden="true" type="file" class="file-input" accept="image/png, image/jpeg"
-            (change)="onFileSelected($event)">
-        <button *ngIf="loggedInUser === user.id" mat-flat-button style="margin-top: 20px;" color="primary"
-            class="dense-3" (click)="fileUpload.click()">Set profile picture</button>
-        <!-- <h2>{{user?.firstname}} {{user?.lastname}}</h2> -->
-        <h2>{{user?.firstname}} {{user?.lastname}}</h2>
-        <span class="chip chip-neutral">{{user?.roleName}}</span>
-        <div style="display: flex; gap: 20px">
-            <h4 style="font-weight: lighter;">{{user?.email}}</h4>
-            <h4 style="font-weight: lighter;">{{'member since 4.10.2024'}}</h4>
+    <div style="display: flex; flex-direction: row; justify-content: space-around; align-items: center;">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="image-container">
+                <img class="circle-image" style="outline: solid;" [src]="getProfileImagePath()"
+                onerror="this.src='/assets/logo.svg'">
+                <i *ngIf="loggedInUser === user.id" class="edit-icon fa-solid fa-pen-to-square fa-xl" (click)="fileUpload.click()"></i>
+            </div>
+            <input #fileUpload hidden="true" type="file" class="file-input" accept="image/png, image/jpeg"
+                (change)="onFileSelected($event)">
+            <!-- <button *ngIf="loggedInUser === user.id" mat-flat-button style="margin-top: 20px;" color="primary"
+                class="dense-3" (click)="fileUpload.click()">Set profile picture</button> -->
+            <!-- <h2>{{user?.firstname}} {{user?.lastname}}</h2> -->
+            <h2>{{user?.firstname}} {{user?.lastname}}</h2>
+            <span class="chip chip-neutral">{{user?.roleName}}</span>
+            <div style="display: flex; gap: 20px">
+                <h4 style="font-weight: lighter;">{{user?.email}}</h4>
+                <h4 style="font-weight: lighter;">{{'member since 4.10.2024'}}</h4>
+            </div>
+        </div>
+        <div class="scroll">
+            <h3>Activity</h3>
+            @for(activity of viewActivities; track activity; let last = $last){
+                <!-- <app-activity-item [activity]="activity"></app-activity-item> -->
+                <markdown ngPreserveWhitespaces [data]="activity.activityDescription" class="desc mt-20"></markdown>
+                <p>{{ activity.time | date:'d/M/yy, h:mm:ss a' }}</p>
+                <hr *ngIf="!last">
+            }
+            <mat-paginator (page)="pageChange($event)" [length]="paginatorLen" [pageSize]="paginatorPageSize" [pageSizeOptions]="[2,5, 10, 20]"></mat-paginator>
         </div>
     </div>
-    <mat-divider></mat-divider>
-    <h3>Activity</h3>
-    @for(activity of viewActivities; track activity; let last = $last){
-        <!-- <app-activity-item [activity]="activity"></app-activity-item> -->
-        <markdown ngPreserveWhitespaces [data]="activity.activityDescription" class="desc mt-20"></markdown>
-        <p>{{ activity.time | date:'d/M/yy, h:mm:ss a' }}</p>
-        <hr *ngIf="!last">
-    }
-    <mat-paginator (page)="pageChange($event)" [length]="paginatorLen" [pageSize]="paginatorPageSize" [pageSizeOptions]="[2,5, 10, 20]"></mat-paginator>
+    <mat-divider class="mt-20"></mat-divider>
+
+    <div style="width: 80%; margin: auto;">
+        <div class="margin-15">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleTasks();">
+                    <i *ngIf="allTasksAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
+                    <i *ngIf="!allTasksAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
+                    <span>Active tasks</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;" *ngIf="allTasksAccordionVisible">
+                    @for (task of tasks; track task) {
+                        <app-task-card [task]="task"></app-task-card>
+                    }
+                    @if (tasks.length == 0) {
+                        <p>No active tasks!</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="margin-15">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleProjects();">
+                    <i *ngIf="allProjectsAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
+                    <i *ngIf="!allProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
+                    <span>Active projects</span>
+                </div>
+                <div *ngIf="allProjectsAccordionVisible">
+                    @for (project of projects; track project) {
+                        <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [dontRefresh]="true"></app-project-item>
+                    }
+                    @if (projects.length == 0) {
+                        <p>No active projects!</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- <div class="file-upload">
             {{fileName || "No file uploaded yet."}}
             <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">

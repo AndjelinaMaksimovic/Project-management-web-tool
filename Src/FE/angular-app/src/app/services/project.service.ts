@@ -189,7 +189,7 @@ export class ProjectService {
     return false;
   }
 
-  async archiveProject(id: number){
+  async archiveProject(id: number, dontRefresh?: boolean){
     try {
       const res = await firstValueFrom(
         this.http.put<any>(
@@ -204,7 +204,7 @@ export class ProjectService {
           }
         )
       );
-      await this.fetchProjects();
+      if(dontRefresh != true) await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);
@@ -212,7 +212,7 @@ export class ProjectService {
     return false;
   }
 
-  async unarchiveProject(id: number){
+  async unarchiveProject(id: number, dontRefresh?: boolean){
     try {
       const res = await firstValueFrom(
         this.http.delete<any>(
@@ -223,7 +223,7 @@ export class ProjectService {
           }
         )
       );
-      await this.fetchProjects();
+      if(dontRefresh != true) await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);
@@ -231,7 +231,7 @@ export class ProjectService {
     return false;
   }
 
-  async toggleStarred(id: number) {
+  async toggleStarred(id: number, dontRefresh?: boolean) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -246,7 +246,7 @@ export class ProjectService {
             }
         )
       );
-      await this.fetchProjects();
+      if(dontRefresh != true) await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);

@@ -25,6 +25,7 @@ export class RolesService {
         roleName: role.roleName,
         permissions: Object.entries(role).slice(2).map(p => ({name: p[0], value: p[1]})),
       }));
+      console.log(roles)
       return roles;
     } catch (e) {
       console.log(e);

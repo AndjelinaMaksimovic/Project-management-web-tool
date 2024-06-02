@@ -20,14 +20,25 @@ namespace Codedberries.Controllers
         [HttpGet("allRoles")]
         public IActionResult GetAllRoles()
         {
-            List<RolePermissionDTO> allRolesNames = _roleService.GetRoles();
-
-            if (allRolesNames == null)
+            try
             {
-                return NotFound(new ErrorMsg("No roles found!"));
-            }
+                List<RolePermissionDTO> allRolesNames = _roleService.GetRoles(HttpContext);
 
-            return Ok(allRolesNames);
+                if (allRolesNames == null)
+                {
+                    return NotFound(new ErrorMsg("No roles found!"));
+                }
+
+                return Ok(allRolesNames);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorMsg("Internal server error: " + ex.Message));
+            }
         }
 
         [HttpPost("createCustomRole")]
@@ -37,14 +48,26 @@ namespace Codedberries.Controllers
             {
                 var result = await _roleService.AddNewCustomRole(HttpContext, body);
 
-                if (result)
+                if (result.RoleId>0)
                 {
-                    return Ok("Custom role created successfully!");
+                    return Ok(result);
                 }
                 else
                 {
                     return BadRequest(new ErrorMsg("Failed to create custom role!"));
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ErrorMsg(ex.Message));
             }
             catch (Exception ex)
             {
