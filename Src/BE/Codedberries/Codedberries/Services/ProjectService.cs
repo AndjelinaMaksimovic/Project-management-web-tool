@@ -175,7 +175,9 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
-                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has created the project {project.Name}", DateTime.Now);
+                    string Url = $"http://localhost:4200/project/{project.Id}/details";
+
+                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has created the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
                     _databaseContext.Activities.Add(activity);
                     await _databaseContext.SaveChangesAsync();
 
@@ -819,8 +821,10 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has updated the project {project.Name}", DateTime.Now);
-            _databaseContext.Activities.Add(activity);
+            string Url = $"http://localhost:4200/project/{project.Id}/details";
+
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has updated the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
+           _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
 
             var projectUsers = _databaseContext.UserProjects
@@ -901,10 +905,9 @@ namespace Codedberries.Services
             // archive/active
             project.Archived = !project.Archived;
 
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project {project.Id}", DateTime.Now);
-            _databaseContext.Activities.Add(activity);
-            await _databaseContext.SaveChangesAsync();
+            string Url = $"http://localhost:4200/project/{project.Id}/details";
 
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
             var projectUsers = _databaseContext.UserProjects
             .Where(up => up.ProjectId == project.Id && up.UserId != userId)
             .Select(up => up.UserId)

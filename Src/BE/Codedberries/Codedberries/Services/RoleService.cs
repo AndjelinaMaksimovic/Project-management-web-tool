@@ -73,7 +73,7 @@ namespace Codedberries.Services
             return roleDTO;
         }
 
-        public async Task<bool> AddNewCustomRole(HttpContext httpContext, CustomRoleDTO request)
+        public async Task<RoleIdDTO> AddNewCustomRole(HttpContext httpContext, CustomRoleDTO request)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -153,7 +153,7 @@ namespace Codedberries.Services
             _databaseContext.Roles.Add(newRole);
             await _databaseContext.SaveChangesAsync();
 
-            return true;
+            return new RoleIdDTO { RoleId = newRole.Id };
         }
 
         public async Task<bool> AddToUserProject(int userId, int customRoleId, int projectId)
