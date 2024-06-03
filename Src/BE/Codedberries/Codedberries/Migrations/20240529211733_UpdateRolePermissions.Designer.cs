@@ -3,6 +3,7 @@ using System;
 using Codedberries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Codedberries.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    partial class AppDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240529211733_UpdateRolePermissions")]
+    partial class UpdateRolePermissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
@@ -109,21 +112,6 @@ namespace Codedberries.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Milestones");
-                });
-
-            modelBuilder.Entity("Codedberries.Models.PasswordChangeToken", b =>
-                {
-                    b.Property<string>("Token")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Token");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PasswordChangeToken");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Priority", b =>
@@ -563,17 +551,6 @@ namespace Codedberries.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("Codedberries.Models.PasswordChangeToken", b =>
-                {
-                    b.HasOne("Codedberries.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Starred", b =>

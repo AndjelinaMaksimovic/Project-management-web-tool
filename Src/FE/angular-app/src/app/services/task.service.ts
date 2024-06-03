@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from './category.service';
 import { LocalStorageService } from './localstorage';
 import { PriorityService } from './priority.service';
+import { UserService } from './user.service';
 
 /**
  * Task format used within the app
@@ -25,7 +26,7 @@ export type Task = Readonly<{
   indexInCategory: number;
   projectId?: number | undefined;
   assignedTo: any;
-  dependentTasks: number[];
+  dependentTasks: {taskId: number, typeOfDependencyId: number}[];
   progress: number;
   archived: boolean;
 }>;
@@ -34,7 +35,7 @@ export type Task = Readonly<{
   providedIn: 'root',
 })
 export class TaskService {
-    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService, private userService: UserService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -155,6 +156,14 @@ export class TaskService {
     this.setContext({projectId});
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: projectId };
+
+    if(!data.assignedTo || data.assignedTo != -1) {
+      let userId = (await this.userService.getMe()).id;
+      data = { ...data, assignedTo: userId };
+    }
+    else {
+      data.assignedTo = '';
+    }
     
     let params = new HttpParams({ fromObject: data });
     try {
@@ -332,7 +341,6 @@ export class TaskService {
           {...this.httpOptions, responseType: "text" as "json"}
         )
       );
-      await this.fetchTasksFromLocalStorageContext("task_filters");
     } catch (e) {
       let error = "";
       if(e instanceof HttpErrorResponse) {
@@ -341,8 +349,10 @@ export class TaskService {
       this.snackBar.open("We couldn't create dependency" + error, undefined, {
         duration: 2000,
       });
-      await this.fetchTasksFromLocalStorageContext("task_filters");
+      return false
     }
+    await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
   }
 
   async deleteDependency(taskId: number, dependentTaskId: number) {
@@ -361,8 +371,10 @@ export class TaskService {
       );
     } catch (e) {
       console.log(e);
+      return false
     }
     await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
   }
   async changeTaskProgress(taskId: number, progress: number){
     try {

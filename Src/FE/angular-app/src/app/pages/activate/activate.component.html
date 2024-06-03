@@ -1,7 +1,7 @@
 <div class="centered-content">
     <mat-card>
         <mat-card-content>
-            <div class="stack-container">
+            <div class="stack-container" *ngIf="activated === false">
                 <h3>Input your password</h3>
                 <app-password-field label="Password" (eventFromChild)="handlePasswordChange($event)"></app-password-field>
                 <app-password-field label="Confirm password" (eventFromChild)="handlePasswordConfirmChange($event)"></app-password-field>
@@ -9,6 +9,10 @@
                 <div *ngIf="errorMessage" class="alert alert-danger">
                     {{ errorMessage }}
                 </div>
+            </div>
+            <div class="stack-container" *ngIf="activated === true">
+                <h3>Token is no longer valid</h3>
+                <button (click)="loginButton()" color="primary" class="button-rounded" mat-flat-button>Login</button>
             </div>
         </mat-card-content>
     </mat-card>

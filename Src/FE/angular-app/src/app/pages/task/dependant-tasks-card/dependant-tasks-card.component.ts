@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MaterialModule } from '../../../material/material.module';
-import { Task } from '../../../services/task.service';
+import { Task, TaskService } from '../../../services/task.service';
 import { RouterModule } from '@angular/router';
 import { NgIf } from '@angular/common';
 
@@ -13,8 +13,19 @@ import { NgIf } from '@angular/common';
 })
 export class DependantTasksCardComponent {
   @Input() dependant: {dependant: Task, type: number}[] | undefined
+  @Input() taskId?: number
 
-  removeDependency(task: Task){}
+  constructor(private taskService: TaskService){}
+
+  async removeDependency(task: {dependant: Task, type: number}){
+    if(!this.taskId || !this.dependant)
+      return
+
+    await this.taskService.deleteDependency(this.taskId, task.dependant.id)
+    // if(await this.taskService.deleteDependency(this.taskId, task.dependant.id)){
+    //   this.dependant.splice(this.dependant.indexOf(task), 1)
+    // }
+  }
 
   typeToString(type: number): string{
     switch (type) {

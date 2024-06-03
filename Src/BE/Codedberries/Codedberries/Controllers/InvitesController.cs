@@ -68,5 +68,20 @@ namespace Codedberries.Controllers
                 return StatusCode(500, new ErrorMsg($"An error occurred while activating account: {ex.Message}"));
             }
         }
+
+        [HttpPost("CheckInvite")]
+        public IActionResult CheckInvite([FromBody] CheckInviteDTO body)
+        {
+            try
+            {
+                _inviteService.CheckInvite(HttpContext, body);
+
+                return Ok("User successfully activated.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred while checking token: {ex.Message}"));
+            }
+        }
     }
 }
