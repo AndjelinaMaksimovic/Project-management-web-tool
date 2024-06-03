@@ -6,6 +6,7 @@ import {
     GanttDragEvent,
     GanttGroup,
     GanttItem,
+    GanttItemType,
     GanttLineClickEvent,
     GanttLinkDragEvent,
     GanttLinkLineType,
