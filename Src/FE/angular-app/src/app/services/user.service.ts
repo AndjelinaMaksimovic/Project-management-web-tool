@@ -185,4 +185,44 @@ export class UserService {
     }
     await this.fetchUsersByProject(projectId);
   }
+  
+  async updatePassword(token: string, password: string){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/User/updatePassword`,
+          {
+            token: token,
+            newPassword: password
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      return res.body
+    } catch (e) {
+      console.log(e);
+      return false
+    }
+  }
+  async sendUpdatePasswordMail(email: string){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/User/sendUpdatePasswordMail`,
+          {
+            email: email,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      return res.body
+    } catch (e) {
+      console.log(e);
+      return false
+    }
+  }
 }

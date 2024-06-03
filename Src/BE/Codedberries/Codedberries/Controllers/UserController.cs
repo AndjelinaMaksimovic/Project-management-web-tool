@@ -1,4 +1,6 @@
-﻿using Codedberries.Helpers;
+using Codedberries.Environment;
+using Codedberries.Helpers;
+using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Codedberries.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -266,6 +268,42 @@ namespace Codedberries.Controllers
             {
                 return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
             }
+        }
+        [HttpPost("updatePassword")]
+        public IActionResult UpdatePassword([FromBody] UpdatePasswordRequestDTO request)
+        {
+            try
+            {
+                _userService.ChangePassword(request.Token, request.NewPassword);
+
+                return Ok(new { resp = "Success" });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}."));
+            }
+        }
+        [HttpPost("sendUpdatePasswordMail")]
+        public IActionResult CreateUser([FromBody] UpdatePasswordMailRequestDTO request)
+        {
+            try
+            {
+                _userService.SendUpdatePasswordMail(request.Email);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorMsg("Error: " + ex.Message));
+            }
+
+            return Ok(new { resp = "Success" });
         }
     }
 }
