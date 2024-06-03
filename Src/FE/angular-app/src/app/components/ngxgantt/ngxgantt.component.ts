@@ -84,7 +84,7 @@ export class NgxganttComponent {
   }
 
   mapTask(task: any): GanttItem {
-    console.log(task);
+    // console.log(task);
     // console.log(task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
     //   return { type: value.typeOfDependencyId, link: this.dependencyIdToGanttLink(value.taskId) };
     // }));
@@ -94,10 +94,14 @@ export class NgxganttComponent {
       links: task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
         return { type: this.dependencyIdToGanttLink(value.typeOfDependencyId), link: value.taskId };
       }),
-      group_id: task.categoryId.toString(),
       progress: task.progress / 100.0,
       start: task.startDate,
       end: task.dueDate,
+      // barStyle: { // MILESTONE STYLE
+      //   width: "20px",
+      //   height: "20px",
+      //   transform: "rotate(45deg)",
+      // }
       // links: task.dependentTasks.foreach()
     //   itemDraggable: false
 
@@ -118,7 +122,7 @@ export class NgxganttComponent {
   }
 
   mapProjects(project: any): GanttItem {
-    console.log(project);
+    // console.log(project);
     return {
       id: project.id,
       title: project.title,
@@ -188,10 +192,7 @@ export class NgxganttComponent {
 
   loading = false;
 
-  items: GanttItem[] = [
-      // { id: '000001', title: 'Task 1', start: Date.now(), end: Date.now() + 4 * 24 * 60 * 60 * 1000, links: ['000002'], progress: 1, itemDraggable: false, color: '#000' },
-      // { id: '000002', title: 'Task 2', start: Date.now(), end: Date.now() + 5 * 24 * 60 * 60 * 1000, links: [], progress: 1, itemDraggable: false, color: '#709dc1' },
-  ];
+  items: GanttItem[] = [ ];
 
   toolbarOptions: GanttToolbarOptions = {
       viewTypes: [GanttViewType.day, GanttViewType.month, GanttViewType.year]
@@ -254,7 +255,7 @@ export class NgxganttComponent {
   groups: GanttGroup[] = [];
 
   async ngOnInit() {
-    console.log(this.items);
+    // console.log(this.items);
 
     let ganttView = this.localStorageService.getData("gantt_view");
     if(ganttView && Object.keys(ganttView).length === 0 && ganttView.constructor === Object) {
@@ -269,30 +270,64 @@ export class NgxganttComponent {
       if(this.projectId == -1) {
         await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
       }
-      await this.createGroups();
-      console.log(this.taskService.getTasks());
+      // console.log(this.taskService.getTasks());
     }
     else if(this.ganttType == GanttType.Projects) {
       await this.projectService.fetchProjectsLocalStorage("project_filters");
-      console.log(this.projectService.getProjects());
+      // console.log(this.projectService.getProjects());
     }
     
     this.updateTasksView();
   }
 
   async createGroups() {
+    let groups: Map<string, GanttItem> = new Map<string, GanttItem>();
     if(this.ganttType == GanttType.Tasks) {
       this.categoryService.setContext({ projectId: this.projectId });
       await this.categoryService.fetchCategories();
       this.categoryService.getCategories().forEach((category) => {
-        this.groups.push({ id: category.id.toString(), title: category.name, expanded: true });
+        groups.set(category.id.toString(), {
+          id: 'C_'+ category.id.toString(),
+          title: category.name,
+          itemDraggable: false,
+          expanded: true,
+          draggable: false,
+          linkable: false,
+          color: "#bfbfbf",
+          children: [],
+          barStyle: {
+            height: "18px",
+          }
+        });
       });
     }
+    return groups;
   }
 
-  updateTasksView() {
+  async updateTasksView() {
     if(this.ganttType == GanttType.Tasks) {
-      this.items = this.convertTasksToNgx(this.taskService.getTasks());
+      let _groups = await this.createGroups();
+      this.taskService.getTasks().forEach(item => {
+        let group = _groups.get(item.categoryId.toString());
+        group?.children?.push(this.mapTask(item));
+      });
+      let newItems: Array<GanttItem> = [];
+      _groups.forEach(group => {
+        if(group.children?.length! > 0) {
+          let startDate = group.children!.reduce((minDate, child) => {
+              return (new Date(child.start!) < new Date(minDate!)) ? child.start : minDate;
+          }, group.children![0].start);
+          let endDate = group.children!.reduce((maxDate, child) => {
+            return (new Date(child.end!) > new Date(maxDate!)) ? child.end : maxDate;
+          }, group.children![0].end);
+          group.start = startDate;
+          group.end = endDate;
+
+          newItems.push(group);
+        }
+      });
+      this.items = newItems;
+      console.log(this.items);
     }
     else if(this.ganttType == GanttType.Projects) {
       this.items = this.convertProjectsToNgx(this.projectService.getProjects());
@@ -389,22 +424,21 @@ export class NgxganttComponent {
       this.localStorageService.saveData("gantt_view", event.viewType);
   }
 
-  onDragDropped(event: GanttTableDragDroppedEvent) {
+  async onDragDropped(event: GanttTableDragDroppedEvent) {
     if(this.ganttType == GanttType.Tasks) {
-    console.log(event);
-    //   const sourceItems = event.sourceParent?.children || this.items;
-    //   sourceItems.splice(sourceItems.indexOf(event.source), 1);
-    //   if (event.dropPosition === 'inside') {
-    //       event.target.children = [...(event.target.children || []), event.source];
-    //   } else {
-    //       const targetItems = event.targetParent?.children || this.items;
-    //       if (event.dropPosition === 'before') {
-    //           targetItems.splice(targetItems.indexOf(event.target), 0, event.source);
-    //       } else {
-    //           targetItems.splice(targetItems.indexOf(event.target) + 1, 0, event.source);
-    //       }
-    //   }
-      this.items = [...this.items];
+      console.log(event);
+      let categoryId = -1;
+      if(event.targetParent == undefined) {
+        categoryId = parseInt(event.target.id.replace("C_", ""));
+      }
+      else {
+        categoryId = parseInt(event.targetParent.id.replace("C_", ""));
+      }
+      await this.taskService.updateTask({
+        id: parseInt(event.source.id),
+        categoryId: categoryId
+      });
+      this.updateTasksView();
     }
   }
 
