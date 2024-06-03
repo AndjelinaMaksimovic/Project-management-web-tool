@@ -297,10 +297,13 @@ export class NgxganttComponent {
           children: [],
           barStyle: {
             height: "18px",
-          }
+          },
+          start: 0,
+          end: 0,
         });
       });
     }
+    console.log(groups);
     return groups;
   }
 
@@ -322,9 +325,8 @@ export class NgxganttComponent {
           }, group.children![0].end);
           group.start = startDate;
           group.end = endDate;
-
-          newItems.push(group);
         }
+        newItems.push(group);
       });
       this.items = newItems;
       console.log(this.items);
