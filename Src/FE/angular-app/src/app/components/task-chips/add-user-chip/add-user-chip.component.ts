@@ -38,11 +38,9 @@ export class AddUserChipComponent {
   async addUser(user: any){
     if(!this.task)
       return
-    console.log(this.users)
 
     const tmp = [...this.users]
     tmp.push(user)
-    console.log(tmp)
     
     if(await this.taskService.updateTask({id: this.task.id, userIds: tmp.map(usr => usr.id)})){
     // if(await this.taskService.updateTask({id: this.task.id, userId: tmp[0].id})){
