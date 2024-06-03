@@ -1,1 +1,6 @@
 @use "ngx-tethys/styles/index.scss";
+
+
+::ng-deep .gantt-bar-content-progress {
+    z-index: -1;
+}

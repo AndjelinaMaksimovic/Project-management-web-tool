@@ -110,7 +110,7 @@ export class NgxganttComponent {
       end: task.dueDate,
       origin: {
         type: ItemType.Task
-      }
+      },
       // barStyle: { // MILESTONE STYLE
       //   width: "20px",
       //   height: "20px",
@@ -312,14 +312,12 @@ export class NgxganttComponent {
           linkable: false,
           color: "#bfbfbf",
           children: [],
-          barStyle: {
-            height: "18px",
-          },
           start: 0,
           end: 0,
           origin: {
             type: ItemType.Category
-          }
+          },
+          type: GanttItemType.range
         });
       });
     }
@@ -360,7 +358,9 @@ export class NgxganttComponent {
       setTimeout(() => this.ganttComponent.scrollToDate(Date.now()), 200);
   }
 
-  barClick(event: GanttBarClickEvent<OriginObject>) {
+  barClick(_event: GanttBarClickEvent) {
+    const event = _event as GanttBarClickEvent<OriginObject>;
+
     if(this.ganttType == GanttType.Tasks) {
       if(event.item.origin!.type == ItemType.Task) {
         this.router.navigate(['/project/' + this.projectId + '/task/' + event.item.id]);
