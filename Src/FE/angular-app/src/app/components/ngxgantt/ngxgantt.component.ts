@@ -40,6 +40,17 @@ export enum GanttType {
   Tasks = 2
 }
 
+export enum ItemType {
+  Task = 1,
+  Category = 2,
+  Milestone = 3,
+  Project = 4
+}
+
+export class OriginObject {
+  type?: ItemType;
+}
+
 @Component({
   selector: 'app-ngxgantt',
   standalone: true,
@@ -97,6 +108,9 @@ export class NgxganttComponent {
       progress: task.progress / 100.0,
       start: task.startDate,
       end: task.dueDate,
+      origin: {
+        type: ItemType.Task
+      }
       // barStyle: { // MILESTONE STYLE
       //   width: "20px",
       //   height: "20px",
@@ -133,7 +147,10 @@ export class NgxganttComponent {
       expandable: false,
       // draggable: false,
       itemDraggable: false,
-      linkable: false
+      linkable: false,
+      origin: {
+        type: ItemType.Project
+      }
       // color?: string;
       // barStyle?: Partial<CSSStyleDeclaration>;
       // origin?: T;
@@ -300,6 +317,9 @@ export class NgxganttComponent {
           },
           start: 0,
           end: 0,
+          origin: {
+            type: ItemType.Category
+          }
         });
       });
     }
@@ -340,10 +360,12 @@ export class NgxganttComponent {
       setTimeout(() => this.ganttComponent.scrollToDate(Date.now()), 200);
   }
 
-  barClick(event: GanttBarClickEvent) {
+  barClick(event: GanttBarClickEvent<OriginObject>) {
     if(this.ganttType == GanttType.Tasks) {
-      this.router.navigate(['/project/' + this.projectId + '/task/' + event.item.id]);
-      console.log('Event: barClick', `[${event.item.title}]`);
+      if(event.item.origin!.type == ItemType.Task) {
+        this.router.navigate(['/project/' + this.projectId + '/task/' + event.item.id]);
+        console.log('Event: barClick', `[${event.item.title}]`);
+      }
     }
     else if(this.ganttType == GanttType.Projects) {
       this.router.navigate(['/project/' + event.item.id + '/details']);
