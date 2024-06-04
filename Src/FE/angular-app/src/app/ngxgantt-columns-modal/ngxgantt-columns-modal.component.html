@@ -1,0 +1,29 @@
+<div style="margin: 1rem 2rem 1rem 2rem; max-width: 50vh; display: flex; flex-direction: column;">
+    <h3>Choose Gantt Columns</h3>
+    <form style="display: flex; flex-direction: column;">
+        <div *ngIf="columns && columns.name !== undefined" class="row">
+            <p>Task name</p>
+            <input type="checkbox" [checked]="columns.name" (change)="toggle('name', $event)">
+        </div>
+        <div *ngIf="columns && columns.startDate !== undefined" class="row">
+            <p>Start date</p>
+            <input type="checkbox" [checked]="columns.startDate" (change)="toggle('startDate', $event)">
+        </div>
+        <div *ngIf="columns && columns.endDate !== undefined" class="row">
+            <p>End date</p>
+            <input type="checkbox" [checked]="columns.endDate" (change)="toggle('endDate', $event)">
+        </div>
+        <div *ngIf="columns && columns.status !== undefined" class="row">
+            <p>Status</p>
+            <input type="checkbox" [checked]="columns.status" (change)="toggle('status', $event)">
+        </div>
+        <div *ngIf="columns && columns.priority !== undefined"class="row">
+            <p>Priority</p>
+            <input type="checkbox" [checked]="columns.priority" (change)="toggle('priority', $event)">
+        </div>
+        <div *ngIf="columns && columns.users !== undefined" class="row">
+            <p>Assignees</p>
+            <input type="checkbox" [checked]="columns.users" (change)="toggle('users', $event)">
+        </div>
+    </form>
+</div>

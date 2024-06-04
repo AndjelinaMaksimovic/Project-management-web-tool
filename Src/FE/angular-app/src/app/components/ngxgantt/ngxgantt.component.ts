@@ -1,4 +1,4 @@
-import { DatePipe, NgFor } from '@angular/common';
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { AfterViewInit, Component, HostBinding, OnInit, ViewChild, NgModule, Input } from '@angular/core';
 import {
     GanttBarClickEvent,
@@ -6,6 +6,7 @@ import {
     GanttDragEvent,
     GanttGroup,
     GanttItem,
+    GanttItemType,
     GanttLineClickEvent,
     GanttLinkDragEvent,
     GanttLinkLineType,
@@ -34,22 +35,44 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { CategoryService } from '../../services/category.service';
 import { ProjectService } from '../../services/project.service';
+import { AvatarService } from '../../services/avatar.service';
+import { UserStatsComponent } from '../user-stats/user-stats.component';
+import { UserService } from '../../services/user.service';
+import { StatusChipComponent } from '../task-chips/status-chip/status-chip.component';
+import { PriorityChipComponent } from '../task-chips/priority-chip/priority-chip.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgxganttColumnsModalComponent } from '../../ngxgantt-columns-modal/ngxgantt-columns-modal.component';
 
 export enum GanttType {
   Projects = 1,
   Tasks = 2
 }
 
+export enum ItemType {
+  Task = 1,
+  Category = 2,
+  Milestone = 3,
+  Project = 4
+}
+
+export class OriginObject {
+  task?: any;
+  type?: ItemType;
+}
+
 @Component({
   selector: 'app-ngxgantt',
   standalone: true,
-  imports: [ NgxGanttModule, DatePipe, ThyButtonModule, ThyLayoutModule, ThySwitchModule, FormsModule, NgFor ],
+  imports: [ NgxGanttModule, DatePipe, ThyButtonModule, ThyLayoutModule, ThySwitchModule, FormsModule, NgFor, NgIf, StatusChipComponent, PriorityChipComponent, MatTooltipModule ],
   templateUrl: './ngxgantt.component.html',
   styleUrl: './ngxgantt.component.scss'
 })
 
 export class NgxganttComponent {
+  isChecked: boolean = false;
+
   GanttType = GanttType;
+  ItemType = ItemType;
   GanttLinkToDependencyId(type: GanttLinkType) {
     let newType = -1;
       switch(type) {
@@ -83,21 +106,43 @@ export class NgxganttComponent {
     return -1;
   }
 
+  role: any = {}
+
+  assignedIds: Map<string, []> = new Map<string, []>();
+
+  getAssignedIds(id: string) : [] {
+    if(!this.assignedIds.has(id)) return [];
+    return this.assignedIds.get(id)!;
+  }
+
+  getProfilePicture(id: string) {
+    return this.avatarService.getProfileImagePath(id);
+  }
+
   mapTask(task: any): GanttItem {
-    console.log(task);
+    // console.log(task);
     // console.log(task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
     //   return { type: value.typeOfDependencyId, link: this.dependencyIdToGanttLink(value.taskId) };
     // }));
+    this.assignedIds.set(task.id, task.assignedTo.map((value: any) => value.id));
     return {
       id: task.id,
       title: task.title,
       links: task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
         return { type: this.dependencyIdToGanttLink(value.typeOfDependencyId), link: value.taskId };
       }),
-      group_id: task.categoryId.toString(),
       progress: task.progress / 100.0,
       start: task.startDate,
       end: task.dueDate,
+      origin: {
+        task: task,
+        type: ItemType.Task
+      },
+      // barStyle: { // MILESTONE STYLE
+      //   width: "20px",
+      //   height: "20px",
+      //   transform: "rotate(45deg)",
+      // }
       // links: task.dependentTasks.foreach()
     //   itemDraggable: false
 
@@ -118,7 +163,7 @@ export class NgxganttComponent {
   }
 
   mapProjects(project: any): GanttItem {
-    console.log(project);
+    // console.log(project);
     return {
       id: project.id,
       title: project.title,
@@ -129,7 +174,10 @@ export class NgxganttComponent {
       expandable: false,
       // draggable: false,
       itemDraggable: false,
-      linkable: false
+      linkable: false,
+      origin: {
+        type: ItemType.Project
+      }
       // color?: string;
       // barStyle?: Partial<CSSStyleDeclaration>;
       // origin?: T;
@@ -160,10 +208,10 @@ export class NgxganttComponent {
           name: 'day',
           value: GanttViewType.day
       },
-      {
-          name: 'week',
-          value: GanttViewType.week
-      },
+      // {
+      //     name: 'week',
+      //     value: GanttViewType.week
+      // },
       {
           name: 'month',
           value: GanttViewType.month
@@ -188,10 +236,7 @@ export class NgxganttComponent {
 
   loading = false;
 
-  items: GanttItem[] = [
-      // { id: '000001', title: 'Task 1', start: Date.now(), end: Date.now() + 4 * 24 * 60 * 60 * 1000, links: ['000002'], progress: 1, itemDraggable: false, color: '#000' },
-      // { id: '000002', title: 'Task 2', start: Date.now(), end: Date.now() + 5 * 24 * 60 * 60 * 1000, links: [], progress: 1, itemDraggable: false, color: '#709dc1' },
-  ];
+  items: GanttItem[] = [ ];
 
   toolbarOptions: GanttToolbarOptions = {
       viewTypes: [GanttViewType.day, GanttViewType.month, GanttViewType.year]
@@ -246,15 +291,27 @@ export class NgxganttComponent {
     private localStorageService: LocalStorageService,
     private dialogue: MatDialog,
     private categoryService: CategoryService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private avatarService: AvatarService,
+    private userService: UserService
   ) {}
 
   @Input() projectId: number = -1;
 
   groups: GanttGroup[] = [];
 
+  columns: { name: boolean, startDate: boolean, endDate: boolean, status?: boolean, priority?: boolean, users?: boolean} = {
+    name: true,
+    startDate: false,
+    endDate: false,
+    status: false,
+    priority: false,
+    users: false
+  };
+
   async ngOnInit() {
-    console.log(this.items);
+    this.role = await this.userService.currentUserRole();
+    // console.log(this.items);
 
     let ganttView = this.localStorageService.getData("gantt_view");
     if(ganttView && Object.keys(ganttView).length === 0 && ganttView.constructor === Object) {
@@ -265,34 +322,81 @@ export class NgxganttComponent {
       this.selectView(this.selectedViewType);
     }
 
+
     if(this.ganttType == GanttType.Tasks) {
       if(this.projectId == -1) {
         await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
       }
-      await this.createGroups();
-      console.log(this.taskService.getTasks());
+      // console.log(this.taskService.getTasks());
     }
     else if(this.ganttType == GanttType.Projects) {
+      
+
+      this.columns = {
+        name: true,
+        startDate: false,
+        endDate: false,
+      };
+
       await this.projectService.fetchProjectsLocalStorage("project_filters");
-      console.log(this.projectService.getProjects());
+      // console.log(this.projectService.getProjects());
     }
-    
+
+    this.updateColumns();
     this.updateTasksView();
   }
 
   async createGroups() {
+    let groups: Map<string, GanttItem> = new Map<string, GanttItem>();
     if(this.ganttType == GanttType.Tasks) {
       this.categoryService.setContext({ projectId: this.projectId });
       await this.categoryService.fetchCategories();
       this.categoryService.getCategories().forEach((category) => {
-        this.groups.push({ id: category.id.toString(), title: category.name, expanded: true });
+        groups.set(category.id.toString(), {
+          id: 'C_'+ category.id.toString(),
+          title: category.name,
+          itemDraggable: false,
+          expanded: true,
+          draggable: false,
+          linkable: false,
+          color: "#bfbfbf",
+          children: [],
+          start: 0,
+          end: 0,
+          origin: {
+            type: ItemType.Category
+          },
+          type: GanttItemType.range
+        });
       });
     }
+    console.log(groups);
+    return groups;
   }
 
-  updateTasksView() {
+  async updateTasksView() {
     if(this.ganttType == GanttType.Tasks) {
-      this.items = this.convertTasksToNgx(this.taskService.getTasks());
+      let _groups = await this.createGroups();
+      this.taskService.getTasks().forEach(item => {
+        let group = _groups.get(item.categoryId.toString());
+        group?.children?.push(this.mapTask(item));
+      });
+      let newItems: Array<GanttItem> = [];
+      _groups.forEach(group => {
+        if(group.children?.length! > 0) {
+          let startDate = group.children!.reduce((minDate, child) => {
+              return (new Date(child.start!) < new Date(minDate!)) ? child.start : minDate;
+          }, group.children![0].start);
+          let endDate = group.children!.reduce((maxDate, child) => {
+            return (new Date(child.end!) > new Date(maxDate!)) ? child.end : maxDate;
+          }, group.children![0].end);
+          group.start = startDate;
+          group.end = endDate;
+        }
+        newItems.push(group);
+      });
+      this.items = newItems;
+      console.log(this.items);
     }
     else if(this.ganttType == GanttType.Projects) {
       this.items = this.convertProjectsToNgx(this.projectService.getProjects());
@@ -303,10 +407,14 @@ export class NgxganttComponent {
       setTimeout(() => this.ganttComponent.scrollToDate(Date.now()), 200);
   }
 
-  barClick(event: GanttBarClickEvent) {
+  barClick(_event: GanttBarClickEvent) {
+    const event = _event as GanttBarClickEvent<OriginObject>;
+
     if(this.ganttType == GanttType.Tasks) {
-      this.router.navigate(['/project/' + this.projectId + '/task/' + event.item.id]);
-      console.log('Event: barClick', `[${event.item.title}]`);
+      if(event.item.origin!.type == ItemType.Task) {
+        this.router.navigate(['/project/' + this.projectId + '/task/' + event.item.id]);
+        console.log('Event: barClick', `[${event.item.title}]`);
+      }
     }
     else if(this.ganttType == GanttType.Projects) {
       this.router.navigate(['/project/' + event.item.id + '/details']);
@@ -389,22 +497,21 @@ export class NgxganttComponent {
       this.localStorageService.saveData("gantt_view", event.viewType);
   }
 
-  onDragDropped(event: GanttTableDragDroppedEvent) {
+  async onDragDropped(event: GanttTableDragDroppedEvent) {
     if(this.ganttType == GanttType.Tasks) {
-    console.log(event);
-    //   const sourceItems = event.sourceParent?.children || this.items;
-    //   sourceItems.splice(sourceItems.indexOf(event.source), 1);
-    //   if (event.dropPosition === 'inside') {
-    //       event.target.children = [...(event.target.children || []), event.source];
-    //   } else {
-    //       const targetItems = event.targetParent?.children || this.items;
-    //       if (event.dropPosition === 'before') {
-    //           targetItems.splice(targetItems.indexOf(event.target), 0, event.source);
-    //       } else {
-    //           targetItems.splice(targetItems.indexOf(event.target) + 1, 0, event.source);
-    //       }
-    //   }
-      this.items = [...this.items];
+      console.log(event);
+      let categoryId = -1;
+      if(event.targetParent == undefined) {
+        categoryId = parseInt(event.target.id.replace("C_", ""));
+      }
+      else {
+        categoryId = parseInt(event.targetParent.id.replace("C_", ""));
+      }
+      await this.taskService.updateTask({
+        id: parseInt(event.source.id),
+        categoryId: categoryId
+      });
+      this.updateTasksView();
     }
   }
 
@@ -418,5 +525,42 @@ export class NgxganttComponent {
     if(this.ganttType == GanttType.Tasks) {
       console.log('Index drag ended', event);
     }
+  }
+
+  // ================================================================================ //
+
+  updateColumns() {
+    let localStorageColumnsName = "";
+
+    if(this.ganttType == GanttType.Tasks) {
+      localStorageColumnsName = "gantt_columns_tasks";
+    }
+    else if(this.ganttType == GanttType.Projects) {
+      localStorageColumnsName = "gantt_columns_projects";
+    }
+
+    let columns = this.localStorageService.getData(localStorageColumnsName);
+    if(columns && Object.keys(columns).length === 0 && columns.constructor === Object) {
+      this.localStorageService.saveData(localStorageColumnsName, this.columns);
+    }
+    else {
+      this.columns = this.localStorageService.getData(localStorageColumnsName);
+
+    }
+  }
+
+  openSettings() {
+    const dialogRef = this.dialogue.open(NgxganttColumnsModalComponent, {
+      panelClass: 'borderless-dialog',
+      data: {
+        ganttType: this.ganttType,
+        localStorageColumnName: this.ganttType == GanttType.Projects ? "gantt_columns_projects" : "gantt_columns_tasks"
+      },
+      maxHeight: '90vh'
+    });
+    dialogRef.componentInstance.notifyUpdate.subscribe(() => {
+      this.updateColumns();
+    });
+
   }
 }

@@ -189,6 +189,14 @@ export class TaskService {
     if (context) this.setContext(context);
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: this.context.projectId };
+
+    if(!data.assignedTo || data.assignedTo != -1) {
+      let userId = (await this.userService.getMe()).id;
+      data = { ...data, assignedTo: userId };
+    }
+    else {
+      data.assignedTo = '';
+    }
     
     let params = new HttpParams({ fromObject: data });
     try {
