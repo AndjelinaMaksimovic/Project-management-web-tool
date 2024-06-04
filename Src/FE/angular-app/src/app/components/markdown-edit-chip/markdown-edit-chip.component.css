@@ -1,4 +1,11 @@
-h1:hover .small-icon-button, p:hover .small-icon-button {
+.desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.desc:hover .small-icon-button {
     opacity: 1;
 }
 .small-icon-button {
@@ -26,12 +33,6 @@ h1:hover .small-icon-button, p:hover .small-icon-button {
         height: 32px !important;
     }
 }
-
-.title {
-    font-weight: 500;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.wiiide{
+    width: 600px;
 }

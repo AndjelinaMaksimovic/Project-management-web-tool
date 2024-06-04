@@ -1,0 +1,19 @@
+<div>
+    <markdown class="desc" ngPreserveWhitespaces [data]="content"></markdown>
+    <button *ngIf="role.canEditProject" mat-icon-button [matMenuTriggerFor]="menu"
+        class="small-icon-button" [matTooltip]="'edit title'" (click)="isEditing = true"><mat-icon>edit</mat-icon></button>
+</div>
+
+<mat-menu #menu="matMenu">
+    <div style="width: 600px">
+        <div style="margin-top: 20px;">
+            <app-markdown-editor [(value)]="editContent"></app-markdown-editor>
+            <div style="display: flex; gap: 10px">
+                <button color="primary" mat-flat-button (click)="save()">Save</button>
+                <button color="primary" mat-flat-button (click)="cancel()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</mat-menu>
+<!-- <app-markdown-edit-chip [role]="role" [content]="description"
+                (onSave)="updateDescription($event)"></app-markdown-edit-chip> -->
