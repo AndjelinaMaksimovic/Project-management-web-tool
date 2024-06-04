@@ -45,19 +45,52 @@
                 (dragStarted)="onDragStarted($event)"
                 (dragEnded)="onDragEnded($event)">
 
-                <ngx-gantt-column [name]="ganttType == GanttType.Tasks ? 'Task' : 'Projects'" width="160px" [showExpandIcon]="true">
-                <ng-template #cell let-item="item"> {{ item.title }} </ng-template>
+                <ngx-gantt-column [name]="ganttType == GanttType.Tasks ? 'Task' : 'Projects'" width="260px" [showExpandIcon]="true">
+                  <ng-template #cell let-item="item" >
+                    <p [matTooltip]="item.title">
+                      {{ item.title }}     
+                    </p>
+                  </ng-template>
                 </ngx-gantt-column>
-                <!-- <ngx-gantt-column name="Starting date" width="200px">
+
+                <ngx-gantt-column name="Starting date" width="170px">
                 <ng-template #cell let-item="item">
-                    {{ item.start | date : 'yyyy-MM-dd HH:mm' }}
+                    {{ item.start | date : 'dd. MMMM yyyy.' }}
                 </ng-template>
                 </ngx-gantt-column>
-                <ngx-gantt-column name="Due date" width="200px">
+
+                <ngx-gantt-column name="Due date" width="170px">
                 <ng-template #cell let-item="item">
-                    {{ item.end | date : 'yyyy-MM-dd HH:mm' }}
+                    {{ item.end | date : 'dd. MMMM yyyy.' }}
                 </ng-template>
-                </ngx-gantt-column> -->
+                </ngx-gantt-column>
+
+                <ngx-gantt-column *ngIf="ganttType == GanttType.Tasks" name="Status" width="120px">
+                  <ng-template #cell let-item="item">
+                    <div style="display: flex; flex-wrap: wrap; height: 100%;">
+                      <app-status-chip *ngIf="item.origin!.type == ItemType.Task" style="height: 30px; margin: auto;" (notifyUpdate)="updateTasksView()" [role]="role" [task]="item.origin!.task!"></app-status-chip>
+                    </div>
+                  </ng-template>
+                </ngx-gantt-column>
+
+                <ngx-gantt-column *ngIf="ganttType == GanttType.Tasks" name="Priority" width="120px">
+                  <ng-template #cell let-item="item">
+                    <div style="display: flex; flex-wrap: wrap; height: 100%;">
+                      <app-priority-chip *ngIf="item.origin!.type == ItemType.Task" style="height: 30px; margin: auto;" (notifyUpdate)="updateTasksView()" [role]="role" [task]="item.origin!.task"></app-priority-chip>
+                    </div>
+                  </ng-template>
+                </ngx-gantt-column>
+
+                <ngx-gantt-column *ngIf="ganttType == GanttType.Tasks" name="Assigned Users" width="200px">
+                  <ng-template #cell let-item="item">
+                    <div style="display: flex; flex-direction: row; margin-left: 2px; margin-right: 2px;">
+                        @for (user of getAssignedIds(item.id); track user) {
+                        <img [src]="getProfilePicture(user)"class="avatar" alt="Avatar">
+                      }
+                    </div>
+                  </ng-template>
+                </ngx-gantt-column>
+               
             </ngx-gantt-table>
 
             <ng-template #bar let-item="item">

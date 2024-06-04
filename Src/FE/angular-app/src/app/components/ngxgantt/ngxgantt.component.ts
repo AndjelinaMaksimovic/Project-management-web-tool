@@ -1,4 +1,4 @@
-import { DatePipe, NgFor } from '@angular/common';
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { AfterViewInit, Component, HostBinding, OnInit, ViewChild, NgModule, Input } from '@angular/core';
 import {
     GanttBarClickEvent,
@@ -35,6 +35,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { CategoryService } from '../../services/category.service';
 import { ProjectService } from '../../services/project.service';
+import { AvatarService } from '../../services/avatar.service';
+import { UserStatsComponent } from '../user-stats/user-stats.component';
+import { UserService } from '../../services/user.service';
+import { StatusChipComponent } from '../task-chips/status-chip/status-chip.component';
+import { PriorityChipComponent } from '../task-chips/priority-chip/priority-chip.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export enum GanttType {
   Projects = 1,
@@ -49,19 +55,21 @@ export enum ItemType {
 }
 
 export class OriginObject {
+  task?: any;
   type?: ItemType;
 }
 
 @Component({
   selector: 'app-ngxgantt',
   standalone: true,
-  imports: [ NgxGanttModule, DatePipe, ThyButtonModule, ThyLayoutModule, ThySwitchModule, FormsModule, NgFor ],
+  imports: [ NgxGanttModule, DatePipe, ThyButtonModule, ThyLayoutModule, ThySwitchModule, FormsModule, NgFor, NgIf, StatusChipComponent, PriorityChipComponent, MatTooltipModule ],
   templateUrl: './ngxgantt.component.html',
   styleUrl: './ngxgantt.component.scss'
 })
 
 export class NgxganttComponent {
   GanttType = GanttType;
+  ItemType = ItemType;
   GanttLinkToDependencyId(type: GanttLinkType) {
     let newType = -1;
       switch(type) {
@@ -95,11 +103,25 @@ export class NgxganttComponent {
     return -1;
   }
 
+  role: any = {}
+
+  assignedIds: Map<string, []> = new Map<string, []>();
+
+  getAssignedIds(id: string) : [] {
+    if(!this.assignedIds.has(id)) return [];
+    return this.assignedIds.get(id)!;
+  }
+
+  getProfilePicture(id: string) {
+    return this.avatarService.getProfileImagePath(id);
+  }
+
   mapTask(task: any): GanttItem {
     // console.log(task);
     // console.log(task.dependentTasks.map((value: { taskId : number, typeOfDependencyId : number }) => {
     //   return { type: value.typeOfDependencyId, link: this.dependencyIdToGanttLink(value.taskId) };
     // }));
+    this.assignedIds.set(task.id, task.assignedTo.map((value: any) => value.id));
     return {
       id: task.id,
       title: task.title,
@@ -110,6 +132,7 @@ export class NgxganttComponent {
       start: task.startDate,
       end: task.dueDate,
       origin: {
+        task: task,
         type: ItemType.Task
       },
       // barStyle: { // MILESTONE STYLE
@@ -265,7 +288,9 @@ export class NgxganttComponent {
     private localStorageService: LocalStorageService,
     private dialogue: MatDialog,
     private categoryService: CategoryService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private avatarService: AvatarService,
+    private userService: UserService
   ) {}
 
   @Input() projectId: number = -1;
@@ -273,6 +298,7 @@ export class NgxganttComponent {
   groups: GanttGroup[] = [];
 
   async ngOnInit() {
+    this.role = await this.userService.currentUserRole();
     // console.log(this.items);
 
     let ganttView = this.localStorageService.getData("gantt_view");
