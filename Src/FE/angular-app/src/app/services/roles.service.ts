@@ -18,11 +18,15 @@ export class RolesService {
   public async getAllRoles() {
     try {
       const r = await firstValueFrom(
-        this.http.get<any>(environment.apiUrl + '/Role/allRoles', {})
+        this.http.get<any>(
+          environment.apiUrl + '/Role/allRoles',
+          { ...environment.httpOptions }
+        )
       );
-      const roles: {roleName: string, id: number}[] = r.map((r: any) => ({
-        roleName: r.roleName,
-        id: r.roleId,
+      const roles: {roleName: string, id: number, permissions: {name: string, value: boolean}[]}[] = r.body.map((role: any) => ({
+        id: role.roleId,
+        roleName: role.roleName,
+        permissions: Object.entries(role).slice(2).map(p => ({name: p[0], value: p[1]})),
       }));
       console.log(roles)
       return roles;
@@ -51,4 +55,23 @@ export class RolesService {
     }
     return null;
   }
+  
+  public async createCustomRole(name: string, permissions: string[]) {
+    try {
+      const r = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Role/createCustomRole`, 
+        {
+          customRoleName: name,
+          permissions: permissions,
+        },
+        this.httpOptions
+        )
+      )
+      return r.body.roleId
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
 }

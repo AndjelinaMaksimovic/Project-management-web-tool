@@ -1,4 +1,4 @@
-﻿using Codedberries.Environment;
+using Codedberries.Environment;
 using Codedberries.Helpers;
 using Codedberries.Models;
 using Codedberries.Models.DTOs;

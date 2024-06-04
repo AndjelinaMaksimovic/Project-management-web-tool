@@ -45,8 +45,8 @@ export class UsersCardComponent implements OnChanges {
     const tmp = [...this.users]
     tmp.splice(this.users.indexOf(user), 1)
     
-    // if(await this.taskService.updateTask({id: this.task.id, userIds: tmp.map(usr => usr.id)}))
-    if(await this.taskService.updateTask({id: this.taskId, userId: tmp[0].id}))
+    if(await this.taskService.updateTask({id: this.taskId, userIds: tmp.map(usr => usr.id)}))
+    // if(await this.taskService.updateTask({id: this.taskId, userId: tmp[0].id}))
       this.users.splice(this.users.indexOf(user), 1)
   }
 

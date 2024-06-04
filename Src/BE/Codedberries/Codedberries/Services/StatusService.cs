@@ -86,7 +86,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+            if (userRole.CanEditProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
@@ -263,7 +263,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
+            if (userRole.CanEditProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to delete status!");
             }

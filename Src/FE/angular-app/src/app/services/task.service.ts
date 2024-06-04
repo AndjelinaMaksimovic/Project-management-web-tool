@@ -237,7 +237,7 @@ export class TaskService {
       if(task.categoryId) request["categoryId"] = task.categoryId;
       if(task.statusId) request["statusId"] = task.statusId;
       if(task.priorityId) request["priorityId"] = task.priorityId;
-      if(task.userId) request["userId"] = task.userId;
+      if(task.userIds) request["userIds"] = task.userIds;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.startDate) request['startDate'] = task.startDate;

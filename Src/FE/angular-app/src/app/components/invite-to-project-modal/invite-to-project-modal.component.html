@@ -1,4 +1,4 @@
-<div style="padding: 20px; width: 350px">
+<!-- <div style="padding: 20px; width: 350px">
     <button mat-icon-button aria-label="close dialog" mat-dialog-close
         style="position: absolute; right: 5px; top: 5px;">
         <mat-icon>close</mat-icon>
@@ -17,4 +17,94 @@
 
         <button (click)="invite()" mat-flat-button color="primary" class="button-rounded">Invite</button>
     </div>
+</div> -->
+
+<button mat-icon-button aria-label="close dialog" mat-dialog-close style="position: absolute; right: 0; top: 0;">
+    <mat-icon>close</mat-icon>
+</button>
+
+<div style="padding: 40px; width: 800px;">
+
+    <app-select [options]="membersSelect" [(value)]="member" label="Company members"
+    (valueChange)="member=$event ; role=getRoleFromId($event.roleId)" [required]="true"></app-select>
+
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+        <mat-tab label="Role">
+            <mat-list style="display: flex; flex-wrap: wrap; justify-content: space-evenly;">
+                <h2 style="display: inline-block; width: 85%;">{{role?.name}}</h2>
+                @for(permission of role?.permissions; track permission;){
+                    <div style="display: inline-block; width: 40%; overflow: hidden;">
+                        <mat-list-item color="primary">{{permission.name}} <mat-icon color="primary" *ngIf="permission.selected">check_circle</mat-icon></mat-list-item>
+                    </div>
+                }
+                @if(permissions.length % 2 == 1){
+                    <div style="display: inline-block; width: 40%;"></div>
+                }
+            </mat-list>
+        </mat-tab>
+        <mat-tab label="Change role">
+            <mat-form-field style="width: 100%; margin-top: 10px;">
+                <mat-label>Filter</mat-label>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Developer" #input>
+            </mat-form-field>
+            <div style="height: 260px; width: 100%; overflow: auto;">
+                
+                <table matSort mat-table [dataSource]="rolesData">
+
+                    <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: columns" (click)="selectRole(row)"></tr>
+
+                    <ng-container matColumnDef="name" sticky>
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+                        <td mat-cell *matCellDef="let row"> {{row.name}} </td>
+                    </ng-container>
+                    @for(permission of permissions; track permission;){
+                        <ng-container [matColumnDef]="permission.value">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{permission.name}} </th>
+                            <td mat-cell *matCellDef="let row"><mat-icon color="primary" *ngIf="row.permissions[$index].selected">check_circle</mat-icon></td>
+                        </ng-container>
+                    }
+
+                    <tr class="mat-row" *matNoDataRow>
+                      <td class="mat-cell" colspan="4">No role matching the filter "{{input.value}}"</td>
+                    </tr>
+                
+                </table>
+            </div>
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]" aria-label="Select page of users"></mat-paginator>
+        </mat-tab>
+        <mat-tab label="Create custom role">
+
+            <mat-selection-list style="display: flex; flex-wrap: wrap; justify-content: space-evenly;">
+                <p style="color: gray; display: inline-block; width: 85%;">Permissions</p>
+                @for(permission of permissions; track permission){
+                    <div style="display: inline-block; width: 40%; overflow: hidden;">
+                        <mat-list-option color="primary" [(selected)]="permission.selected">{{permission.name}}</mat-list-option>
+                    </div>
+                }
+                @if(permissions.length % 2 == 1){
+                    <div style="display: inline-block; width: 40%;"></div>
+                }
+            </mat-selection-list>
+
+        </mat-tab>
+    </mat-tab-group>
+
+    <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+        @if(selectedTabIndex == 2){
+            <mat-form-field subscriptSizing="dynamic" style="margin-right: 15px;">
+                <mat-label>Role name</mat-label>
+                <input matInput [formControl]="newRoleName">
+                @if (newRoleName.hasError('required')) {
+                    <mat-error>Please enter a role name</mat-error>
+                }
+            </mat-form-field>
+            
+            <button (click)="createCustomRole()" class="button-rounded" color="primary" mat-flat-button>Create cusotm role</button>
+        }
+        @else if(selectedTabIndex == 0){
+            <button (click)="invite()" mat-flat-button color="primary" class="button-rounded" style="width: 200px;">Invite</button>
+        }
+    </div>
+
 </div>
