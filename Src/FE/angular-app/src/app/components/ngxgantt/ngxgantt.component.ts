@@ -41,6 +41,7 @@ import { UserService } from '../../services/user.service';
 import { StatusChipComponent } from '../task-chips/status-chip/status-chip.component';
 import { PriorityChipComponent } from '../task-chips/priority-chip/priority-chip.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgxganttColumnsModalComponent } from '../../ngxgantt-columns-modal/ngxgantt-columns-modal.component';
 
 export enum GanttType {
   Projects = 1,
@@ -68,6 +69,8 @@ export class OriginObject {
 })
 
 export class NgxganttComponent {
+  isChecked: boolean = false;
+
   GanttType = GanttType;
   ItemType = ItemType;
   GanttLinkToDependencyId(type: GanttLinkType) {
@@ -297,6 +300,15 @@ export class NgxganttComponent {
 
   groups: GanttGroup[] = [];
 
+  columns: { name: boolean, startDate: boolean, endDate: boolean, status?: boolean, priority?: boolean, users?: boolean} = {
+    name: true,
+    startDate: false,
+    endDate: false,
+    status: false,
+    priority: false,
+    users: false
+  };
+
   async ngOnInit() {
     this.role = await this.userService.currentUserRole();
     // console.log(this.items);
@@ -310,6 +322,7 @@ export class NgxganttComponent {
       this.selectView(this.selectedViewType);
     }
 
+
     if(this.ganttType == GanttType.Tasks) {
       if(this.projectId == -1) {
         await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
@@ -317,10 +330,19 @@ export class NgxganttComponent {
       // console.log(this.taskService.getTasks());
     }
     else if(this.ganttType == GanttType.Projects) {
+      
+
+      this.columns = {
+        name: true,
+        startDate: false,
+        endDate: false,
+      };
+
       await this.projectService.fetchProjectsLocalStorage("project_filters");
       // console.log(this.projectService.getProjects());
     }
-    
+
+    this.updateColumns();
     this.updateTasksView();
   }
 
@@ -503,5 +525,42 @@ export class NgxganttComponent {
     if(this.ganttType == GanttType.Tasks) {
       console.log('Index drag ended', event);
     }
+  }
+
+  // ================================================================================ //
+
+  updateColumns() {
+    let localStorageColumnsName = "";
+
+    if(this.ganttType == GanttType.Tasks) {
+      localStorageColumnsName = "gantt_columns_tasks";
+    }
+    else if(this.ganttType == GanttType.Projects) {
+      localStorageColumnsName = "gantt_columns_projects";
+    }
+
+    let columns = this.localStorageService.getData(localStorageColumnsName);
+    if(columns && Object.keys(columns).length === 0 && columns.constructor === Object) {
+      this.localStorageService.saveData(localStorageColumnsName, this.columns);
+    }
+    else {
+      this.columns = this.localStorageService.getData(localStorageColumnsName);
+
+    }
+  }
+
+  openSettings() {
+    const dialogRef = this.dialogue.open(NgxganttColumnsModalComponent, {
+      panelClass: 'borderless-dialog',
+      data: {
+        ganttType: this.ganttType,
+        localStorageColumnName: this.ganttType == GanttType.Projects ? "gantt_columns_projects" : "gantt_columns_tasks"
+      },
+      maxHeight: '90vh'
+    });
+    dialogRef.componentInstance.notifyUpdate.subscribe(() => {
+      this.updateColumns();
+    });
+
   }
 }

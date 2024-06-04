@@ -8,6 +8,7 @@
         </thy-button-group>
         &nbsp;
         <thy-button thyType="primary" thySize="sm" (click)="scrollToToday()">Today</thy-button>
+        <thy-button thySize="sm" (click)="openSettings()">Settings</thy-button>
         <!-- &nbsp;
         <thy-button thyType="outline-default" thySize="sm">Settings</thy-button> -->
       </ng-template>
@@ -45,7 +46,7 @@
                 (dragStarted)="onDragStarted($event)"
                 (dragEnded)="onDragEnded($event)">
 
-                <ngx-gantt-column [name]="ganttType == GanttType.Tasks ? 'Task' : 'Projects'" width="260px" [showExpandIcon]="true">
+                <ngx-gantt-column *ngIf="columns.name" [name]="ganttType == GanttType.Tasks ? 'Task' : 'Projects'" width="260px" [showExpandIcon]="true">
                   <ng-template #cell let-item="item" >
                     <p [matTooltip]="item.title">
                       {{ item.title }}     
@@ -53,19 +54,19 @@
                   </ng-template>
                 </ngx-gantt-column>
 
-                <ngx-gantt-column name="Starting date" width="170px">
+                <ngx-gantt-column *ngIf="columns.startDate" name="Starting date" width="170px">
                 <ng-template #cell let-item="item">
                     {{ item.start | date : 'dd. MMMM yyyy.' }}
                 </ng-template>
                 </ngx-gantt-column>
 
-                <ngx-gantt-column name="Due date" width="170px">
+                <ngx-gantt-column *ngIf="columns.endDate" name="Due date" width="170px">
                 <ng-template #cell let-item="item">
                     {{ item.end | date : 'dd. MMMM yyyy.' }}
                 </ng-template>
                 </ngx-gantt-column>
 
-                <ngx-gantt-column *ngIf="ganttType == GanttType.Tasks" name="Status" width="120px">
+                <ngx-gantt-column *ngIf="columns.status && ganttType == GanttType.Tasks" name="Status" width="120px">
                   <ng-template #cell let-item="item">
                     <div style="display: flex; flex-wrap: wrap; height: 100%;">
                       <app-status-chip *ngIf="item.origin!.type == ItemType.Task" style="height: 30px; margin: auto;" (notifyUpdate)="updateTasksView()" [role]="role" [task]="item.origin!.task!"></app-status-chip>
@@ -73,7 +74,7 @@
                   </ng-template>
                 </ngx-gantt-column>
 
-                <ngx-gantt-column *ngIf="ganttType == GanttType.Tasks" name="Priority" width="120px">
+                <ngx-gantt-column *ngIf="columns.priority && ganttType == GanttType.Tasks" name="Priority" width="120px">
                   <ng-template #cell let-item="item">
                     <div style="display: flex; flex-wrap: wrap; height: 100%;">
                       <app-priority-chip *ngIf="item.origin!.type == ItemType.Task" style="height: 30px; margin: auto;" (notifyUpdate)="updateTasksView()" [role]="role" [task]="item.origin!.task"></app-priority-chip>
@@ -81,7 +82,7 @@
                   </ng-template>
                 </ngx-gantt-column>
 
-                <ngx-gantt-column *ngIf="ganttType == GanttType.Tasks" name="Assigned Users" width="200px">
+                <ngx-gantt-column *ngIf="columns.users && ganttType == GanttType.Tasks" name="Assigned Users" width="200px">
                   <ng-template #cell let-item="item">
                     <div style="display: flex; flex-direction: row; margin-left: 2px; margin-right: 2px;">
                         @for (user of getAssignedIds(item.id); track user) {
