@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Task, TaskService } from '../../../services/task.service';
 import { MaterialModule } from '../../../material/material.module';
 import { PriorityService } from '../../../services/priority.service';
@@ -14,6 +14,8 @@ export class PriorityChipComponent {
   @Input() task: Task | undefined;
   @Input() role: any = {};
 
+  @Output() notifyUpdate: EventEmitter<void> = new EventEmitter<void>();
+
   constructor(private taskService: TaskService, private priorityService: PriorityService) {}
 
   _priorities: {id: number, name: string}[] = []
@@ -25,12 +27,15 @@ export class PriorityChipComponent {
   }
   // priorities = this.priorityService.getPriorities().map(p => ({id: p.id, name: p.name}));
 
-  updatePriority(priorityId: string) {
+  async updatePriority(priorityId: string) {
     // console.log(priorityId);
     if (!this.task) return;
-    this.taskService.updateTask({
+    await this.taskService.updateTask({
       id: this.task.id,
       priorityId: priorityId,
     });
+    if(this.notifyUpdate) {
+      this.notifyUpdate.emit();
+    }
   }
 }
