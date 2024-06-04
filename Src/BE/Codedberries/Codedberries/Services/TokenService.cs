@@ -60,5 +60,14 @@ namespace Codedberries.Services
                 return false;
             }
         }
+
+        public string GetUsernameFromToken(string token)
+        {
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+            var emailClaim = jwtToken?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+
+            return emailClaim?.Value;
+        }
     }
 }
