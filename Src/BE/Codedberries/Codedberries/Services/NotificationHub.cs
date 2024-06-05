@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using Codedberries.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Codedberries.Services
@@ -13,7 +14,7 @@ namespace Codedberries.Services
             _tokenService = tokenService;
         }
        
-        public override async Task OnConnectedAsync()
+        public override async System.Threading.Tasks.Task OnConnectedAsync()
         {
             Trace.TraceInformation("MapHub started. ID: {0}", Context.ConnectionId);
             var httpContext = Context.GetHttpContext();
@@ -39,7 +40,7 @@ namespace Codedberries.Services
             await base.OnConnectedAsync();
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override async System.Threading.Tasks.Task OnDisconnectedAsync(Exception exception)
         {
             var httpContext = Context.GetHttpContext();
             var token = httpContext.Request.Query["access_token"].FirstOrDefault();
@@ -59,7 +60,7 @@ namespace Codedberries.Services
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendNotificationToUser(string username, string message)
+        public async System.Threading.Tasks.Task SendNotificationToUser(string username, NotificationDTO message)
         {
             if (UserConnections.TryGetValue(username, out List<string> connectionIds))
             {
