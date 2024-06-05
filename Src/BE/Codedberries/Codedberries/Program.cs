@@ -19,6 +19,7 @@ namespace Codedberries
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddSignalR();
             builder.Services.AddDbContext<AppDatabaseContext>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<TokenService>();
