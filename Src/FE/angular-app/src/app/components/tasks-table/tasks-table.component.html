@@ -3,7 +3,7 @@
 <div style="display: flex; justify-content: space-between; margin-left: 70px; margin-right: 60px">
     @for (column of columns; track column) {
         <div style="position: relative; display: flex; cursor: pointer" (click)="toggleSortState(column.name)">
-            <h3>{{column.name}}</h3>
+            <h3 style="user-select: none">{{column.name}}</h3>
             <!-- <h3 *ngIf="columns.indexOf(column) !== 0">{{column.name}}</h3>
             <h3 style="text-align: left;" *ngIf="columns.indexOf(column) === 0">{{column.name}}</h3> -->
             <mat-icon *ngIf="column.name === sortState.name" style="position: absolute; right: -25px; display: inline">
