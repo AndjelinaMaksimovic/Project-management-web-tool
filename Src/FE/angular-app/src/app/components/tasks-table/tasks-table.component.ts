@@ -37,7 +37,9 @@ export class TasksTableComponent {
     {
       name: "Priority", 
       sortFunction: (t1: Task, t2: Task) => {
-        return t1.priority.localeCompare(t2.priority); 
+        const p1Value = t1.priority === "High" ? 1 : t1.priority === "Medium" ? 2 : 3;
+        const p2Value = t2.priority === "High" ? 1 : t2.priority === "Medium" ? 2 : 3;
+        return p1Value - p2Value; 
       }
     },
     {
