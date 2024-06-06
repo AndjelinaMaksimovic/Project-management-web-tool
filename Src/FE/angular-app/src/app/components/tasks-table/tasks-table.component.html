@@ -1,13 +1,23 @@
 <!-- header -->
 <!-- tasks -->
-<div style="display: flex; justify-content: space-between;">
-    <h3 style="text-align: left; margin-left: 25px">Task name</h3>
+<div style="display: flex; justify-content: space-between; margin-left: 40px; margin-right: 20px">
+    @for (column of columns; track column) {
+        <div style="position: relative; display: flex; cursor: pointer">
+            <h3 *ngIf="columns.indexOf(column) !== 0" (click)="toggleSortState(column.name)">{{column.name}}</h3>
+            <h3 style="text-align: left;" *ngIf="columns.indexOf(column) === 0" (click)="toggleSortState(column.name)">{{column.name}}</h3>
+            <mat-icon *ngIf="column.name === sortState.name" style="position: absolute; right: -25px; display: inline">
+                <span *ngIf="sortState.mode === 'desc'">arrow_downward</span>
+                <span *ngIf="sortState.mode === 'asc'">arrow_upward</span>
+            </mat-icon>
+        </div>
+    }
+    <!-- <h3 style="text-align: left; margin-left: 25px">Task name</h3>
     <h3>Assignee</h3>
     <h3>Category</h3>
     <h3>Priority</h3>
     <h3>Status</h3>
     <h3>Progress</h3>
-    <h3>Date</h3>
+    <h3>Date</h3> -->
 </div>
 <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
     @for (task of paginatedTasks; track task) {
