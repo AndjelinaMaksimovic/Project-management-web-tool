@@ -25,7 +25,7 @@ export class TasksTableComponent {
     {
       name: "Assignee", 
       sortFunction: (t1: Task, t2: Task) => {
-        return 1;
+        return t1.assignedTo?.length - t2.assignedTo?.length;
       }
     },
     {
