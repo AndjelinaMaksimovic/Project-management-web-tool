@@ -33,7 +33,7 @@ namespace Codedberries.Services
             _config = config.Value;
         }
 
-        public Session LoginUser(string email, string password)
+        public Session LoginUser(string email, string password, bool? rememberMe)
         {
             User user = _databaseContext.Users.FirstOrDefault(u => u.Email == email);
 
@@ -41,7 +41,7 @@ namespace Codedberries.Services
             {
                 // create new session
                 var sessionToken = GenerateSessionToken();
-                var expirationTime = DateTime.UtcNow.AddHours(SessionDurationHours);
+                var expirationTime = rememberMe.HasValue && rememberMe.Value ? DateTime.MaxValue : DateTime.UtcNow.AddHours(SessionDurationHours);
                 var session = new Session { UserId = user.Id, Token = sessionToken, ExpirationTime = expirationTime };
 
                 _databaseContext.Sessions.Add(session);
