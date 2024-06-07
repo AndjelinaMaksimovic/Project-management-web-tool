@@ -78,7 +78,7 @@ export class ProfileComponent {
     this.activities = await this.projectService.allUserActivities()
 
     await this.projectService.fetchUserProjects(this.loggedInUser!);
-    await this.taskService.fetchUserTasks({ assignedTo: this.loggedInUser! });
+    await this.taskService.fetchUserTasks({ projectId: undefined, assignedTo: this.loggedInUser! });
 
     if(this.tasks.length != 0) this.allTasksAccordionVisible = true;
     if(this.projects.length != 0) this.allProjectsAccordionVisible = true;
