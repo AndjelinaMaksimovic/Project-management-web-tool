@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.Data;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Codedberries.Services
 {
@@ -11,11 +12,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public StatusService(AppDatabaseContext dbContext, AuthorizationService authorizationService)
+        public StatusService(AppDatabaseContext dbContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = dbContext;
             _authorizationService = authorizationService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task CreateStatus(HttpContext httpContext, StatusCreationDTO statusDTO)
@@ -86,7 +89,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+            if (userRole.CanEditProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
@@ -103,9 +106,32 @@ namespace Codedberries.Services
 
             _databaseContext.Statuses.Add(newStatus);
 
-            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Email} has created the status {statusDTO.Name}");
+            Activity activity = new Activity(user.Id, statusDTO.ProjectId, $"User {user.Firstname} {user.Lastname} has created the status {statusDTO.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusDTO.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = newStatus.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -249,7 +275,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
+            if (userRole.CanEditProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to delete status!");
             }
@@ -268,9 +294,32 @@ namespace Codedberries.Services
                 status.Order -= 1;
             }
 
-            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Email} has deleted the status {statusToDelete.Name}");
+            Activity activity = new Activity(user.Id, statusToDelete.ProjectId, $"User {user.Firstname} {user.Lastname} has deleted the status {statusToDelete.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == statusToDelete.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = statusToDelete.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -462,9 +511,32 @@ namespace Codedberries.Services
                 Order = status.Order
             };
 
-            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Email} has changed the name of the status {status.Name}");
+            Activity activity = new Activity(user.Id, status.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the name of the status {status.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == status.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = status.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             return StatusDTO;
 

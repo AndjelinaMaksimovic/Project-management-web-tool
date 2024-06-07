@@ -12,6 +12,7 @@ import { CategoryService } from '../../../services/category.service';
 })
 export class CategoryChipComponent {
   @Input() task: Task | undefined;
+  @Input() role: any = {};
 
   constructor(private categoryService: CategoryService, private taskService: TaskService){}
 

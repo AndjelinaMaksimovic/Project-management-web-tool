@@ -2,7 +2,7 @@
     @for (comment of comments; track comment) {
     <app-comment [comment]="comment"></app-comment>
     }
-    <mat-card>
+    <mat-card *ngIf="role.canEditTask">
         <mat-card-content>
             <!-- description -->
             <app-markdown-editor [(value)]="newComment" label="Write a comment"></app-markdown-editor>

@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Codedberries.Helpers;
+using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
@@ -9,11 +11,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public MilestoneService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
+        public MilestoneService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task CreateMilestone(HttpContext httpContext, MilestoneCreationRequestDTO request)
@@ -83,10 +87,32 @@ namespace Codedberries.Services
             _databaseContext.Milestones.Add(milestone);
             await _databaseContext.SaveChangesAsync();
 
-            Models.Activity activity = new Models.Activity(user.Id, request.ProjectId, $"User {user.Email} has created the Milestone {request.Name}");
+            Models.Activity activity = new Models.Activity(user.Id, request.ProjectId, $"User {user.Firstname} {user.Lastname} has created the Milestone {request.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == request.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = milestone.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
         }
 
@@ -211,9 +237,32 @@ namespace Codedberries.Services
                 ProjectId=milestone.ProjectId
             };
             
-            Models.Activity activity = new Models.Activity(user.Id, milestone.ProjectId, $"User {user.Email} has updated the Milestone {request.Name}");
+            Models.Activity activity = new Models.Activity(user.Id, milestone.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the Milestone {request.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == milestone.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = milestone.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             return updatedMilestoneInfo;
         }

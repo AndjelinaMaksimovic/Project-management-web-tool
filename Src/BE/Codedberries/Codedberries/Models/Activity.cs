@@ -27,15 +27,18 @@ namespace Codedberries.Models
         [Required]
         public String ActivityDescription { get; set; }
 
+        public DateTime Time {  get; set; }
+
         public Activity()
         {
         }
 
-        public Activity(int userId, int projectId, string description) 
+        public Activity(int userId, int projectId, string description, DateTime time) 
         {
             UserId = userId;
             ProjectId = projectId;
             ActivityDescription = description;
+            Time = time;
         }
     }
 }

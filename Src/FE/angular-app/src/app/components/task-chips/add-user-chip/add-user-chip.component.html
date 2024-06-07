@@ -1,0 +1,8 @@
+<span [matMenuTriggerFor]="menu" (menuOpened)="getUsers()">
+    <button mat-icon-button><mat-icon>add</mat-icon></button>
+</span>
+<mat-menu #menu="matMenu" style="max-height: 300px">
+    @for(user of avaliableUsers; track user){
+        <button mat-menu-item (click)="addUser(user)">{{user.firstName}} {{user.lastName}} - {{user.roleName}}</button>
+    }
+</mat-menu>

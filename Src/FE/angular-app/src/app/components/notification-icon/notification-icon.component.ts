@@ -13,25 +13,18 @@ import { SocketService } from '../../services/socket.service';
   templateUrl: './notification-icon.component.html',
   styleUrl: './notification-icon.component.css'
 })
-export class NotificationIconComponent implements OnInit, OnDestroy {
+export class NotificationIconComponent implements OnInit {
   activities: any[] = []
   menuOpened = false
   intervalId!: any
+  seen = true
   
 
   constructor(private projectService: ProjectService, private socketService: SocketService){}
 
   async ngOnInit(){
-    this.activities = await this.projectService.allUsersProjectActivities()
-    this.activities = this.activities.sort((a:any, b:any) => a.time > b.time ? -1 : 1)
 
-    // this.intervalId = setInterval(async () => {
-    //   if(!this.menuOpened){
-    //     console.log("fetch")
-    //     this.activities = await this.projectService.allUsersProjectActivities()
-    //     this.activities = this.activities.sort((a:any, b:any) => a.time > b.time ? -1 : 1)
-    //   }
-    // }, 10_000)
+    this.fetch()
 
     this.socketService.ordersUpdated$.subscribe((notifications: any[])=>{
       this.activities.push(...notifications)
@@ -39,7 +32,14 @@ export class NotificationIconComponent implements OnInit, OnDestroy {
     })
   }
 
-  ngOnDestroy(): void {
-    clearInterval(this.intervalId)
+  async fetch(){
+    this.activities = this.activities.sort((a:any, b:any) => a.time > b.time ? -1 : 1)
+    this.activities = await this.projectService.allUsersProjectActivities()
+    this.seen = !this.activities.some(act => !act.seen)
+  }
+
+  onOpen(){
+    this.seen = true
+    this.projectService.notificationsSeen()
   }
 }

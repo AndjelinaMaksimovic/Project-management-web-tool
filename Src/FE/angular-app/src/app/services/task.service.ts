@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from './category.service';
 import { LocalStorageService } from './localstorage';
 import { PriorityService } from './priority.service';
+import { UserService } from './user.service';
 
 /**
  * Task format used within the app
@@ -15,6 +16,7 @@ export type Task = Readonly<{
   title: string;
   description: string;
   category: string;
+  categoryId: number;
   priority: 'Low' | 'Medium' | 'High';
   status: string;
   startDate: Date;
@@ -24,14 +26,16 @@ export type Task = Readonly<{
   indexInCategory: number;
   projectId?: number | undefined;
   assignedTo: any;
-  dependentTasks: number[];
+  dependentTasks: {taskId: number, typeOfDependencyId: number}[];
+  progress: number;
+  archived: boolean;
 }>;
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService, private userService: UserService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -49,6 +53,7 @@ export class TaskService {
       priority: apiTask.priorityName,
       status: apiTask.statusName,
       category: apiTask.categoryName,
+      categoryId: apiTask.categoryId,
       id: apiTask.taskId,
       index: apiTask.index,
       indexInCategory: apiTask.indexInCategory,
@@ -57,6 +62,8 @@ export class TaskService {
       dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
       dependentTasks: apiTask.dependentTasks,
+      progress: apiTask.progress,
+      archived: apiTask.archived,
     };
   }
 
@@ -149,6 +156,47 @@ export class TaskService {
     this.setContext({projectId});
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: projectId };
+
+    if(!data.assignedTo || data.assignedTo != -1) {
+      let userId = (await this.userService.getMe()).id;
+      data = { ...data, assignedTo: userId };
+    }
+    else {
+      data.assignedTo = '';
+    }
+    
+    let params = new HttpParams({ fromObject: data });
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl + '/Task/projectTasks',
+          { ...environment.httpOptions, params: params }
+        )
+      );
+      await this.statusService.fetchStatuses();
+      await this.priorityService.fetchPriorities();
+      await this.categoryService.fetchCategories();
+      this.tasks = res.body.map((task: any) => {
+        return this.mapTask(task);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
+  public async fetchTasksFromLocalStorageContext(filterName: string, context?: { projectId: number }) {
+    if (context) this.setContext(context);
+    let data = this.localStorageService.getData(filterName);
+    data = { ...data, projectId: this.context.projectId };
+
+    if(!data.assignedTo || data.assignedTo != -1) {
+      let userId = (await this.userService.getMe()).id;
+      data = { ...data, assignedTo: userId };
+    }
+    else {
+      data.assignedTo = '';
+    }
     
     let params = new HttpParams({ fromObject: data });
     try {
@@ -174,12 +222,13 @@ export class TaskService {
    * this function takes a partial task object and updates the corresponding task accordingly
    * @param task partial task object. Must have Id
    */
-  async updateTask(task: Partial<Task> & Pick<Task, 'id'> & {
-    categoryId?: string | undefined,
-    statusId?: string | undefined,
-    priorityId?: string | undefined,
-    userId?: string | undefined,
-  }) {
+  // async updateTask(task: Partial<Task> & Pick<Task, 'id'> & {
+  //   categoryId?: string | undefined,
+  //   statusId?: string | undefined,
+  //   priorityId?: string | undefined,
+  //   userId?: string | undefined,
+  // }) {
+  async updateTask(task: any) {
     try {
       const request: Record<string, unknown> = { taskId: task.id };
       if (task.status)
@@ -188,7 +237,7 @@ export class TaskService {
       if(task.categoryId) request["categoryId"] = task.categoryId;
       if(task.statusId) request["statusId"] = task.statusId;
       if(task.priorityId) request["priorityId"] = task.priorityId;
-      if(task.userId) request["userId"] = task.userId;
+      if(task.userIds) request["userIds"] = task.userIds;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.startDate) request['startDate'] = task.startDate;
@@ -202,17 +251,23 @@ export class TaskService {
           ...this.httpOptions,
         })
       );
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
       this.snackBar.open("Task updated successfully", undefined, {
         duration: 2000,
       });
+      return true;
     } catch (e) {
-      console.log(e);
-      this.snackBar.open("We couldn't update task", undefined, {
-        duration: 2000,
+      let error = "";
+      if(e instanceof HttpErrorResponse) {
+        error = " - " + e.error.errorMessage;
+      }
+      this.snackBar.open("We couldn't update task" + error, undefined, {
+        duration: 8000,
       });
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
+      return false;
     }
+    return false;
   }
   /**
    * this function changes the given task's status to archived and automatically re-fetches the task cache
@@ -234,7 +289,7 @@ export class TaskService {
     } catch (e) {
       console.log(e);
     }
-    await this.fetchTasks();
+    await this.fetchTasksFromLocalStorageContext("task_filters");
   }
 
   async createTask(task: {
@@ -271,9 +326,89 @@ export class TaskService {
           }
         )
       );
-      await this.fetchTasks();
+      await this.fetchTasksFromLocalStorageContext("task_filters");
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  async createTaskDependency(task: {
+    taskId: number;
+    dependentTaskId: number;
+    typeOfDependencyId: number;
+  }) {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/Task/createTaskDependency`,
+          {
+            taskId: task.taskId,
+            dependentTaskId: task.dependentTaskId,
+            typeOfDependencyId: task.typeOfDependencyId,
+          },
+          {...this.httpOptions, responseType: "text" as "json"}
+        )
+      );
+    } catch (e) {
+      let error = "";
+      if(e instanceof HttpErrorResponse) {
+        error = " - " + JSON.parse(e.error).errorMessage;
+      }
+      this.snackBar.open("We couldn't create dependency" + error, undefined, {
+        duration: 2000,
+      });
+      return false
+    }
+    await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
+  }
+
+  async deleteDependency(taskId: number, dependentTaskId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.delete<any>(
+          environment.apiUrl + `/Task/deleteTaskDependency`, {
+            ...this.httpOptions,
+            responseType: "text" as "json",
+            body: { 
+              taskId: taskId,
+              dependentTaskId: dependentTaskId,
+            }
+          }
+        )
+      );
+    } catch (e) {
+      console.log(e);
+      return false
+    }
+    await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
+  }
+  async changeTaskProgress(taskId: number, progress: number){
+    try {
+      await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/Task/changeTaskProgress`,
+          {
+            taskId: taskId,
+            progress: progress,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      this.snackBar.open("Progress updated successfully", undefined, {
+        duration: 2000,
+      });
+      return true
+    } catch (e) {
+      console.log(e);
+      this.snackBar.open("Progress updated successfully", undefined, { // TODO: Greska jer api vraca JSON error
+      // this.snackBar.open("Failed to update progerss", undefined, {
+        duration: 2000,
+      });
+      return false
     }
   }
 }

@@ -84,3 +84,6 @@
         height: 28px !important;
     }
 }
+.cdk-drag-disabled{
+    cursor: default;
+}

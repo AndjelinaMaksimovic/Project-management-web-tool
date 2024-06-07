@@ -356,5 +356,110 @@ namespace Codedberries.Services
             
             await _databaseContext.SaveChangesAsync();
         }
+
+        // adds new user to project
+        public async System.Threading.Tasks.Task AddUserToProject(HttpContext httpContext, AddUserToProjectDTO request)
+        {
+            var userId = _authorizationService.GetUserIdFromSession(httpContext);
+
+            if (userId == null)
+            {
+                throw new UnauthorizedAccessException("Invalid session!");
+            }
+
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found in database!");
+            }
+
+            if (user.RoleId == null)
+            {
+                throw new UnauthorizedAccessException("User does not have any role assigned!");
+            }
+
+            // provided data
+
+            if (request.UserId <= 0)
+            {
+                throw new ArgumentException("User ID must be greater than zero!");
+            }
+
+            var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+
+            if (requestedUser == null)
+            {
+                throw new ArgumentException("User with the provided ID does not exist in database!");
+            }
+
+            if (request.ProjectId <= 0)
+            {
+                throw new ArgumentException("Project ID must be greater than zero!");
+            }
+
+            var requestedProject = _databaseContext.Projects.FirstOrDefault(p => p.Id == request.ProjectId);
+
+            if (requestedProject == null)
+            {
+                throw new ArgumentException("Project with the provided ID does not exist in database!");
+            }
+
+            if (request.RoleId <= 0)
+            {
+                throw new ArgumentException("Role ID must be greater than zero!");
+            }
+
+            var requestedRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == request.RoleId);
+
+            if (requestedRole == null)
+            {
+                throw new ArgumentException("Role with the provided ID does not exist in database!");
+            }
+
+            // UserProjects --- //
+            var userProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == userId && up.ProjectId == request.ProjectId);
+
+            if (userProject == null)
+            {
+                throw new UnauthorizedAccessException($"No match for UserId {userId} and ProjectId {request.ProjectId} in UserProjects table!");
+            }
+
+            var userRoleId = userProject.RoleId;
+            var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == userRoleId);
+
+            if (userRole == null)
+            {
+                throw new UnauthorizedAccessException("User role not found in database!");
+            }
+
+            if (userRole.CanAddUserToProject == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to add new users to Project!");
+            }
+
+            // ---------------- //
+
+            // is user already on project?
+            var existingUserProject = _databaseContext.UserProjects
+                .FirstOrDefault(up => up.UserId == request.UserId && up.ProjectId == request.ProjectId);
+
+            if (existingUserProject != null)
+            {
+                throw new ArgumentException($"User {existingUserProject.UserId} already exsists on provided project!");
+            }
+
+            // adds
+            var userToAddToProject = new UserProject
+            {
+                UserId = request.UserId,
+                ProjectId = request.ProjectId,
+                RoleId = request.RoleId
+            };
+
+            _databaseContext.UserProjects.Add(userToAddToProject);
+            await _databaseContext.SaveChangesAsync();
+        }
     }
 }

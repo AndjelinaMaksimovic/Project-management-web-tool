@@ -21,7 +21,8 @@ namespace Codedberries.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDTO body)
         {
-            Session currentSession = _userService.LoginUser(body.Email, body.Password);
+            bool rememberMe = body.RememberMe ?? false;
+            Session currentSession = _userService.LoginUser(body.Email, body.Password, rememberMe);
 
             if (currentSession != null)
             {

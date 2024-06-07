@@ -1,6 +1,7 @@
 ﻿using Codedberries.Models;
 using Codedberries.Models.DTOs;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,11 +12,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public CategoryService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
+        public CategoryService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task CreateNewCategory(HttpContext httpContext, CreateCategoryDTO categoryDTO)
@@ -97,9 +100,30 @@ namespace Codedberries.Services
             
             _databaseContext.Categories.Add(newCategory);
 
-            Activity activity = new Activity(user.Id, categoryDTO.ProjectId, $"User {user.Email} has created the category {categoryDTO.CategoryName}");
+            Activity activity = new Activity(user.Id, categoryDTO.ProjectId, $"User {user.Firstname} {user.Lastname} has created the category {categoryDTO.CategoryName}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId == categoryDTO.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = project.Id, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
+            }
 
             await _databaseContext.SaveChangesAsync();
         }
@@ -221,9 +245,32 @@ namespace Codedberries.Services
                 throw new ArgumentException($"Category with ID {request.CategoryId} is already assigned to a task and cannot be deleted!");
             }
 
-            Activity activity = new Activity(user.Id, providedCategory.ProjectId, $"User {user.Email} has deleted the category {providedCategory.Name}");
+            Activity activity = new Activity(user.Id, providedCategory.ProjectId, $"User {user.Firstname} {user.Lastname} has deleted the category {providedCategory.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
+
+            var projectUsers = _databaseContext.UserProjects
+            .Where(up => up.ProjectId ==providedCategory.ProjectId && up.UserId != userId)
+            .Select(up => up.UserId)
+            .ToList();
+
+            // Create UserNotification for each user on the project
+            foreach (var projectUser in projectUsers)
+            {
+                UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
+                _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = providedCategory.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
+            }
+
+            await _databaseContext.SaveChangesAsync();
 
             _databaseContext.Categories.Remove(providedCategory);
             await _databaseContext.SaveChangesAsync();

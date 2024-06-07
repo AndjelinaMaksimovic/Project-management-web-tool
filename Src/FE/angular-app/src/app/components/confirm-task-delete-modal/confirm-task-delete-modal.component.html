@@ -4,8 +4,8 @@
         <mat-icon>close</mat-icon>
     </button>
     <div style="display: flex; flex-direction: column; gap: 20px; align-items: center; padding: 10px;">
-        <h2 style="font-weight: normal; text-align: center; margin: 0">Are you sure you want to archive "{{data.title}}"?</h2>
-        <p style="color: gray; text-align: center;">You can un-archive this task later</p>
+        <h2 style="font-weight: normal; text-align: center; margin: 0">Are you sure you want to <span *ngIf="data.archived">un</span>archive "{{data.title}}"?</h2>
+        <p style="color: gray; text-align: center;" *ngIf="!data.archived">You can unarchive this task later</p>
         <div style="display: flex; gap: 20px">
             <button (click)="deleteTask()" class="button-rounded" color="primary" style="width: 100px;" mat-flat-button>Yes</button>
             <button class="button-rounded" color="primary" style="width: 100px;" mat-flat-button mat-dialog-close>No</button>

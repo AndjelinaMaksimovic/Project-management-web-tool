@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Task, TaskService } from '../../../services/task.service';
 import { MaterialModule } from '../../../material/material.module';
 import { StatusService } from '../../../services/status.service';
@@ -12,6 +12,9 @@ import { StatusService } from '../../../services/status.service';
 })
 export class StatusChipComponent {
   @Input() task: Task | undefined;
+  @Input() role: any = {}
+
+  @Output() notifyUpdate: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(private statusService: StatusService, private taskService: TaskService){}
 
@@ -19,12 +22,15 @@ export class StatusChipComponent {
     return this.statusService.getStatuses();
   }
 
-  updateStatus(statusId: string){
+  async updateStatus(statusId: string){
     console.log(statusId);
     if(!this.task) return;
-    this.taskService.updateTask({
+    await this.taskService.updateTask({
       id: this.task.id,
       statusId: statusId
     })
+    if(this.notifyUpdate) {
+      this.notifyUpdate.emit();
+    }
   }
 }

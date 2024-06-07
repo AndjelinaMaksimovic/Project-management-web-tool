@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { FiltersComponent, Filter } from '../../components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { AvatarService } from '../../services/avatar.service';
 import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { NewMemberModalComponent } from '../../components/new-member-modal/new-member-modal.component';
+import { InviteToProjectModalComponent } from '../../components/invite-to-project-modal/invite-to-project-modal.component';
 
 class Member {
   firstname: string;
@@ -69,8 +72,9 @@ class Role {
   styleUrl: './members.component.css'
 })
 
-export class MembersComponent {
+export class MembersComponent implements OnInit {
   search: string = "";
+  myRole: any = {}
 
   filters: Map<string, Filter> = new Map<string, Filter>([
     // ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
@@ -82,7 +86,7 @@ export class MembersComponent {
 
   isFilterOpen: boolean = false;
 
-  constructor(private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
+  constructor(private dialogue: MatDialog, private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
 
   filterRolesByName() {
     this.roles.forEach((role, key) => role.filterMembers(this.search));
@@ -118,6 +122,7 @@ export class MembersComponent {
         }
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
       });
+      this.myRole = await this.userService.currentUserRole(this.projectId)
     }
     else {
       let onlyRoles = await this.rolesService.getAllRoles();
@@ -132,6 +137,7 @@ export class MembersComponent {
       onlyUsers?.forEach((val, index) => {
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
       });
+      this.myRole = await this.userService.currentUserRole()
     }
   }
 
@@ -160,5 +166,28 @@ export class MembersComponent {
       },
       maxHeight: '90vh'
     });
+  }
+
+  removeUser(event: Event, member: Member) {
+    event.stopPropagation();
+    
+    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the project?<br>This action cannot be undone and may affect project permissions and collaboration.";
+    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
+      await this.userService.removeUserFromProject(this.projectId, member.id);
+    }, noFunc: () => { } } });
+  }
+
+  openNewMember() {
+    this.dialog.open(NewMemberModalComponent, { autoFocus: false });
+  }
+
+  invitePopUp(){
+    const ref = this.dialogue.open(InviteToProjectModalComponent, { autoFocus: false, data: {projectId: this.projectId} })
+    ref.afterClosed().subscribe((data: any)=>{
+      if(data){
+        this.roles = new Map<number, Role>();
+        this.ngOnInit()
+      }
+    })
   }
 }

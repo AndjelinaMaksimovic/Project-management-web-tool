@@ -26,19 +26,18 @@ export class ProjectItemComponent {
     @Input() id: number = 0;
 
     @Input() isArchived: boolean = false;
+    @Input() role: any = {};
+
+    @Input() dontRefresh?: boolean = false;
 
     async toggleStarred() {
-        let response = await this.projectService.toggleStarred(this.id);
+        let response = await this.projectService.toggleStarred(this.id, this.dontRefresh ? true : false);
         if(response) {
             this.starred = !this.starred;
         }
     }
 
     archiveProject() {
-        this.projectService.archiveProject(this.id);
-    }
-
-    unarchiveProject() {
-        this.projectService.unarchiveProject(this.id);
+        this.projectService.archiveProject(this.id, this.dontRefresh ? true : false);
     }
 }

@@ -22,7 +22,8 @@ namespace Codedberries
         public DbSet<Milestone> Milestones { get; set; }
         public DbSet<TaskUser> TaskUsers { get; set; }
         public DbSet<Activity> Activities { get; set; }
-
+        public DbSet<UserNotification> UserNotifications { get; set; }
+        public DbSet<PasswordChangeToken> PasswordChangeTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -121,6 +122,21 @@ namespace Codedberries
                 .HasOne(t => t.Project)
                 .WithMany()
                 .HasForeignKey(t => t.ProjectId);
+
+            modelBuilder.Entity<UserNotification>()
+                .HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId);
+
+            modelBuilder.Entity<UserNotification>()
+                .HasOne(t => t.Activity)
+                .WithMany()
+                .HasForeignKey(t => t.ActivityId);
+
+            modelBuilder.Entity<PasswordChangeToken>()
+                .HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId);
         }
 
         public void ApplyMigrations()

@@ -1,0 +1,15 @@
+<span [matMenuTriggerFor]="menu" (menuOpened)="getDep()">
+    <div style="pointer-events: none; display: inline;" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="typeMenu"></div>
+    <button mat-icon-button><mat-icon>add</mat-icon></button>
+</span>
+<mat-menu #menu="matMenu" style="max-height: 300px">
+    @for(task of tasks; track task){
+        <button mat-menu-item (click)="chooseDep(task); menuTrigger.openMenu()">{{task.title}}</button>
+    }
+</mat-menu>
+<mat-menu #typeMenu="matMenu">
+    <button mat-menu-item (click)="addDep(1)">Start to start</button>
+    <button mat-menu-item (click)="addDep(2)">Start to end</button>
+    <button mat-menu-item (click)="addDep(3)">End to start</button>
+    <button mat-menu-item (click)="addDep(4)">End to end</button>
+</mat-menu>

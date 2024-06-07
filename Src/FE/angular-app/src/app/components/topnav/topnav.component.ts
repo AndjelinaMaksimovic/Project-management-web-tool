@@ -8,19 +8,23 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AvatarService } from '../../services/avatar.service';
 import { NotificationIconComponent } from '../notification-icon/notification-icon.component';
+import { UserService } from '../../services/user.service';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-topnav',
   standalone: true,
-  imports: [ MatButtonModule, MatIconModule, MatInputModule, MatMenuModule, RouterLink, NotificationIconComponent ],
+  imports: [ CommonModule, MatButtonModule, MatIconModule, MatInputModule, MatMenuModule, RouterLink, NotificationIconComponent ],
   templateUrl: './topnav.component.html',
   styleUrl: './topnav.component.css'
 })
 
 export class TopnavComponent {
-  constructor(private authService: AuthService, private router: Router, public avatarService: AvatarService){ }
-  loggedInUserId: number | undefined; 
+  constructor(private userService: UserService, private authService: AuthService, private router: Router, public avatarService: AvatarService){ }
+  loggedInUserId: number | undefined;
+  role: any = {}
   async ngOnInit(){
     this.loggedInUserId = await this.authService.getMyId();
+    this.role = await this.userService.currentUserRole()
   }
   getProfileImagePath(){
     return this.avatarService.getProfileImagePath(this.loggedInUserId)

@@ -1,0 +1,16 @@
+@use "ngx-tethys/styles/index.scss";
+
+::ng-deep .gantt-bar-content-progress {
+    z-index: -1;
+}
+
+.avatar {
+    display: block;
+    border-radius: 50%;
+    width: 36px !important;
+    height: 36px !important;
+    object-fit: cover;
+    margin-top: auto;
+    margin-bottom: auto;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}

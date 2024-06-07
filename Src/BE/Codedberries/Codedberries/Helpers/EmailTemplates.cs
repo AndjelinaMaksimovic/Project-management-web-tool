@@ -12,5 +12,11 @@
                 "If you have any questions or need assistance, feel free to contact our support team at [codedberries.pm@gmail.com].<br><br>" +
                 "Best regards,<br><br>CodedBerries team<br>Customer Support Team";
         }
+        public static string ChangePassword(string firstname, string lastname, string link)
+        {
+            return
+                $"Dear <b>{firstname} {lastname}</b>,<br><br>" +
+                $"Please click on <a href='{link}'>link</a> to reset your accout password.<br><br>";
+        }
     }
 }

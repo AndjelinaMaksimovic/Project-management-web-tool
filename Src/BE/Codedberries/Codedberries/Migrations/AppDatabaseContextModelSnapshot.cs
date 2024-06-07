@@ -30,6 +30,9 @@ namespace Codedberries.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
@@ -106,6 +109,21 @@ namespace Codedberries.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Milestones");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.PasswordChangeToken", b =>
+                {
+                    b.Property<string>("Token")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Token");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordChangeToken");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Priority", b =>
@@ -185,6 +203,9 @@ namespace Codedberries.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("CanEditTask")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("CanEditUser")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("CanRemoveTask")
@@ -457,6 +478,30 @@ namespace Codedberries.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Codedberries.Models.UserNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Seen")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("userNotification");
+                });
+
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>
                 {
                     b.Property<int>("UserId")
@@ -518,6 +563,17 @@ namespace Codedberries.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.PasswordChangeToken", b =>
+                {
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.Starred", b =>
@@ -647,6 +703,25 @@ namespace Codedberries.Migrations
                         .HasForeignKey("RoleId");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Codedberries.Models.UserNotification", b =>
+                {
+                    b.HasOne("Codedberries.Models.Activity", "Activity")
+                        .WithMany()
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Codedberries.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Codedberries.Models.UserProject", b =>

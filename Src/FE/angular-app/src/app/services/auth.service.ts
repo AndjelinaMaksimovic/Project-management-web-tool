@@ -2,7 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { UserService } from './user.service';
 
 type User = {
   email: string;
@@ -17,7 +18,7 @@ export class AuthService {
   public currentUser: Observable<User | null>;
   private res: number = 0
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router, private userService: UserService) {
     this.currentUserSubject = new BehaviorSubject<User | null>(
       JSON.parse(localStorage.getItem('currentUser') || 'null')
     );
@@ -56,6 +57,28 @@ export class AuthService {
     return r
   }
 
+  async check(
+    token: string,
+    email: string,
+  ): Promise<boolean> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(environment.apiUrl + `/Invites/CheckInvite`, 
+          {
+            token: token,
+            email: email,
+          },
+          {...environment.httpOptions, responseType: "text" as "json"}
+        )
+      );
+      if (!res.ok) return false;
+      return true;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+
   async activate(
     token: string,
     email: string,
@@ -63,16 +86,18 @@ export class AuthService {
   ): Promise<boolean> {
     try {
       const res = await firstValueFrom(
-        this.http.post<any>(
-          environment.apiUrl +
-            `/Registration/Activate/${token}/${email}/${password}`,
-          {},
-          environment.httpOptions
+        this.http.post<any>(environment.apiUrl + `/Invites/AcceptInvite`, 
+          {
+            token: token,
+            email: email,
+            password: password,
+          },
+          {...environment.httpOptions, responseType: "text" as "json"}
         )
       );
       if (!res.ok) return false;
-      const success = await this.login(email, password);
-      if(!success) return false;
+      // const success = await this.login(email, password);
+      // if(!success) return false;
       return true;
     } catch (e) {
       console.log(e);
@@ -113,10 +138,9 @@ export class AuthService {
 
     return r
   }
-  loggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+  loggedIn(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree{
     if(!document.cookie.includes("sessionId")){
-      this.router.navigate(["/login"])
-      return false
+      return this.router.createUrlTree(["/login"])
     }
     return true
   }
@@ -124,14 +148,31 @@ export class AuthService {
     if(!document.cookie.includes("sessionId")){
       return true
     }
-    this.router.navigate(["/"])
-    return false
+    return this.router.createUrlTree(["/"])
+  }
+  async canSeeCompanyMembers(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+    const role = await this.userService.currentUserRole()
+    if(role.canAddUserToProject)
+      return true
+    return this.router.createUrlTree(["/"])
+  }
+  async notSuperUser(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+    const role = await this.userService.currentUserRole()
+    if(role.canAddNewUser)
+      return this.router.createUrlTree(["/company-members"])
+    return true
   }
 }
 
-export const LoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+export const LoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree => {
   return inject(AuthService).loggedIn(next, state);
 }
-export const NotLoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+export const NotLoggedIn: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree => {
   return inject(AuthService).notLoggedIn(next, state);
+}
+export const NotSuperUser: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> => {
+  return inject(AuthService).notSuperUser(next, state);
+}
+export const CanSeeCompanyMembers: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> => {
+  return inject(AuthService).canSeeCompanyMembers(next, state);
 }
