@@ -51,7 +51,7 @@ export class ProjectDetailsComponent {
 
   projectId: number = 0;
   title?: string = "";
-  description?: string = "";
+  description: string = "";
   dueDate?: Date = new Date();
   daysLeft : number = 0;
   progress : number = 0;
@@ -86,7 +86,7 @@ export class ProjectDetailsComponent {
     await this.statusService.fetchStatuses();
 
     this.title = this.project?.title;
-    this.description = this.project?.description;
+    this.description = this.project?.description ?? '';
     this.dueDate = this.project?.dueDate;
 
     let difference = this.dueDate!.getTime() - new Date().getTime();

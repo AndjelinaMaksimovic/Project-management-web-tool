@@ -24,10 +24,23 @@ import { EditableMarkdownModalComponent } from './editable-markdown-modal/editab
 })
 export class MarkdownEditChipComponent {
   @Input() content: string = ''
+  @Input({required: true}) role: any = {}
+  @Output() onSave: EventEmitter<string> = new EventEmitter();
 
   constructor(private dialog: MatDialog){}
 
   openModal(){
-    this.dialog.open(EditableMarkdownModalComponent, {autoFocus: false, data: {content: this.content}})
+    const ref = this.dialog.open(EditableMarkdownModalComponent, {
+      autoFocus: false,
+      data: {
+        content: this.content,
+        role: this.role
+      }
+    })
+    ref.afterClosed().subscribe(data => {
+      if(data){
+        this.onSave.emit(data)
+      }
+    })
   }
 }
