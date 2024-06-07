@@ -67,6 +67,8 @@ namespace Codedberries
 
             app.MapControllers();
 
+            app.MapHub<NotificationHub>("/api/notificationHub");
+
             app.UseCors("AllowAnyOrigin");
 
             app.UseStaticFiles(new StaticFileOptions

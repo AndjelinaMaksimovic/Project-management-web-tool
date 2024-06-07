@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
+import { HubConnectionBuilder, HubConnection, HttpTransportType } from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -14,15 +14,18 @@ export class SocketService {
 
   constructor() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(environment.apiUrl + '/hub') // Replace with your SignalR hub URL
+      .withUrl(environment.apiUrl + '/notificationHub', {
+        skipNegotiation: true,
+        transport: HttpTransportType.WebSockets
+      })
       .build();
   
     this.hubConnection
       .start()
-      .then(() => console.log('Connected to SignalR hub'))
+      // .then(() => console.log('Connected to SignalR hub'))
       .catch((err: any) => console.error('Error connecting to SignalR hub:', err));
   
-    this.hubConnection.on('notification', (notifications: any[]) => {
+    this.hubConnection.on('ReceiveNotification', (notifications: any[]) => {
       this.notificationSubject.next(notifications);
     });
   }
