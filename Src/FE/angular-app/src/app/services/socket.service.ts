@@ -26,6 +26,7 @@ export class SocketService {
       .catch((err: any) => console.error('Error connecting to SignalR hub:', err));
   
     this.hubConnection.on('ReceiveNotification', (notifications: any[]) => {
+      console.log(notifications)
       this.notificationSubject.next(notifications);
     });
   }

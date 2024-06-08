@@ -71,8 +71,6 @@ namespace Codedberries
 
             app.UseCors("AllowAnyOrigin");
 
-            app.MapHub<NotificationHub>("/notificationHub");
-
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
