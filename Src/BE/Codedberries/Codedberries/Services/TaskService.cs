@@ -557,6 +557,7 @@ namespace Codedberries.Services
                 var taskDTO = new ProjectTasksInfoDTO
                 {
                     TaskId = task.Id,
+                    ProjectId = task.ProjectId,
                     Name = task.Name,
                     Description = task.Description,
                     CategoryId = task.CategoryId,
