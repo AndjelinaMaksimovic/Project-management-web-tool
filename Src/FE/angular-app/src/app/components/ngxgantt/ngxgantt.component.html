@@ -56,13 +56,23 @@
 
                 <ngx-gantt-column *ngIf="columns.startDate" name="Starting date" width="170px">
                 <ng-template #cell let-item="item">
-                    {{ item.start | date : 'dd. MMMM yyyy.' }}
+                    <span *ngIf="item.start != 0">
+                      {{ item.start | date : 'dd. MMMM yyyy.' }}
+                    </span>
+                    <span *ngIf="item.start == 0">
+                      -
+                    </span>
                 </ng-template>
                 </ngx-gantt-column>
 
                 <ngx-gantt-column *ngIf="columns.endDate" name="Due date" width="170px">
                 <ng-template #cell let-item="item">
+                  <span *ngIf="item.end != 0">
                     {{ item.end | date : 'dd. MMMM yyyy.' }}
+                  </span>
+                  <span *ngIf="item.end == 0">
+                    -
+                  </span>
                 </ng-template>
                 </ngx-gantt-column>
 
