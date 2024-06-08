@@ -925,5 +925,18 @@ namespace Codedberries.Services
 
             return true;
         }
+
+        public string GetUsernameFromSessionToken(string sessionToken)
+        {
+            var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
+
+            if (session != null && session.ExpirationTime > DateTime.UtcNow)
+            {
+                var user = _databaseContext.Users.FirstOrDefault(u => u.Id == session.UserId);
+                return user.Email; 
+            }
+
+            return null; 
+        }
     }
 }

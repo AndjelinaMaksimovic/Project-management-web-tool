@@ -1,40 +1,56 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using Codedberries.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Codedberries.Services
 {
-    public class NotificationHub:Hub<INotificationClient>
+    public class NotificationHub : Hub<INotificationClient>
     {
-        private readonly TokenService _tokenService;
+        private readonly UserService _userService;
+
         public static ConcurrentDictionary<string, List<string>> UserConnections = new ConcurrentDictionary<string, List<string>>();
-        public NotificationHub(TokenService tokenService)
+
+        public NotificationHub(UserService userService)
         {
-            _tokenService = tokenService;
+            _userService = userService;
         }
-       
+
         public override async System.Threading.Tasks.Task OnConnectedAsync()
         {
             Trace.TraceInformation("MapHub started. ID: {0}", Context.ConnectionId);
+
+            // Extract session token from request cookies
             var httpContext = Context.GetHttpContext();
-            var token = httpContext.Request.Query["access_token"].FirstOrDefault();
-            var username = _tokenService.GetUsernameFromToken(token) ?? throw new Exception("Korisničko ime nije pronađeno u JWT tokenu.");
+            string? sessionToken = httpContext.Request.Cookies["sessionId"];
 
-            if (username != null)
+            if (!string.IsNullOrEmpty(sessionToken))
             {
-                List<string> existingUserConnectionIds;
-                if (!UserConnections.TryGetValue(username, out existingUserConnectionIds))
-                {
-                    existingUserConnectionIds = new List<string>();
-                    UserConnections.TryAdd(username, existingUserConnectionIds);
-                }
+                // Validate session token and get username
+                var username = _userService.GetUsernameFromSessionToken(sessionToken);
 
-                existingUserConnectionIds.Add(Context.ConnectionId);
+                if (username != null)
+                {
+                    // Add connection ID to the user's list of connections
+                    List<string> existingUserConnectionIds;
+                    if (!UserConnections.TryGetValue(username, out existingUserConnectionIds))
+                    {
+                        existingUserConnectionIds = new List<string>();
+                        UserConnections.TryAdd(username, existingUserConnectionIds);
+                    }
+
+                    existingUserConnectionIds.Add(Context.ConnectionId);
+                }
+                else
+                {
+                    Console.WriteLine("Failed to extract username from session token.");
+                }
             }
             else
             {
-                Console.WriteLine("Failed to extract username from JWT token.");
+                Console.WriteLine("Session token not found in request cookies.");
             }
 
             await base.OnConnectedAsync();
@@ -43,18 +59,33 @@ namespace Codedberries.Services
         public override async System.Threading.Tasks.Task OnDisconnectedAsync(Exception exception)
         {
             var httpContext = Context.GetHttpContext();
-            var token = httpContext.Request.Query["access_token"].FirstOrDefault();
-            var username = _tokenService.GetUsernameFromToken(token) ?? throw new Exception("Korisničko ime nije pronađeno u JWT tokenu.");
+            string? sessionToken = httpContext.Request.Cookies["sessionId"];
 
-            List<string> existingUserConnectionIds;
-            UserConnections.TryGetValue(username, out existingUserConnectionIds);
-
-            existingUserConnectionIds.Remove(Context.ConnectionId);
-
-            if (existingUserConnectionIds.Count == 0)
+            if (!string.IsNullOrEmpty(sessionToken))
             {
-                List<string> garbage;
-                UserConnections.TryRemove(username, out garbage);
+                var username = _userService.GetUsernameFromSessionToken(sessionToken);
+
+                if (username != null)
+                {
+                    List<string> existingUserConnectionIds;
+                    UserConnections.TryGetValue(username, out existingUserConnectionIds);
+
+                    existingUserConnectionIds?.Remove(Context.ConnectionId);
+
+                    if (existingUserConnectionIds?.Count == 0)
+                    {
+                        List<string> garbage;
+                        UserConnections.TryRemove(username, out garbage);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Failed to extract username from session token.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Session token not found in request cookies.");
             }
 
             await base.OnDisconnectedAsync(exception);
@@ -71,11 +102,8 @@ namespace Codedberries.Services
             }
             else
             {
-                Console.WriteLine($"Korisnik {username} nije povezan ili nema aktivnih konekcija.");
+                Console.WriteLine($"User {username} is not connected or has no active connections.");
             }
         }
-
-
     }
 }
- 
