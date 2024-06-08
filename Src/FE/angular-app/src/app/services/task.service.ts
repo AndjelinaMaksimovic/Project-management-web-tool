@@ -141,8 +141,8 @@ export class TaskService {
           this.httpOptions
         )
       );
-      await this.statusService.fetchStatuses();
-      await this.categoryService.fetchCategories();
+        await this.statusService.fetchStatuses();
+        await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });

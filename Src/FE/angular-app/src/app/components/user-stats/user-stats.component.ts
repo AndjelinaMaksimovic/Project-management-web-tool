@@ -61,9 +61,9 @@ export class UserStatsComponent {
       this.tasksVisible = true;
       await this.taskService.fetchUserTasks({ projectId: this.projectId, assignedTo: this.userId });
     }
-    else {
-      await this.taskService.fetchUserTasks({ assignedTo: this.userId });
-    }
+    // else {
+    //   await this.taskService.fetchUserTasks({ assignedTo: this.userId });
+    // }
 
     this.allTasks = this.taskService.getTasks().length;
     this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
