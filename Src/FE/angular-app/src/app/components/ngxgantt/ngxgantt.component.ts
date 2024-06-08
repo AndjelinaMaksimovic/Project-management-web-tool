@@ -138,6 +138,8 @@ export class NgxganttComponent {
         task: task,
         type: ItemType.Task
       },
+      color: (task.progress == 100 ? "#00c20c" : 
+             (new Date(task.dueDate) < new Date() ? "#FF5733" : "#6698FF" ))
       // barStyle: { // MILESTONE STYLE
       //   width: "20px",
       //   height: "20px",
@@ -162,22 +164,29 @@ export class NgxganttComponent {
     };
   }
 
-  mapProjects(project: any): GanttItem {
-    // console.log(project);
+  async mapProjects(project: any): Promise<GanttItem> {
+
+    await this.taskService.fetchTasks({ projectId: project.id });
+    let overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
+
+    let progres = parseFloat(await this.projectService.getProjectProgress(project.id));
+
+    console.log(project);
     return {
       id: project.id,
       title: project.title,
-      progress: project.progress / 100.0,
+      progress: progres / 100.0,
       start: project.startDate,
       end: project.dueDate,
-
       expandable: false,
       // draggable: false,
       itemDraggable: false,
       linkable: false,
       origin: {
         type: ItemType.Project
-      }
+      },
+      color: (progres >= 100.0 ? "#00c20c" : 
+        (overdueTasks > 0 ? "#FF5733" : "#6698FF" )),
       // color?: string;
       // barStyle?: Partial<CSSStyleDeclaration>;
       // origin?: T;
@@ -192,10 +201,10 @@ export class NgxganttComponent {
     return newTasks;
   }
 
-  convertProjectsToNgx(projects: any) : GanttItem[] {
-    let newProjects = projects.map((project: any) => {
+  async convertProjectsToNgx(projects: any) : Promise<GanttItem[]> {
+    let newProjects = await Promise.all(projects.map((project: any) => {
       return this.mapProjects(project);
-    });
+    }));
     return newProjects;
   }
 
@@ -399,7 +408,7 @@ export class NgxganttComponent {
       console.log(this.items);
     }
     else if(this.ganttType == GanttType.Projects) {
-      this.items = this.convertProjectsToNgx(this.projectService.getProjects());
+      this.items = await this.convertProjectsToNgx(this.projectService.getProjects());
     }
   }
 
