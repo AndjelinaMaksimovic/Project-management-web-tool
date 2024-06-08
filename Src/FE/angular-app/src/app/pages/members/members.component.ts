@@ -177,6 +177,15 @@ export class MembersComponent implements OnInit {
     }, noFunc: () => { } } });
   }
 
+  removeUserFromOrganization(event: Event, member: Member) {
+    event.stopPropagation();
+    
+    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the organization?<br>This action cannot be undone and may affect project permissions and collaboration.";
+    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
+      await this.userService.removeUserFromOrgnization(member.id);
+    }, noFunc: () => { } } });
+  }
+
   openNewMember() {
     this.dialog.open(NewMemberModalComponent, { autoFocus: false });
   }
