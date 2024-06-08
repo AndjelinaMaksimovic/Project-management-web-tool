@@ -19,6 +19,7 @@ import { DependantTasksCardComponent } from './dependant-tasks-card/dependant-ta
 import { UserService } from '../../services/user.service';
 import { NgIf } from '@angular/common';
 import { AddDependantTasksChipComponent } from '../../components/task-chips/add-dependant-tasks-chip/add-dependant-tasks-chip.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -58,7 +59,10 @@ export class TaskComponent {
     private taskService: TaskService,
     private route: ActivatedRoute,
     private userService: UserService,
-  ) {}
+    private dialog: MatDialog
+  ) {
+    this.dialog.closeAll();
+  }
 
   get task() {
     const tasks = this.taskService.getTasks()

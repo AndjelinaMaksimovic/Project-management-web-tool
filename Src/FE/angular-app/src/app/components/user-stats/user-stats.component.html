@@ -37,7 +37,7 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;" *ngIf="allTasksAccordionVisible">
                 @for (task of tasks; track task) {
-                    <app-task-card [task]="task"></app-task-card>
+                    <app-task-card [task]="task" (click)="closeDialog();"></app-task-card>
                 }
             </div>
         </div>
@@ -51,7 +51,7 @@
             </div>
             <div *ngIf="allProjectsAccordionVisible">
                 @for (project of projects; track project) {
-                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [dontRefresh]="true"></app-project-item>
+                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [dontRefresh]="true" (click)="closeDialog();"></app-project-item>
                 }
             </div>
         </div>

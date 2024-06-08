@@ -18,6 +18,7 @@ import { ProjectItemComponent } from '../../components/project-item/project-item
 import { AvatarService } from '../../services/avatar.service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { PageEvent } from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
 // import { environment } from '../../environments/environment';
 
 
@@ -67,8 +68,12 @@ export class ProfileComponent {
     private http: HttpClient,
     private projectService: ProjectService,
     private avatarService: AvatarService,
-    private taskService: TaskService
-  ) {}
+    private taskService: TaskService,
+    private dialog: MatDialog
+  ) {
+    this.dialog.closeAll();
+  }
+
   async ngOnInit() {
     this.route.params.subscribe((params) => {
       this.userId = params['userId'];
