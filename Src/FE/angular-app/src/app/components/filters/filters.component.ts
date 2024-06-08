@@ -72,7 +72,7 @@ export class FiltersComponent {
     let filter = this.allFilters.get(key);
     if(filter) {
       filter.enabled = true;
-      filter.value = "";
+      if(filter.type != "bool") filter.value = "";
       this.currentFilters.delete(key);
     }
   }
@@ -81,14 +81,20 @@ export class FiltersComponent {
     this.currentFilters.clear();
     this.allFilters.forEach((filter, key) => {
       filter.enabled = true;
-      filter.value = "";
+      if(filter.type != "bool") filter.value = "";
     });
   }
 
   save() {
     let newFilters: Map<string, string> = new Map<string, string>();
     for(let [key, value] of this.currentFilters) {
-      newFilters.set(key, this.allFilters.get(key)!.value);
+      console.log(key + " " + this.allFilters.get(key)!.value);
+      if(this.allFilters.get(key)!.value != null && this.allFilters.get(key)!.value != undefined && (key == 'AssignedTo' || this.allFilters.get(key)!.value != '')) {
+        newFilters.set(key, this.allFilters.get(key)!.value);
+      }
+      else {
+        this.removeFilter(key);
+      }
     }
     const obj = Object.fromEntries(newFilters);
     this.localStorageService.saveData(this.filtersName, obj);
