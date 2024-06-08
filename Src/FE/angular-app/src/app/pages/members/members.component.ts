@@ -182,7 +182,7 @@ export class MembersComponent implements OnInit {
     event.stopPropagation();
     
     if(this.myRole.canAddNewUser){
-      let descriptionMessage = "Are you sure you want to deactivate user <b>" + member.getFullName() + "</b>?<br>This action cannot be undone.";
+      let descriptionMessage = "Are you sure you want to deactivate user <b>" + member.getFullName() + "</b> from the organization?<br>This action cannot be undone and may affect project permissions and collaboration.";
       this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Deactivation", description: descriptionMessage, yesFunc: async () => {
         await this.userService.deactivateUser(member.id);
 
@@ -197,15 +197,6 @@ export class MembersComponent implements OnInit {
         this.init()
       }, noFunc: () => { } } });
     }
-  }
-
-  removeUserFromOrganization(event: Event, member: Member) {
-    event.stopPropagation();
-    
-    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the organization?<br>This action cannot be undone and may affect project permissions and collaboration.";
-    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
-      await this.userService.removeUserFromOrgnization(member.id);
-    }, noFunc: () => { } } });
   }
 
   openNewMember() {
