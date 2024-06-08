@@ -10,6 +10,7 @@ import { TopnavComponent } from '../topnav/topnav.component';
 import { NgStyle } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
+import { LocalStorageService } from '../../services/localstorage';
 
 @Component({
   selector: 'app-navbar',
@@ -34,7 +35,7 @@ export class NavbarComponent{
   id?: number
   navMargin = 13;
 
-  constructor(private router: Router, private route: ActivatedRoute, private projectService: ProjectService){}
+  constructor(private router: Router, private route: ActivatedRoute, private projectService: ProjectService, private localStorageService: LocalStorageService){}
 
   ngOnInit(){
     this.route.params.subscribe(async params => {
@@ -47,12 +48,29 @@ export class NavbarComponent{
         this.title = this.projectService.getProjectWithID(this.id)?.title
       }
     });
+
+    let expanded = this.localStorageService.getData("navbar_expanded");
+    if(expanded && Object.keys(expanded).length === 0 && expanded.constructor === Object) {
+      this.localStorageService.saveData("navbar_expanded", true);
+      this.isExpanded = true;
+    }
+    else {
+      this.isExpanded = expanded;
+
+      if(this.isExpanded) {
+        this.navMargin = 13;
+      }
+      else {
+        this.navMargin = 3.75;
+      }
+    }
   }
   
   isExpanded = true
   
   toggleNav() {
     this.isExpanded = !this.isExpanded;
+    this.localStorageService.saveData("navbar_expanded", this.isExpanded);
 
     if(this.isExpanded) {
       this.navMargin = 13;
