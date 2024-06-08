@@ -318,6 +318,11 @@ export class NgxganttComponent {
     users: false
   };
 
+  async updateProjects() {
+    await this.projectService.fetchProjectsLocalStorage("project_filters");
+    this.updateTasksView();
+  }
+
   async ngOnInit() {
     this.role = await this.userService.currentUserRole();
     // console.log(this.items);
