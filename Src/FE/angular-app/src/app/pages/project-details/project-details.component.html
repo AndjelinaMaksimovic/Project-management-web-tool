@@ -10,8 +10,10 @@
         <div class="container w-100 margin-15 inherit-height">
             <div class="justify-container">
                 <app-status-item [title]="'Due date:'" [desc]="(dueDate | date:'dd. MMMM yyyy')!.toString()" [faicon]="'fa-regular fa-calendar'"></app-status-item>
-                <app-status-item [title]="'Days left:'" [desc]="daysLeft + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
-                <app-status-item [title]="'Status:'" [desc]="'-'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item *ngIf="daysLeft > 0" [title]="'Days left:'" [desc]="daysLeft + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#00c20c'" [bold]="true"></app-status-item>
+                <app-status-item *ngIf="daysLeft == 0" [title]="'Days left:'" [desc]="'TODAY'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item *ngIf="daysLeft < 0" [title]="'Days left:'" [desc]="'OVERDUE ' + (-daysLeft) + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item [title]="'Status:'" [desc]="overdueTasks > 0 ? 'OVERDUE TASKS' : 'OK'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="overdueTasks > 0 ? '#FF5733' : '#00c20c'" [bold]="true"></app-status-item>
             </div>
         </div>
     </div>
