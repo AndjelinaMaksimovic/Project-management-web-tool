@@ -60,7 +60,9 @@ export class MyTasksComponent {
     private router: Router,
     private localStorageService: LocalStorageService,
     private userService: UserService,
-  ) {}
+  ) {
+    this.dialog.closeAll();
+  }
 
   async ngOnInit() {
     await this.route.params.subscribe((params) => {

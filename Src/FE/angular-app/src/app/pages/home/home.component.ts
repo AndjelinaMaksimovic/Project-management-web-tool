@@ -41,7 +41,9 @@ export class HomeComponent {
     return Object.keys(this.localStorageService.getData("project_filters")).length;
   }
 
-  constructor(private userService: UserService, private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService) {}
+  constructor(private userService: UserService, private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService, private dialog: MatDialog) {
+    this.dialog.closeAll();
+  }
 
   get projects(){
     return this.projectService.getProjects().filter(project => project.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || project.description.toLowerCase().includes(this.search.toLocaleLowerCase())).filter(project => !project.archived);

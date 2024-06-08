@@ -86,7 +86,9 @@ export class MembersComponent implements OnInit {
 
   isFilterOpen: boolean = false;
 
-  constructor(private dialogue: MatDialog, private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
+  constructor(private dialogue: MatDialog, private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {
+    this.dialog.closeAll();
+  }
 
   filterRolesByName() {
     this.roles.forEach((role, key) => role.filterMembers(this.search));
