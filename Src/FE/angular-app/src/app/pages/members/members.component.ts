@@ -86,7 +86,9 @@ export class MembersComponent implements OnInit {
 
   isFilterOpen: boolean = false;
 
-  constructor(private dialogue: MatDialog, private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {}
+  constructor(private dialogue: MatDialog, private route: ActivatedRoute, private rolesService : RolesService, private userService: UserService, public dialog: MatDialog, private avatarService: AvatarService) {
+    this.dialog.closeAll();
+  }
 
   filterRolesByName() {
     this.roles.forEach((role, key) => role.filterMembers(this.search));
@@ -195,6 +197,15 @@ export class MembersComponent implements OnInit {
         this.init()
       }, noFunc: () => { } } });
     }
+  }
+
+  removeUserFromOrganization(event: Event, member: Member) {
+    event.stopPropagation();
+    
+    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the organization?<br>This action cannot be undone and may affect project permissions and collaboration.";
+    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
+      await this.userService.removeUserFromOrgnization(member.id);
+    }, noFunc: () => { } } });
   }
 
   openNewMember() {

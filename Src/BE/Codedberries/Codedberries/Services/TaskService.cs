@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System;
 using Microsoft.Extensions.DependencyModel;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Codedberries.Services
 {
@@ -14,11 +15,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public TaskService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
+        public TaskService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
@@ -304,6 +307,15 @@ namespace Codedberries.Services
                 {
                     UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                     _databaseContext.UserNotifications.Add(userNotification);
+                    NotificationDTO notificationDTO = new NotificationDTO { ProjectId = newTask.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                    var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                    if (connectionIds != null && connectionIds.Any())
+                    {
+                        foreach (var connectionId in connectionIds)
+                        {
+                            await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                        }
+                    }
                 }
 
                 await _databaseContext.SaveChangesAsync();
@@ -545,6 +557,7 @@ namespace Codedberries.Services
                 var taskDTO = new ProjectTasksInfoDTO
                 {
                     TaskId = task.Id,
+                    ProjectId = task.ProjectId,
                     Name = task.Name,
                     Description = task.Description,
                     CategoryId = task.CategoryId,
@@ -701,6 +714,15 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = task.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                         _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
             }
 
             _databaseContext.SaveChangesAsync();
@@ -1122,6 +1144,15 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = task.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -1181,6 +1212,15 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = task.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
             }
 
             _databaseContext.SaveChangesAsync();
@@ -2046,6 +2086,15 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = project.Id, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+                var connectionIds = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                if (connectionIds != null && connectionIds.Any())
+                {
+                    foreach (var connectionId in connectionIds)
+                    {
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                    }
+                }
             }
 
             await _databaseContext.SaveChangesAsync();

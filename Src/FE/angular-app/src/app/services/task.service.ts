@@ -57,7 +57,7 @@ export class TaskService {
       id: apiTask.taskId,
       index: apiTask.index,
       indexInCategory: apiTask.indexInCategory,
-      projectId: this.context.projectId,
+      projectId: apiTask.projectId,
       startDate: new Date(Date.parse(apiTask.startDate)),
       dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
@@ -141,8 +141,8 @@ export class TaskService {
           this.httpOptions
         )
       );
-      await this.statusService.fetchStatuses();
-      await this.categoryService.fetchCategories();
+        await this.statusService.fetchStatuses();
+        await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });
