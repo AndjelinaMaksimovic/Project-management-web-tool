@@ -1,8 +1,6 @@
 <div>
-    <markdown class="desc" ngPreserveWhitespaces [data]="content"></markdown>
-    <button (click)="openModal()">Open</button>
-    <!-- <button *ngIf="role.canEditProject" mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger"
-        class="small-icon-button" [matTooltip]="'edit title'" (click)="isEditing = true"><mat-icon>edit</mat-icon></button> -->
+    <markdown class="desc" ngPreserveWhitespaces [data]="content" [matTooltip]="role.canEditProject ? 'edit description' : ''" (click)="openModal()" [style.cursor]="role.canEditProject ? 'pointer' : 'unset'"></markdown>
+    <!-- <button *ngIf="role.canEditProject" (click)="openModal()">Open</button> -->
 </div>
 <!-- <mat-menu #menu="matMenu" class="mat-menu-no-max-width">
 </mat-menu> -->

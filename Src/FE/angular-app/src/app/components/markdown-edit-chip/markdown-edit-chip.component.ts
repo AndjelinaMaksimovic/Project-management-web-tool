@@ -30,11 +30,12 @@ export class MarkdownEditChipComponent {
   constructor(private dialog: MatDialog){}
 
   openModal(){
+    if(!this.role.canEditProject)
+      return
     const ref = this.dialog.open(EditableMarkdownModalComponent, {
       autoFocus: false,
       data: {
-        content: this.content,
-        role: this.role
+        content: this.content
       }
     })
     ref.afterClosed().subscribe(data => {

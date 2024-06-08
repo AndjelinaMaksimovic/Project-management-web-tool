@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MarkdownModule } from 'ngx-markdown';
 import { MaterialModule } from '../../../material/material.module';
 import { MarkdownEditorComponent } from '../../markdown-editor/markdown-editor.component';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-editable-markdown-modal',
@@ -32,16 +33,19 @@ export class EditableMarkdownModalComponent {
   public editContent: string = "";
 
   @Output() onSave: EventEmitter<string> = new EventEmitter();
-  @ViewChild('menuTrigger') trigger!: MatMenuTrigger;
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any, private dialogRef: MatDialogRef<EditableMarkdownModalComponent>){
+    this.content = data.content
+  }
 
   save(){
-    this.onSave.emit(this.editContent);
+    // this.onSave.emit(this.editContent);
     this.isEditing = false;
-    this.trigger.closeMenu();
+    this.dialogRef.close(this.editContent)
   }
   cancel(){
     this.isEditing = false;
     this.editContent = this.content || "";
-    this.trigger.closeMenu();
+    this.dialogRef.close()
   }
 }

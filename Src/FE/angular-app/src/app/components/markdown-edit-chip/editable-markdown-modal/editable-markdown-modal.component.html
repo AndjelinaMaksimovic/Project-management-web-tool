@@ -1,9 +1,7 @@
-<div style="width: 600px">
-    <div style="margin-top: 20px;">
-        <app-markdown-editor [(value)]="editContent"></app-markdown-editor>
-        <div style="display: flex; gap: 10px">
-            <button color="primary" mat-flat-button (click)="save()">Save</button>
-            <button color="primary" mat-flat-button (click)="cancel()">Cancel</button>
-        </div>
+<div style="width: 600px; padding: 10px;">
+    <app-markdown-editor [(value)]="editContent"></app-markdown-editor>
+    <div style="display: flex; justify-content: space-evenly;">
+        <button color="primary" mat-flat-button (click)="save()">Save</button>
+        <button color="primary" mat-flat-button (click)="cancel()">Cancel</button>
     </div>
 </div>
