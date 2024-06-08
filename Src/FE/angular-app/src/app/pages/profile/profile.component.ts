@@ -18,6 +18,7 @@ import { ProjectItemComponent } from '../../components/project-item/project-item
 import { AvatarService } from '../../services/avatar.service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { PageEvent } from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
 // import { environment } from '../../environments/environment';
 
 
@@ -67,8 +68,12 @@ export class ProfileComponent {
     private http: HttpClient,
     private projectService: ProjectService,
     private avatarService: AvatarService,
-    private taskService: TaskService
-  ) {}
+    private taskService: TaskService,
+    private dialog: MatDialog
+  ) {
+    this.dialog.closeAll();
+  }
+
   async ngOnInit() {
     this.route.params.subscribe((params) => {
       this.userId = params['userId'];
@@ -78,7 +83,7 @@ export class ProfileComponent {
     this.activities = await this.projectService.allUserActivities()
 
     await this.projectService.fetchUserProjects(this.loggedInUser!);
-    await this.taskService.fetchUserTasks({ assignedTo: this.loggedInUser! });
+    await this.taskService.fetchUserTasks({ projectId: undefined, assignedTo: this.loggedInUser! });
 
     if(this.tasks.length != 0) this.allTasksAccordionVisible = true;
     if(this.projects.length != 0) this.allProjectsAccordionVisible = true;
