@@ -929,6 +929,8 @@ namespace Codedberries.Services
             string Url = $"http://localhost:4200/project/{project.Id}/details";
 
             Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
             var projectUsers = _databaseContext.UserProjects
             .Where(up => up.ProjectId == project.Id && up.UserId != userId)
             .Select(up => up.UserId)
