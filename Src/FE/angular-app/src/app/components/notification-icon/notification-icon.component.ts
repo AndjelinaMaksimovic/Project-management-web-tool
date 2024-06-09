@@ -27,11 +27,11 @@ export class NotificationIconComponent implements OnInit {
 
     this.fetch()
 
-    this.socketService.ordersUpdated$.subscribe((notifications: any[])=>{
-      this.activities.push(...notifications)
-      this._activities.push(...notifications)
+    this.socketService.ordersUpdated$.subscribe((notification: any)=>{
+      this.activities.push(notification)
+      this._activities.push(notification)
       this.activities = this.activities.sort((a:any, b:any) => a.time > b.time ? -1 : 1)
-      this._activities = this.activities.sort((a:any, b:any) => a.time > b.time ? -1 : 1)
+      this._activities = this._activities.sort((a:any, b:any) => a.time > b.time ? -1 : 1)
       this.seen = false
     })
   }
@@ -39,17 +39,20 @@ export class NotificationIconComponent implements OnInit {
   async fetch(){
     this._activities = await this.projectService.allUsersProjectActivities()
     this._activities = this._activities.sort((a:any, b:any) => a.time > b.time ? -1 : 1)
-    this.activities = this._activities.filter(act => act.seen)
-    this.seen = this.activities.length > 0
+    this.activities = this._activities.filter(act => !act.seen)
+    this.seen = this.activities.length == 0
   }
 
   onOpen(){
+    if(this.activities.length == 0)
+      return
     this.projectService.notificationsSeen()
     this.activities.forEach(notif => notif.seen = true)
     this.seen = true
   }
   onClose(){
-    this.activities = []
+    // no function for after closed so timeout is used
+    setTimeout(()=>{this.activities = []}, 100)
   }
 
   loadMore(){

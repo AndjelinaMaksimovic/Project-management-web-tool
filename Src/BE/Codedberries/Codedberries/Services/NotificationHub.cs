@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Codedberries.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 
@@ -10,12 +11,14 @@ namespace Codedberries.Services
     public class NotificationHub : Hub<INotificationClient>
     {
         private readonly UserService _userService;
+        private readonly AuthorizationService _authorizationService;
 
-        public static ConcurrentDictionary<string, List<string>> UserConnections = new ConcurrentDictionary<string, List<string>>();
+        public static ConcurrentDictionary<string, string> UserConnections = new ConcurrentDictionary<string, string>();
 
-        public NotificationHub(UserService userService)
+        public NotificationHub(UserService userService, AuthorizationService authorizationService)
         {
             _userService = userService;
+            _authorizationService = authorizationService;
         }
 
         public override async System.Threading.Tasks.Task OnConnectedAsync()
@@ -24,33 +27,15 @@ namespace Codedberries.Services
 
             // Extract session token from request cookies
             var httpContext = Context.GetHttpContext();
-            string? sessionToken = httpContext.Request.Cookies["sessionId"];
+            var userId = _authorizationService.GetUserIdFromSession(httpContext).ToString();
 
-            if (!string.IsNullOrEmpty(sessionToken))
+            if (!string.IsNullOrEmpty(userId))
             {
-                // Validate session token and get username
-                var username = _userService.GetUsernameFromSessionToken(sessionToken);
-
-                if (username != null)
-                {
-                    // Add connection ID to the user's list of connections
-                    List<string> existingUserConnectionIds;
-                    if (!UserConnections.TryGetValue(username, out existingUserConnectionIds))
-                    {
-                        existingUserConnectionIds = new List<string>();
-                        UserConnections.TryAdd(username, existingUserConnectionIds);
-                    }
-
-                    existingUserConnectionIds.Add(Context.ConnectionId);
-                }
-                else
-                {
-                    Console.WriteLine("Failed to extract username from session token.");
-                }
+                UserConnections.TryAdd(userId, Context.ConnectionId);
             }
             else
             {
-                Console.WriteLine("Session token not found in request cookies.");
+                Console.WriteLine("Failed to extract user ID from session token or session token not found.");
             }
 
             await base.OnConnectedAsync();
@@ -59,50 +44,30 @@ namespace Codedberries.Services
         public override async System.Threading.Tasks.Task OnDisconnectedAsync(Exception exception)
         {
             var httpContext = Context.GetHttpContext();
-            string? sessionToken = httpContext.Request.Cookies["sessionId"];
+            var userId = _authorizationService.GetUserIdFromSession(httpContext).ToString();
 
-            if (!string.IsNullOrEmpty(sessionToken))
+            if (!string.IsNullOrEmpty(userId))
             {
-                var username = _userService.GetUsernameFromSessionToken(sessionToken);
-
-                if (username != null)
-                {
-                    List<string> existingUserConnectionIds;
-                    UserConnections.TryGetValue(username, out existingUserConnectionIds);
-
-                    existingUserConnectionIds?.Remove(Context.ConnectionId);
-
-                    if (existingUserConnectionIds?.Count == 0)
-                    {
-                        List<string> garbage;
-                        UserConnections.TryRemove(username, out garbage);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Failed to extract username from session token.");
-                }
+                string garbage;
+                UserConnections.TryRemove(userId, out garbage);
             }
             else
             {
-                Console.WriteLine("Session token not found in request cookies.");
+                Console.WriteLine("Failed to extract user ID from session token or session token not found.");
             }
 
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async System.Threading.Tasks.Task SendNotificationToUser(string username, NotificationDTO message)
+        public async System.Threading.Tasks.Task SendNotificationToUser(string userId, NotificationDTO message)
         {
-            if (UserConnections.TryGetValue(username, out List<string> connectionIds))
+            if (UserConnections.TryGetValue(userId, out string connectionId))
             {
-                foreach (var connectionId in connectionIds)
-                {
-                    await Clients.Client(connectionId).ReceiveNotification(message);
-                }
+                await Clients.Client(connectionId).ReceiveNotification(message);
             }
             else
             {
-                Console.WriteLine($"User {username} is not connected or has no active connections.");
+                Console.WriteLine($"User {userId} is not connected or has no active connections.");
             }
         }
     }
