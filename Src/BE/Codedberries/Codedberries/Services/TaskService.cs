@@ -345,8 +345,20 @@ namespace Codedberries.Services
                         throw new ArgumentException($"Project with ID {filterParams.ProjectId} does not exist in the database!");
                     }
 
+                    var userProjectIds = _databaseContext.UserProjects
+                    .Where(up => up.UserId == userId)
+                    .Select(up => up.ProjectId)
+                    .ToList();
+
+                    if (!userProjectIds.Contains(filterParams.ProjectId))
+                    {
+                        // User is not associated with the project, return empty list
+                        return new List<ProjectTasksInfoDTO>();
+                    }
+
                     query = query.Where(t => t.ProjectId == filterParams.ProjectId);
                 }
+                
 
                 if (filterParams.AssignedTo.HasValue)
                 {
@@ -506,7 +518,7 @@ namespace Codedberries.Services
                     }
                 }
             }
-
+            
             List<Codedberries.Models.Task> tasks = query.ToList();
 
             List<ProjectTasksInfoDTO> tasksDTO = new List<ProjectTasksInfoDTO>();
