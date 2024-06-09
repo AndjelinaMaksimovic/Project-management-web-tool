@@ -17,12 +17,14 @@ namespace Codedberries.Services
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
         private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
+        private readonly IConfiguration _configuration;
 
-        public TaskService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
+        public TaskService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext, IConfiguration configuration)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _notificationHubContext = notificationHubContext;
+            _configuration = configuration;
         }
 
         public async System.Threading.Tasks.Task CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
@@ -257,9 +259,10 @@ namespace Codedberries.Services
                         i++;
                     }
                 }
-                string taskUrl = $"http://localhost:4200/project/{request.ProjectId}/task/{newTask.Id}";
+                var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+                string taskUrl = $"{frontendUrl}/project/{request.ProjectId}/task/{newTask.Id}";
                 Activity activity = new Activity(user.Id, newTask.ProjectId, $"User {user.Firstname} {user.Lastname} has created the task <a href=\"{taskUrl}\">{newTask.Name}</a>", DateTime.Now);
-                _databaseContext.Activities.Add(activity);
+                 _databaseContext.Activities.Add(activity);
                 await _databaseContext.SaveChangesAsync();
 
                 var projectUsers = _databaseContext.UserProjects
@@ -1036,7 +1039,8 @@ namespace Codedberries.Services
                 AssignedUsers = assignedUsers,
                 Progress = task.Progress
             };
-            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+            string taskUrl = $"{frontendUrl}/project/{task.ProjectId}/task/{task.Id}";
             Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
@@ -1123,7 +1127,8 @@ namespace Codedberries.Services
 
             // Toggle archived status
             task.Archived = !task.Archived;
-            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+            string taskUrl = $"{frontendUrl}/project/{task.ProjectId}/task/{task.Id}";
             Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has archived the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
@@ -1818,7 +1823,8 @@ namespace Codedberries.Services
             }
 
             task.Progress = request.Progress;
-            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+            string taskUrl = $"{frontendUrl}/project/{task.ProjectId}/task/{task.Id}";
             Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the progress on the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
 
             _databaseContext.Activities.Add(activity);
