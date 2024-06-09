@@ -140,3 +140,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-
 .max-width-unset-important{
     max-width: unset !important;
 }
+.pre-line{
+    white-space: pre-line;
+}
