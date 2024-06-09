@@ -19,13 +19,14 @@ import { AvatarService } from '../../services/avatar.service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
+import { ContributionGraphComponent } from '../../components/contribution-graph/contribution-graph.component';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, TaskCardComponent, ProjectItemComponent, MarkdownModule],
+  imports: [ContributionGraphComponent, TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, TaskCardComponent, ProjectItemComponent, MarkdownModule],
   providers: [provideMarkdown()],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
@@ -47,7 +48,7 @@ export class ProfileComponent {
   }
   
   activities: any[] = [];
-  
+  activityData: number[] | undefined = undefined;
   paginatorLen = 0
   paginatorPageSize = 5
   viewActivities: any[] = []
@@ -89,7 +90,11 @@ export class ProfileComponent {
     if(this.projects.length != 0) this.allProjectsAccordionVisible = true;
     this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
     this.paginatorLen = this.activities.length
-    this.viewActivities = this.activities.slice(0, this.paginatorPageSize)
+    this.viewActivities = this.activities.slice(0, this.paginatorPageSize);
+    this.activityData = this.activities.map((a) => {
+      return new Date(a.time).getTime();
+    });
+    console.log("this.activityData", this.activityData);
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){
