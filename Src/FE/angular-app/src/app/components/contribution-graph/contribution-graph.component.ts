@@ -26,7 +26,7 @@ function sameDay(d1: Date, d2: Date) {
 export class ContributionGraphComponent {
   @Input() contributions: number[] = [];
   calendarData: {activities: number, date: Date}[] = []
-
+  weeklyData: (typeof this.calendarData)[number][][];
   getColor(entry: (typeof this.calendarData)[number]){
     if(entry.activities === 0) return "#EEE";
     if(entry.activities < 10) return "#AAA";
@@ -34,22 +34,11 @@ export class ContributionGraphComponent {
     if(entry.activities < 30) return "#444";
     return "#222";
   }
-  public get weeklyData(){
-    const wData = this.calendarData.reduce<(typeof this.calendarData)[number][][]>((acc, e) => {
-      if(e.date.getDay() === 1){
-        acc.push([]);
-      }
-      acc.at(-1)!.push(e);
-      return acc;
-    }, [[]]);
-    console.log("wData", wData)
-    return wData;
-  }
 
   constructor(){
     const contributionMap = this.contributions.reduce<Record<string, number>>((acc, e) => {
       const timestamp = roundTimestamp(e);
-      if(!acc[timestamp]) acc[timestamp] = 0;;
+      if(!acc[timestamp]) acc[timestamp] = 0;
       acc[timestamp] = acc[timestamp] + 1;
       return acc;
     }, {});
@@ -60,9 +49,19 @@ export class ContributionGraphComponent {
         this.calendarData.push({
           date: new Date(dayStamp),
           activities: this.contributions.filter((entry: number) => {
-            return sameDay(new Date(entry), d)
+            return true;
+            return sameDay(new Date(entry), d);
         }).length || 0,
         });
     }
+
+    const wData = this.calendarData.reduce<(typeof this.calendarData)[number][][]>((acc, e) => {
+      if(e.date.getDay() === 1){
+        acc.push([]);
+      }
+      acc.at(-1)!.push(e);
+      return acc;
+    }, [[]]);
+    this.weeklyData = wData;
   }
 }
