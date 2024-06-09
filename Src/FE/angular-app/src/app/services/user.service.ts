@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 export type User = {
   email: string;
@@ -45,7 +46,7 @@ export class UserService {
     observe: 'response' as 'response',
   };
 
-  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar, private router: Router) {}
   public getUsers() {
     return this.users;
   }
@@ -127,6 +128,8 @@ export class UserService {
       );
       return res.body;
     } catch (e) {
+      document.cookie = 'sessionId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      this.router.navigate(['login']);
       console.log(e);
     }
     return false;
@@ -141,6 +144,8 @@ export class UserService {
       );
       return res.body;
     } catch (e) {
+      document.cookie = 'sessionId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      this.router.navigate(['login']);
       console.log(e);
     }
     return false;
@@ -161,6 +166,8 @@ export class UserService {
       );
       return res.body
     } catch (e) {
+      document.cookie = 'sessionId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      this.router.navigate(['login']);
       console.log(e);
       return false
     }
