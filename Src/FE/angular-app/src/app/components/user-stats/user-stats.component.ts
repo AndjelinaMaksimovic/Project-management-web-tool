@@ -33,6 +33,7 @@ export class UserStatsComponent {
 
   allTasksAccordionVisible: boolean = true;
   allProjectsAccordionVisible: boolean = true;
+  activityCalendarAccordionVisible: boolean = true;
 
   tasksVisible: boolean = false;
   
@@ -82,7 +83,11 @@ export class UserStatsComponent {
   toggleTasks() {
     this.allTasksAccordionVisible = !this.allTasksAccordionVisible;
   }
-  
+
+  toggleActivity() {
+    this.activityCalendarAccordionVisible = !this.activityCalendarAccordionVisible;
+  }
+
   toggleProjects() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
   }
