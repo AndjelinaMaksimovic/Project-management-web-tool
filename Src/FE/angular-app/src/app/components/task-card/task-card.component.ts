@@ -18,8 +18,8 @@ export class TaskCardComponent {
   @Input() task!: Task;
   @Input() role: any = {};
 
-  get asigneeIds(){
-    return this.task.assignedTo.map((user: any) => user.id);
+  get asignees(){
+    return this.task.assignedTo;
   }
   constructor(private dialog: MatDialog) {}
 

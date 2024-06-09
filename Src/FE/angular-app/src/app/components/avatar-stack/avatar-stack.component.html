@@ -1,11 +1,17 @@
 <img *ngIf="avatarUrls.length == 1" [style]="'width: '+size+'px; height: '+size+'px; border-radius: 100%;'"
-    [src]="avatarUrls[0]">
-<div *ngIf="avatarUrls.length > 1 && avatarUrls.length <= 3" class="avatar-stack">
+    [src]="avatarUrls[0]"
+    [matTooltip]="tooltip"
+    matTooltipClass="pre-line">
+<div *ngIf="avatarUrls.length > 1 && avatarUrls.length <= 3" class="avatar-stack"
+    [matTooltip]="tooltip"
+    matTooltipClass="pre-line">
     <div *ngFor="let avatarUrl of avatarUrls" class="avatar" [style]="'width: '+size+'px; height: '+size+'px;'">
         <img [src]="avatarUrl" alt="Avatar">
     </div>
 </div>
-<div *ngIf="avatarUrls.length > 3" class="avatar-stack">
+<div *ngIf="avatarUrls.length > 3" class="avatar-stack"
+    [matTooltip]="tooltip"
+    matTooltipClass="pre-line">
     <div class="avatar" [style]="'width: '+size+'px; height: '+size+'px;'">
         <img [src]="avatarUrls[0]" alt="Avatar">
     </div>
