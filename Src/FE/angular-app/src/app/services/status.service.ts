@@ -106,7 +106,7 @@ export class StatusService {
     try {
       const res = await firstValueFrom(
         this.http.delete<any>(environment.apiUrl + `/Status/deleteStatus`, {
-          ...this.httpOptions,
+          ...this.httpOptions, responseType: "text" as "json",
           body: { 
             statusId: statusId,
             projectId: this.context.projectId

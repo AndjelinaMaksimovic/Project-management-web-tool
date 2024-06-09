@@ -117,7 +117,7 @@
                 </div>
                 <div *ngIf="archivedProjectsAccordionVisible">
                     @for (project of archivedProjects; track project) {
-                        <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                        <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [isArchived]="true"></app-project-item>
                     }
                     @if (archivedProjects.length == 0) {
                         <p>No archived projects!</p>

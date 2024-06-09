@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -21,6 +21,8 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrl: './kanban-view.component.css',
 })
 export class KanbanViewComponent {
+  @Output() updateFilters = new EventEmitter();
+
   @Input() role: any = {}
   constructor(private taskService: TaskService, private statusService: StatusService, private dialog: MatDialog){}
   mobile: boolean = false;
@@ -64,6 +66,10 @@ export class KanbanViewComponent {
 
   async deleteStatus(status: string){
     this.statusService.deleteStatus(status);
+
+    if(this.updateFilters) {
+      this.updateFilters.emit();
+    }
   }
 
   async renameStatus(status: string){
@@ -71,6 +77,10 @@ export class KanbanViewComponent {
       autoFocus: false,
       data: status,
     });
+    
+    if(this.updateFilters) {
+      this.updateFilters.emit();
+    }
   }
 
   async reorderStatus(event: CdkDragDrop<string[]>){
