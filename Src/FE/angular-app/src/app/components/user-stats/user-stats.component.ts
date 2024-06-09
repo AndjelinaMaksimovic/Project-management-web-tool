@@ -9,11 +9,12 @@ import { NgIf } from '@angular/common';
 import { TaskCardComponent } from '../task-card/task-card.component';
 import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../services/avatar.service';
+import { ContributionGraphComponent } from '../contribution-graph/contribution-graph.component';
 
 @Component({
   selector: 'app-user-stats',
   standalone: true,
-  imports: [ StatusItemComponent, TaskComponent, ProjectItemComponent, NgIf, TaskCardComponent, MatDialogModule ],
+  imports: [ StatusItemComponent, TaskComponent, ProjectItemComponent, NgIf, TaskCardComponent, MatDialogModule, ContributionGraphComponent ],
   templateUrl: './user-stats.component.html',
   styleUrl: './user-stats.component.css'
 })
@@ -34,6 +35,9 @@ export class UserStatsComponent {
   allProjectsAccordionVisible: boolean = true;
 
   tasksVisible: boolean = false;
+  
+  activities: any[] = [];
+  activityData?: number[];
 
   get tasks() {
     return this.taskService.getTasks();
@@ -68,6 +72,11 @@ export class UserStatsComponent {
     this.allTasks = this.taskService.getTasks().length;
     this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
     this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
+
+    this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
+    this.activityData = this.activities.map((a) => {
+      return new Date(a.time).getTime();
+    });
   }
 
   toggleTasks() {

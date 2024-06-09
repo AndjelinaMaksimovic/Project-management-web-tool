@@ -2,9 +2,10 @@
     padding: 1rem;
     padding-top: 0rem;
     border-radius: 10px;
-    width: 50vw;
+    width: 60vw;
     border: 1px solid #C1C1C1;
     background-color: #ffffff;
+    overflow-x: auto;
 }
 
 .flex {

@@ -11,6 +11,11 @@
                 <p class="desc">{{desc}}</p>
             </div>
         </div>
+        <div>
+            <h4>Activity calendar:</h4>
+            <app-contribution-graph *ngIf="activityData" [contributions]="activityData"></app-contribution-graph>
+        </div>
+
         <!-- <div class="container margin-15 inherit-height flex-1">
             <div class="justify-container">
                 <app-status-item [title]="'Working hours:'" [desc]="'-'" [faicon]="'fa-regular fa-calendar'"></app-status-item>
