@@ -108,6 +108,10 @@ export class MembersComponent implements OnInit {
         });
       }
     });
+    this.init()
+  }
+
+  async init(){
     if(this.isProject) {
       // let onlyRoles = await this.rolesService.getProjectRoles(this.projectId);
       // onlyRoles?.forEach((val, index) => {
@@ -116,6 +120,7 @@ export class MembersComponent implements OnInit {
 
       await this.userService.fetchUsersByProject(this.projectId);
       let onlyUsers = await this.userService.getUsers();
+      onlyUsers = onlyUsers.filter(user => user.activated)
       console.log(onlyUsers);
 
       onlyUsers?.forEach((val, index) => {
@@ -135,6 +140,7 @@ export class MembersComponent implements OnInit {
 
       await this.userService.fetchUsers();
       let onlyUsers = await this.userService.getUsers();
+      onlyUsers = onlyUsers.filter(user => user.activated)
 
       onlyUsers?.forEach((val, index) => {
         this.roles.get(val.roleId ? val.roleId : -1)?.addMember(new Member(val.firstName, val.lastName, val.id, this.avatarService.getProfileImagePath(val.id), 0));
@@ -159,6 +165,8 @@ export class MembersComponent implements OnInit {
   }
 
   openMember(id: number) {
+    if(this.myRole.canAddNewUser)
+      return
     const dialogRef = this.dialog.open(UserStatsComponent, {
       panelClass: 'borderless-dialog',
       data: {
@@ -173,19 +181,22 @@ export class MembersComponent implements OnInit {
   removeUser(event: Event, member: Member) {
     event.stopPropagation();
     
-    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the project?<br>This action cannot be undone and may affect project permissions and collaboration.";
-    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
-      await this.userService.removeUserFromProject(this.projectId, member.id);
-    }, noFunc: () => { } } });
-  }
+    if(this.myRole.canAddNewUser){
+      let descriptionMessage = "Are you sure you want to deactivate user <b>" + member.getFullName() + "</b> from the organization?<br>This action cannot be undone and may affect project permissions and collaboration.";
+      this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Deactivation", description: descriptionMessage, yesFunc: async () => {
+        await this.userService.deactivateUser(member.id);
 
-  removeUserFromOrganization(event: Event, member: Member) {
-    event.stopPropagation();
-    
-    let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the organization?<br>This action cannot be undone and may affect project permissions and collaboration.";
-    this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
-      await this.userService.removeUserFromOrgnization(member.id);
-    }, noFunc: () => { } } });
+        this.init()
+      }, noFunc: () => { } } });
+    }
+    else{
+      let descriptionMessage = "Are you sure you want to remove user <b>" + member.getFullName() + "</b> from the project?<br>This action cannot be undone and may affect project permissions and collaboration.";
+      this.dialog.open(ConfirmationDialogComponent, { data: { title: "Confirm User Removal", description: descriptionMessage, yesFunc: async () => {
+        await this.userService.removeUserFromProject(this.projectId, member.id);
+
+        this.init()
+      }, noFunc: () => { } } });
+    }
   }
 
   openNewMember() {

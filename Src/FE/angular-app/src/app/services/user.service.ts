@@ -17,6 +17,7 @@ export type User = {
   roleId: number;
   profilePicture: string;
   projects: any;
+  activated: boolean;
 };
 function mapUser(apiUser: any) {
   return {
@@ -28,6 +29,7 @@ function mapUser(apiUser: any) {
     roleId: apiUser.roleId,
     profilePicture: apiUser.profilePicture,
     projects: apiUser.projects,
+    activated: apiUser.activated,
   };
 }
 
@@ -185,31 +187,6 @@ export class UserService {
     }
     await this.fetchUsersByProject(projectId);
   }
-
-  async removeUserFromOrgnization(userId: number){
-    try {
-      const res = await firstValueFrom(
-        this.http.post<any>(
-          environment.apiUrl + `/User/deactivateUser`,
-          {
-            userId: userId,
-          },
-          {
-            ...this.httpOptions
-          }
-        )
-      );
-      return res.body
-    } catch (e) {
-      console.log(e);
-      if(e instanceof HttpErrorResponse){
-        this.snackBar.open(e?.error?.errorMessage, undefined, {
-          duration: 2000,
-        });
-      }
-      return false;
-    }
-  }
   
   async updatePassword(token: string, password: string){
     try {
@@ -247,6 +224,35 @@ export class UserService {
       return res.body
     } catch (e) {
       console.log(e);
+      return false
+    }
+  }
+
+  async deactivateUser(userId: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/User/deactivateUser`,
+          {
+            userId: userId,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      // this.snackBar.open("User deactivated", undefined, {
+      //   duration: 2000,
+      // });
+      this.fetchUsers()
+      return res.body
+    } catch (e) {
+      console.log(e);
+      if(e instanceof HttpErrorResponse){
+        this.snackBar.open(e?.error?.errorMessage, undefined, {
+          duration: 2000,
+        });
+      }
       return false
     }
   }

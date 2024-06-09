@@ -18,11 +18,26 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../services/avatar.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { EditableMarkdownComponent } from '../../components/editable-markdown/editable-markdown.component';
+import { provideMarkdown } from 'ngx-markdown';
+import { UpdatableTitleComponent } from '../task/updatable-title/updatable-title.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '../../material/material.module';
+import moment from 'moment';
+import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter } from '@angular/material-moment-adapter';
+import { MarkdownEditChipComponent } from '../../components/markdown-edit-chip/markdown-edit-chip.component';
 
 @Component({
   selector: 'app-project-details',
   standalone: true,
-  imports: [ NavbarComponent, ProjectItemComponent, NgIf, StatusItemComponent, ProgressbarComponent, ActivityItemComponent, DatePipe, NgFor, MatTooltipModule, MatPaginatorModule ],
+  imports: [ NavbarComponent, ProjectItemComponent, NgIf, StatusItemComponent, ProgressbarComponent, ActivityItemComponent, DatePipe, NgFor, MatTooltipModule, MatPaginatorModule, EditableMarkdownComponent, UpdatableTitleComponent, MaterialModule, MatMenuModule, FormsModule, ReactiveFormsModule, MarkdownEditChipComponent ],
+  providers: [
+    provideMarkdown(),
+    // {provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]},
+    // {provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}
+  ],
   templateUrl: './project-details.component.html',
   styleUrl: './project-details.component.scss'
 })
@@ -36,7 +51,7 @@ export class ProjectDetailsComponent {
 
   projectId: number = 0;
   title?: string = "";
-  description?: string = "";
+  description: string = "";
   dueDate?: Date = new Date();
   daysLeft : number = 0;
   progress : number = 0;
@@ -46,6 +61,7 @@ export class ProjectDetailsComponent {
   overdueTasks : number = 0;
 
   role: any = {}
+  tempDueDate = new FormControl(moment());
 
   constructor(private projectService: ProjectService, private route: ActivatedRoute, private taskService: TaskService, public dialog: MatDialog, private categoryService : CategoryService, private statusService : StatusService, private userService: UserService, private avatarService: AvatarService) {
     this.dialog.closeAll();
@@ -70,7 +86,7 @@ export class ProjectDetailsComponent {
     await this.statusService.fetchStatuses();
 
     this.title = this.project?.title;
-    this.description = this.project?.description;
+    this.description = this.project?.description ?? '';
     this.dueDate = this.project?.dueDate;
 
     let difference = this.dueDate!.getTime() - new Date().getTime();
@@ -114,5 +130,37 @@ export class ProjectDetailsComponent {
   pageChange(e: PageEvent){
     const offset = e.pageIndex * e.pageSize
     this.viewActivities = this.activities.slice(offset, offset + e.pageSize)
+  }
+
+  updateDescription(newDescription: string) {
+    this.description = newDescription
+    this.projectService.updateProject({
+      id: this.projectId,
+      description: newDescription,
+    });
+  }
+
+  setTmpDueDate(){
+    this.tempDueDate.setValue(moment(this.dueDate))
+    const offset = this.tempDueDate.value!.utcOffset()
+    this.tempDueDate.value?.add(moment.duration(offset, 'minutes'))
+  }
+
+  updateDate() {
+    // if(!this.tempDueDate)
+    //   return
+
+    // datepicker offsets chosen day by timezone, so add offset to make it UTC
+    const offset = this.tempDueDate.value!.utcOffset()
+    this.tempDueDate.value?.add(moment.duration(offset, 'minutes'))
+    this.dueDate = moment(this.tempDueDate.value).toDate()
+
+    let difference = this.dueDate!.getTime() - new Date().getTime();
+    this.daysLeft = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+    this.projectService.updateProject({
+      id: this.projectId,
+      dueDate: this.dueDate,
+    });
   }
 }
