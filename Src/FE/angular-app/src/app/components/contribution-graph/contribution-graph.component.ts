@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { MaterialModule } from '../../material/material.module';
 
 const DAY = 1000 * 60 * 60 *24;
 
@@ -10,10 +11,15 @@ function roundTimestamp(timestamp: number){
   d.setHours(0, 0, 0, 0);
   return d.getTime();
 }
+function sameDay(d1: Date, d2: Date) {
+  return d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate();
+}
 @Component({
   selector: 'app-contribution-graph',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MaterialModule],
   templateUrl: './contribution-graph.component.html',
   styleUrl: './contribution-graph.component.css'
 })
@@ -21,6 +27,13 @@ export class ContributionGraphComponent {
   @Input() contributions: number[] = [];
   calendarData: {activities: number, date: Date}[] = []
 
+  getColor(entry: (typeof this.calendarData)[number]){
+    if(entry.activities === 0) return "#EEE";
+    if(entry.activities < 10) return "#AAA";
+    if(entry.activities < 20) return "#888";
+    if(entry.activities < 30) return "#444";
+    return "#222";
+  }
   public get weeklyData(){
     const wData = this.calendarData.reduce<(typeof this.calendarData)[number][][]>((acc, e) => {
       if(e.date.getDay() === 1){
@@ -29,6 +42,7 @@ export class ContributionGraphComponent {
       acc.at(-1)!.push(e);
       return acc;
     }, [[]]);
+    console.log("wData", wData)
     return wData;
   }
 
@@ -42,10 +56,12 @@ export class ContributionGraphComponent {
     const now = new Date();
     this.calendarData = [];
     for (let d = new Date(Date.now() - DAY * RANGE); d <= now; d.setDate(d.getDate() + 1)) {
-        const dayStamp = d.getTime();
+        const dayStamp = roundTimestamp(d.getTime());
         this.calendarData.push({
           date: new Date(dayStamp),
-          activities: contributionMap[dayStamp],
+          activities: this.contributions.filter((entry: number) => {
+            return sameDay(new Date(entry), d)
+        }).length || 0,
         });
     }
   }
