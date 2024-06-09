@@ -24,6 +24,8 @@ p {
 .profile-picture {
     float:left;
     height: 3rem;
+    width: 3rem;
+    object-fit: cover;
     border-radius: 50%;
     background-color: white;
 }
