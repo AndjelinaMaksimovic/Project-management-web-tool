@@ -14,6 +14,7 @@
         public DateTime? DueDateBefore { get; set; } 
         public int? CategoryId { get; set; }
         public bool? Archived { get; set; }
+        public bool IncludeArchived { get; set; }
 
         public bool IsEmpty()
         {

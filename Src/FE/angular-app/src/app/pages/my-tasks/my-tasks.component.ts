@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material/material.module';
@@ -41,6 +41,8 @@ import { UserService } from '../../services/user.service';
   styleUrl: './my-tasks.component.css',
 })
 export class MyTasksComponent {
+  search: string = "";
+
   filters: Map<string, Filter> = new Map<string, Filter>();
 
   isFilterOpen: boolean = false;
@@ -97,7 +99,7 @@ export class MyTasksComponent {
   }
 
   get tasks() {
-    return this.taskService.getTasks();
+    return this.taskService.getTasks().filter(task => task.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || task.description.toLowerCase().includes(this.search.toLocaleLowerCase()));
   }
   get milestones() {
     return this.milestoneService.getMilestones();

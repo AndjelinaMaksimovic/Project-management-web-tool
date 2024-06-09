@@ -137,7 +137,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-
     cursor: pointer;
 }
 
-.mat-menu-no-max-width{
+.max-width-unset-important{
     max-width: unset !important;
-    /* overflow: unset !important; */
+}
+.overflow-unset-important{
+    overflow: unset !important;
 }
