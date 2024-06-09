@@ -27,17 +27,26 @@ export class ActivateComponent {
   // query params
   token: string | undefined;
   email: string | undefined;
+
+  activated?: boolean = undefined;
+
   constructor(
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
   // listen to query parameters
-  ngOnInit() {
+  async ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       this.token = params['token'];
       this.email = params['email'];
     });
+
+    const res = await this.authService.check(
+      this.token!,
+      this.email!
+    );
+    this.activated = !res;
   }
   async register() {
     // check token
@@ -68,5 +77,13 @@ export class ActivateComponent {
     }
     // on successful registration, redirect to home?
     this.router.navigate(['']);
+  }
+
+  registerButton() {
+    this.router.navigate(['/register']);
+  }
+  
+  loginButton() {
+    this.router.navigate(['/login']);
   }
 }

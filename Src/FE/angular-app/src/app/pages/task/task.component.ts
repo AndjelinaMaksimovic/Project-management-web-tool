@@ -18,6 +18,8 @@ import { AddUserChipComponent } from '../../components/task-chips/add-user-chip/
 import { DependantTasksCardComponent } from './dependant-tasks-card/dependant-tasks-card.component';
 import { UserService } from '../../services/user.service';
 import { NgIf } from '@angular/common';
+import { AddDependantTasksChipComponent } from '../../components/task-chips/add-dependant-tasks-chip/add-dependant-tasks-chip.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-task',
   standalone: true,
@@ -38,6 +40,7 @@ import { NgIf } from '@angular/common';
     AddUserChipComponent,
     DependantTasksCardComponent,
     NgIf,
+    AddDependantTasksChipComponent,
   ],
   providers: [provideMarkdown()],
   templateUrl: './task.component.html',
@@ -46,33 +49,53 @@ import { NgIf } from '@angular/common';
 export class TaskComponent {
   taskId: number = 0;
   projectId: number = 0;
-  users: any[] = []
-  dependantTasks: any = []
+
+  tasks?: Task[]
+  // users: any[] = []
+  // dependantTasks: any = []
   role: any = {}
+
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute,
     private userService: UserService,
-  ) {}
+    private dialog: MatDialog
+  ) {
+    this.dialog.closeAll();
+  }
 
   get task() {
     const tasks = this.taskService.getTasks()
     const task = tasks.find((t) => t.id === this.taskId);
-    this.users = task?.assignedTo
-    this.dependantTasks = task?.dependentTasks.map((id) => {
-      const t = tasks.find(task => task.id == id)
-      return {dependant: t, type: 3}
-    })
     return task
   }
+  get dependantTasks(){
+    return this.task?.dependentTasks.map((dep: any) => {
+      const t = this.tasks?.find(_task => _task.id == dep.taskId)
+      return {dependant: t, type: dep.typeOfDependencyId}
+    })
+  }
+  get users(){
+    return this.task?.assignedTo
+  }
+  set dependantTasks(p: any){};
+  set users(p: any){}
 
   async ngOnInit() {
     this.route.params.subscribe((params) => {
       this.taskId = parseInt(params['taskId']);
       this.projectId = parseInt(params['id']);
+      
     });
     await this.taskService.fetchTasks({ projectId: this.projectId });
+
     this.role = await this.userService.currentUserRole()
+    this.tasks = this.taskService.getTasks()
+    // this.users = this.task?.assignedTo
+    // this.dependantTasks = task?.dependentTasks.map((dep) => {
+    //   const t = this.tasks?.find(_task => _task.id == dep.taskId)
+    //   return {dependant: t, type: dep.typeOfDependencyId}
+    // })
   }
 
   updateDescription(newDescription: string) {

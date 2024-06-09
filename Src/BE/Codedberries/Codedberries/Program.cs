@@ -19,6 +19,7 @@ namespace Codedberries
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddSignalR();
             builder.Services.AddDbContext<AppDatabaseContext>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<TokenService>();
@@ -65,6 +66,8 @@ namespace Codedberries
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapHub<NotificationHub>("/api/notificationHub");
 
             app.UseCors("AllowAnyOrigin");
 

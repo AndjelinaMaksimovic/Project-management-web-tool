@@ -133,7 +133,7 @@ export class UserService {
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
-          environment.apiUrl + `/User/currentUserRole` + (projectId ? `?projectId=${projectId}` : ``),
+          environment.apiUrl + `/User/currentUserRole` + (projectId ? `?Id=${projectId}` : ``),
           this.httpOptions
         )
       );
@@ -184,5 +184,70 @@ export class UserService {
       }
     }
     await this.fetchUsersByProject(projectId);
+  }
+
+  async removeUserFromOrgnization(userId: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/User/deactivateUser`,
+          {
+            userId: userId,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      return res.body
+    } catch (e) {
+      console.log(e);
+      if(e instanceof HttpErrorResponse){
+        this.snackBar.open(e?.error?.errorMessage, undefined, {
+          duration: 2000,
+        });
+      }
+      return false;
+    }
+  }
+  
+  async updatePassword(token: string, password: string){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/User/updatePassword`,
+          {
+            token: token,
+            newPassword: password
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      return res.body
+    } catch (e) {
+      console.log(e);
+      return false
+    }
+  }
+  async sendUpdatePasswordMail(email: string){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/User/sendUpdatePasswordMail`,
+          {
+            email: email,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      return res.body
+    } catch (e) {
+      console.log(e);
+      return false
+    }
   }
 }

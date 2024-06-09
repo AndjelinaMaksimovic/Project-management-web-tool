@@ -1,4 +1,4 @@
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Component, Inject, Input } from '@angular/core';
 import { StatusItemComponent } from '../status-item/status-item.component';
 import { ProjectItemComponent } from '../project-item/project-item.component';
@@ -43,7 +43,7 @@ export class UserStatsComponent {
     return this.projectService.getProjects().filter(project => project.title.toLowerCase()).filter(project => !project.archived);
   }
 
-  constructor(private userService: UserService, private projectService: ProjectService, private avatarService: AvatarService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private userService: UserService, private projectService: ProjectService, private avatarService: AvatarService, private taskService: TaskService, @Inject(MAT_DIALOG_DATA) public data: any, public dialogRef: MatDialogRef<UserStatsComponent>) {
     this.userId = data.id;
     this.title = data.title;
     this.projectId = data.projectId ? data.projectId : -1;
@@ -61,9 +61,9 @@ export class UserStatsComponent {
       this.tasksVisible = true;
       await this.taskService.fetchUserTasks({ projectId: this.projectId, assignedTo: this.userId });
     }
-    else {
-      await this.taskService.fetchUserTasks({ assignedTo: this.userId });
-    }
+    // else {
+    //   await this.taskService.fetchUserTasks({ assignedTo: this.userId });
+    // }
 
     this.allTasks = this.taskService.getTasks().length;
     this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
@@ -80,5 +80,9 @@ export class UserStatsComponent {
 
   getProfileImagePath(){
     return this.avatarService.getProfileImagePath(this.userId);
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }

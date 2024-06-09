@@ -18,13 +18,15 @@ export class AddUserChipComponent {
   constructor(private userService: UserService, private taskService: TaskService){}
 
   users: any[] = []
+  avaliableUsers: any = []
   userVal: any
 
   async getUsers(){
     if(!this.task || !this.task.projectId)
       return
     await this.userService.fetchUsersByProject(this.task.projectId)
-    this.users = this.userService.getUsers().filter(allUsers => !this.task?.assignedTo.find((taskUsers: any) => allUsers.id == taskUsers.id))
+    this.users = this.task?.assignedTo
+    this.avaliableUsers = this.userService.getUsers().filter(allUsers => !this.task?.assignedTo.find((taskUsers: any) => allUsers.id == taskUsers.id))
   }
   // get user(){
   //   return this.userVal
@@ -40,8 +42,8 @@ export class AddUserChipComponent {
     const tmp = [...this.users]
     tmp.push(user)
     
-    // if(await this.taskService.updateTask({id: this.task.id, userIds: tmp.map(usr => usr.id)}))
-    if(await this.taskService.updateTask({id: this.task.id, userId: tmp[0].id})){
+    if(await this.taskService.updateTask({id: this.task.id, userIds: tmp.map(usr => usr.id)})){
+    // if(await this.taskService.updateTask({id: this.task.id, userId: tmp[0].id})){
       this.users = tmp
       this.userOutput.emit(this.users)
     }

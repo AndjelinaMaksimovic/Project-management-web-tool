@@ -1,7 +1,7 @@
 <div class="top-container">
     <div class="flex">
         <p class="project-title margin-15">{{title}}</p>
-        <!-- <i class="fa-solid fa-x c-pointer x margin-15"></i> -->
+        <i class="fa-solid fa-x c-pointer x margin-15" (click)="closeDialog();"></i>
     </div>
     <div class="main-container">
         <div class="basic-container margin-15 left-container flex-2">
@@ -11,12 +11,12 @@
                 <p class="desc">{{desc}}</p>
             </div>
         </div>
-        <div class="container margin-15 inherit-height flex-1">
+        <!-- <div class="container margin-15 inherit-height flex-1">
             <div class="justify-container">
                 <app-status-item [title]="'Working hours:'" [desc]="'-'" [faicon]="'fa-regular fa-calendar'"></app-status-item>
                 <app-status-item [title]="'Status:'" [desc]="'-'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="'#FF5733'" [bold]="true"></app-status-item>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="main-container">
         <div class="container pt-1 pb-1 w-100 margin-15">
@@ -37,7 +37,7 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;" *ngIf="allTasksAccordionVisible">
                 @for (task of tasks; track task) {
-                    <app-task-card [task]="task"></app-task-card>
+                    <app-task-card [task]="task" (click)="closeDialog();"></app-task-card>
                 }
             </div>
         </div>
@@ -51,7 +51,7 @@
             </div>
             <div *ngIf="allProjectsAccordionVisible">
                 @for (project of projects; track project) {
-                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [dontRefresh]="true" (click)="closeDialog();"></app-project-item>
                 }
             </div>
         </div>

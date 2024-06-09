@@ -8,9 +8,15 @@
 }
 
 .chip {
-    border-radius: 5px;
-    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 8px);
     padding: 4px;
+
+    font-weight: bold;
+    border-radius: 5px;
+
     font-size: small;
     cursor: pointer;
 }

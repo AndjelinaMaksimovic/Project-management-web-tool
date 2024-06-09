@@ -1,20 +1,24 @@
 <!-- <div [matMenuTriggerFor]="menu" style="display: flex; gap: 10px;"> -->
-<button [matMenuTriggerFor]="menu" (menuOpened)="menuOpened = true; onOpen()" (menuClosed)="menuOpened = false" mat-button class="dropdown-button ml-20 p-0 white" style="min-width: auto !important;">
+<button [matMenuTriggerFor]="menu" (menuOpened)="menuOpened = true; onOpen()" (menuClosed)="menuOpened = false; onClose()" mat-button class="dropdown-button ml-20 p-0 white" style="min-width: auto !important;">
     <i class="fa-regular fa-bell fa-lg">
         <div style="background-color: red; width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 0; right: 0;"
             *ngIf="!seen"
         ></div>
     </i>
 </button>
-<mat-menu #menu="matMenu">
-    <div style="padding: 10px;" (click)="$event.stopPropagation()">
+<mat-menu #menu="matMenu" class="mat-menu-no-max-width">
+    <div style="padding: 10px; max-height: 250px; max-width: 400px;" (click)="$event.stopPropagation()">
         @for(activity of activities; track activity; let last = $last){
             <!-- <div mat-menu-item> Activity </div> -->
             <app-notification-item [activity]="activity"></app-notification-item>
-            <hr *ngIf="!last">
+            <hr>
         }
-        <!-- <app-notification-item [activity]="{userIcon: '', userName: 'Biba', userRole: 'struja', activityDescription: 'asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf asdfasdfasdfasdfasdfasdf asdfasdf', date: ''}"></app-notification-item> -->
-        <div *ngIf="activities.length == 0">No notifications!</div>
+        @if(_activities.length == 0){
+            <div>No notifications!</div>
+        }
+        @else if(_activities.length != activities.length){
+            <button style="width: 100%" mat-flat-button color="primary" (click)="loadMore()">Load more</button>
+        }
     </div>
     <!-- <button *ngIf="activities.length == 0" style="width: 100%" (click)="$event.stopPropagation()">Show older</button> -->
 </mat-menu>

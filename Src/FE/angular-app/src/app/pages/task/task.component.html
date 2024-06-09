@@ -29,8 +29,8 @@
                 <app-users-card [role]="role" [taskId]="task?.id" [projectId]="task?.projectId" [taskUsers]="users"></app-users-card>
             </div>
             <div style="width: 48%; float: left;">
-                <h3>Dependant tasks: <button *ngIf="role.canEditTask" mat-icon-button disabled><mat-icon>add</mat-icon></button></h3>
-                <app-dependant-tasks-card [dependant]="dependantTasks"></app-dependant-tasks-card>
+                <h3>Dependant tasks: <app-add-dependant-tasks-chip *ngIf="role.canEditTask" [currentTask]="task" [dependantTasks]="dependantTasks" mat-icon-button disabled><mat-icon>add</mat-icon></app-add-dependant-tasks-chip></h3>
+                <app-dependant-tasks-card [dependant]="dependantTasks" [taskId]="task?.id"></app-dependant-tasks-card>
             </div>
         </div>
 

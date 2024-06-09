@@ -1,5 +1,6 @@
 <div class="card">
     <span class="column-1" [routerLink]="'/project/' + task.projectId + '/task/' + task.id" style="cursor: pointer; text-align: left; justify-content: left; padding-left: 10px"><strong>{{task.title}}</strong></span>
+    <span class="column-1"><app-avatar-stack [userIds]="asigneeIds"></app-avatar-stack></span>
     <span class="column-1"><div class="chip chip-neutral">{{task.category}}</div></span>
     <span class="column-1"><div [classList]="['chip chip-' + priorityColor]">{{task.priority === "High" ? "🎯︎ " + task.priority : task.priority}}</div></span>
     <span class="column-1"><div [classList]="['chip chip-' + statusColor]">{{task.status}}</div></span>
@@ -7,7 +8,10 @@
     <div style="width: 100%; display: flex; justify-content: center; display: flex; flex-direction: row; align-items: center; gap: 4px;">
         <!-- delete/edit -->
         <div style="display: flex;">
-            <button *ngIf="role.canRemoveTask" matTooltip="archive" matTooltipPosition="above" mat-icon-button class="small-icon-button" (click)="deleteTask()"><mat-icon>archive</mat-icon></button>
+            <button *ngIf="role.canRemoveTask" [matTooltip]="(task.archived ? 'un' : '') + 'archive'" matTooltipPosition="above" mat-icon-button class="small-icon-button" (click)="deleteTask()">
+                <mat-icon *ngIf="!task.archived">archive</mat-icon>
+                <mat-icon *ngIf="task.archived">unarchive</mat-icon>
+            </button>
             <button matTooltip="edit" [routerLink]="'/project/' + task.projectId + '/task/' + task.id" matTooltipPosition="above" mat-icon-button class="small-icon-button"><mat-icon>edit</mat-icon></button>
         </div>
         <!-- date -->

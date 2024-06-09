@@ -7,7 +7,7 @@
                 {{status}}
             </h3>
             <div>
-                <button *ngIf="role.canEditProject && status != 'Done'" mat-icon-button [matMenuTriggerFor]="menu"
+                <button *ngIf="role.canEditProject && status != 'Done' && status != 'In Progress' && status != 'New'" mat-icon-button [matMenuTriggerFor]="menu"
                     class="small-icon-button"><mat-icon>more_vert</mat-icon></button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="role.canEditProject && deleteStatus(status)">
@@ -23,7 +23,7 @@
         </div>
         <div [id]="status" [cdkDropListConnectedTo]="statuses" cdkDropList cdkDropListOrientation="vertical"
             cdkDropListSortingDisabled (cdkDropListDropped)="drop($event)"
-            style="display:block; overflow-y: auto; height: 80vh; scrollbar-width: thin;">
+            style="display:block; overflow-y: auto; height: 65vh; scrollbar-width: thin;">
             @for (task of getTasksOfStatus(status); track task) {
             <div cdkDrag [cdkDragDisabled]="!role.canEditProject" style="margin: 8px;" [style.cursor]="(role.canEditProject) ? 'move' : 'default'">
                 <app-kanban-task-card [role]="role" [task]="task"></app-kanban-task-card>

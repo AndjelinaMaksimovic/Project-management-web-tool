@@ -26,7 +26,7 @@
                    StatusId == null &&
                    DueDate == null &&
                    StartDate == null &&
-                   (UserIds == null || !UserIds.Any()) &&
+                   UserIds == null &&
                    DifficultyLevel == null &&
                    ProjectId == null &&
                    FirstTaskDependency == null &&

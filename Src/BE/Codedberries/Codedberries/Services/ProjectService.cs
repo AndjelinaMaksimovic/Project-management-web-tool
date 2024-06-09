@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using Codedberries.Helpers;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Codedberries.Services
 {
@@ -14,12 +15,14 @@ namespace Codedberries.Services
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _taskService = taskService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task<ProjectIdDTO> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
@@ -175,7 +178,9 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
-                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has created the project {project.Name}", DateTime.Now);
+                    string Url = $"http://localhost:4200/project/{project.Id}/details";
+
+                    Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has created the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
                     _databaseContext.Activities.Add(activity);
                     await _databaseContext.SaveChangesAsync();
 
@@ -192,8 +197,13 @@ namespace Codedberries.Services
                 {
                     UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                     _databaseContext.UserNotifications.Add(userNotification);
-                }
+                    NotificationDTO notificationDTO = new NotificationDTO { ProjectId = project.Id, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
 
+                    var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                    if (connectionId != null)
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
+                }
                 await _databaseContext.SaveChangesAsync();
 
                 return projectIdDTO;
@@ -819,8 +829,10 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has updated the project {project.Name}", DateTime.Now);
-            _databaseContext.Activities.Add(activity);
+            string Url = $"http://localhost:4200/project/{project.Id}/details";
+
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has updated the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
+           _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
 
             var projectUsers = _databaseContext.UserProjects
@@ -833,6 +845,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = project.Id, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -901,10 +919,9 @@ namespace Codedberries.Services
             // archive/active
             project.Archived = !project.Archived;
 
-            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project {project.Id}", DateTime.Now);
-            _databaseContext.Activities.Add(activity);
-            await _databaseContext.SaveChangesAsync();
+            string Url = $"http://localhost:4200/project/{project.Id}/details";
 
+            Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
             var projectUsers = _databaseContext.UserProjects
             .Where(up => up.ProjectId == project.Id && up.UserId != userId)
             .Select(up => up.UserId)
@@ -915,6 +932,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = project.Id, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -1354,7 +1377,7 @@ namespace Codedberries.Services
 
             foreach (var activity in activities)
             {
-                var matchingUserNotification = userNotifications.FirstOrDefault(un => un.ActivityId == activity.Id);
+                var matchingUserNotification = userNotifications.FirstOrDefault(un => (un.ActivityId == activity.Id) && (un.UserId == userId));
                 var seen = matchingUserNotification != null && matchingUserNotification.Seen;
 
                 var notification = new NotificationDTO

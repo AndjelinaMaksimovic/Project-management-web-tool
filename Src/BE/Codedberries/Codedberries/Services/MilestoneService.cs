@@ -2,6 +2,7 @@
 using Codedberries.Helpers;
 using Codedberries.Models;
 using Codedberries.Models.DTOs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Codedberries.Services
@@ -10,11 +11,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public MilestoneService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
+        public MilestoneService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task CreateMilestone(HttpContext httpContext, MilestoneCreationRequestDTO request)
@@ -98,6 +101,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = milestone.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -239,6 +248,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = milestone.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();

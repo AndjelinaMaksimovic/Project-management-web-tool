@@ -60,23 +60,32 @@ export class MyTasksComponent {
     private router: Router,
     private localStorageService: LocalStorageService,
     private userService: UserService,
-  ) {}
+  ) {
+    this.dialog.closeAll();
+  }
 
   async ngOnInit() {
     await this.route.params.subscribe((params) => {
       this.projectId = parseInt(params['id']);
     });
+
     await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
     this.isLoading = false;
     this.milestoneService.fetchMilestones({ projectId: this.projectId });
     
+    await this.userService.fetchUsersByProject(this.projectId);
+
+    let users : Array<any> = Array<any>({ value: '', name: 'All'});
+    users.push(...this.userService.getUsers().map(user => ({ value: user.id, name: user.firstName + ' ' + user.lastName })));
+
     this.filters = new Map<string, Filter>([
       ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
       ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
       // ["AssignedTo", new Filter({ name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" })]})],
       ["StatusId", new Filter({ name: 'Status', icon: 'fa-solid fa-circle-exclamation', type: 'select', items: this.statusService.getStatuses().map(status => ({ value: status.id, name: status.name }))})],
       ["PriorityId", new Filter({ name: 'Priority', icon: 'fa-solid fa-arrow-up', type: 'select', items: this.priorityService.getPriorities().map(priority => ({ value: priority.id, name: priority.name }))})],
-      ["Archived", new Filter({ name: 'Archived', icon: 'fa-solid fa-box-archive', type: 'select', items: [ { value: false, name: "False" }, { value: true, name: "True" } ]})]
+      ["Archived", new Filter({ name: 'Archived', icon: 'fa-solid fa-box-archive', type: 'bool', value: "true"})],
+      ["AssignedTo", new Filter({ name: 'AssignedTo', icon: 'fa-regular fa-user', type: 'select', items: users })]
     ]);
 
     this.role = await this.userService.currentUserRole(this.projectId)

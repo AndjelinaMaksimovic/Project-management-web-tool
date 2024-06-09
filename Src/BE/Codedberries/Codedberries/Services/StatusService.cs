@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.Data;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Codedberries.Services
 {
@@ -11,11 +12,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public StatusService(AppDatabaseContext dbContext, AuthorizationService authorizationService)
+        public StatusService(AppDatabaseContext dbContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = dbContext;
             _authorizationService = authorizationService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task CreateStatus(HttpContext httpContext, StatusCreationDTO statusDTO)
@@ -86,7 +89,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (userRole.CanCreateTask == false || userRole.CanCreateProject == false)
+            if (userRole.CanEditProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to create status!");
             }
@@ -117,6 +120,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = newStatus.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -263,7 +272,7 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
-            if (userRole.CanDeleteProject == false || userRole.CanRemoveTask == false)
+            if (userRole.CanEditProject == false)
             {
                 throw new UnauthorizedAccessException("User does not have permission to delete status!");
             }
@@ -296,6 +305,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = statusToDelete.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -504,6 +519,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = status.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();

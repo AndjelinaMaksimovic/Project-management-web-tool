@@ -4,8 +4,10 @@
         <button *ngIf="role.canRemoveTask" mat-icon-button [matMenuTriggerFor]="menu" class="small-icon-button"><mat-icon>more_vert</mat-icon></button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="deleteTask()">
-                <mat-icon>archive</mat-icon>
-                <span>Archive</span>
+                <mat-icon *ngIf="!task.archived">archive</mat-icon>
+                <mat-icon *ngIf="task.archived">unarchive</mat-icon>
+                <span *ngIf="!task.archived">Archive</span>
+                <span *ngIf="task.archived">Unarchive</span>
             </button>
             <button mat-menu-item  [routerLink]="'/project/' + task.projectId + '/task/' + task.id">
                 <mat-icon>edit</mat-icon>

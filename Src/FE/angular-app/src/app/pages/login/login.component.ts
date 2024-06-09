@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 import { AuthService } from '../../services/auth.service';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCheckboxModule } from '@angular/material/checkbox'
@@ -13,20 +13,30 @@ import { EmailFieldComponent } from '../../components/email-field/email-field.co
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [MaterialModule, FormsModule, CommonModule, MatCheckboxModule, PasswordFieldComponent, EmailFieldComponent],
+  imports: [MaterialModule, FormsModule, CommonModule, MatCheckboxModule, PasswordFieldComponent, EmailFieldComponent, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
   hide = true;
   remember: boolean = true
-  email: string = '';
-  password: string = '';
+  password = new FormControl('', [Validators.required]);
+  email = new FormControl('', [Validators.email, Validators.required]);
   errorMessage: string | null = null;
   constructor(private authService: AuthService, private router: Router, private dialogue: MatDialog) {}
   async login() {
-    const success = await this.authService.login(this.email, this.password);
-    if (!success) this.errorMessage = 'login failed';
+    this.email.markAsTouched()
+    this.password.markAsTouched()
+    if(
+      !this.email.value
+      || !this.password.value
+      || this.email.errors
+      || this.password.errors
+    ){
+      return
+    }
+    const success = await this.authService.login(this.email.value, this.password.value);
+    if (!success) this.errorMessage = 'Bad username or password';
     else {
       this.router.navigate(['']);
       this.errorMessage = null;
@@ -35,6 +45,6 @@ export class LoginComponent {
   }
 
   popup(){
-    this.dialogue.open(ForgotPasswordPopupComponent, { data: this.email, autoFocus: false })
+    this.dialogue.open(ForgotPasswordPopupComponent, { data: this.email.value, autoFocus: false })
   }
 }

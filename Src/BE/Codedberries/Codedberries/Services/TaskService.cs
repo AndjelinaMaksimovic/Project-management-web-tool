@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System;
 using Microsoft.Extensions.DependencyModel;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Codedberries.Services
 {
@@ -14,11 +15,13 @@ namespace Codedberries.Services
     {
         private readonly AppDatabaseContext _databaseContext;
         private readonly AuthorizationService _authorizationService;
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
 
-        public TaskService(AppDatabaseContext databaseContext, AuthorizationService authorizationService)
+        public TaskService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
+            _notificationHubContext = notificationHubContext;
         }
 
         public async System.Threading.Tasks.Task CreateTask(HttpContext httpContext, TaskCreationRequestDTO request)
@@ -289,7 +292,8 @@ namespace Codedberries.Services
                         _databaseContext.Set<TaskDependency>().Add(newDependency);
                     }
                 }
-                Activity activity = new Activity(user.Id, request.ProjectId, $"User {user.Firstname} {user.Lastname} has created the task {newTask.Name}", DateTime.Now);
+                string taskUrl = $"http://localhost:4200/project/{request.ProjectId}/task/{newTask.Id}";
+                Activity activity = new Activity(user.Id, newTask.ProjectId, $"User {user.Firstname} {user.Lastname} has created the task <a href=\"{taskUrl}\">{newTask.Name}</a>", DateTime.Now);
                 _databaseContext.Activities.Add(activity);
                 await _databaseContext.SaveChangesAsync();
 
@@ -303,6 +307,12 @@ namespace Codedberries.Services
                 {
                     UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                     _databaseContext.UserNotifications.Add(userNotification);
+                    NotificationDTO notificationDTO = new NotificationDTO { ProjectId = newTask.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                    var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                    if (connectionId != null)
+                        await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
                 }
 
                 await _databaseContext.SaveChangesAsync();
@@ -544,6 +554,7 @@ namespace Codedberries.Services
                 var taskDTO = new ProjectTasksInfoDTO
                 {
                     TaskId = task.Id,
+                    ProjectId = task.ProjectId,
                     Name = task.Name,
                     Description = task.Description,
                     CategoryId = task.CategoryId,
@@ -700,6 +711,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = task.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             _databaseContext.SaveChangesAsync();
@@ -728,12 +745,12 @@ namespace Codedberries.Services
             {
                 throw new UnauthorizedAccessException("User does not have any role assigned!");
             }
-
+  
             if(request.IsEmpty())
             {
                 throw new ArgumentException("Not enough parameters for task update!");
             }
-
+            
             if (request.TaskId <= 0)
             {
                 throw new ArgumentException("TaskId must be greater than 0!");
@@ -880,10 +897,12 @@ namespace Codedberries.Services
                 if (currentStatus.Name == "Done" && status.Name != "Done")
                 {
                     task.FinishedDate = null; // from Done to other
+                    task.Progress = 0; // set progress to 0 when changing from Done
                 }
                 else if (currentStatus.Name != "Done" && status.Name == "Done")
                 {
                     task.FinishedDate = DateTime.UtcNow; // from other to Done
+                    task.Progress = 100; // set progress to 100 when changing to Done
                 }
 
                 task.StatusId = request.StatusId.Value;
@@ -1025,57 +1044,53 @@ namespace Codedberries.Services
                 task.DifficultyLevel = request.DifficultyLevel.Value;
             }
 
-            if (request.UserIds != null && request.UserIds.Any())
+            if (request.UserIds != null)
             {
                 if (userRole.CanAddTaskToUser == false)
                 {
                     throw new UnauthorizedAccessException("User does not have permission to add other users on Task!");
                 }
 
-                foreach (var providedUserId in request.UserIds)
+                var currentTaskUsers = _databaseContext.TaskUsers.Where(tu => tu.TaskId == task.Id).ToList();
+                _databaseContext.TaskUsers.RemoveRange(currentTaskUsers);
+
+                if (request.UserIds.Any())
                 {
-                    if (providedUserId <= 0)
+                    foreach (var providedUserId in request.UserIds)
                     {
-                        throw new ArgumentException("Provided user ID must be greater than zero!");
+                        if (providedUserId <= 0)
+                        {
+                            throw new ArgumentException("Provided user ID must be greater than zero!");
+                        }
+
+                        var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
+
+                        if (requestedUser == null)
+                        {
+                            throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
+                        }
+
+                        if (requestedUser.RoleId == null)
+                        {
+                            throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
+                        }
+
+                        var userOnTask = _databaseContext.UserProjects
+                            .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == task.ProjectId);
+
+                        if (userOnTask == null)
+                        {
+                            throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {task.ProjectId} in UserProjects table!");
+                        }
+
+                        var newTaskUser = new TaskUser
+                        {
+                            TaskId = task.Id,
+                            UserId = providedUserId
+                        };
+
+                        _databaseContext.TaskUsers.Add(newTaskUser);
                     }
-
-                    var requestedUser = _databaseContext.Users.FirstOrDefault(u => u.Id == providedUserId);
-
-                    if (requestedUser == null)
-                    {
-                        throw new ArgumentException($"User with the provided ID {providedUserId} does not exist in database!");
-                    }
-
-                    if (requestedUser.RoleId == null)
-                    {
-                        throw new UnauthorizedAccessException("Requested user does not have any role assigned!");
-                    }
-
-                    // is provided user assigned on project where new task is being created?
-                    var userOnTask = _databaseContext.UserProjects
-                        .FirstOrDefault(up => up.UserId == requestedUser.Id && up.ProjectId == task.ProjectId);
-
-                    if (userOnTask == null)
-                    {
-                        throw new UnauthorizedAccessException($"No match for provided UserId {requestedUser.Id} and ProjectId {task.ProjectId} in UserProjects table!");
-                    }
-
-                    // is provided user already assigned to the task?
-                    var userOnExistingTask = _databaseContext.TaskUsers
-                        .FirstOrDefault(ut => ut.UserId == requestedUser.Id && ut.TaskId == task.Id);
-
-                    if (userOnExistingTask != null)
-                    {
-                        throw new InvalidOperationException($"User with ID {requestedUser.Id} is already assigned to task with ID {task.Id}!");
-                    }
-
-                    var newTaskUser = new TaskUser
-                    {
-                        TaskId = task.Id,
-                        UserId = providedUserId
-                    };
-
-                    _databaseContext.TaskUsers.Add(newTaskUser);
                 }
             }
 
@@ -1108,8 +1123,8 @@ namespace Codedberries.Services
                 AssignedUsers = assignedUsers,
                 Progress = task.Progress
             };
-
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the task {task.Name}", DateTime.Now);
+            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has updated the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -1123,6 +1138,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = task.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();
@@ -1167,8 +1188,8 @@ namespace Codedberries.Services
 
             // Toggle archived status
             task.Archived = !task.Archived;
-
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has archived the task {task.Name}", DateTime.Now);
+            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has archived the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -1182,6 +1203,12 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = task.ProjectId, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+
+                if (connectionId != null)
+                    _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             _databaseContext.SaveChangesAsync();
@@ -2031,8 +2058,9 @@ namespace Codedberries.Services
             }
 
             task.Progress = request.Progress;
+            string taskUrl = $"http://localhost:4200/project/{task.ProjectId}/task/{task.Id}";
+            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the progress on the task <a href=\"{taskUrl}\">{task.Name}</a>", DateTime.Now);
 
-            Activity activity = new Activity(user.Id, task.ProjectId, $"User {user.Firstname} {user.Lastname} has changed the progress of the task {task.Name}", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             _databaseContext.SaveChangesAsync();
 
@@ -2046,6 +2074,14 @@ namespace Codedberries.Services
             {
                 UserNotification userNotification = new UserNotification(projectUser, activity.Id, seen: false);
                 _databaseContext.UserNotifications.Add(userNotification);
+                NotificationDTO notificationDTO = new NotificationDTO { ProjectId = project.Id, UserId = (int)userId, ActivityDescription = activity.ActivityDescription, Seen = userNotification.Seen, Time = activity.Time };
+
+                //await _notificationHubContext.Clients.All.ReceiveNotification(notificationDTO);
+
+                var connectionId = NotificationHub.UserConnections.GetValueOrDefault(projectUser.ToString());
+                
+                if(connectionId != null)
+                    await _notificationHubContext.Clients.Client(connectionId).ReceiveNotification(notificationDTO);
             }
 
             await _databaseContext.SaveChangesAsync();

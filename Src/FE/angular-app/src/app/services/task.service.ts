@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from './category.service';
 import { LocalStorageService } from './localstorage';
 import { PriorityService } from './priority.service';
+import { UserService } from './user.service';
 
 /**
  * Task format used within the app
@@ -25,15 +26,16 @@ export type Task = Readonly<{
   indexInCategory: number;
   projectId?: number | undefined;
   assignedTo: any;
-  dependentTasks: number[];
+  dependentTasks: {taskId: number, typeOfDependencyId: number}[];
   progress: number;
+  archived: boolean;
 }>;
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService) {}
+    constructor(private http: HttpClient, private statusService: StatusService, private priorityService: PriorityService, private categoryService: CategoryService, private snackBar: MatSnackBar, private localStorageService: LocalStorageService, private userService: UserService) {}
 
   /** in-memory task cache */
   private tasks: Task[] = [];
@@ -55,12 +57,13 @@ export class TaskService {
       id: apiTask.taskId,
       index: apiTask.index,
       indexInCategory: apiTask.indexInCategory,
-      projectId: this.context.projectId,
+      projectId: apiTask.projectId,
       startDate: new Date(Date.parse(apiTask.startDate)),
       dueDate: new Date(Date.parse(apiTask.dueDate)),
       assignedTo: apiTask.assignedTo,
       dependentTasks: apiTask.dependentTasks,
       progress: apiTask.progress,
+      archived: apiTask.archived,
     };
   }
 
@@ -138,8 +141,8 @@ export class TaskService {
           this.httpOptions
         )
       );
-      await this.statusService.fetchStatuses();
-      await this.categoryService.fetchCategories();
+        await this.statusService.fetchStatuses();
+        await this.categoryService.fetchCategories();
       this.tasks = res.body.map((task: any) => {
         return this.mapTask(task);
       });
@@ -153,6 +156,14 @@ export class TaskService {
     this.setContext({projectId});
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: projectId };
+
+    if(!data.assignedTo || data.assignedTo != -1) {
+      let userId = (await this.userService.getMe()).id;
+      data = { ...data, assignedTo: userId };
+    }
+    else {
+      data.assignedTo = '';
+    }
     
     let params = new HttpParams({ fromObject: data });
     try {
@@ -178,6 +189,14 @@ export class TaskService {
     if (context) this.setContext(context);
     let data = this.localStorageService.getData(filterName);
     data = { ...data, projectId: this.context.projectId };
+
+    if(!data.assignedTo || data.assignedTo != -1) {
+      let userId = (await this.userService.getMe()).id;
+      data = { ...data, assignedTo: userId };
+    }
+    else {
+      data.assignedTo = '';
+    }
     
     let params = new HttpParams({ fromObject: data });
     try {
@@ -218,7 +237,7 @@ export class TaskService {
       if(task.categoryId) request["categoryId"] = task.categoryId;
       if(task.statusId) request["statusId"] = task.statusId;
       if(task.priorityId) request["priorityId"] = task.priorityId;
-      if(task.userId) request["userId"] = task.userId;
+      if(task.userIds) request["userIds"] = task.userIds;
       if (task.title) request['name'] = task.title;
       if (task.description) request['description'] = task.description;
       if (task.startDate) request['startDate'] = task.startDate;
@@ -330,7 +349,6 @@ export class TaskService {
           {...this.httpOptions, responseType: "text" as "json"}
         )
       );
-      await this.fetchTasksFromLocalStorageContext("task_filters");
     } catch (e) {
       let error = "";
       if(e instanceof HttpErrorResponse) {
@@ -339,8 +357,10 @@ export class TaskService {
       this.snackBar.open("We couldn't create dependency" + error, undefined, {
         duration: 2000,
       });
-      await this.fetchTasksFromLocalStorageContext("task_filters");
+      return false
     }
+    await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
   }
 
   async deleteDependency(taskId: number, dependentTaskId: number) {
@@ -359,8 +379,10 @@ export class TaskService {
       );
     } catch (e) {
       console.log(e);
+      return false
     }
     await this.fetchTasksFromLocalStorageContext("task_filters");
+    return true
   }
   async changeTaskProgress(taskId: number, progress: number){
     try {

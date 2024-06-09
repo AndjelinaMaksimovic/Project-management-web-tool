@@ -73,12 +73,15 @@ export class ProjectService {
    * Use it to initialize projects list or
    * after deleting/updating/creating projects
    */
-  public async fetchProjects() {
+  public async fetchProjects(filters?: any) {
     try {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl + '/Projects/filterProjects',
-          environment.httpOptions,
+          {
+            ...environment.httpOptions,
+            params: filters,
+          },
         )
       );
       this.projects = res.body.map((project: any) => {
@@ -186,7 +189,7 @@ export class ProjectService {
     return false;
   }
 
-  async archiveProject(id: number){
+  async archiveProject(id: number, dontRefresh?: boolean){
     try {
       const res = await firstValueFrom(
         this.http.put<any>(
@@ -201,7 +204,7 @@ export class ProjectService {
           }
         )
       );
-      await this.fetchProjects();
+      if(dontRefresh != true) await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);
@@ -209,7 +212,7 @@ export class ProjectService {
     return false;
   }
 
-  async unarchiveProject(id: number){
+  async unarchiveProject(id: number, dontRefresh?: boolean){
     try {
       const res = await firstValueFrom(
         this.http.delete<any>(
@@ -220,7 +223,7 @@ export class ProjectService {
           }
         )
       );
-      await this.fetchProjects();
+      if(dontRefresh != true) await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);
@@ -228,7 +231,7 @@ export class ProjectService {
     return false;
   }
 
-  async toggleStarred(id: number) {
+  async toggleStarred(id: number, dontRefresh?: boolean) {
     try {
       const res = await firstValueFrom(
         this.http.post<any>(
@@ -243,7 +246,7 @@ export class ProjectService {
             }
         )
       );
-      await this.fetchProjects();
+      if(dontRefresh != true) await this.fetchProjects();
       return true;
     } catch (e) {
       console.log(e);

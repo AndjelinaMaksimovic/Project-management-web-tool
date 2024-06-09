@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Task, TaskService } from '../../../services/task.service';
 import { MaterialModule } from '../../../material/material.module';
 import { AvatarService } from '../../../services/avatar.service';
@@ -23,10 +23,15 @@ export class UsersCardComponent implements OnChanges {
   newUsers: any[] = []
 
   constructor(private dialog: MatDialog, private taskService: TaskService, private avatarService: AvatarService, private userService: UserService){}
-  async ngOnChanges() {
-    if(this.taskUsers)
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if(changes['taskUsers']?.currentValue)
       this.users = await Promise.all(this.taskUsers.map(async (user: any) => {return await this.mapOther(user)}))
   }
+
+  /**
+   * Get and set profile and role for user
+   * */
   async mapOther(user: any){
     user.profilePicture = this.avatarService.getProfileImagePath(user.id)
     user.role = (await this.userService.userRole(user.id)).roleName
@@ -34,14 +39,14 @@ export class UsersCardComponent implements OnChanges {
   }
   
   async removeUser(user: any){
-    console.log('removed')
     if(!this.taskUsers || !this.taskId)
       return
     
-    const tmp = [...this.users].splice(this.users.indexOf(user), 1)
+    const tmp = [...this.users]
+    tmp.splice(this.users.indexOf(user), 1)
     
-    // if(await this.taskService.updateTask({id: this.task.id, userIds: tmp.map(usr => usr.id)}))
-    if(await this.taskService.updateTask({id: this.taskId, userId: tmp[0].id}))
+    if(await this.taskService.updateTask({id: this.taskId, userIds: tmp.map(usr => usr.id)}))
+    // if(await this.taskService.updateTask({id: this.taskId, userId: tmp[0].id}))
       this.users.splice(this.users.indexOf(user), 1)
   }
 

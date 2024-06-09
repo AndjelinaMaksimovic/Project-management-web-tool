@@ -23,12 +23,8 @@ namespace Codedberries.Services
             {
                 if (_userService.ValidateSession(sessionToken) == false)
                 {
-                    throw new UnauthorizedAccessException("Session is invalid or expired!");
+                    return null;
                 }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Session cookie not found!");
             }
 
             var session = _databaseContext.Sessions.FirstOrDefault(s => s.Token == sessionToken);
@@ -226,6 +222,24 @@ namespace Codedberries.Services
                     if (userProject != null)
                     {
                         return userRole.CanEditTask;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool CanEditUser(int userId, int projectId)
+        {
+            var user = _databaseContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null && user.RoleId.HasValue)
+            {
+                var userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == user.RoleId);
+                if (userRole != null)
+                {
+                    var userProject = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+                    if (userProject != null)
+                    {
+                        return userRole.CanEditUser;
                     }
                 }
             }

@@ -57,6 +57,11 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found in database!");
             }
 
+            if (userRole.CanEditUser == false)
+            {
+                throw new UnauthorizedAccessException("User does not have permission to add user!");
+            }
+
             if (_databaseContext.Users.FirstOrDefault(u => u.Email == body.Email) != null) new Exception("User with the same email already exists");
 
             if (!Helper.IsEmailValid(body.Email)) throw new Exception("Email is not valid!");
@@ -80,6 +85,12 @@ namespace Codedberries.Services
             user.Activated = true;
             user.ActivationToken = null;
             _databaseContext.SaveChanges();
+        }
+
+        public void CheckInvite(HttpContext httpContext, CheckInviteDTO body)
+        {
+            User user = _databaseContext.Users.FirstOrDefault(x => x.ActivationToken == body.Token && x.Email == body.Email);
+            if (user == null) throw new Exception("Invalid token!");
         }
     }
 }

@@ -8,7 +8,7 @@
             </div>
         </div>
         
-        <p class="desc mt-20">{{ activity.activityDescription }}</p>
+        <markdown ngPreserveWhitespaces [data]="activity.activityDescription" class="desc"></markdown>
     </div>
-    <p>{{ activity.date }}</p>
 </div>
+<p>{{ activity.time | date:'d/M/yy h:mm:ss a' }}</p>

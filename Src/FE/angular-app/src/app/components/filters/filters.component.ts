@@ -9,7 +9,7 @@ import { LocalStorageService } from '../../services/localstorage';
 import { EventEmitter } from '@angular/core';
 
 export class Filter {
-  value: string;
+  value: any;
   icon: string;
   name: string;
   type: string;
