@@ -38,6 +38,7 @@ export class ProfileComponent {
 
   allTasksAccordionVisible: boolean = false;
   allProjectsAccordionVisible: boolean = false;
+  activityAccordionVisible: boolean = false;
 
   profileImg?: any
 
@@ -96,6 +97,7 @@ export class ProfileComponent {
     this.activityData = this.activities.map((a) => {
       return new Date(a.time).getTime();
     });
+    if(this.viewActivities.length != 0) this.activityAccordionVisible = true;
 
     this.profileImg = await this.getProfileImagePath()
     console.log("this.activityData", this.activityData);
@@ -147,6 +149,10 @@ export class ProfileComponent {
   
   toggleProjects() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  }
+
+  toggleActivity() {
+    this.activityAccordionVisible = !this.activityAccordionVisible;
   }
   
   pageChange(e: PageEvent){

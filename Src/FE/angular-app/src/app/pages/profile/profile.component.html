@@ -1,8 +1,8 @@
 <app-topnav></app-topnav>
 <!-- header -->
 <div style="padding: 20px;">
-    <div style="display: flex; flex-direction: row; justify-content: space-around; align-items: center;">
-        <div style="display: flex; flex-direction: column; align-items: center;">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; gap: 3rem;">
+        <div style="display: flex; flex-direction: column; align-items: center; margin-left: auto;">
             <div class="image-container">
                 <img class="circle-image" style="outline: solid;" [src]="profileImg"
                 onerror="this.src='/assets/logo.svg'">
@@ -17,25 +17,39 @@
             <span class="chip chip-neutral">{{user?.roleName}}</span>
             <h4 style="font-weight: lighter;">{{user?.email}}</h4>
         </div>
-        <div class="scroll">
-            <h3>Activity</h3>
-            @for(activity of viewActivities; track activity; let last = $last){
-                <!-- <app-activity-item [activity]="activity"></app-activity-item> -->
-                <markdown ngPreserveWhitespaces [data]="activity.activityDescription" class="desc mt-20"></markdown>
-                <p>{{ activity.time | date:'d/M/yy, h:mm:ss a' }}</p>
-                <hr *ngIf="!last">
-            }
-            <mat-paginator (page)="pageChange($event)" [length]="paginatorLen" [pageSize]="paginatorPageSize" [pageSizeOptions]="[2,5, 10, 20]"></mat-paginator>
+        <div style="display: flex; justify-content: center; align-items: center; margin-right: auto;">
+            <div>
+                <h4 style="margin-top: 0;">Activity calendar:</h4>
+                <app-contribution-graph *ngIf="activityData" [contributions]="activityData"></app-contribution-graph>
+            </div>
         </div>
     </div>
     <mat-divider class="mt-20"></mat-divider>
-    <div style="display: flex; justify-content: center; align-items: center; width: 100%">
-        <div>
-            <h4>Activity calendar:</h4>
-            <app-contribution-graph *ngIf="activityData" [contributions]="activityData"></app-contribution-graph>
-        </div>
-    </div>
+
     <div style="width: 80%; margin: auto;">
+        <div class="margin-15">
+            <div class="accordion">
+                <div class="accordion-item accordion-header" (click)="toggleActivity();">
+                    <i *ngIf="activityAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
+                    <i *ngIf="!activityAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
+                    <span>Activity</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;" *ngIf="activityAccordionVisible">
+                    <div class="scroll">
+                        @for(activity of viewActivities; track activity; let last = $last){
+                            <markdown ngPreserveWhitespaces [data]="activity.activityDescription" class="desc mt-20"></markdown>
+                            <p>{{ activity.time | date:'d/M/yy, h:mm:ss a' }}</p>
+                            <hr *ngIf="!last">
+                    }
+                    </div>
+                    @if (viewActivities.length == 0) {
+                        <p>No activity!</p>
+                    }
+                    <mat-paginator (page)="pageChange($event)" [length]="paginatorLen" [pageSize]="paginatorPageSize" [pageSizeOptions]="[2,5, 10, 20]"></mat-paginator>
+                </div>
+            </div>
+        </div>
+
         <div class="margin-15">
             <div class="accordion">
                 <div class="accordion-item accordion-header" (click)="toggleTasks();">

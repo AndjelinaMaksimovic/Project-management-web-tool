@@ -33,6 +33,7 @@ export class UserStatsComponent {
 
   allTasksAccordionVisible: boolean = true;
   allProjectsAccordionVisible: boolean = true;
+  activityCalendarAccordionVisible: boolean = true;
 
   tasksVisible: boolean = false;
   
@@ -73,6 +74,7 @@ export class UserStatsComponent {
     this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
     this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
 
+    this.activities = await this.projectService.allUserActivitiesById(this.userId);
     this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
     this.activityData = this.activities.map((a) => {
       return new Date(a.time).getTime();
@@ -82,7 +84,11 @@ export class UserStatsComponent {
   toggleTasks() {
     this.allTasksAccordionVisible = !this.allTasksAccordionVisible;
   }
-  
+
+  toggleActivity() {
+    this.activityCalendarAccordionVisible = !this.activityCalendarAccordionVisible;
+  }
+
   toggleProjects() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
   }

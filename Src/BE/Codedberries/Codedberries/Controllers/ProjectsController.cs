@@ -290,6 +290,29 @@ namespace Codedberries.Controllers
             }
         }
 
+        [HttpPost("allUserActivitiesById")]
+        public async Task<IActionResult> GetAllUserActivityById([FromBody] UserActivityDTO request)
+        {
+            try
+            {
+                var activities = await _projectService.GetAllUserActivity(HttpContext, request);
+
+                return Ok(activities);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ErrorMsg(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ErrorMsg(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorMsg($"An error occurred: {ex.Message}"));
+            }
+        }
+
         [HttpPost("allUsersProjectActivities")]
         public async Task<IActionResult> GetProjectUsersActivity()
         {
