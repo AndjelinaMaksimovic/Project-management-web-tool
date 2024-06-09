@@ -1,6 +1,6 @@
 <app-navbar>
     <div style="padding: 10px;">
-        <app-updatable-title [role]="role" [task]="task"></app-updatable-title>
+        <app-updatable-title [role]="role" [id]="task?.id" [title]="task?.title" [isProject]="false"></app-updatable-title>
         <mat-card>
             <mat-card-content>
                 <!-- <mat-divider></mat-divider> -->
@@ -17,7 +17,7 @@
                     </span> -->
                 </div>
                 <mat-divider></mat-divider>
-                <app-editable-markdown [role]="role" [content]="task?.description"
+                <app-editable-markdown [isProject]="false" [role]="role" [content]="task?.description"
                     (onSave)="updateDescription($event)"></app-editable-markdown>
                 <!-- <markdown ngPreserveWhitespaces [data]="task?.description"></markdown> -->
             </mat-card-content>

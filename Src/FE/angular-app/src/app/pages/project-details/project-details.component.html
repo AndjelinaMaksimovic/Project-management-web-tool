@@ -1,15 +1,34 @@
 <app-navbar>
     <div class="main-container">
         <div class="container w-100 margin-15 left-container">
-            <img class="profile-picture center" src="/assets/logo.svg">
+            <!-- <img class="profile-picture center" src="/assets/logo.svg"> -->
             <div class="ml-20 w-100">
-                <p class="title">{{title}}</p>
-                <p class="desc">{{description}}</p>
+                <app-updatable-title [role]="role" [id]="projectId" [title]="project?.title" [isProject]="true"></app-updatable-title>
+                <app-markdown-edit-chip [role]="role" [content]="description" (onSave)="updateDescription($event)"></app-markdown-edit-chip>
+                <!-- <app-editable-markdown [isProject]="false" [role]="role" [content]="description"
+                    (onSave)="updateDescription($event)"></app-editable-markdown> -->
+                <!-- <p class="title">{{title}}</p>
+                <p class="desc">{{description}}</p> -->
             </div>
         </div>
         <div class="container w-100 margin-15 inherit-height">
             <div class="justify-container">
-                <app-status-item [title]="'Due date:'" [desc]="(dueDate | date:'dd. MMMM yyyy')!.toString()" [faicon]="'fa-regular fa-calendar'"></app-status-item>
+                <app-status-item class="c-pointer" [title]="'Due date:'" [desc]="(dueDate | date:'dd. MMMM yyyy')!.toString()" [faicon]="'fa-regular fa-calendar'"
+                [matMenuTriggerFor]="menu" [matTooltip]="(role.canEditProject) ? 'click to change' : ''" [style.pointer-events]="(role.canEditProject) ? 'unset' : 'none' " (menuOpened)="setTmpDueDate()"
+                ></app-status-item>
+                <mat-menu #menu="matMenu">
+                    <div style="padding: 10px">
+                        <mat-form-field appearance="outline" style="width: 100%;" class="dense-2" (click)="$event.stopPropagation();">
+                            <mat-label>Start date</mat-label>
+                            <input matInput [matDatepicker]="dp" [formControl]="tempDueDate" [min]="project?.startDate" [required]="true">
+                            <mat-hint>DD/MM/YYYY</mat-hint>
+                            <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+                            <mat-datepicker #dp></mat-datepicker>
+                        </mat-form-field>
+                        <button mat-flat-button (click)="updateDate()">Update Due date</button>
+                        <button mat-flat-button>Cancel</button>
+                    </div>
+                </mat-menu>
                 <app-status-item *ngIf="daysLeft > 0" [title]="'Days left:'" [desc]="daysLeft + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#00c20c'" [bold]="true"></app-status-item>
                 <app-status-item *ngIf="daysLeft == 0" [title]="'Days left:'" [desc]="'TODAY'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
                 <app-status-item *ngIf="daysLeft < 0" [title]="'Days left:'" [desc]="'OVERDUE ' + (-daysLeft) + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>

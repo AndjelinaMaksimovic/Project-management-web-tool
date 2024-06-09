@@ -4,6 +4,7 @@ import { MaterialModule } from '../../../material/material.module';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ClearableInputComponent } from '../../../components/clearable-input/clearable-input.component';
+import { ProjectService } from '../../../services/project.service';
 
 @Component({
   selector: 'app-updatable-title',
@@ -19,24 +20,32 @@ import { ClearableInputComponent } from '../../../components/clearable-input/cle
   styleUrl: './updatable-title.component.css'
 })
 export class UpdatableTitleComponent {
-  @Input() task: Task | undefined = undefined;
-  @Input() role: any = {};
-  _title: string | undefined = undefined;
-  get title(){
-    return this._title || this.task?.title || ""
-  }
-  set title(newTitle: string){
-    this._title = newTitle;
-  }
+  @Input() title? = '';
+  viewTitle = ''  // temp title for editing
+  @Input() role?: any = {};
+  @Input() id?: number = 0 // project / task ID
+  @Input({required: true}) isProject: boolean = false
+  // get title(){
+  //   return this._title || this.task?.title || ""
+  // }
+  // set title(newTitle: string){
+  //   this._title = newTitle;
+  // }
 
-  constructor(private taskService: TaskService) {}
+  constructor(private taskService: TaskService, private projectService: ProjectService) {}
 
   updateTitle() {
-    if (!this.task) return;
-    this.taskService.updateTask({
-      id: this.task.id,
-      title: this._title,
-    });
+    this.title = this.viewTitle
+    if(this.isProject)
+      this.projectService.updateProject({
+        id: this.id,
+        title: this.viewTitle,
+      });
+    else
+      this.taskService.updateTask({
+        id: this.id,
+        title: this.viewTitle,
+      });
   }
 }
 
