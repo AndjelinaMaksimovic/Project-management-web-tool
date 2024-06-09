@@ -36,8 +36,7 @@ export class ProjectItemComponent {
     overdueTasks: number = 0;
 
     async ngOnInit() {
-        await this.taskService.fetchTasks({ projectId: this.id });
-        this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
+        this.overdueTasks = await this.taskService.getOverdueTasks(this.id);
 
         this.progress = await this.projectService.getProjectProgress(this.id);
 
