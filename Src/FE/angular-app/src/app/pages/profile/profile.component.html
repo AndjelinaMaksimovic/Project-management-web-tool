@@ -4,7 +4,7 @@
     <div style="display: flex; flex-direction: row; justify-content: space-around; align-items: center;">
         <div style="display: flex; flex-direction: column; align-items: center;">
             <div class="image-container">
-                <img class="circle-image" style="outline: solid;" [src]="getProfileImagePath()"
+                <img class="circle-image" style="outline: solid;" [src]="profileImg"
                 onerror="this.src='/assets/logo.svg'">
                 <i *ngIf="loggedInUser === user.id" class="edit-icon fa-solid fa-pen-to-square fa-xl" (click)="fileUpload.click()"></i>
             </div>
@@ -15,10 +15,7 @@
             <!-- <h2>{{user?.firstname}} {{user?.lastname}}</h2> -->
             <h2>{{user?.firstname}} {{user?.lastname}}</h2>
             <span class="chip chip-neutral">{{user?.roleName}}</span>
-            <div style="display: flex; gap: 20px">
-                <h4 style="font-weight: lighter;">{{user?.email}}</h4>
-                <h4 style="font-weight: lighter;">{{'member since 4.10.2024'}}</h4>
-            </div>
+            <h4 style="font-weight: lighter;">{{user?.email}}</h4>
         </div>
         <div class="scroll">
             <h3>Activity</h3>

@@ -2,11 +2,13 @@ import { Component, Input } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../services/avatar.service';
 import { CommonModule } from '@angular/common';
+import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 
 @Component({
   selector: 'app-notification-item',
   standalone: true,
-  imports: [ CommonModule ],
+  imports: [ CommonModule, MarkdownModule ],
+  providers: [provideMarkdown()],
   templateUrl: './notification-item.component.html',
   styleUrl: './notification-item.component.css'
 })

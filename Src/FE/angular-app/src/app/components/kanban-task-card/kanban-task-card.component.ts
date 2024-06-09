@@ -21,8 +21,8 @@ export class KanbanTaskCardComponent {
 
   constructor(private dialog: MatDialog, public avatarService: AvatarService) {}
 
-  get asigneeIds(){
-    return this.task.assignedTo.map((user: any) => user.id);
+  get asignees(){
+    return this.task.assignedTo;
   }
   deleteTask() {
     this.dialog.open(ConfirmTaskDeleteModalComponent, {
