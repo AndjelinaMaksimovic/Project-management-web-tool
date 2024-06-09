@@ -1377,7 +1377,7 @@ namespace Codedberries.Services
 
             foreach (var activity in activities)
             {
-                var matchingUserNotification = userNotifications.FirstOrDefault(un => un.ActivityId == activity.Id);
+                var matchingUserNotification = userNotifications.FirstOrDefault(un => (un.ActivityId == activity.Id) && (un.UserId == userId));
                 var seen = matchingUserNotification != null && matchingUserNotification.Seen;
 
                 var notification = new NotificationDTO
