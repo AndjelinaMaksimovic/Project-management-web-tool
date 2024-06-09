@@ -74,6 +74,7 @@ export class UserStatsComponent {
     this.completedTasks = this.taskService.getTasks().filter((task) => task.status == "Done").length;
     this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
 
+    this.activities = await this.projectService.allUserActivitiesById(this.userId);
     this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
     this.activityData = this.activities.map((a) => {
       return new Date(a.time).getTime();
