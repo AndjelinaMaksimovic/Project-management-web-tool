@@ -29,10 +29,10 @@ export class ContributionGraphComponent {
   weeklyData: (typeof this.calendarData)[number][][] = [[]];
   getColor(entry: (typeof this.calendarData)[number]){
     if(entry.activities === 0) return "#EEE";
-    if(entry.activities < 10) return "#AAA";
-    if(entry.activities < 20) return "#888";
-    if(entry.activities < 30) return "#444";
-    return "#222";
+    if(entry.activities < 10) return `rgb(${80 * 1.25}, ${150 * 1.25}, ${164 * 1.25})`;
+    if(entry.activities < 20) return `rgb(${80}, ${150}, ${164})`;
+    if(entry.activities < 30) return `rgb(${80 * 0.75}, ${150 * 0.75}, ${164 * 0.75})`;
+    return `rgb(${80 * 0.5}, ${150 * 0.5}, ${164 * 0.5})`;
   }
 
   ngOnInit(){
