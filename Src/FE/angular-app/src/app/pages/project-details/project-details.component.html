@@ -2,9 +2,11 @@
     <div class="main-container">
         <div class="container w-100 margin-15 left-container">
             <!-- <img class="profile-picture center" src="/assets/logo.svg"> -->
-            <div class="ml-20 w-100">
+            <div class="w-100">
                 <app-updatable-title [role]="role" [id]="projectId" [title]="project?.title" [isProject]="true"></app-updatable-title>
-                <app-markdown-edit-chip [role]="role" [content]="description" (onSave)="updateDescription($event)"></app-markdown-edit-chip>
+                <div style="margin-bottom: 15px;">
+                    <app-markdown-edit-chip [role]="role" [content]="description" (onSave)="updateDescription($event)"></app-markdown-edit-chip>
+                </div>
                 <!-- <app-editable-markdown [isProject]="false" [role]="role" [content]="description"
                     (onSave)="updateDescription($event)"></app-editable-markdown> -->
                 <!-- <p class="title">{{title}}</p>
