@@ -56,7 +56,7 @@
             </div>
             <div *ngIf="allProjectsAccordionVisible">
                 @for (project of projects; track project) {
-                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [dontRefresh]="true" (click)="closeDialog();"></app-project-item>
+                    <app-project-item [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [dontRefresh]="true"></app-project-item>
                 }
             </div>
         </div>

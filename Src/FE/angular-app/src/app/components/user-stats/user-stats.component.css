@@ -81,6 +81,8 @@
     border: 1px solid black;
     float:left;
     height: 4rem;
+    width: 4rem;
+    object-fit: cover;
     border-radius: 50%;
     background-color: white;
 }
