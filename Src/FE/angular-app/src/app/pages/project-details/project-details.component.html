@@ -2,9 +2,11 @@
     <div class="main-container">
         <div class="container w-100 margin-15 left-container">
             <!-- <img class="profile-picture center" src="/assets/logo.svg"> -->
-            <div class="ml-20 w-100">
+            <div class="w-100">
                 <app-updatable-title [role]="role" [id]="projectId" [title]="project?.title" [isProject]="true"></app-updatable-title>
-                <app-markdown-edit-chip [role]="role" [content]="description" (onSave)="updateDescription($event)"></app-markdown-edit-chip>
+                <div style="margin-bottom: 15px;">
+                    <app-markdown-edit-chip [role]="role" [content]="description" (onSave)="updateDescription($event)"></app-markdown-edit-chip>
+                </div>
                 <!-- <app-editable-markdown [isProject]="false" [role]="role" [content]="description"
                     (onSave)="updateDescription($event)"></app-editable-markdown> -->
                 <!-- <p class="title">{{title}}</p>
@@ -29,8 +31,10 @@
                         <button mat-flat-button>Cancel</button>
                     </div>
                 </mat-menu>
-                <app-status-item [title]="'Days left:'" [desc]="daysLeft + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
-                <!-- <app-status-item [title]="'Status:'" [desc]="'-'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="'#FF5733'" [bold]="true"></app-status-item> -->
+                <app-status-item *ngIf="daysLeft > 0" [title]="'Days left:'" [desc]="daysLeft + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#00c20c'" [bold]="true"></app-status-item>
+                <app-status-item *ngIf="daysLeft == 0" [title]="'Days left:'" [desc]="'TODAY'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item *ngIf="daysLeft < 0" [title]="'Days left:'" [desc]="'OVERDUE ' + (-daysLeft) + ' days'" [faicon]="'fa-regular fa-clock'" [color]="'#FF5733'" [bold]="true"></app-status-item>
+                <app-status-item [title]="'Status:'" [desc]="overdueTasks > 0 ? 'OVERDUE TASKS' : 'OK'" [faicon]="'fa-solid fa-circle-exclamation'" [color]="overdueTasks > 0 ? '#FF5733' : '#00c20c'" [bold]="true"></app-status-item>
             </div>
         </div>
     </div>

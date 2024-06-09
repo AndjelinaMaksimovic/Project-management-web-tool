@@ -126,6 +126,7 @@ export class ProjectService {
       });
       this.updateProgresses();
     } catch (e) {
+      this.projects = [];
       console.log(e);
     }
     return false;

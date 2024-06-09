@@ -1,4 +1,10 @@
 <div class="progress-bar">
-    <div class="progress-fill" [style.width.%]="progress" [style.backgroundColor]="color"></div>
-    <span class="progress-text">{{ progress }}%</span>
+    <div *ngIf="progress == null || progress == undefined; else progressDefined">
+        <div class="progress-fill" [style.width.%]="0" [style.backgroundColor]="color"></div>
+        <span class="progress-text">...</span>
+    </div>
+    <ng-template #progressDefined>
+        <div class="progress-fill" [style.width.%]="progress" [style.backgroundColor]="color"></div>
+        <span class="progress-text">{{ progress }}%</span>
+    </ng-template>
 </div>

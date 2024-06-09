@@ -1,5 +1,5 @@
 @if(isProject){
-    <p class="title">{{title}}&NonBreakingSpace;<button *ngIf="role.canEditProject" mat-icon-button [matMenuTriggerFor]="menu"
+    <p style="margin: 0;" class="title">{{title}}&NonBreakingSpace;<button *ngIf="role.canEditProject" mat-icon-button [matMenuTriggerFor]="menu"
         class="small-icon-button" [matTooltip]="'edit title'" (menuOpened)="viewTitle = title ?? ''"><mat-icon>edit</mat-icon></button></p>
 }
 @else{

@@ -5,6 +5,7 @@ import { ProjectService } from '../../services/project.service';
 import { RouterModule } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TaskService } from '../../services/task.service';
 
 @Component({
     selector: 'app-project-item',
@@ -14,7 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     styleUrl: './project-item.component.css'
 })
 export class ProjectItemComponent {
-    constructor(private projectService: ProjectService) { }
+    constructor(private projectService: ProjectService, private taskService: TaskService) { }
 
     @Input() projectName: string = "";
     @Input() dueDate: string = "";
@@ -29,6 +30,19 @@ export class ProjectItemComponent {
     @Input() role: any = {};
 
     @Input() dontRefresh?: boolean = false;
+
+    progress: number = 0;
+
+    overdueTasks: number = 0;
+
+    async ngOnInit() {
+        await this.taskService.fetchTasks({ projectId: this.id });
+        this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
+
+        this.progress = await this.projectService.getProjectProgress(this.id);
+
+        this.progressBarColor = (this.progress >= 100.0 ? "#00c20c" : (this.overdueTasks > 0 ? "#FF5733" : "#FFCF32" ));
+    }
 
     async toggleStarred() {
         let response = await this.projectService.toggleStarred(this.id, this.dontRefresh ? true : false);
