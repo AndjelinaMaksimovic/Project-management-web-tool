@@ -92,7 +92,7 @@ export class ProjectDetailsComponent {
     let difference = this.dueDate!.getTime() - new Date().getTime();
     this.daysLeft = Math.floor(difference / (1000 * 60 * 60 * 24));
 
-    const _progress = this.projectService.getProgress(this.projectId);
+    const _progress = await this.projectService.getProjectProgress(this.projectId);
     if(_progress != null && _progress != undefined) {
       this.progress = _progress;
     }
