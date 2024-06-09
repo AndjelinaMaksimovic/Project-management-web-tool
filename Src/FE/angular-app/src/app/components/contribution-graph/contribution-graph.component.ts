@@ -4,7 +4,7 @@ import { MaterialModule } from '../../material/material.module';
 
 const DAY = 1000 * 60 * 60 *24;
 
-const RANGE = 150;
+const RANGE = 200;
 const HEIGHT = 7;
 function roundTimestamp(timestamp: number){
   const d = new Date(timestamp);
