@@ -535,7 +535,10 @@ namespace Codedberries.Services
                 }
                 else
                 {
-                    query = query.Where(t => t.Archived == false);
+                    if (!filterParams.IncludeArchived)
+                    {
+                        query = query.Where(t => t.Archived == false);
+                    }
                 }
             }
 
