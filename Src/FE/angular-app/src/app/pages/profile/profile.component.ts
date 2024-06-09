@@ -39,6 +39,8 @@ export class ProfileComponent {
   allTasksAccordionVisible: boolean = false;
   allProjectsAccordionVisible: boolean = false;
 
+  profileImg?: any
+
   get tasks() {
     return this.taskService.getTasks();
   }
@@ -94,6 +96,8 @@ export class ProfileComponent {
     this.activityData = this.activities.map((a) => {
       return new Date(a.time).getTime();
     });
+
+    this.profileImg = await this.getProfileImagePath()
     console.log("this.activityData", this.activityData);
   }
 
@@ -129,10 +133,10 @@ export class ProfileComponent {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
+      this.profileImg = reader.result
       const base64String = reader.result?.toString().split(',')[1];
       if(!base64String) return;
       console.log("base64String", base64String);
-      // Now you have the base64 string of the image
       this.uploadImage(base64String, "./test-image-02.jpg");
     };
   }
