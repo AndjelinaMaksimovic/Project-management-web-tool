@@ -9,7 +9,7 @@
             <a [routerLink]="'/project/'+id+'/details'" class="project-name ml-10">{{ projectName }}</a>
         </div>
         <div class="" style="width: 28rem; margin-top: auto;">
-            <app-progressbar [progress]="progressBarProgress" [color]="progressBarColor" *ngIf="!isArchived"></app-progressbar>
+            <app-progressbar [progress]="progress" [color]="progressBarColor" *ngIf="!isArchived"></app-progressbar>
         </div>
         <div class="hover">
             <p class="mr-20 samewidth date">{{ dueDate | date:'dd. MMMM yyyy' }}</p>

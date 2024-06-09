@@ -6,7 +6,6 @@ import { RouterModule } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TaskService } from '../../services/task.service';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-project-item',
@@ -16,18 +15,12 @@ import { BehaviorSubject } from 'rxjs';
     styleUrl: './project-item.component.css'
 })
 export class ProjectItemComponent {
-    constructor(private projectService: ProjectService, private taskService: TaskService) {
-        this.progressBarProgress$.subscribe(value => {
-            this.onProgressChange(value);
-        });
-    }
-
-    private progressSubject = new BehaviorSubject<number>(0);
+    constructor(private projectService: ProjectService, private taskService: TaskService) { }
 
     @Input() projectName: string = "";
     @Input() dueDate: string = "";
 
-    progressBarProgress$ = this.progressSubject.asObservable();
+    @Input() progressBarProgress: number = 0;
     @Input() progressBarColor: string = "black";
 
     @Input() starred: boolean = false;
@@ -38,25 +31,17 @@ export class ProjectItemComponent {
 
     @Input() dontRefresh?: boolean = false;
 
-    overdueTasks: number = 0;
+    progress: number = 0;
 
-    @Input() set progressBarProgress(value: number) {
-        this.progressSubject.next(value);
-    }
-    
-    get progressBarProgress(): number {
-    return this.progressSubject.value;
-    }
-    
-    onProgressChange(value: number) {
-        this.progressBarColor = (this.progressBarProgress >= 100.0 ? "#00c20c" : (this.overdueTasks > 0 ? "#FF5733" : "#FFCF32" ));
-    }
+    overdueTasks: number = 0;
 
     async ngOnInit() {
         await this.taskService.fetchTasks({ projectId: this.id });
         this.overdueTasks = this.taskService.getTasks().filter((task) => new Date(task.dueDate) < new Date()).length;
 
-        this.progressBarColor = (this.progressBarProgress >= 100.0 ? "#00c20c" : (this.overdueTasks > 0 ? "#FF5733" : "#FFCF32" ));
+        this.progress = await this.projectService.getProjectProgress(this.id);
+
+        this.progressBarColor = (this.progress >= 100.0 ? "#00c20c" : (this.overdueTasks > 0 ? "#FF5733" : "#FFCF32" ));
     }
 
     async toggleStarred() {

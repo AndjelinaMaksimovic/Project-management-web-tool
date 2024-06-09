@@ -28,6 +28,7 @@
     width: 1.3rem;
     height: 100%;
     background-color: #FFCF32;
+    transition: background-color 0.5s ease;
 }
 
 .samewidth {
