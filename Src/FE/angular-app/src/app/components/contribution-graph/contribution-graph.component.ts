@@ -26,7 +26,7 @@ function sameDay(d1: Date, d2: Date) {
 export class ContributionGraphComponent {
   @Input() contributions: number[] = [];
   calendarData: {activities: number, date: Date}[] = []
-  weeklyData: (typeof this.calendarData)[number][][];
+  weeklyData: (typeof this.calendarData)[number][][] = [[]];
   getColor(entry: (typeof this.calendarData)[number]){
     if(entry.activities === 0) return "#EEE";
     if(entry.activities < 10) return "#AAA";
@@ -35,13 +35,7 @@ export class ContributionGraphComponent {
     return "#222";
   }
 
-  constructor(){
-    const contributionMap = this.contributions.reduce<Record<string, number>>((acc, e) => {
-      const timestamp = roundTimestamp(e);
-      if(!acc[timestamp]) acc[timestamp] = 0;
-      acc[timestamp] = acc[timestamp] + 1;
-      return acc;
-    }, {});
+  ngOnInit(){
     const now = new Date();
     this.calendarData = [];
     for (let d = new Date(Date.now() - DAY * RANGE); d <= now; d.setDate(d.getDate() + 1)) {
@@ -49,7 +43,6 @@ export class ContributionGraphComponent {
         this.calendarData.push({
           date: new Date(dayStamp),
           activities: this.contributions.filter((entry: number) => {
-            return true;
             return sameDay(new Date(entry), d);
         }).length || 0,
         });
