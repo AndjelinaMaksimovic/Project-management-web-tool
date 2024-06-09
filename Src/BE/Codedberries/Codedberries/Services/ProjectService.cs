@@ -1254,7 +1254,7 @@ namespace Codedberries.Services
             return activities;
         }
 
-        public async Task<List<ActivityDTO>> GetAllUserActivity(HttpContext httpContext)
+        public async Task<List<ActivityDTO>> GetAllUserActivity(HttpContext httpContext, UserActivityDTO? request = null)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -1282,8 +1282,14 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found!");
             }
 
+            var userIdToCheck = userId;
+            if(request != null)
+            {
+                userIdToCheck = request.UserId;
+            }
+
             var activities = await _databaseContext.Activities
-                .Where(c => c.UserId == userId)
+                .Where(c => c.UserId == userIdToCheck)
                 .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId, Time=c.Time })
                 .ToListAsync();
 
