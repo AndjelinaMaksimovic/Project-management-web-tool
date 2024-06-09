@@ -16,13 +16,15 @@ namespace Codedberries.Services
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
         private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
+        private readonly IConfiguration _configuration;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, IHubContext<NotificationHub, INotificationClient> notificationHubContext, IConfiguration configuration)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _taskService = taskService;
             _notificationHubContext = notificationHubContext;
+            _configuration = configuration;
         }
 
         public async System.Threading.Tasks.Task<ProjectIdDTO> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
@@ -178,7 +180,9 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
-                    string Url = $"http://localhost:4200/project/{project.Id}/details";
+                    var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+                    string Url = $"{frontendUrl}/project/{project.Id}/details";
+                
 
                     Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has created the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
                     _databaseContext.Activities.Add(activity);
@@ -833,8 +837,8 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
-            string Url = $"http://localhost:4200/project/{project.Id}/details";
-
+            var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+            string Url = $"{frontendUrl}/project/{project.Id}/details";
             Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has updated the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
            _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
@@ -925,9 +929,8 @@ namespace Codedberries.Services
 
             // archive/active
             project.Archived = !project.Archived;
-
-            string Url = $"http://localhost:4200/project/{project.Id}/details";
-
+            var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+            string Url = $"{frontendUrl}/project/{project.Id}/details";
             Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
             _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
