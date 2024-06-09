@@ -32,7 +32,9 @@
         </div>
     </div>
     <mat-divider class="mt-20"></mat-divider>
-
+    <div style="display: flex; justify-content: center; align-items: center; width: 100%">
+        <app-contribution-graph *ngIf="activityData" [contributions]="activityData"></app-contribution-graph>
+    </div>
     <div style="width: 80%; margin: auto;">
         <div class="margin-15">
             <div class="accordion">
