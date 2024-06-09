@@ -1,7 +1,7 @@
 <div>
     <div class="container mt-5 mb-5">
         <div class="container" style="width: 40rem; text-align: left; justify-content: left;">
-            <div class="color" *ngIf="!isArchived"></div>
+            <div class="color" *ngIf="!isArchived" [style.backgroundColor]="progressBarColor"></div>
             <a (click)="toggleStarred();" style="cursor: pointer;" *ngIf="!isArchived">
                 <i class="fa-regular fa-star ml-10 lightgray" *ngIf="!starred"></i>
                 <i class="fa-solid fa-star ml-10 lightgray" *ngIf="starred"></i>
