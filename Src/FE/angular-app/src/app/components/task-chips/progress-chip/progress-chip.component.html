@@ -1,4 +1,7 @@
-<div [matMenuTriggerFor]="menu" (menuOpened)="onOpen()" #menuTrigger="matMenuTrigger" style="display: flex; gap: 10px; cursor: pointer;"  [matTooltip]="(role.canEditTask) ? 'click to change' : ''" [style.pointer-events]="(role.canEditTask) ? 'unset' : 'none' ">
+<div *ngIf="canEdit" [matMenuTriggerFor]="menu" (menuOpened)="onOpen()" #menuTrigger="matMenuTrigger" style="display: flex; gap: 10px; cursor: pointer;"  [matTooltip]="(role.canEditTask) ? 'click to change' : ''" [style.pointer-events]="(role.canEditTask) ? 'unset' : 'none' ">
+    {{progressView}}%
+</div>
+<div *ngIf="!canEdit" style="display: flex; gap: 10px;">
     {{progressView}}%
 </div>
 
