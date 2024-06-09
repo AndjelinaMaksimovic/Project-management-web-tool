@@ -1,6 +1,10 @@
 <div style="display: flex; flex-direction: row;">
     <div *ngFor="let week of weeklyData">
-        <div style="display: flex; flex-direction: column;">
+        <div style="display: flex; flex-direction: column; position: relative; margin-top: 25px">
+            <div *ngIf="week[0].date.getDate() < 7"
+            style="font-size: small; position: absolute; top: -16px; left: 5px; color: #888">
+                {{week[0].date.toLocaleString('default', { month: 'long' })[0]}}
+            </div>
             <div *ngFor="let day of week" [matTooltip]="day.date.toDateString() + ';\n' + day.activities + ' activities'">
                 <div [style]="'color:white; margin: 2px; border-radius: 2px; width: 16px; height: 16px; background-color: '+getColor(day)+';'">
                 </div>
