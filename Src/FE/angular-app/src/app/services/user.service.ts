@@ -128,8 +128,6 @@ export class UserService {
       );
       return res.body;
     } catch (e) {
-      document.cookie = 'sessionId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-      this.router.navigate(['login']);
       console.log(e);
     }
     return false;
@@ -144,8 +142,6 @@ export class UserService {
       );
       return res.body;
     } catch (e) {
-      document.cookie = 'sessionId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-      this.router.navigate(['login']);
       console.log(e);
     }
     return false;
@@ -159,15 +155,11 @@ export class UserService {
           {
             userId: userId,
           },
-          {
-            ...this.httpOptions
-          }
+          this.httpOptions
         )
       );
       return res.body
     } catch (e) {
-      document.cookie = 'sessionId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-      this.router.navigate(['login']);
       console.log(e);
       return false
     }
