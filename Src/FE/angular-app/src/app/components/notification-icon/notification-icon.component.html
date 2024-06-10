@@ -6,7 +6,7 @@
         ></div>
     </i>
 </button>
-<mat-menu #menu="matMenu" class="mat-menu-no-max-width">
+<mat-menu #menu="matMenu" class="max-width-unset-important">
     <div style="padding: 10px; max-height: 250px; max-width: 400px;" (click)="$event.stopPropagation()">
         @for(activity of activities; track activity; let last = $last){
             <!-- <div mat-menu-item> Activity </div> -->

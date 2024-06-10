@@ -25,8 +25,8 @@ export class AssigneeChipComponent {
   @Input() task: Task | undefined;
   assignee: string | undefined;
   users: any;
-  get asigneeIds(){
-    return this.task?.assignedTo.map((user: any) => user.id) || [];
+  get asignees(){
+    return this.task?.assignedTo || [];
   }
   constructor(private taskService: TaskService, private userService: UserService) {}
 

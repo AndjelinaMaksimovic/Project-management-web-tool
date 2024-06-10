@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 export type User = {
   email: string;
@@ -17,6 +18,7 @@ export type User = {
   roleId: number;
   profilePicture: string;
   projects: any;
+  activated: boolean;
 };
 function mapUser(apiUser: any) {
   return {
@@ -28,6 +30,7 @@ function mapUser(apiUser: any) {
     roleId: apiUser.roleId,
     profilePicture: apiUser.profilePicture,
     projects: apiUser.projects,
+    activated: apiUser.activated,
   };
 }
 
@@ -43,7 +46,7 @@ export class UserService {
     observe: 'response' as 'response',
   };
 
-  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar, private router: Router) {}
   public getUsers() {
     return this.users;
   }
@@ -152,9 +155,7 @@ export class UserService {
           {
             userId: userId,
           },
-          {
-            ...this.httpOptions
-          }
+          this.httpOptions
         )
       );
       return res.body
@@ -184,31 +185,6 @@ export class UserService {
       }
     }
     await this.fetchUsersByProject(projectId);
-  }
-
-  async removeUserFromOrgnization(userId: number){
-    try {
-      const res = await firstValueFrom(
-        this.http.post<any>(
-          environment.apiUrl + `/User/deactivateUser`,
-          {
-            userId: userId,
-          },
-          {
-            ...this.httpOptions
-          }
-        )
-      );
-      return res.body
-    } catch (e) {
-      console.log(e);
-      if(e instanceof HttpErrorResponse){
-        this.snackBar.open(e?.error?.errorMessage, undefined, {
-          duration: 2000,
-        });
-      }
-      return false;
-    }
   }
   
   async updatePassword(token: string, password: string){
@@ -247,6 +223,35 @@ export class UserService {
       return res.body
     } catch (e) {
       console.log(e);
+      return false
+    }
+  }
+
+  async deactivateUser(userId: number){
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl + `/User/deactivateUser`,
+          {
+            userId: userId,
+          },
+          {
+            ...this.httpOptions
+          }
+        )
+      );
+      // this.snackBar.open("User deactivated", undefined, {
+      //   duration: 2000,
+      // });
+      this.fetchUsers()
+      return res.body
+    } catch (e) {
+      console.log(e);
+      if(e instanceof HttpErrorResponse){
+        this.snackBar.open(e?.error?.errorMessage, undefined, {
+          duration: 2000,
+        });
+      }
       return false
     }
   }

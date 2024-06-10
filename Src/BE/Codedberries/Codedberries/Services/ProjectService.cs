@@ -16,13 +16,15 @@ namespace Codedberries.Services
         private readonly AuthorizationService _authorizationService;
         private readonly TaskService _taskService;
         private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
+        private readonly IConfiguration _configuration;
 
-        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
+        public ProjectService(AppDatabaseContext databaseContext, AuthorizationService authorizationService, TaskService taskService, IHubContext<NotificationHub, INotificationClient> notificationHubContext, IConfiguration configuration)
         {
             _databaseContext = databaseContext;
             _authorizationService = authorizationService;
             _taskService = taskService;
             _notificationHubContext = notificationHubContext;
+            _configuration = configuration;
         }
 
         public async System.Threading.Tasks.Task<ProjectIdDTO> CreateProject(HttpContext httpContext, ProjectCreationRequestDTO request)
@@ -178,7 +180,9 @@ namespace Codedberries.Services
 
                         await _databaseContext.SaveChangesAsync();
                     }
-                    string Url = $"http://localhost:4200/project/{project.Id}/details";
+                    var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+                    string Url = $"{frontendUrl}/project/{project.Id}/details";
+                
 
                     Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has created the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
                     _databaseContext.Activities.Add(activity);
@@ -829,8 +833,8 @@ namespace Codedberries.Services
 
                 project.Archived = request.Archived.Value;
             }
-            string Url = $"http://localhost:4200/project/{project.Id}/details";
-
+            var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+            string Url = $"{frontendUrl}/project/{project.Id}/details";
             Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has updated the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
            _databaseContext.Activities.Add(activity);
             await _databaseContext.SaveChangesAsync();
@@ -918,10 +922,11 @@ namespace Codedberries.Services
 
             // archive/active
             project.Archived = !project.Archived;
-
-            string Url = $"http://localhost:4200/project/{project.Id}/details";
-
+            var frontendUrl = _configuration.GetValue<string>("Config:FrontendURL");
+            string Url = $"{frontendUrl}/project/{project.Id}/details";
             Activity activity = new Activity(user.Id, project.Id, $"User {user.Firstname} {user.Lastname} has archived the project <a href=\"{Url}\">{project.Name}</a>", DateTime.Now);
+            _databaseContext.Activities.Add(activity);
+            await _databaseContext.SaveChangesAsync();
             var projectUsers = _databaseContext.UserProjects
             .Where(up => up.ProjectId == project.Id && up.UserId != userId)
             .Select(up => up.UserId)
@@ -1020,58 +1025,21 @@ namespace Codedberries.Services
                 throw new ArgumentException("Project not found in database!");
             }
 
-            // if all tasks on the project are completed
-            bool allTasksCompleted = _databaseContext.Tasks
-                .All(t => t.ProjectId == projectId && t.Status.Name == "Done");
-            // !!!!!! can default statuses be deleted? if "Done" is not existing it won't work
-
-            // if DueDate of the project has passed
-            bool projectDueDatePassed = project.DueDate < DateTime.Now;
-
-            if (allTasksCompleted || projectDueDatePassed)
-            {
-                return 100;
-            }
-
-            // number of tasks that were completed and were not archived
+            // completed and not archived
             int completedTasksCount = _databaseContext.Tasks
-                .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && t.Archived == false);
+                .Count(t => t.ProjectId == projectId && t.Status.Name == "Done" && !t.Archived);
 
-            /* !!!!!!
-             * I can't check for dates if the task was completed within the deadline, 
-             * for additional precision, because I don't have information when the task was completed
-             */
-
-            // total number of tasks in the project that have not been archived
             int totalTasksCount = _databaseContext.Tasks
                 .Count(t => t.ProjectId == projectId && !t.Archived);
 
             if (totalTasksCount == 0)
             {
-                return 0; // there are no finished tasks
+                return 0;
             }
 
-            // priority
-            double priorityFactor = 1.0; // default factor
-            var highPriorityTasksCount = _databaseContext.Tasks.Count(t => t.ProjectId == projectId && t.Priority.Name == "High" && !t.Archived);
-
-            if (highPriorityTasksCount > 0)
-            {
-                // increase progress percentage if there are high priority tasks
-                priorityFactor = 1.10; // high priority tasks have 10% higher impact
-            }
-
-            // task dependencies
-            // progress is increased by 5% for each completed dependent task
-            var dependentTasksCount = _databaseContext.Tasks.Count(t => t.ProjectId == projectId && t.Dependencies.Any(d => d.Status.Name == "Done"));
-
-
-            // calculating progres percentage
             double progressPercentage = (double)completedTasksCount / totalTasksCount * 100;
-            progressPercentage *= priorityFactor;
-            progressPercentage += dependentTasksCount * 5;
 
-            progressPercentage = Math.Min(progressPercentage, 100);
+            //progressPercentage = Math.Min(progressPercentage, 100);
 
             return (int)progressPercentage;
         }
@@ -1286,7 +1254,7 @@ namespace Codedberries.Services
             return activities;
         }
 
-        public async Task<List<ActivityDTO>> GetAllUserActivity(HttpContext httpContext)
+        public async Task<List<ActivityDTO>> GetAllUserActivity(HttpContext httpContext, UserActivityDTO? request = null)
         {
             var userId = _authorizationService.GetUserIdFromSession(httpContext);
 
@@ -1314,8 +1282,14 @@ namespace Codedberries.Services
                 throw new UnauthorizedAccessException("User role not found!");
             }
 
+            var userIdToCheck = userId;
+            if(request != null)
+            {
+                userIdToCheck = request.UserId;
+            }
+
             var activities = await _databaseContext.Activities
-                .Where(c => c.UserId == userId)
+                .Where(c => c.UserId == userIdToCheck)
                 .Select(c => new ActivityDTO { Id = c.Id, ProjectId = c.ProjectId, ActivityDescription = c.ActivityDescription, UserId = c.UserId, Time=c.Time })
                 .ToListAsync();
 

@@ -112,7 +112,7 @@ export class TaskService {
       const res = await firstValueFrom(
         this.http.get<any>(
           environment.apiUrl +
-            `/Task/projectTasks?projectId=${this.context.projectId}`,
+            `/Task/projectTasks?projectId=${this.context.projectId}&includeArchived=true`,
           this.httpOptions
         )
       );
@@ -410,5 +410,23 @@ export class TaskService {
       });
       return false
     }
+  }
+  public async getOverdueTasks(projectId: number) {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(
+          environment.apiUrl +
+            `/Task/projectTasks?projectId=${projectId}`,
+          this.httpOptions
+        )
+      );
+      let tasks = res.body.map((task: any) => {
+        return this.mapTask(task);
+      });
+      return tasks.filter((task: Task) => new Date(task.dueDate) < new Date()).length;
+    } catch (e) {
+      console.log(e);
+    }
+    return 0;
   }
 }

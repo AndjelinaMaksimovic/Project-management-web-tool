@@ -70,23 +70,25 @@
     </div>
 
     <div *ngIf="viewType == 'list'">
-        <div class="container row align-left pl-l pl-r mt-20">
-            <div class="accordion">
-                <div class="accordion-item accordion-header" (click)="toggleStarred();">
-                    <i *ngIf="staredProjectsAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10" style="width: 1rem;"></i>
-                    <i *ngIf="!staredProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10" style="width: 1rem;"></i>
-                    <span>Starred projects</span>
-                </div>
-                <div *ngIf="staredProjectsAccordionVisible">
-                    @for (project of starredProjects; track project) {
-                        <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="projectProgress.get(project.id)!" [progressBarColor]="'#FFCF32'"></app-project-item>
-                    }
-                    @if (starredProjects.length == 0) {
-                        <p>No starred projects!</p>
-                    }
+        @if (starredProjects.length > 0) {
+            <div class="container row align-left pl-l pl-r mt-20">
+                <div class="accordion">
+                    <div class="accordion-item accordion-header" (click)="toggleStarred();">
+                        <i *ngIf="staredProjectsAccordionVisible" class="fa-solid fa-chevron-down fa-xs mr-10" style="width: 1rem;"></i>
+                        <i *ngIf="!staredProjectsAccordionVisible" class="fa-solid fa-chevron-right fa-xs mr-10" style="width: 1rem;"></i>
+                        <span>Starred projects</span>
+                    </div>
+                    <div *ngIf="staredProjectsAccordionVisible">
+                        @for (project of starredProjects; track project) {
+                            <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="projectProgress.get(project.id)!" [progressBarColor]="'#FFCF32'"></app-project-item>
+                        }
+                        @if (starredProjects.length == 0) {
+                            <p>No starred projects!</p>
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     
         <div class="container row align-left pl-l pl-r mt-20">
             <div class="accordion">
@@ -115,7 +117,7 @@
                 </div>
                 <div *ngIf="archivedProjectsAccordionVisible">
                     @for (project of archivedProjects; track project) {
-                        <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'"></app-project-item>
+                        <app-project-item [role]="role" [id]="project.id" [projectName]="project.title" [starred]="project.starred" [dueDate]="project.dueDate.toDateString()" [progressBarProgress]="70" [progressBarColor]="'#FFCF32'" [isArchived]="true"></app-project-item>
                     }
                     @if (archivedProjects.length == 0) {
                         <p>No archived projects!</p>

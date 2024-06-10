@@ -1,0 +1,37 @@
+<div style="display: flex; flex-direction: row;">
+    <div *ngFor="let week of weeklyData">
+        <div style="display: flex; flex-direction: column; position: relative; margin-top: 25px">
+            <div *ngIf="week[0].date.getDate() < 7"
+            style="font-size: small; position: absolute; top: -16px; left: 5px; color: #888">
+                {{week[0].date.toLocaleString('default', { month: 'long' })[0]}}
+            </div>
+            <div *ngFor="let day of week" [matTooltip]="day.date.toDateString() + '\n' + day.activities + ' activities'" matTooltipClass="pre-line">
+                <div class="block" [style]="'background-color: '+getColor(day)+';'">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="height: 16px;"></div>
+<div style="display: flex; flex-direction: row">
+    <div matTooltip="No activities">
+        <div class="block" [style.background-color]="getColor({activities: 0, date: weeklyData[0][0].date})">
+        </div>
+    </div>
+    <div matTooltip="1-9 activities">
+        <div class="block" [style.background-color]="getColor({activities: 1, date: weeklyData[0][0].date})">
+        </div>
+    </div>
+    <div matTooltip="10-19 activities">
+        <div class="block" [style.background-color]="getColor({activities: 10, date: weeklyData[0][0].date})">
+        </div>
+    </div>
+    <div matTooltip="20-29 activities">
+        <div class="block" [style.background-color]="getColor({activities: 20, date: weeklyData[0][0].date})">
+        </div>
+    </div>
+    <div matTooltip="30+ activities">
+        <div class="block" [style.background-color]="getColor({activities: 30, date: weeklyData[0][0].date})">
+        </div>
+    </div>
+</div>

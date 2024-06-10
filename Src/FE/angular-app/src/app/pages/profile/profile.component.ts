@@ -19,13 +19,14 @@ import { AvatarService } from '../../services/avatar.service';
 import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
+import { ContributionGraphComponent } from '../../components/contribution-graph/contribution-graph.component';
 // import { environment } from '../../environments/environment';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, TaskCardComponent, ProjectItemComponent, MarkdownModule],
+  imports: [ContributionGraphComponent, TopnavComponent, MaterialModule, MatDividerModule, EditableNameComponent, CommonModule, ActivityItemComponent, TaskCardComponent, ProjectItemComponent, MarkdownModule],
   providers: [provideMarkdown()],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
@@ -37,6 +38,9 @@ export class ProfileComponent {
 
   allTasksAccordionVisible: boolean = false;
   allProjectsAccordionVisible: boolean = false;
+  activityAccordionVisible: boolean = false;
+
+  profileImg?: any
 
   get tasks() {
     return this.taskService.getTasks();
@@ -47,10 +51,12 @@ export class ProfileComponent {
   }
   
   activities: any[] = [];
-  
+  activityData: number[] | undefined = undefined;
   paginatorLen = 0
   paginatorPageSize = 5
   viewActivities: any[] = []
+
+  isSuperUser: boolean = false;
   
   timestamp: number = Date.now();
   getProfileImagePath(){
@@ -89,7 +95,19 @@ export class ProfileComponent {
     if(this.projects.length != 0) this.allProjectsAccordionVisible = true;
     this.activities = this.activities.sort((a: any, b: any) => a.time > b.time ? -1 : 1)
     this.paginatorLen = this.activities.length
-    this.viewActivities = this.activities.slice(0, this.paginatorPageSize)
+    this.viewActivities = this.activities.slice(0, this.paginatorPageSize);
+    this.activityData = this.activities.map((a) => {
+      return new Date(a.time).getTime();
+    });
+    if(this.viewActivities.length != 0) this.activityAccordionVisible = true;
+
+    this.profileImg = await this.getProfileImagePath()
+    console.log("this.activityData", this.activityData);
+
+    let role = await this.userService.userRole(this.loggedInUser!);
+    if(role.roleId == 1) {
+      this.isSuperUser = true;
+    }
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){
@@ -124,10 +142,10 @@ export class ProfileComponent {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
+      this.profileImg = reader.result
       const base64String = reader.result?.toString().split(',')[1];
       if(!base64String) return;
       console.log("base64String", base64String);
-      // Now you have the base64 string of the image
       this.uploadImage(base64String, "./test-image-02.jpg");
     };
   }
@@ -138,6 +156,10 @@ export class ProfileComponent {
   
   toggleProjects() {
     this.allProjectsAccordionVisible = !this.allProjectsAccordionVisible;
+  }
+
+  toggleActivity() {
+    this.activityAccordionVisible = !this.activityAccordionVisible;
   }
   
   pageChange(e: PageEvent){

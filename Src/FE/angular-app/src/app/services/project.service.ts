@@ -126,6 +126,7 @@ export class ProjectService {
       });
       this.updateProgresses();
     } catch (e) {
+      this.projects = [];
       console.log(e);
     }
     return false;
@@ -282,6 +283,27 @@ export class ProjectService {
           environment.apiUrl +
             `/Projects/allUserActivities`,
             {},
+            {
+              ...environment.httpOptions,
+            }
+        )
+      );
+      return res.body;
+    } catch (e) {
+      console.log(e);
+    }
+    return [];
+  }
+
+  async allUserActivitiesById(userId: number): Promise<any[]> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<any>(
+          environment.apiUrl +
+            `/Projects/allUserActivitiesById`,
+            {
+              userId: userId,
+            },
             {
               ...environment.httpOptions,
             }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { TopnavComponent } from '../../components/topnav/topnav.component';
 import { ProjectItemComponent } from '../../components/project-item/project-item.component';
 import { NgClass, NgIf } from '@angular/common';
@@ -21,6 +21,8 @@ import { UserService } from '../../services/user.service';
 })
 
 export class HomeComponent {
+  @ViewChild(NgxganttComponent) ngxGanttComponent!: NgxganttComponent;
+
   GanttType = GanttType;
   search: string = "";
   role: any = {}
@@ -28,7 +30,7 @@ export class HomeComponent {
   // userId: number;
 
   filters: Map<string, Filter> = new Map<string, Filter>([
-    ["DueDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
+    ["StartDateAfter", new Filter({ name: 'Start date', icon: 'fa-regular fa-calendar', type: 'date' })],
     ["DueDateBefore", new Filter({ name: 'Due date', icon: 'fa-solid fa-flag-checkered', type: 'date' })],
     // ["AssignedTo", new Filter({ name: 'Assigned to', icon: 'fa-solid fa-user', type: 'select', items: [ new Item({ value: "1", name: "Test" })]})],
   ]);
@@ -41,7 +43,7 @@ export class HomeComponent {
     return Object.keys(this.localStorageService.getData("project_filters")).length;
   }
 
-  constructor(private userService: UserService, private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService, private dialog: MatDialog) {
+  constructor(private userService: UserService, private projectService: ProjectService, private dialogue: MatDialog, private localStorageService: LocalStorageService, private dialog: MatDialog, private cdr: ChangeDetectorRef) {
     this.dialog.closeAll();
   }
 
@@ -70,7 +72,7 @@ export class HomeComponent {
       this.viewType = this.localStorageService.getData("home_projects_view");
     }
 
-    await this.projectService.fetchProjectsLocalStorage('archived_project_filters');
+    await this.projectService.fetchProjectsLocalStorage('project_filters');
     // await this.projectService.fetchStarredProjects();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
     this.role = await this.userService.currentUserRole()
@@ -82,6 +84,8 @@ export class HomeComponent {
 
   async fetchProjectsFromLocalStorage() {
     await this.projectService.fetchProjectsLocalStorage('project_filters');
+    this.ngxGanttComponent.updateProjects();
+    this.cdr.detectChanges();
     // this.projects = this.projectService.getProjects().filter(project => !project.archived);
   }
 

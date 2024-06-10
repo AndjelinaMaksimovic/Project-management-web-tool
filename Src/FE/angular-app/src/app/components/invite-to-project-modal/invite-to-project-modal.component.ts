@@ -65,7 +65,7 @@ class Role{
     MatPaginatorModule,
   ],
 })
-export class InviteToProjectModalComponent implements OnInit, AfterViewInit{
+export class InviteToProjectModalComponent implements OnInit{
   constructor(
     private dialogue: MatDialog,
     private projectService: ProjectService,
@@ -96,9 +96,6 @@ export class InviteToProjectModalComponent implements OnInit, AfterViewInit{
   @ViewChild(MatSort) sort!: MatSort;
 
   async ngOnInit() {
-  }
-
-  async ngAfterViewInit() {
     this.permissions = [
       {name: 'Add new user', value: 'CanAddNewUser', selected: true},
       {name: 'Invite user to project', value: 'CanAddUserToProject', selected: false},

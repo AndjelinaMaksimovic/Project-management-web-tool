@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material/material.module';
@@ -41,6 +41,8 @@ import { UserService } from '../../services/user.service';
   styleUrl: './my-tasks.component.css',
 })
 export class MyTasksComponent {
+  search: string = "";
+
   filters: Map<string, Filter> = new Map<string, Filter>();
 
   isFilterOpen: boolean = false;
@@ -64,16 +66,9 @@ export class MyTasksComponent {
     this.dialog.closeAll();
   }
 
-  async ngOnInit() {
-    await this.route.params.subscribe((params) => {
-      this.projectId = parseInt(params['id']);
-    });
-
-    await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
-    this.isLoading = false;
-    this.milestoneService.fetchMilestones({ projectId: this.projectId });
-    
-    await this.userService.fetchUsersByProject(this.projectId);
+  async refreshFilters() {
+    await this.statusService.fetchStatuses();
+    await this.priorityService.fetchPriorities();
 
     let users : Array<any> = Array<any>({ value: '', name: 'All'});
     users.push(...this.userService.getUsers().map(user => ({ value: user.id, name: user.firstName + ' ' + user.lastName })));
@@ -87,6 +82,19 @@ export class MyTasksComponent {
       ["Archived", new Filter({ name: 'Archived', icon: 'fa-solid fa-box-archive', type: 'bool', value: "true"})],
       ["AssignedTo", new Filter({ name: 'AssignedTo', icon: 'fa-regular fa-user', type: 'select', items: users })]
     ]);
+  }
+
+  async ngOnInit() {
+    await this.route.params.subscribe((params) => {
+      this.projectId = parseInt(params['id']);
+    });
+
+    await this.taskService.fetchTasksFromLocalStorage(this.projectId, "task_filters");
+    this.isLoading = false;
+    this.milestoneService.fetchMilestones({ projectId: this.projectId });
+    
+    await this.userService.fetchUsersByProject(this.projectId);
+    await this.refreshFilters();
 
     this.role = await this.userService.currentUserRole(this.projectId)
     console.log(this.role)
@@ -97,7 +105,7 @@ export class MyTasksComponent {
   }
 
   get tasks() {
-    return this.taskService.getTasks();
+    return this.taskService.getTasks().filter(task => task.title.toLowerCase().includes(this.search.toLocaleLowerCase()) || task.description.toLowerCase().includes(this.search.toLocaleLowerCase()));
   }
   get milestones() {
     return this.milestoneService.getMilestones();
@@ -122,10 +130,18 @@ export class MyTasksComponent {
   }
 
   createStatus() {
-    this.dialog.open(CreateStatusModalComponent);
+    const dialogRef = this.dialog.open(CreateStatusModalComponent);
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.refreshFilters();
+    });
   }
   createCategory() {
-    this.dialog.open(CreateCategoryModalComponent);
+    const dialogRef = this.dialog.open(CreateCategoryModalComponent);
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.refreshFilters();
+    });
   }
 
   openFilters() {

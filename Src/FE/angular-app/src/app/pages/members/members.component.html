@@ -36,29 +36,30 @@
         </div>
         <ng-container *ngFor="let role of roles | keyvalue">
             <div class="container row align-left pl-l pl-r mt-20">
-                <div class="accordion" [attr.id]="'role_' + role.key">
-                    <div class="accordion-item accordion-header" (click)="toggleAccordion(role.key);">
-                        <i *ngIf="role.value.active" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
-                        <i *ngIf="!role.value.active" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
-                        <span>{{role.value.name}}</span>
+                @if (role.value.members.length > 0) {
+                    <div class="accordion" [attr.id]="'role_' + role.key">
+                        <div class="accordion-item accordion-header" (click)="toggleAccordion(role.key);">
+                            <i *ngIf="role.value.active" class="fa-solid fa-chevron-down fa-xs mr-10"></i>
+                            <i *ngIf="!role.value.active" class="fa-solid fa-chevron-right fa-xs mr-10"></i>
+                            <span>{{role.value.name}}</span>
+                        </div>
+                        <div class="member-container" *ngIf="role.value.active">
+                            @for (member of role.value.members; track member) {
+                                <div class="member-item-container hover" [style.cursor]="myRole.canAddNewUser ? 'unset' : 'pointer'" (click)="openMember(member.id)">
+                                    <img class="circle-image" src={{member.image}} onerror="this.src='/assets/default-user.jpg'">
+                                    <p class="name">{{member.firstname}} {{member.lastname}}</p>
+                                    <p class="desc"></p>
+                                    <i *ngIf="isProject ? myRole.canRemoveUserFromProject : myRole.canAddNewUser" class="fa-solid fa-arrow-right-from-bracket icon" style="margin: auto;" matTooltip="Remove user from project" (click)="removeUser($event, member);"></i>
+                                </div>
+                                
+                                <!-- <app-member-item [name]="member.firstname + ' ' + member.lastname" [desc]="''" [image]="member.image" (click)="openMember(member.id)" [showRemoveIcon]="isProject"></app-member-item> -->
+                            }
+                            @if (role.value.members.length == 0) {
+                                <p>No {{role.value.name}} found!</p>
+                            }
+                        </div>
                     </div>
-                    <div class="member-container" *ngIf="role.value.active">
-                        @for (member of role.value.members; track member) {
-                            <div class="member-item-container hover" (click)="openMember(member.id)">
-                                <img class="circle-image" src={{member.image}} onerror="this.src='/assets/default-user.jpg'">
-                                <p class="name">{{member.firstname}} {{member.lastname}}</p>
-                                <p class="desc"></p>
-                                <i *ngIf="isProject && myRole.canRemoveUserFromProject" class="fa-solid fa-arrow-right-from-bracket icon" style="margin: auto;" matTooltip="Remove user from project" (click)="removeUser($event, member);"></i>
-                                <i *ngIf="!isProject && myRole.canRemoveUserFromProject" class="fa-solid fa-arrow-right-from-bracket icon" style="margin: auto;" matTooltip="Remove user from organization" (click)="removeUserFromOrganization($event, member);"></i>
-                            </div>
-                            
-                            <!-- <app-member-item [name]="member.firstname + ' ' + member.lastname" [desc]="''" [image]="member.image" (click)="openMember(member.id)" [showRemoveIcon]="isProject"></app-member-item> -->
-                        }
-                        @if (role.value.members.length == 0) {
-                            <p>No {{role.value.name}} found!</p>
-                        }
-                    </div>
-                </div>
+                }
             </div>
         </ng-container>
     </div>
