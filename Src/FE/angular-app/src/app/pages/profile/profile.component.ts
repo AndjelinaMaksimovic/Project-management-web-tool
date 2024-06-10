@@ -55,6 +55,8 @@ export class ProfileComponent {
   paginatorLen = 0
   paginatorPageSize = 5
   viewActivities: any[] = []
+
+  isSuperUser: boolean = false;
   
   timestamp: number = Date.now();
   getProfileImagePath(){
@@ -101,6 +103,11 @@ export class ProfileComponent {
 
     this.profileImg = await this.getProfileImagePath()
     console.log("this.activityData", this.activityData);
+
+    let role = await this.userService.userRole(this.loggedInUser!);
+    if(role.roleId == 1) {
+      this.isSuperUser = true;
+    }
   }
 
   async sendDataToServer(data: {userId: string, imageBytes: string, imageName: string}){

@@ -112,6 +112,8 @@ export class MembersComponent implements OnInit {
   }
 
   async init(){
+    this.roles = new Map<number, Role>();
+
     if(this.isProject) {
       // let onlyRoles = await this.rolesService.getProjectRoles(this.projectId);
       // onlyRoles?.forEach((val, index) => {

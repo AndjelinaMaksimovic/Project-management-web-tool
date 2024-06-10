@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 export type User = {
   email: string;
@@ -45,7 +46,7 @@ export class UserService {
     observe: 'response' as 'response',
   };
 
-  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar, private router: Router) {}
   public getUsers() {
     return this.users;
   }
@@ -154,9 +155,7 @@ export class UserService {
           {
             userId: userId,
           },
-          {
-            ...this.httpOptions
-          }
+          this.httpOptions
         )
       );
       return res.body

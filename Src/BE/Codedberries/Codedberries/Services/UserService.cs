@@ -290,7 +290,45 @@ namespace Codedberries.Services
                                     && u.Role.CanEditTask));
             */
 
-            var users = await usersQuery
+            
+            if(body.ProjectId != null)
+            {
+                var users = usersQuery.AsEnumerable()
+                .Select(u =>
+                {
+                    RolePermissionDTO? customRole = GetCurrentProjectUserRoleById(u.Id, (int)body.ProjectId);
+
+                    return new UserInformationDTO
+                    {
+                        Id = u.Id,
+                        Email = u.Email,
+                        Firstname = u.Firstname,
+                        Lastname = u.Lastname,
+                        Activated = u.Activated,
+                        ProfilePicture = u.ProfilePicture,
+                        RoleId = customRole != null ? customRole.RoleId : u.RoleId,
+                        RoleName = customRole != null ? customRole.RoleName : u.Role.Name,
+                        Projects = u.Projects.Select(p => new ProjectDTO
+                        {
+                            Id = p.Id,
+                            Name = p.Name,
+                            Description = p.Description,
+                            DueDate = p.DueDate,
+                            StartDate = p.StartDate
+                        }).ToList()
+                    };
+                }).ToList();
+
+                if (users.Count == 0)
+                {
+                    throw new InvalidOperationException("No users found in database!");
+                }
+
+                return users;
+            }
+            else
+            {
+                var users = await usersQuery
                 .Select(u => new UserInformationDTO
                 {
                     Id = u.Id,
@@ -311,12 +349,16 @@ namespace Codedberries.Services
                     }).ToList()
                 }).ToListAsync();
 
-            if (users.Count == 0)
-            {
-                throw new InvalidOperationException("No users found in database!");
-            }
+                if (users.Count == 0)
+                {
+                    throw new InvalidOperationException("No users found in database!");
+                }
 
-            return users;
+                return users;
+            }
+            
+
+            
         }
 
         /*
@@ -724,6 +766,42 @@ namespace Codedberries.Services
                 CanRemoveTask = userRole.CanRemoveTask,
                 CanEditTask = userRole.CanEditTask,
                 CanEditUser=userRole.CanEditUser,
+            };
+        }
+
+        public RolePermissionDTO GetCurrentProjectUserRoleById(int userId, int projectId)
+        {
+            var roleId = _databaseContext.UserProjects.FirstOrDefault(up => up.UserId == userId && up.ProjectId == projectId);
+
+            if (roleId == null)
+            {
+                return null;
+            }
+
+            Role userRole = _databaseContext.Roles.FirstOrDefault(r => r.Id == roleId.RoleId);
+
+
+            if (userRole == null)
+            {
+                return null;
+            }
+
+            return new RolePermissionDTO
+            {
+                RoleName = userRole.Name,
+                RoleId = userRole.Id,
+                CanAddNewUser = userRole.CanAddNewUser,
+                CanAddUserToProject = userRole.CanAddUserToProject,
+                CanRemoveUserFromProject = userRole.CanRemoveUserFromProject,
+                CanCreateProject = userRole.CanCreateProject,
+                CanDeleteProject = userRole.CanDeleteProject,
+                CanEditProject = userRole.CanEditProject,
+                CanViewProject = userRole.CanViewProject,
+                CanAddTaskToUser = userRole.CanAddTaskToUser,
+                CanCreateTask = userRole.CanCreateTask,
+                CanRemoveTask = userRole.CanRemoveTask,
+                CanEditTask = userRole.CanEditTask,
+                CanEditUser = userRole.CanEditUser,
             };
         }
 

@@ -74,7 +74,7 @@ export class NewProjectModalComponent {
       startDate: this.startDate.value.toDate(),
       dueDate: this.dueDate.value.toDate(),
     });
-    this.router.navigateByUrl(`/members/${r.projectId}`);
+    this.router.navigate(['/project/' + r.projectId+ '/members/'])
     this.dialogRef.close();
     return;
   }

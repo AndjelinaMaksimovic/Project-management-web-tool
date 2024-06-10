@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,7 @@ export class RolesService {
     observe: 'response' as 'response',
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
 
   public async getAllRoles() {
     try {
@@ -69,7 +70,12 @@ export class RolesService {
       )
       return r.body.roleId
     } catch (e) {
-      console.log(e)
+      console.log(e);
+      if(e instanceof HttpErrorResponse){
+        this.snackBar.open(e?.error?.errorMessage, undefined, {
+          duration: 2000,
+        });
+      }
       return false
     }
   }
