@@ -115,6 +115,13 @@ export class NewTaskComponent {
     });
     if (typeof this.projectId !== 'number') return;
     await this.taskService.fetchTasks({ projectId: this.projectId });
+
+    this.categoryService.setContext({ projectId: this.projectId });
+    this.statusService.setContext({ projectId: this.projectId });
+
+    await this.categoryService.fetchCategories();
+    await this.statusService.fetchStatuses();
+
     this._categories = this.categoryService.getCategories().map((cat) => {
       return {
         value: cat.id.toString(),
